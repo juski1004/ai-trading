@@ -22,7 +22,7 @@ AI 6명이 실제 시세로 국내·미국 주식을 분석하고 **가상 계�
 
 ## 진행 상황
 - [x] 가상 계좌 엔진 (`ai_trading/broker.py`)
-- [ ] AI 6명 분석
+- [x] AI 6명 분석: 무료 규칙 기반 (`ai_trading/agents.py`, `ai_trading/team.py`)
 - [ ] 자동 실행 스케줄러
 - [ ] 결과 리포트
 
@@ -30,4 +30,6 @@ AI 6명이 실제 시세로 국내·미국 주식을 분석하고 **가상 계�
 ```bash
 pip install -r requirements.txt
 python -m pytest
+python -m ai_trading.team            # 관심 종목 전체를 AI 6명이 분석
+python -m ai_trading.team AAPL 005930.KS
 ```

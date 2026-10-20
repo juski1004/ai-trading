@@ -28,6 +28,11 @@ def is_market_open(market: str, now: datetime | None = None) -> bool:
     return local.weekday() < 5 and start <= local.time() < end
 
 
+def index_of(symbol: str) -> str:
+    """종목이 속한 시장의 대표 지수: 코스피 또는 S&P500."""
+    return "^KS11" if market_of(symbol) == "KR" else "^GSPC"
+
+
 class MarketData(Protocol):
     def price(self, symbol: str) -> float: ...
     def usdkrw(self) -> float: ...
@@ -51,3 +56,10 @@ class YahooMarketData:
 
     def usdkrw(self) -> float:
         return self._last_close("KRW=X")
+
+    def history(self, symbol: str, period: str = "6mo"):
+        """일봉 (Open, High, Low, Close, Volume)."""
+        hist = self._yf.Ticker(symbol).history(period=period, interval="1d")
+        if hist.empty:
+            raise ValueError(f"차트 데이터를 찾을 수 없음: {symbol}")
+        return hist

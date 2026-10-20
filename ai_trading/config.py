@@ -25,3 +25,18 @@ class GameRules:
 
     # AI 분석 주기 (분)
     cycle_minutes: int = 30
+
+    # THEO 판정 기준 (가중 점수 -1 ~ +1)
+    buy_threshold: float = 0.30
+    sell_threshold: float = -0.30
+    max_volatility_pct: float = 5.0  # LLOYD: 하루 평균 변동폭(ATR)이 이보다 크면 매수 거절
+
+    # 분석 대상 종목
+    watchlist: tuple[str, ...] = (
+        "005930.KS",  # 삼성전자
+        "000660.KS",  # SK하이닉스
+        "005380.KS",  # 현대차
+        "035420.KS",  # NAVER
+        "035720.KS",  # 카카오
+        "AAPL", "MSFT", "NVDA", "AMZN", "GOOGL",
+    )
