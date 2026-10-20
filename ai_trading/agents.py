@@ -33,9 +33,13 @@ class Verdict:
     opinions: list[Opinion]
     risk: RiskCheck
     plan: dict = field(default_factory=dict)
+    source: str = "규칙"   # "규칙" 또는 "AI"
+    reason: str = ""
 
     def explain(self) -> str:
-        lines = [f"[{self.symbol}] THEO 판정: {self.action} (점수 {self.score:+.2f}, 수량 {self.qty})"]
+        lines = [f"[{self.symbol}] THEO 판정: {self.action} (점수 {self.score:+.2f}, 수량 {self.qty}, {self.source})"]
+        if self.reason:
+            lines.append(f"  THEO  {self.reason}")
         lines += [f"  {o.agent:<5} {o.score:+.2f}  {o.summary}" for o in self.opinions]
         lines.append(f"  LLOYD {'통과' if self.risk.approved else '거절'}  {'; '.join(self.risk.reasons)}")
         return "\n".join(lines)
@@ -161,3 +165,42 @@ def theo(symbol: str, opinions: list[Opinion], risk: RiskCheck, rules: GameRules
     else:
         action, qty = "HOLD", 0
     return Verdict(symbol, action, round(score, 3), qty, opinions, risk, plan)
+
+
+# ---------------- THEO + 무료 AI ----------------
+THEO_PROMPT = """너는 주식 모의투자 팀의 최종 판정자 THEO다.
+팀원 의견(점수 -1~+1)과 리스크 점검 결과를 보고 판정하라.
+
+종목: {symbol} / 현재 보유: {held}
+팀원 의견:
+{opinions}
+LLOYD 리스크 점검: {risk}
+진입 계획: {plan}
+규칙 기반 판정(참고): {rule_action} (가중 점수 {score:+.2f})
+
+규칙:
+- LLOYD가 거절하면 BUY 금지.
+- 보유하지 않은 종목은 SELL 불가.
+- 확신이 없으면 HOLD.
+
+JSON으로만 답하라: {{"action": "BUY|SELL|HOLD", "reason": "한국어 한두 문장"}}"""
+
+
+def theo_ai(llm, rule: Verdict, *, held: bool, max_qty: int) -> Verdict:
+    """AI가 최종 판정. 안전 규칙은 코드에서 다시 강제하고, 실패하면 규칙 판정 유지."""
+    prompt = THEO_PROMPT.format(
+        symbol=rule.symbol, held="예" if held else "아니오",
+        opinions="\n".join(f"- {o.agent}: {o.score:+.2f} {o.summary}" for o in rule.opinions),
+        risk=("통과 " if rule.risk.approved else "거절 ") + "; ".join(rule.risk.reasons),
+        plan=rule.plan, rule_action=rule.action, score=rule.score,
+    )
+    ans = llm.ask_json(prompt) if llm else None
+    if not isinstance(ans, dict) or ans.get("action") not in ("BUY", "SELL", "HOLD"):
+        return rule
+    action, reason = ans["action"], str(ans.get("reason", ""))[:300]
+    if action == "BUY" and not (rule.risk.approved and max_qty > 0):
+        action, reason = "HOLD", f"(AI는 매수 의견이나 LLOYD 거절로 보류) {reason}"
+    if action == "SELL" and not held:
+        action = "HOLD"
+    qty = max_qty if action == "BUY" else 0
+    return Verdict(rule.symbol, action, rule.score, qty, rule.opinions, rule.risk, rule.plan, "AI", reason)

@@ -23,6 +23,9 @@ AI 6명이 실제 시세로 국내·미국 주식을 분석하고 **가상 계�
 ## 진행 상황
 - [x] 가상 계좌 엔진 (`ai_trading/broker.py`)
 - [x] AI 6명 분석: 무료 규칙 기반 (`ai_trading/agents.py`, `ai_trading/team.py`)
+- [x] 무료 AI 연결: THEO가 구글 Gemini 무료 등급으로 최종 판정 (`ai_trading/llm.py`)
+  - `GEMINI_API_KEY` 환경변수가 없거나 실패하면 규칙 기반으로 자동 전환
+  - AI도 LLOYD의 거절을 무시할 수 없음 (코드에서 강제)
 - [ ] 자동 실행 스케줄러
 - [ ] 결과 리포트
 

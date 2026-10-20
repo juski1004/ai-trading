@@ -59,3 +59,41 @@ def test_theo_sells_held_on_bad_score():
     ops = [joy(DOWN, "X"), oscar(DOWN), ray(DOWN), miles(DOWN, R, 0)[0]]
     v = theo("A", ops, RiskCheck(False, []), R, held=True, max_qty=0, plan={})
     assert v.action == "SELL"
+
+
+from ai_trading.agents import theo_ai
+
+
+class FakeLLM:
+    def __init__(self, answer):
+        self.answer, self.prompts = answer, []
+
+    def ask_json(self, prompt):
+        self.prompts.append(prompt)
+        return self.answer
+
+
+def _rule(risk_ok=True):
+    ops = [joy(UP, "X"), oscar(UP), ray(UP), miles(UP, R, 3)[0]]
+    return theo("A", ops, RiskCheck(risk_ok, ["x"]), R, held=False, max_qty=3, plan={})
+
+
+def test_ai_verdict_used():
+    v = theo_ai(FakeLLM({"action": "HOLD", "reason": "관망"}), _rule(), held=False, max_qty=3)
+    assert v.action == "HOLD" and v.source == "AI" and v.reason == "관망"
+
+
+def test_ai_cannot_override_lloyd():
+    v = theo_ai(FakeLLM({"action": "BUY", "reason": "가자"}), _rule(risk_ok=False), held=False, max_qty=3)
+    assert v.action == "HOLD"
+
+
+def test_ai_cannot_sell_unheld():
+    v = theo_ai(FakeLLM({"action": "SELL"}), _rule(), held=False, max_qty=3)
+    assert v.action == "HOLD"
+
+
+def test_ai_failure_falls_back_to_rules():
+    rule = _rule()
+    assert theo_ai(FakeLLM(None), rule, held=False, max_qty=3) is rule
+    assert theo_ai(FakeLLM({"action": "MOON"}), rule, held=False, max_qty=3) is rule
