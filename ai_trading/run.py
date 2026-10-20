@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 from datetime import date, datetime
 from pathlib import Path
 
@@ -21,7 +22,7 @@ JOURNAL = GAME_DIR / "journal.md"
 
 def _log(text: str) -> None:
     GAME_DIR.mkdir(exist_ok=True)
-    with JOURNAL.open("a") as f:
+    with JOURNAL.open("a", encoding="utf-8") as f:
         f.write(text + "\n")
     print(text)
 
@@ -42,7 +43,32 @@ def start(days: int) -> None:
          f"- 시작 자금: {b.acct.cash_krw:,.0f}원\n")
 
 
-def cycle(now: datetime | None = None, market=None, llm=None) -> None:
+def _context(market, symbols: list[str]) -> dict:
+    """거시지표와 종목 뉴스 점수. 실패해도 매매는 계속."""
+    from .data.universe import fetch_listing_safe
+    from .signals import collect_news, macro_snapshot, news_score
+
+    ctx: dict = {"macro": macro_snapshot(market), "news": {}}
+    try:
+        names = {c + s: n for c, n, _, s in fetch_listing_safe()}
+        for sym, items in collect_news({s: names.get(s, s) for s in symbols}).items():
+            sc = news_score(items)
+            if sc:
+                ctx["news"][sym] = sc
+    except Exception as e:
+        print(f"[뉴스 실패, 시세 규칙만 사용] {type(e).__name__}: {str(e)[:100]}")
+    return ctx
+
+
+def _save_verdicts(verdicts, now: datetime) -> None:
+    rows = [{"symbol": v.symbol, "action": v.action, "score": v.score, "qty": v.qty, "source": v.source, "reason": v.reason,
+             "opinions": [{"agent": o.agent, "score": round(o.score, 3), "summary": o.summary} for o in v.opinions],
+             "risk": {"approved": v.risk.approved, "reasons": v.risk.reasons}, "plan": v.plan} for v in verdicts]
+    (GAME_DIR / "verdicts.json").write_text(json.dumps({"time": now.isoformat(timespec="minutes"), "verdicts": rows},
+                                                       ensure_ascii=False, indent=1), encoding="utf-8")
+
+
+def cycle(now: datetime | None = None, market=None, llm=None, with_context: bool = True) -> None:
     from .team import analyze
 
     now = now or datetime.now(tz=KST)
@@ -64,10 +90,11 @@ def cycle(now: datetime | None = None, market=None, llm=None) -> None:
     symbols = [s for s in dict.fromkeys([*b.rules.watchlist, *b.acct.positions])
                if market_of(s) in open_markets]
     cache: dict = {}
+    ctx = _context(market, symbols) if with_context else {}
     verdicts = []
     for s in symbols:
         try:
-            verdicts.append(analyze(s, b, cache, llm))
+            verdicts.append(analyze(s, b, cache, llm, ctx))
         except Exception as e:  # 데이터 오류 하나로 전체가 멈추지 않게
             _log(f"- ⚠️ {s} 분석 실패: {e}")
 
@@ -84,6 +111,7 @@ def cycle(now: datetime | None = None, market=None, llm=None) -> None:
         except OrderRejected as e:
             _log(f"- ⛔ {v.symbol} 주문 거절: {e}")
 
+    _save_verdicts(verdicts, now)
     holds = [f"{v.symbol}({v.score:+.2f})" for v in verdicts if v.action == "HOLD"]
     if holds:
         _log(f"- 관망: {', '.join(holds)}")
@@ -131,7 +159,7 @@ def report(market=None) -> str:
             chg = (market.price(s) / p.avg_price - 1) * 100
             lines.append(f"  - {s} {p.qty}주 ({chg:+.1f}%)")
     text = "\n".join(lines)
-    (GAME_DIR / "report.md").write_text(text + "\n")
+    (GAME_DIR / "report.md").write_text(text + "\n", encoding="utf-8")
     return text
 
 

@@ -43,21 +43,22 @@ def game(tmp_path, monkeypatch):
 
 def test_cycle_buys_only_open_market(game):
     path, m = game
-    run.cycle(datetime(2026, 10, 20, 10, 0, tzinfo=KST), market=m)  # 한국 장중, 미국 장 닫힘
+    run.cycle(datetime(2026, 10, 20, 10, 0, tzinfo=KST), market=m, with_context=False)  # 한국 장중
     acct = Account.load(path / "state.json")
-    assert acct.positions and all(s.endswith(".KS") for s in acct.positions)
+    assert acct.positions and all(s.endswith((".KS", ".KQ")) for s in acct.positions)
+    assert (path / "verdicts.json").exists()
     assert len(acct.positions) <= 5
-    assert "총자산" in (path / "journal.md").read_text()
+    assert "총자산" in (path / "journal.md").read_text(encoding="utf-8")
 
 
 def test_cycle_does_nothing_when_closed(game):
     path, m = game
-    run.cycle(datetime(2026, 10, 25, 12, 0, tzinfo=KST), market=m)  # 일요일
+    run.cycle(datetime(2026, 10, 25, 12, 0, tzinfo=KST), market=m, with_context=False)  # 일요일
     assert Account.load(path / "state.json").trades == []
 
 
 def test_report(game):
     path, m = game
-    run.cycle(datetime(2026, 10, 20, 10, 0, tzinfo=KST), market=m)
+    run.cycle(datetime(2026, 10, 20, 10, 0, tzinfo=KST), market=m, with_context=False)
     text = run.report(market=m)
     assert "수익률" in text and (path / "report.md").exists()

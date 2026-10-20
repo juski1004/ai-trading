@@ -50,11 +50,11 @@ class Account:
     # ---------- 저장 / 불러오기 ----------
     def save(self, path: Path) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(asdict(self), ensure_ascii=False, indent=2))
+        path.write_text(json.dumps(asdict(self), ensure_ascii=False, indent=2), encoding="utf-8")
 
     @classmethod
     def load(cls, path: Path) -> "Account":
-        raw = json.loads(path.read_text())
+        raw = json.loads(path.read_text(encoding="utf-8"))
         raw["positions"] = {k: Position(**v) for k, v in raw["positions"].items()}
         raw["trades"] = [Trade(**t) for t in raw["trades"]]
         return cls(**raw)

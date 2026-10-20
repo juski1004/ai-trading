@@ -97,3 +97,37 @@ def test_ai_failure_falls_back_to_rules():
     rule = _rule()
     assert theo_ai(FakeLLM(None), rule, held=False, max_qty=3) is rule
     assert theo_ai(FakeLLM({"action": "MOON"}), rule, held=False, max_qty=3) is rule
+
+
+from ai_trading.signals import Macro, macro_from, news_score
+from ai_trading.data.sentiment import headline_score
+
+
+def test_macro_bad_conditions_score_negative():
+    assert macro_from(fx20=3, oil20=20, rate20_bp=40, vix=30, cpi_change=0.3).score < -0.5
+    assert macro_from(fx20=-2, oil20=-10, rate20_bp=-30, vix=13).score > 0.3
+
+
+def test_joy_blends_macro():
+    plain = joy(UP, "X")
+    worse = joy(UP, "X", Macro(-1.0, "나쁨"))
+    assert worse.score < plain.score and "나쁨" in worse.summary
+
+
+def test_oscar_uses_news():
+    flat = chart([100] * 31)
+    assert oscar(flat, (1.0, "대규모 수주")).score > oscar(flat).score
+    assert oscar(flat, (-1.0, "리콜")).score < oscar(flat).score
+
+
+def test_news_score_recent_only():
+    from datetime import date
+    items = [{"date": "2026-10-19", "title": "공급 계약 체결", "score": 1}, {"date": "2026-09-01", "title": "리콜", "score": -1}]
+    s, title = news_score(items, today=date(2026, 10, 20))
+    assert s > 0 and "공급" in title
+    assert news_score([], today=date(2026, 10, 20)) is None
+
+
+def test_headline_score():
+    assert headline_score("삼성전자, 북미 고객사와 공급계약 체결") == 1
+    assert headline_score("○○제약, 임상 실패로 주가 급락") == -1
