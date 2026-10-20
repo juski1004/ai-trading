@@ -66,17 +66,31 @@ def atr_pct(df: pd.DataFrame, n: int = 14) -> float:
 
 
 # ---------------- JOY: 시장 리포트 ----------------
-def joy(index_df: pd.DataFrame, index_name: str) -> Opinion:
+def joy(index_df: pd.DataFrame, index_name: str, macro=None) -> Opinion:
+    """지수 흐름 + (있으면) 환율·유가·금리·VIX·물가 같은 거시지표."""
     c = index_df["Close"]
     last, ma20, ma60 = c.iloc[-1], c.rolling(20).mean().iloc[-1], c.rolling(60).mean().iloc[-1]
     chg5 = (last / c.iloc[-6] - 1) * 100
     score = 0.4 * (1 if last > ma20 else -1) + 0.3 * (1 if ma20 > ma60 else -1) + 0.3 * _clamp(chg5 / 3)
     mood = "상승 흐름" if score > 0.2 else "하락 흐름" if score < -0.2 else "방향 없음"
-    return Opinion("JOY", _clamp(score), f"{index_name} {mood}, 5일 {chg5:+.1f}%")
+    text = f"{index_name} {mood}, 5일 {chg5:+.1f}%"
+    if macro is not None:
+        score = 0.5 * _clamp(score) + 0.5 * macro.score
+        text += f" · {macro.summary}"
+    return Opinion("JOY", _clamp(score), text)
 
 
 # ---------------- OSCAR: 거래소 데이터 ----------------
-def oscar(df: pd.DataFrame) -> Opinion:
+def oscar(df: pd.DataFrame, news: tuple[float, str] | None = None) -> Opinion:
+    """거래량·가격 + (있으면) 최근 5일 뉴스·공시 점수 (-1~+1, 대표 제목)."""
+    op = _oscar_flow(df)
+    if news is None or not news[1]:
+        return op
+    score, title = news
+    return Opinion("OSCAR", _clamp(0.6 * op.score + 0.4 * score), f"{op.summary} · {'호재' if score > 0 else '악재' if score < 0 else '중립'} 뉴스: {title[:40]}")
+
+
+def _oscar_flow(df: pd.DataFrame) -> Opinion:
     c, v = df["Close"], df["Volume"]
     avg_vol = v.iloc[-21:-1].mean()
     vol_ratio = float(v.iloc[-1] / avg_vol) if avg_vol else 1.0

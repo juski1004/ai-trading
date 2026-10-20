@@ -1,6 +1,8 @@
 """게임 규칙. 숫자는 여기서만 바꾸면 된다."""
 from dataclasses import dataclass
 
+from .data.universe import DEFAULT_UNIVERSE
+
 
 @dataclass(frozen=True)
 class GameRules:
@@ -32,11 +34,5 @@ class GameRules:
     max_volatility_pct: float = 5.0  # LLOYD: 하루 평균 변동폭(ATR)이 이보다 크면 매수 거절
 
     # 분석 대상 종목
-    watchlist: tuple[str, ...] = (
-        "005930.KS",  # 삼성전자
-        "000660.KS",  # SK하이닉스
-        "005380.KS",  # 현대차
-        "035420.KS",  # NAVER
-        "035720.KS",  # 카카오
-        "AAPL", "MSFT", "NVDA", "AMZN", "GOOGL",
-    )
+    # 분석 대상 종목: 코스피·코스닥 대형주 (ai_trading/data/universe.py, AI_UNIVERSE 환경변수로 변경)
+    watchlist: tuple[str, ...] = DEFAULT_UNIVERSE

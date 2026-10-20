@@ -8,7 +8,9 @@ from .market import index_of
 INDEX_NAMES = {"^KS11": "코스피", "^GSPC": "S&P500"}
 
 
-def analyze(symbol: str, broker: VirtualBroker, index_cache: dict | None = None, llm=None) -> Verdict:
+def analyze(symbol: str, broker: VirtualBroker, index_cache: dict | None = None, llm=None, ctx: dict | None = None) -> Verdict:
+    """ctx: {'macro': Macro, 'news': {심볼: (점수, 제목)}} (없으면 시세 규칙만 사용)"""
+    ctx = ctx or {}
     market, rules = broker.market, broker.rules
     index_cache = index_cache if index_cache is not None else {}
     idx = index_of(symbol)
@@ -19,7 +21,8 @@ def analyze(symbol: str, broker: VirtualBroker, index_cache: dict | None = None,
     held = symbol in broker.acct.positions
     max_qty = broker.max_buy_qty(symbol)
 
-    opinions = [joy(index_cache[idx], INDEX_NAMES[idx]), oscar(df), ray(df)]
+    macro = ctx.get("macro") if idx == "^KS11" else None
+    opinions = [joy(index_cache[idx], INDEX_NAMES[idx], macro), oscar(df, ctx.get("news", {}).get(symbol)), ray(df)]
     m_op, plan = miles(df, rules, max_qty)
     opinions.append(m_op)
     risk = lloyd(df, rules, held=held, n_positions=len(broker.acct.positions),

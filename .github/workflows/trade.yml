@@ -2,15 +2,15 @@ name: AI 모의투자 게임
 
 on:
   schedule:
-    - cron: "*/30 0-6 * * 1-5"    # 한국 장 (KST 09:00~15:30)
-    - cron: "*/30 13-21 * * 1-5"  # 미국 장 (서머타임 여부와 상관없이 커버)
+    - cron: "0 6 * * 1-5"    # 매매: 평일 15:00 KST (장 마감 30분 전, 스윙이라 하루 한 번)
+    - cron: "20 7 * * 1-5"   # 화면 데이터 갱신: 평일 16:20 KST (장 마감 후)
   workflow_dispatch:
     inputs:
       command:
-        description: "start / cycle / report"
+        description: "start / cycle / report / data"
         default: cycle
         type: choice
-        options: [start, cycle, report]
+        options: [start, cycle, report, data]
       days:
         description: "start 할 때 투자 기간 (7~90일)"
         default: "30"
@@ -25,7 +25,13 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+      ECOS_API_KEY: ${{ secrets.ECOS_API_KEY }}
+      DART_API_KEY: ${{ secrets.DART_API_KEY }}
+      CMD: ${{ inputs.command || (github.event.schedule == '20 7 * * 1-5' && 'data') || 'cycle' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -34,20 +40,31 @@ jobs:
           cache: pip
       - run: pip install -r requirements.txt
       - name: 실행
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          CMD="${{ inputs.command || 'cycle' }}"
           if [ "$CMD" = "start" ]; then
             python -m ai_trading.run start --days "${{ inputs.days }}"
+          elif [ "$CMD" = "data" ]; then
+            python -m ai_trading.data.export --out web/data
           elif [ "$CMD" = "cycle" ] && [ ! -f game/state.json ]; then
             echo "진행 중인 게임이 없어 건너뜀"
           else
             python -m ai_trading.run "$CMD"
           fi
-      - name: 결과 저장
+      - name: 게임 기록 저장
+        if: env.CMD != 'data'
         run: |
           git config user.name "ai-trading-bot"
           git config user.email "ai-trading-bot@users.noreply.github.com"
           git add game/ || true
           git diff --cached --quiet || (git commit -m "게임 기록 업데이트" && git push)
+      - name: 화면을 site 브랜치에 올리기 (기록 없이 매번 덮어씀)
+        if: env.CMD == 'data'
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          rm -rf /tmp/site && cp -r web /tmp/site && cd /tmp/site
+          git init -q && git checkout -q -b site
+          git config user.name "ai-trading-bot"
+          git config user.email "ai-trading-bot@users.noreply.github.com"
+          git add -A && git commit -qm "화면 데이터 $(date -u +%F)"
+          git push -qf "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" site
