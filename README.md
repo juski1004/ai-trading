@@ -26,8 +26,14 @@ AI 6명이 실제 시세로 국내·미국 주식을 분석하고 **가상 계�
 - [x] 무료 AI 연결: THEO가 구글 Gemini 무료 등급으로 최종 판정 (`ai_trading/llm.py`)
   - `GEMINI_API_KEY` 환경변수가 없거나 실패하면 규칙 기반으로 자동 전환
   - AI도 LLOYD의 거절을 무시할 수 없음 (코드에서 강제)
-- [ ] 자동 실행 스케줄러
-- [ ] 결과 리포트
+- [x] 자동 실행: GitHub Actions가 장중 30분마다 실행 (`.github/workflows/trade.yml`)
+- [x] 성적표: 수익률, 승률, 최대 낙폭, 코스피·S&P500 비교 (`game/report.md`)
+
+## 게임 하는 법 (GitHub 웹에서)
+1. Actions → "AI 모의투자 게임" → Run workflow → command `start`, days `30`
+2. 그 뒤로는 장중 30분마다 자동 매매. 기록은 `game/journal.md`
+3. 성적표: Run workflow → command `report` → `game/report.md`
+4. (선택) 무료 AI: Settings → Secrets and variables → Actions → `GEMINI_API_KEY` 추가
 
 ## 실행
 ```bash
@@ -35,4 +41,7 @@ pip install -r requirements.txt
 python -m pytest
 python -m ai_trading.team            # 관심 종목 전체를 AI 6명이 분석
 python -m ai_trading.team AAPL 005930.KS
+python -m ai_trading.run start --days 30
+python -m ai_trading.run cycle
+python -m ai_trading.run report
 ```

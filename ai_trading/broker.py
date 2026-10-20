@@ -34,6 +34,7 @@ class Trade:
     fee_krw: float
     amount_krw: float  # 매수: 나간 돈, 매도: 들어온 돈
     reason: str
+    realized_krw: float = 0.0  # 매도 시 실현 손익 (원화, 비용 포함)
 
 
 @dataclass
@@ -44,6 +45,7 @@ class Account:
     positions: dict[str, Position] = field(default_factory=dict)
     trades: list[Trade] = field(default_factory=list)
     day_start_equity: dict[str, float] = field(default_factory=dict)  # 날짜 -> 그날 시작 총자산
+    equity_history: list[list] = field(default_factory=list)  # [시각, 총자산]
 
     # ---------- 저장 / 불러오기 ----------
     def save(self, path: Path) -> None:
@@ -165,17 +167,22 @@ class VirtualBroker:
         fee = gross * self._fee_pct(symbol, "SELL") / 100
         self.acct.cash_krw += gross - fee
 
-        p.cost_krw *= (p.qty - qty) / p.qty
+        sold_cost = p.cost_krw * qty / p.qty
+        p.cost_krw -= sold_cost
         p.qty -= qty
         if p.qty == 0:
             del self.acct.positions[symbol]
 
-        return self._record(now, symbol, "SELL", qty, price, fx, fee, gross - fee, reason)
+        t = self._record(now, symbol, "SELL", qty, price, fx, fee, gross - fee, reason)
+        t.realized_krw = round(gross - fee - sold_cost)
+        return t
 
-    def check_stops(self, now: datetime | None = None) -> list[Trade]:
-        """손절/익절 기준에 닿은 종목을 자동 전량 매도."""
+    def check_stops(self, now: datetime | None = None, market: str | None = None) -> list[Trade]:
+        """손절/익절 기준에 닿은 종목을 자동 전량 매도. market 을 주면 그 시장만."""
         done = []
         for symbol, p in list(self.acct.positions.items()):
+            if market and market_of(symbol) != market:
+                continue
             change = (self.market.price(symbol) / p.avg_price - 1) * 100
             if change <= self.rules.stop_loss_pct:
                 done.append(self.sell(symbol, None, f"자동 손절 ({change:.1f}%)", now))
