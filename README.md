@@ -42,7 +42,7 @@ AI 6명이 실제 시세로 코스피·코스닥 주식을 분석하고 **가상
 키는 **Settings → Secrets and variables → Actions → New repository secret** 에 위 이름으로 넣는다. 화면이나 커밋에는 절대 들어가지 않는다.
 
 ## 자동 실행 (`.github/workflows/trade.yml`)
-- 평일 15:00 KST: 매매 사이클 (`cycle`), 판정은 `game/verdicts.json`
+- 평일 장중 09:47 / 11:47 / 13:47 / 14:47 KST에 시도, 그날 처음 성공한 한 번만 매매 (`cycle`), 판정은 `game/verdicts.json`
 - 평일 16:20 KST: 화면 데이터 갱신 (`data`) → 화면과 데이터를 `site` 브랜치에 덮어써서 올림 (기록이 쌓이지 않음)
 - 수동: Actions → "AI 모의투자 게임" → Run workflow → `start` / `cycle` / `report` / `data`
 
