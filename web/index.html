@@ -260,6 +260,27 @@ select.sel{background:var(--raise);border:1px solid var(--line2);padding:6px 8px
 .finkv{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-left:1px solid var(--line);border-top:1px solid var(--line);margin-top:10px}
 .finkv div{padding:5px 9px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-width:0}
 .finkv .k{font-size:11px;color:var(--muted)}.finkv .v{font-size:13.5px;font-weight:500;white-space:nowrap}
+/* 종목 진단 카드 */
+.dg{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:12px}
+@media (max-width:900px){.dg{grid-template-columns:minmax(0,1fr)}}
+.dgtop{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.dgname{font-size:18px;font-weight:700;line-height:1.2}
+.dgname small{display:block;font-size:12px;color:var(--muted);font-weight:400}
+.dgtop .badge{font-size:17px;padding:6px 12px;min-width:64px;margin-left:auto}
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+@media (max-width:520px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tile{background:var(--panel2);border:1px solid var(--line);padding:7px 10px;min-width:0}
+.tile .k{font-size:11.5px;color:var(--muted)}
+.tile .v{font-size:18px;font-weight:600;line-height:1.3;white-space:nowrap}
+.tile .h{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile.tp{border-top:2px solid var(--up)}.tile.sl{border-top:2px solid var(--down)}
+.stars{color:var(--accent);letter-spacing:1px;font-size:13px}
+.stars i{color:var(--line2);font-style:normal}
+.dgnews{background:var(--panel2);border:1px solid var(--line);padding:9px 12px;min-width:0}
+.dgnews .k{font-size:12px;color:var(--muted);display:flex;justify-content:space-between;gap:8px;margin-bottom:4px}
+.dgnews ul{margin:0;padding-left:18px;font-size:13px;display:flex;flex-direction:column;gap:3px}
+.dgnews .ai{color:var(--ai);font-weight:600}
+.lvl{font-weight:700}.lvl.L{color:var(--ok)}.lvl.M{color:var(--accent)}.lvl.H{color:var(--up)}
 .foot{margin:14px 0 0;color:var(--dim);font-size:12px;line-height:1.6;max-width:120ch}
 @media (prefers-reduced-motion:reduce){.mem.busy .av::after{animation:none}}
 </style>
@@ -285,6 +306,13 @@ select.sel{background:var(--raise);border:1px solid var(--line2);padding:6px 8px
 
 <div class="grid">
   <div class="col">
+    <div class="panel" id="diagPanel">
+      <div class="ph"><h2>종목 진단</h2><small id="diagMeta">-</small></div>
+      <div class="dg">
+        <div><div class="dgtop" id="diagTop"></div><div class="tiles" id="diagTiles"></div></div>
+        <div class="dgnews" id="diagNews"></div>
+      </div>
+    </div>
     <div class="panel">
       <div class="symbar"><div class="tabsw" id="tabs" role="group" aria-label="관심 종목"></div><div class="search"><input id="q" type="search" placeholder="종목명·코드 검색 (코스피·코스닥 전 종목)" aria-label="종목 검색" autocomplete="off"><ul id="qres" hidden></ul></div></div>
       <div class="quote" id="quote"></div>
@@ -472,16 +500,16 @@ function calc(b,P){
   return R;
 }
 /* ---------- 실제 데이터 불러오기 (data/*.json, 장 마감 후 하루 한 번 갱신) ---------- */
-let DATA={},IDX=[],IDXE=null,ALLEV=[],DATES=[],LISTING=[],META={},AIREAL={};
+let DATA={},IDX=[],IDXE=null,ALLEV=[],DATES=[],LISTING=[],META={},AIREAL={},SUMM={};
 const MACRO={events:[],ser:{}};
 const qLabelOf=end=>{const d=new Date(end);return `${String(d.getFullYear()).slice(2)}.${Math.floor(d.getMonth()/3)+1}Q`};
 const barAt=ds=>{let lo=0,hi=DATES.length;while(lo<hi){const m=(lo+hi)>>1;DATES[m]<ds?lo=m+1:hi=m}return lo};// 그날 또는 다음 거래일
 const moneyS=v=>Math.abs(v)>=1e12?(v/1e12).toFixed(1)+'조':Math.abs(v)>=1e8?Math.round(v/1e8).toLocaleString('ko-KR')+'억':Math.round(v).toLocaleString('ko-KR');
 async function loadData(){
   const get=async(f,def)=>{try{const r=await fetch('data/'+f,{cache:'no-cache'});if(!r.ok)throw 0;return await r.json()}catch(e){return def}};
-  const [mk,fin,news,ai,meta,listing]=await Promise.all([get('market.json',null),get('fin.json',{}),get('news.json',{eco:[],sym:{}}),get('ai.json',{}),get('meta.json',{}),get('listing.json',[])]);
+  const [mk,fin,news,ai,meta,listing,summ]=await Promise.all([get('market.json',null),get('fin.json',{}),get('news.json',{eco:[],sym:{}}),get('ai.json',{}),get('meta.json',{}),get('listing.json',[]),get('summary.json',{})]);
   if(!mk)throw new Error('data/market.json 을 불러오지 못했습니다');
-  META=meta;AIREAL=ai;LISTING=listing;DATES=mk.dates;NBARS=DATES.length;RULES.days=Math.min(90,NBARS-131);START=NBARS-1-RULES.days;
+  META=meta;AIREAL=ai;LISTING=listing;SUMM=summ||{};DATES=mk.dates;NBARS=DATES.length;RULES.days=Math.min(90,NBARS-131);START=NBARS-1-RULES.days;
   const ix=mk.index||{o:mk.macro.kospi,h:mk.macro.kospi,l:mk.macro.kospi,c:mk.macro.kospi};
   IDX=DATES.map((_,k)=>({o:ix.o[k],h:ix.h[k],l:ix.l[k],c:ix.c[k],v:0}));IDXE=calc(IDX,DEFP);
   // 경제지표 일별 + 발표
@@ -647,7 +675,7 @@ function render(){
   document.querySelectorAll('[data-ov]').forEach(x=>x.setAttribute('aria-pressed',!!S.ov[x.dataset.ov]));
   document.querySelectorAll('[data-sub]').forEach(x=>x.setAttribute('aria-pressed',S.subs.includes(x.dataset.sub)));
   $('#zoomTx').textContent=`${Math.min(S.N,i)}봉`;
-  renderVerdict();renderTeam();renderOrder();renderBook();renderSummary();renderAccounts();renderMacro();renderNews();renderFin();renderReal();drawChart();
+  renderVerdict();renderDiag();renderTeam();renderOrder();renderBook();renderSummary();renderAccounts();renderMacro();renderNews();renderFin();renderReal();drawChart();
 }
 function renderMacro(){
   const i=cur(),M=MACRO.ser,today=new Set(MACRO.events.filter(e=>e.i===i).map(e=>e.title));
@@ -697,6 +725,44 @@ function renderVerdict(){
   $('#reason').textContent=v.reason;
   const i=cur(),rm=ret(S.me,i),ra=ret(S.ai,i);
   $('#endBox').innerHTML=S.d>=RULES.days?`<div class="end num">대결 종료 · 나 ${pct(rm)} vs AI ${pct(ra)} · ${Math.abs(rm-ra)<.005?'무승부':rm>ra?'내가 이겼습니다':'AI 운용팀이 이겼습니다'}</div>`:'';
+}
+/* ---------- 종목 진단 카드 ---------- */
+const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+const stars=x=>{const n=Math.round(x);return `<span class="stars">${'★'.repeat(n)}<i>${'★'.repeat(5-n)}</i></span>`};
+function finScore(id,i){
+  const D=DATA[id],c=D.bars[i].c,T=ttm(id,i),rel=released(id,i),parts=[];
+  if(D.equity>0&&rel.length){const roe=T.ni/D.equity*100;parts.push(roe>=15?1:roe>=10?.75:roe>=5?.5:roe>0?.25:0)}
+  if(D.shares&&rel.length){const per=T.ni>0?c*D.shares/T.ni:null;parts.push(per==null?0:per<8?1:per<12?.8:per<20?.6:per<35?.35:.15)}
+  if(D.equity>0&&D.liab!=null){const d=D.liab/D.equity*100;parts.push(d<50?1:d<100?.75:d<200?.5:.25)}
+  if(T.rev>0){const m=T.op/T.rev*100;parts.push(m>=15?1:m>=8?.7:m>=3?.4:m>0?.2:0)}
+  const q=rel[rel.length-1],yo=q?D.quarters[q.q-4]:null;if(q&&yo&&yo.op){const y=(q.op/Math.abs(yo.op)-1)*100;parts.push(y>20?1:y>5?.75:y>-5?.5:y>-20?.25:0)}
+  return parts.length>=2?parts.reduce((a,b)=>a+b,0)/parts.length*5:null;
+}
+function renderDiag(){
+  const id=S.sel,D=DATA[id],i=cur(),c=D.bars[i].c,v=S.verdicts[id],p=v.plan;
+  const sg=signals(),tech=((sg.filter(x=>x.s==='B').length-sg.filter(x=>x.s==='S').length)/sg.length+1)/2*5,fs=finScore(id,i);
+  const atr=D.eng.atrPct[i],lv=!v.risk.ok||atr>4.5?['H','높음']:atr>2.5?['M','보통']:['L','낮음'];
+  const recent=DATA[id].events.filter(e=>e.kind==='news'&&e.i<=i&&e.i>i-5);
+  $('#diagMeta').textContent=`${DATES[i]} 기준 · AI 운용팀 규칙 · 참고용`;
+  $('#diagTop').innerHTML=`<div class="dgname">${esc(D.name)}<small>${D.code} · ${D.market}</small></div><div class="badge ${v.action}">${ACT[v.action]}</div>`;
+  const tile=(k,val,h,cl='')=>`<div class="tile ${cl}"><div class="k">${k}</div><div class="v num">${val}</div><div class="h">${h}</div></div>`;
+  $('#diagTiles').innerHTML=
+    tile('현재가',won(c),`팀 점수 ${v.score>=0?'+':''}${v.score.toFixed(2)}`)+
+    tile('목표가',`<span class="up">${won(p.target)}</span>`,`▲ +${RULES.take}%`,'tp')+
+    tile('손절가',`<span class="down">${won(p.stop)}</span>`,`▼ ${RULES.stop}%`,'sl')+
+    tile('재무 점수',fs==null?'-':`${fs.toFixed(1)}<small style="font-size:12px;color:var(--muted)">/5</small>`,fs==null?'실적 자료 부족':stars(fs))+
+    tile('기술 점수',`${tech.toFixed(1)}<small style="font-size:12px;color:var(--muted)">/5</small>`,stars(tech))+
+    tile('리스크',`<span class="lvl ${lv[0]}">${lv[1]}</span>`,v.risk.ok?`변동성 ${atr.toFixed(1)}%`:esc(v.risk.reasons[0]));
+  const sm=SUMM[id],latest=i===NBARS-1;
+  let body;
+  if(latest&&sm&&sm.lines&&sm.lines.length){
+    body=`<div class="k"><span><span class="ai">AI 요약</span> · Gemini · 최근 7일 소식 ${sm.n}건</span><span class="${sm.tone==='호재'?'up':sm.tone==='악재'?'down':'flat'}">${esc(sm.tone)}</span></div><ul>${sm.lines.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`;
+  }else{
+    const top=recent.slice(-3).reverse();
+    body=`<div class="k"><span>최근 소식 ${recent.length}건 (5거래일)</span><span>${latest?'AI 요약 없음':'과거 재생 중 · 그날까지의 소식'}</span></div>`+
+      (top.length?`<ul>${top.map(e=>`<li><span class="${e.imp>0?'up':e.imp<0?'down':'flat'}">[${e.tag}]</span> ${esc(e.title)}</li>`).join('')}</ul>`:'<p class="empty" style="margin:4px 0 0">최근 소식이 없습니다.</p>');
+  }
+  $('#diagNews').innerHTML=body;
 }
 let briefing=-1;
 function renderTeam(){
@@ -895,7 +961,7 @@ function drawSub(g,t,y0,sh,from,i,X,bw,pl,pr,w,hk,D){
   vals.forEach(([s,c])=>{g.fillStyle=c;g.fillText(s,x,y0+12);x+=g.measureText(s).width+12});
 }
 function drawCmp(){
-  const cv=$('#cmp'),w=cv.clientWidth;if(!w)return;const h=150,dpr=Math.min(2,window.devicePixelRatio||1);cv.width=w*dpr;cv.height=h*dpr;const g=cv.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);
+  const cv=$('#cmp'),w=cv.clientWidth;if(!w||!S)return;const h=150,dpr=Math.min(2,window.devicePixelRatio||1);cv.width=w*dpr;cv.height=h*dpr;const g=cv.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);
   const me=S.me.eq.map(x=>(x/RULES.cash0-1)*100),ai=S.ai.eq.map(x=>(x/RULES.cash0-1)*100),ix=me.map((_,d)=>iret(START+d));
   const all=[...me,...ai,...ix];let mx=Math.max(2,...all),mn=Math.min(-2,...all);const pr=48,X=d=>4+d/RULES.days*(w-pr-8),Y=x=>8+(mx-x)/(mx-mn)*(h-16);
   g.font='11px "IBM Plex Mono",monospace';g.textBaseline='middle';

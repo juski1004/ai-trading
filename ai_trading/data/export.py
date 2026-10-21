@@ -9,6 +9,7 @@
   market.json    날짜축, 분석 대상 종목 일봉, 지수·환율·유가 등 일별 경제지표, 물가·금리 발표
   fin.json       분석 대상 종목 분기 실적·자본·부채·주식수·배당
   news.json      경제·종목 뉴스와 공시 헤드라인
+  summary.json   종목별 최근 뉴스 AI 3줄 요약 (GEMINI_API_KEY 있을 때)
   ai.json        엔진(실전 AI 계좌) 상태와 최근 판정
 """
 from __future__ import annotations
@@ -107,6 +108,12 @@ def build(out: Path, quick: bool = False, game_dir: Path = Path("game")) -> dict
         (out / "fin.json").write_text(json.dumps(fin, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
         (out / "news.json").write_text(json.dumps(news, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
         print(f"재무·뉴스 저장 ({time.time() - t0:.0f}초)")
+
+        from ..llm import from_env
+        from .summary import summarize
+        summ = summarize(news["sym"], {s: st["name"] for s, st in stocks.items()}, from_env())
+        (out / "summary.json").write_text(json.dumps(summ, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+        print(f"AI 뉴스 요약 {len(summ)}종목 ({time.time() - t0:.0f}초)")
 
     ai = {}
     for name in ("state.json", "verdicts.json"):
