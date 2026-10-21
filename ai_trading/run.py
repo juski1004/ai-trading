@@ -81,6 +81,11 @@ def cycle(now: datetime | None = None, market=None, llm=None, with_context: bool
     if not open_markets:
         print("지금은 열린 장이 없습니다.")
         return
+    # 하루 한 번만 매매. GitHub 예약 실행이 몇 시간씩 밀릴 수 있어 장중에 여러 번 시도하고, 먼저 성공한 한 번만 매매한다.
+    today = now.astimezone(KST).date().isoformat()
+    if any(str(h[0]).startswith(today) for h in b.acct.equity_history):
+        print("오늘은 이미 매매했습니다.")
+        return
 
     _log(f"\n## {now:%Y-%m-%d %H:%M} KST ({', '.join(open_markets)} 장중)")
     for m in open_markets:
