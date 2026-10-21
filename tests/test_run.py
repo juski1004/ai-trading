@@ -62,3 +62,12 @@ def test_report(game):
     run.cycle(datetime(2026, 10, 20, 10, 0, tzinfo=KST), market=m, with_context=False)
     text = run.report(market=m)
     assert "수익률" in text and (path / "report.md").exists()
+
+
+def test_cycle_trades_once_per_day(game):
+    path, m = game
+    run.cycle(datetime(2026, 10, 20, 10, 0, tzinfo=KST), market=m, with_context=False)
+    n = len(Account.load(path / "state.json").trades)
+    run.cycle(datetime(2026, 10, 20, 14, 0, tzinfo=KST), market=m, with_context=False)
+    acct = Account.load(path / "state.json")
+    assert len(acct.trades) == n and len(acct.equity_history) == 1
