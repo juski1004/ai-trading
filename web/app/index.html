@@ -196,6 +196,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--brand2);outline-off
   <a href="#me" data-tab="me"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>내 정보</a>
 </div></nav>
 
+<script src="game.js"></script>
 <script>
 (()=>{
 const $=s=>document.querySelector(s);
@@ -343,7 +344,7 @@ function analysis(sym){
   if(ERR||!SC)return home();
   return sym?analysisDetail(sym):analysisList();
 }
-const game=()=>soon('🎮','모의투자 게임','가상 1,000만 원으로 AI 운용팀과 수익률을 겨루는 게임은 지금 PC 화면에서 할 수 있어요. 휴대폰용은 곧 열려요.<br><a class="pclink" href="../" target="_blank" rel="noopener">PC 대결 화면 열기 ↗</a>');
+const game=sym=>window.Game&&SC?Game.view(SC,sym&&decodeURIComponent(sym)):soon('🎮','모의투자 게임','가상 1,000만 원으로 AI 운용팀과 수익률을 겨루는 게임은 지금 PC 화면에서 할 수 있어요. 휴대폰용은 곧 열려요.<br><a class="pclink" href="../" target="_blank" rel="noopener">PC 대결 화면 열기 ↗</a>');
 const me=()=>soon('👤','내 정보','게임 기록과 지난 성적표가 여기에 모여요.<br><br><span class="sub">휴대폰 홈 화면에 추가하면 앱처럼 쓸 수 있어요.<br>아이폰: 공유 → 홈 화면에 추가 · 안드로이드: 메뉴 → 홈 화면에 추가</span>');
 
 /* ---------- 화면 전환 ---------- */
@@ -357,7 +358,7 @@ function render(){
   const [tab,arg]=(location.hash.slice(1)||'home').split('/');
   const t=['home','analysis','game','me'].includes(tab)?tab:'home';
   const typing=document.activeElement&&document.activeElement.id==='q',pos=typing?document.activeElement.selectionStart:0;
-  $('#view').innerHTML=t==='home'?home():t==='analysis'?analysis(arg&&decodeURIComponent(arg)):t==='game'?game():me();
+  $('#view').innerHTML=t==='home'?home():t==='analysis'?analysis(arg&&decodeURIComponent(arg)):t==='game'?game(arg):me();
   if(typing){const q=$('#q');if(q){q.focus();q.setSelectionRange(pos,pos)}}
   $('#asof').textContent=SC?`${SC.date.slice(5).replace('-','.')} 기준`:'';
 }
