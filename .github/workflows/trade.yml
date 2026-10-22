@@ -8,10 +8,10 @@ on:
   workflow_dispatch:
     inputs:
       command:
-        description: "start / cycle / report / data"
+        description: "start / cycle / report / data / aicheck"
         default: cycle
         type: choice
-        options: [start, cycle, report, data]
+        options: [start, cycle, report, data, aicheck]
       days:
         description: "start 할 때 투자 기간 (7~90일)"
         default: "30"
@@ -49,6 +49,8 @@ jobs:
         run: |
           if [ "$CMD" = "start" ]; then
             python -m ai_trading.run start --days "${{ inputs.days }}"
+          elif [ "$CMD" = "aicheck" ]; then
+            python -m ai_trading.llm
           elif [ "$CMD" = "data" ]; then
             python -m ai_trading.data.export --out web/data
           elif [ "$CMD" = "cycle" ] && [ ! -f game/state.json ]; then
@@ -57,7 +59,7 @@ jobs:
             python -m ai_trading.run "$CMD"
           fi
       - name: 게임 기록 저장
-        if: env.CMD != 'data'
+        if: env.CMD != 'data' && env.CMD != 'aicheck'
         run: |
           git config user.name "ai-trading-bot"
           git config user.email "ai-trading-bot@users.noreply.github.com"
