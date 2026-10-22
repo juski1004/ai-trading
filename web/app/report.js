@@ -9,7 +9,7 @@
   const pct = x => (x > 0 ? "+" : "") + x.toFixed(2) + "%";
   const cls = x => (x > 0 ? "up" : x < 0 ? "down" : "flat");
   const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-  const img = id => `../img/team/${id}.jpg?v=2`;
+  const img = id => `../img/team/${id}.jpg?v=3`;
   const get = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
   const set = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
 
@@ -54,15 +54,20 @@
     ding();
     const bell = document.getElementById("rpBell"); if (bell) bell.classList.add("on");
   }
+  const busy = () => document.querySelector(".tm-splash,#tmSheet");  // 시작 연출·팀 고르기 중엔 기다림
+  const D = () => (window.Team ? Team.director() : { id: "theo", name: "정서연", role: "본부장" });
+  const who = date => (window.Team ? Team.reporter(date) : (PICK && PICK.reporter && { id: PICK.reporter.img, name: PICK.reporter.name, role: PICK.reporter.role }));
+  const call = () => (window.Team ? Team.call() : "");
   function check() {
-    const t = ready(); if (!t) return;
+    const t = ready(); if (!t || busy()) return;
     if (t.min >= BRIEF_AT && get("rp.brief") !== DATE) {
-      toast("brief", "정서연", "본부장", "theo", "오늘 장 마감 <b>브리핑</b>을 가져왔습니다. 지금 보고드릴까요?");
+      const d = D();
+      toast("brief", d.name, "본부장", d.id, `${esc(call())}${call() ? ", " : ""}오늘 장 마감 <b>브리핑</b>을 가져왔습니다. 지금 보고드릴까요?`);
       return;
     }
     if (PICK && PICK.found && PICK.date === DATE && t.min >= PICK_AT && get("rp.pick") !== DATE) {
-      const r = PICK.reporter;
-      toast("pick", r.name, r.role, r.img, `본부장님 확인을 거친 <b>오늘의 추천 종목</b> 보고입니다 — <b>${esc(PICK.name)}</b>`);
+      const r = who(PICK.date);
+      toast("pick", r.name, r.role, r.id, `${esc(call())}${call() ? ", " : ""}${esc(D().name)} 본부장님 확인을 거친 <b>오늘의 추천 종목</b> 보고입니다 — <b>${esc(PICK.name)}</b>`);
     }
   }
   function openBriefOverlay() {
@@ -86,10 +91,10 @@
     DATE = sc && sc.date; setTimeout(check, 400);
     const t = ready();
     if (!PICK || !t || PICK.date !== DATE) return "";
-    if (t.min < PICK_AT) return `<section class="card rp-home"><div class="rp-hrow"><img src="${img("theo")}" alt=""><div><h2>오늘의 추천 종목</h2><p class="sub">18:10에 본부장 확인을 거쳐 보고가 올라와요.</p></div></div></section>`;
-    if (!PICK.found) return `<section class="card rp-home"><div class="rp-hrow"><img src="${img("theo")}" alt=""><div><h2>오늘은 추천을 쉬어 갑니다</h2><p class="sub">${esc(PICK.reason)}</p></div></div></section>`;
-    return `<section class="card rp-home"><a class="rp-hrow" href="#pick"><img src="${img(PICK.reporter.img)}" alt=""><div><h2>오늘의 추천 · ${esc(PICK.name)}</h2>
-      <p class="sub">${esc(PICK.reporter.name)} 보고 · 정서연 본부장 최종 의견 포함 · AI 점수 ${PICK.score}점</p></div><span class="rp-go">보기</span></a></section>`;
+    if (t.min < PICK_AT) return `<section class="card rp-home"><div class="rp-hrow"><img src="${img(D().id)}" alt=""><div><h2>오늘의 추천 종목</h2><p class="sub">18:10에 본부장 확인을 거쳐 보고가 올라와요.</p></div></div></section>`;
+    if (!PICK.found) return `<section class="card rp-home"><div class="rp-hrow"><img src="${img(D().id)}" alt=""><div><h2>오늘은 추천을 쉬어 갑니다</h2><p class="sub">${esc(PICK.reason)}</p></div></div></section>`;
+    return `<section class="card rp-home"><a class="rp-hrow" href="#pick"><img src="${img(who(PICK.date).id)}" alt=""><div><h2>오늘의 추천 · ${esc(PICK.name)}</h2>
+      <p class="sub">${esc(who(PICK.date).name)} 보고 · ${esc(D().name)} 본부장 최종 의견 포함 · AI 점수 ${PICK.score}점</p></div><span class="rp-go">보기</span></a></section>`;
   }
 
   /* ---------- 보고서 화면 ---------- */
@@ -107,14 +112,14 @@
   function view(sc) {
     DATE = sc && sc.date;
     if (!PICK) return `<div class="card"><div class="skel"></div><div class="skel" style="width:60%"></div></div>`;
-    if (!PICK.found) return `<a class="back" href="#home">‹ 홈</a><section class="card rp-home"><div class="rp-hrow"><img src="${img("theo")}" alt=""><div><h2>오늘은 추천을 쉬어 갑니다</h2><p class="sub">${esc(PICK.reason)}</p></div></div></section>`;
-    const p = PICK, r = p.reporter, d = p.director, pl = p.plan;
+    if (!PICK.found) return `<a class="back" href="#home">‹ 홈</a><section class="card rp-home"><div class="rp-hrow"><img src="${img(D().id)}" alt=""><div><h2>오늘은 추천을 쉬어 갑니다</h2><p class="sub">${esc(PICK.reason)}</p></div></div></section>`;
+    const p = PICK, r = who(p.date), d = { ...p.director, ...D() }, pl = p.plan;
     const sec = (t, body) => `<section class="card"><div class="hd"><h2>${t}</h2></div>${body}</section>`;
     const ul = a => `<ul class="rp-ul">${a.map(x => `<li>${esc(x)}</li>`).join("")}</ul>`;
     const news = p.news || {};
     return `<a class="back" href="#home">‹ 홈</a>
     <section class="card rp-head">
-      <div class="rp-from"><img src="${img(r.img)}" alt="${esc(r.name)} 사진"><div><b>${esc(r.name)}</b> <span class="sub">${esc(r.role)}</span><div class="sub">${esc(p.date)} 장 마감 · 추천 종목 보고서</div></div><span class="rp-badge">보고</span></div>
+      <div class="rp-from"><img src="${img(r.id)}" alt="${esc(r.name)} 사진"><div><b>${esc(r.name)}</b> <span class="sub">${esc(r.role)}</span><div class="sub">${esc(p.date)} 장 마감 · 추천 종목 보고서</div></div><span class="rp-badge">보고</span></div>
       <div class="dhead" style="margin-top:14px"><div><div class="dname">${esc(p.name)}</div><div class="meta">${esc(p.code)} · ${esc(p.market)}</div></div>
         <div><div class="dprice num">${won(p.price)}</div><div class="meta num ${cls(p.chg)}" style="text-align:right">${pct(p.chg)}</div></div></div>
       ${spark(p)}
@@ -138,9 +143,9 @@
     ${sec("뉴스", (news.summary ? `<ul class="ai-sum">${news.summary.map(x => `<li>${esc(x)}</li>`).join("")}</ul><p class="sub" style="margin:6px 0 8px">AI 요약 · 느낌 ${esc(news.tone || "")}</p>` : "") +
       ((news.headlines || []).length ? `<ul class="news">${news.headlines.map(n => `<li><a href="${esc(n.link || "#")}" target="_blank" rel="noopener">${esc(n.title)}<small>${esc(n.date)} · ${esc(n.src || "")}</small></a></li>`).join("")}</ul>` : '<p class="empty">최근 소식이 없어요.</p>'))}
     ${sec("거시경제", p.macro.length ? ul(p.macro) : '<p class="empty">시황 자료가 없어요.</p>')}
-    ${sec("직원 의견", `<ul class="rp-staff">${p.staff.map(s => `<li><img src="${img(s.img)}" alt=""><div><div class="rp-sn"><b>${esc(s.name)}</b> <span class="sub">${esc(s.role)}</span>${s.score != null ? `<span class="num ${s.score > 0 ? "up" : s.score < 0 ? "down" : "flat"}">${s.score > 0 ? "+" : ""}${Math.round(s.score * 50)}</span>` : ""}</div><p>${esc(s.say)}</p></div></li>`).join("")}</ul>`)}
+    ${sec("직원 의견", `<ul class="rp-staff">${p.staff.map(s0 => { const m = window.Team ? Team.person(s0.id) : { id: s0.img, name: s0.name, role: s0.role }; const s = { ...s0, img: m.id, name: m.name, role: m.agent && m.role === "본부장 직접 검토" ? "본부장 직접 검토 · " + s0.role : s0.role }; return `<li><img src="${img(s.img)}" alt=""><div><div class="rp-sn"><b>${esc(s.name)}</b> <span class="sub">${esc(s.role)}</span>${s.score != null ? `<span class="num ${s.score > 0 ? "up" : s.score < 0 ? "down" : "flat"}">${s.score > 0 ? "+" : ""}${Math.round(s.score * 50)}</span>` : ""}</div><p>${esc(s.say)}</p></div></li>`; }).join("")}</ul>`)}
     <section class="card rp-dir">
-      <div class="rp-from"><img src="${img(d.img)}" alt="정서연 본부장 사진"><div><b>${esc(d.name)} ${esc(d.role)}</b><div class="sub">최종 의견 ${d.source === "AI" ? "· AI 작성" : ""}</div></div></div>
+      <div class="rp-from"><img src="${img(d.id)}" alt="본부장 사진"><div><b>${esc(d.name)} ${esc(d.role)}</b><div class="sub">최종 의견 ${d.source === "AI" ? "· AI 작성" : ""}</div></div></div>
       <p class="rp-quote">${esc(d.opinion)}</p>
     </section>
     <a class="cta" href="#game/${encodeURIComponent(p.sym)}">이 종목으로 모의투자 해 보기</a>
