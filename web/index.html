@@ -302,6 +302,9 @@ select.sel{background:var(--raise);border:1px solid var(--line2);padding:6px 8px
 .seg button{background:var(--panel);border:0;padding:7px 14px;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer}
 .seg button[aria-pressed="true"]{background:var(--fg);color:#fff}
 body.ana .game-only{display:none!important}
+.evl{font-size:13px;padding:5px 0;border-bottom:1px solid var(--line)}
+.evl a{color:var(--down);text-decoration:none}
+.evl a:hover{text-decoration:underline}
 /* 시장 전망 */
 .outlook{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:18px;margin-bottom:10px}
 @media (max-width:1100px){.outlook{grid-template-columns:minmax(0,1fr)}}
@@ -405,6 +408,7 @@ body.ana .game-only{display:none!important}
     <div class="panel" id="judgePanel">
       <div class="ph"><h2>AI 종합 판단 · 전문가 5명 + 유사 차트 확률</h2><small id="judgeMeta">-</small></div>
       <div id="judge"></div>
+      <div class="accbox"><div class="pt"><b>이벤트 전략 · 호재에 팔고 악재에 산다</b> <span class="flat">· 실적 발표·뉴스·공시 전후 움직임</span></div><div id="eventBox"></div></div>
       <div class="accbox"><div class="pt"><b>세력 매집 흔적</b> <span class="flat">· 주가는 조용한데 사들인 흔적이 쌓이는지 봅니다</span></div><div id="accumBox"></div></div>
     </div>
     <div class="panel" id="planPanel">
@@ -824,7 +828,7 @@ function render(){
   document.querySelectorAll('[data-ov]').forEach(x=>x.setAttribute('aria-pressed',!!S.ov[x.dataset.ov]));
   document.querySelectorAll('[data-sub]').forEach(x=>x.setAttribute('aria-pressed',S.subs.includes(x.dataset.sub)));
   $('#zoomTx').textContent=`${Math.min(S.N,i)}봉`;
-  renderVerdict();renderDiag();renderTeam();renderOrder();renderBook();renderSummary();renderAccounts();renderMacro();renderNews();renderFin();renderReal();renderPlan();renderJudge();renderAccum();renderFlows();renderEst();drawChart();
+  renderVerdict();renderDiag();renderTeam();renderOrder();renderBook();renderSummary();renderAccounts();renderMacro();renderNews();renderFin();renderReal();renderPlan();renderJudge();renderAccum();renderEvent();renderFlows();renderEst();drawChart();
 }
 function renderMacro(){
   const i=cur(),M=MACRO.ser,today=new Set(MACRO.events.filter(e=>e.i===i).map(e=>e.title));
@@ -1335,7 +1339,13 @@ function judge(id,i){
   else if(tsc>0)call=['분할 매수',`1차만 먼저 (${P.buys[0].sp.toFixed(0)}%), 2·3차는 눌림에서.`,'up'];
   else if(c>=P.ma20)call=['눌림 대기',`${won(P.p1)} 부근까지 기다렸다가 1차 진입.`,'flat'];
   else call=['관망','추세 회복을 확인한 뒤 다시 봅니다.','flat'];
-  return{P,R,ex,call,total,timing,prob};
+  const EV=eventSignal(id,i),held=!!S.me.pos[id];
+  if(EV.st==='avoid')call=['회피','중대 악재입니다. 들어가지 않고, 보유 중이면 정리합니다.','down'];
+  else if(EV.st==='sell'&&(call[0]==='적극 매수'||call[0]==='분할 매수'||held))call=['차익 실현',held?'호재로 급등했습니다. 보유분의 30~50%를 나눠 팝니다.':'호재로 이미 올랐습니다. 지금 새로 사지 않습니다.','down'];
+  else if(EV.st==='dip'&&P.volOK)call=['역발상 분할 매수',`악재로 과매도입니다. 계획 비중의 절반(${Math.round(P.pct/2)}%)을 3단계로 나눠 삽니다.`,'up'];
+  else if(EV.st==='pre'&&call[2]!=='down')call=['호재 전 분할 매수',`실적 발표(${EV.ne.date}) 전에 1·2차로 미리 사두고 발표 때 나눠 팝니다.`,'up'];
+  else if(EV.st==='soon'&&call[2]==='up')call=['발표 후 진입',`실적 발표(${EV.ne.date}) 직전이라 새로 들어가지 않고 발표 반응을 본 뒤 들어갑니다.`,'flat'];
+  return{P,R,ex,call,total,timing,prob,EV};
 }
 function drawPattern(R,id,i){
   const cv=$('#patCv');if(!cv)return;const w=cv.clientWidth,h=170,dpr=Math.min(2,devicePixelRatio||1);cv.width=w*dpr;cv.height=h*dpr;const g=cv.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,w,h);
@@ -1353,7 +1363,7 @@ function renderJudge(){
   const pp=x=>Math.round(x*100)+'%';
   el.innerHTML=`<div class="jtop"><span class="jcall ${J.call[2]}">${J.call[0]}</span><div><b>${J.call[1]}</b><div class="flat" style="font-size:12.5px">타이밍: ${J.timing} · 종합 점수 ${(J.total*100).toFixed(0)}/100</div></div></div>
   <div class="jgrid"><div><ul class="experts">${J.ex.map(x=>`<li><img src="img/team/${x.who.toLowerCase()}.jpg" alt=""><div><b>${x.who}</b> <small>${x.role}</small> <span class="${x.label==='매수'?'up':x.label==='매도'?'down':'flat'}">${x.label}</span><div class="d">${esc(x.line)}</div></div></li>`).join('')}
-    <li><img src="img/team/theo.jpg" alt=""><div><b>THEO</b> <small>최종 판단</small> <span class="${J.call[2]}">${J.call[0]}</span><div class="d">5명 의견 평균, 매매 계획 조건 ${J.P.n}/${J.P.tot}, 유사 차트의 10일 뒤 상승 확률(${R.n>=4?pp(J.prob):'자료 부족'})을 합쳐 판단했습니다.</div></div></li></ul></div>
+    <li><img src="img/team/theo.jpg" alt=""><div><b>THEO</b> <small>최종 판단</small> <span class="${J.call[2]}">${J.call[0]}</span><div class="d">5명 의견 평균, 매매 계획 조건 ${J.P.n}/${J.P.tot}, 이벤트 신호(${J.EV.title}), 유사 차트의 10일 뒤 상승 확률(${R.n>=4?pp(J.prob):'자료 부족'})을 합쳐 판단했습니다.</div></div></li></ul></div>
   <div><div class="pt"><b>유사 차트 ${R.n}개</b> <span class="flat">· 최근 20일 흐름과 모양이 비슷했던 과거 구간 (78종목 전체)</span></div><canvas id="patCv" style="width:100%;height:170px;display:block" aria-label="현재 차트와 유사 차트 비교"></canvas>
     ${R.n?`<div class="flsum" style="margin-top:8px"><div><div class="k">5일 뒤 상승 확률</div><div class="v num">${pp(R.s5.up)}</div><div class="k">평균 ${pct(R.s5.avg)}</div></div><div><div class="k">10일 뒤</div><div class="v num">${pp(R.s10.up)}</div><div class="k">평균 ${pct(R.s10.avg)}</div></div><div><div class="k">20일 뒤</div><div class="v num">${pp(R.s20.up)}</div><div class="k">평균 ${pct(R.s20.avg)}</div></div><div><div class="k">모의 진입 결과</div><div class="v num">익절 ${pp(R.tp)} · 손절 ${pp(R.sl)}</div><div class="k">평균 ${pct(R.ev)} (−5%/+10% 규칙)</div></div></div>
     <div style="overflow-x:auto;max-height:200px"><table class="fltab num"><tr><th>종목</th><th>구간 끝</th><th>유사도</th><th>5일 뒤</th><th>10일 뒤</th><th>20일 뒤</th><th>모의 진입</th></tr>${R.list.map(m=>`<tr><td>${DATA[m.id].name}</td><td>${DATES[m.j]}</td><td>${(m.r*100).toFixed(0)}%</td><td class="${cls(m.f5)}">${pct(m.f5)}</td><td class="${cls(m.f10)}">${pct(m.f10)}</td><td class="${cls(m.f20)}">${pct(m.f20)}</td><td class="${m.res==='익절'?'up':m.res==='손절'?'down':'flat'}">${m.res} ${pct(m.rr)}</td></tr>`).join('')}</table></div>`:'<p class="empty">유사도 80% 이상인 과거 차트가 없습니다.</p>'}
@@ -1393,6 +1403,55 @@ function renderAccum(){
   if(ol)ol.innerHTML=L.length?`<b>매집 흔적 포착 ${L.length}종목</b> · ${L.slice(0,8).map(x=>`<a href="#" data-acc="${x.id}">${DATA[x.id].name}</a> (${x.n}/${x.tot})`).join(' · ')}`:'<b>매집 흔적 포착</b> · 오늘 신호 4개 이상 겹친 종목 없음';
 }
 document.addEventListener('click',e=>{const a=e.target.closest('[data-acc]');if(!a)return;e.preventDefault();pick(a.dataset.acc)});
+
+/* ---------- 이벤트 전략: 호재 전에 사고, 호재에 팔고, 악재에 산다 ---------- */
+const SEVERE=['횡령','배임','상장폐지','거래정지','감사의견','분식','파산','회생','부도','불성실공시'];
+function nextEarn(id,i){
+  const D=DATA[id],nx=D.quarters.find(q=>q.i>i&&q.i!==Infinity);
+  let ds=nx?nx.date:null;if(!ds){const rel=released(id,i),lq=rel[rel.length-1];if(!lq)return null;const d=new Date(lq.end);d.setMonth(d.getMonth()+3);d.setDate(d.getDate()+30);ds=d.toISOString().slice(0,10)}
+  const cal=Math.round((new Date(ds)-new Date(DATES[i]))/864e5);return cal<0?null:{date:ds,cal,td:Math.round(cal*5/7)};
+}
+function eventSignal(id,i){
+  const D=DATA[id],b=D.bars,E=D.eng,c=b[i].c,d1=(c/b[i-1].c-1)*100,d3=(c/b[i-3].c-1)*100,rsi=E.rsi[i],bu=E.bbU[i],bl=E.bbL[i];
+  const recent=D.events.filter(e=>e.i<=i&&e.i>=i-2),good=recent.filter(e=>e.imp>0||(e.kind==='earn'&&e.sp>5)),bad=recent.filter(e=>e.imp<0);
+  const severe=recent.find(e=>SEVERE.some(w=>e.title.includes(w)));
+  const rel=released(id,i),q=rel[rel.length-1],yo=q?D.quarters[q.q-4]:null,yoy=q&&yo&&yo.op?(q.op/Math.abs(yo.op)-1)*100:null;
+  const eg=i===NBARS-1?(D.est?.eps||[]).find(x=>x.period==='올해')?.growth:null,fundOK=(yoy??0)>-10&&(eg==null||eg>-.1);
+  const ne=nextEarn(id,i),AC=accum(id,i),why=[];let st='none',title='특별한 이벤트 신호 없음',act='평소 매매 계획을 따릅니다.';
+  if(severe){st='avoid';title='중대 악재 · 피하기';act='횡령·상장폐지 같은 중대 악재는 역발상 매수 대상이 아닙니다. 보유 중이면 정리합니다.';why.push(severe.title)}
+  else if(good.length&&(d3>=6||rsi>70||c>bu)){st='sell';title='호재 소진 · 차익 실현 구간';act='보유 중이면 30~50%를 나눠 팔고, 새로 사지 않습니다 (호재에 판다).';why.push(`호재: ${good[good.length-1].title.slice(0,40)}`,`3일 ${d3>=0?'+':''}${d3.toFixed(1)}% · RSI ${rsi.toFixed(0)}${c>bu?' · 볼린저 상단 돌파':''}`)}
+  else if(bad.length&&(d3<=-7||rsi<32||c<bl)){
+    if(fundOK){st='dip';title='악재 과매도 · 역발상 매수 후보';act='계획 비중의 절반만 3단계로 나눠 삽니다. 추가 악재가 나오거나 손절가를 깨면 바로 멈춥니다 (악재에 산다).'}
+    else{st='wait';title='악재 + 실적 약화 · 관망';act='실적까지 나빠져 단순 과매도로 보기 어렵습니다. 바닥 확인 전엔 사지 않습니다.'}
+    why.push(`악재: ${bad[bad.length-1].title.slice(0,40)}`,`3일 ${d3.toFixed(1)}% · RSI ${rsi.toFixed(0)}${c<bl?' · 볼린저 하단 이탈':''}`,`실적 ${yoy==null?'자료 없음':`최근 분기 영업이익 ${yoy>=0?'+':''}${yoy.toFixed(0)}%`}`)}
+  else if(ne&&ne.td<=4){st='soon';title='실적 발표 임박';act='발표 직전엔 새로 들어가지 않고, 보유분은 발표 때 급등하면 일부 팝니다.';why.push(`다음 실적 발표 추정 ${ne.date} (약 ${ne.td}거래일 뒤)`)}
+  else if(ne&&ne.td>=5&&ne.td<=25&&((eg??0)>0||(yoy??0)>0)&&AC.n>=3&&rsi<65){st='pre';title='호재 전 매집 후보';act='실적 발표 전에 1·2차로 나눠 미리 사두고, 발표 때 급등하면 나눠 팝니다 (소문에 사고 뉴스에 판다).';
+    why.push(`다음 실적 발표 추정 ${ne.date} (약 ${ne.td}거래일 뒤)`,eg!=null?`올해 예상 EPS ${eg>=0?'+':''}${(eg*100).toFixed(0)}%`:`최근 분기 영업이익 ${yoy>=0?'+':''}${yoy.toFixed(0)}%`,`${AC.label} (${AC.n}/${AC.tot})`)}
+  return{st,title,act,why,ne,good,bad,d1,d3,rsi};
+}
+const EVSTAT={};
+function eventStats(i){// 우리 데이터에서 '호재에 팔고 악재에 산다'가 통했는지
+  if(EVSTAT[i])return EVSTAT[i];const H=10,g=[],bd=[];
+  for(const s of STOCKS){const D=DATA[s.id],b=D.bars,seen=new Set();
+    for(const e of D.events){const k=e.i;if(k<1||k+H>i||seen.has(k))continue;const d=(b[k].c/b[k-1].c-1)*100,f=(b[k+H].c/b[k].c-1)*100;
+      if((e.imp>0||(e.kind==='earn'&&e.sp>5))&&d>=3){g.push(f);seen.add(k)}else if(e.imp<0&&d<=-3&&!SEVERE.some(w=>e.title.includes(w))){bd.push(f);seen.add(k)}}}
+  const sm=a=>({n:a.length,avg:a.length?a.reduce((x,y)=>x+y,0)/a.length:0,up:a.length?a.filter(x=>x>0).length/a.length:0});
+  return EVSTAT[i]={good:sm(g),bad:sm(bd)};
+}
+function renderEvent(){
+  const id=S.sel,i=cur(),V=eventSignal(id,i),el=$('#eventBox');if(!el)return;
+  const col={sell:'down',dip:'up',pre:'up',avoid:'down',wait:'',soon:'',none:''}[V.st];
+  const ST=eventStats(i),L={pre:[],sell:[],dip:[]};STOCKS.forEach(s=>{const x=eventSignal(s.id,i);if(L[x.st])L[x.st].push(s.id)});
+  const lst=(k,lab)=>`<div class="evl"><b>${lab} ${L[k].length}</b> ${L[k].length?L[k].slice(0,8).map(x=>`<a href="#" data-acc="${x}">${DATA[x].name}</a>`).join(' · '):'<span class="flat">없음</span>'}</div>`;
+  const pp=x=>Math.round(x*100)+'%';
+  el.innerHTML=`<div class="acc-top"><span class="jcall ${col}" style="font-size:15px;padding:5px 12px">${V.title}</span><span style="font-size:13.5px">${V.act}</span></div>
+   ${V.why.length?`<ul class="prules" style="margin-bottom:8px">${V.why.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}
+   <div class="flat" style="font-size:12.5px;margin-bottom:8px">다음 실적 발표 추정: ${V.ne?`${V.ne.date} (약 ${V.ne.td}거래일 뒤)`:'알 수 없음'} · 최근 3일 ${V.d3>=0?'+':''}${V.d3.toFixed(1)}% · RSI ${V.rsi.toFixed(0)}</div>
+   <div class="flsum" style="grid-template-columns:repeat(2,minmax(0,1fr))"><div><div class="k">호재로 3% 넘게 오른 날 → 10일 뒤</div><div class="v num">${ST.good.n?`평균 ${pct(ST.good.avg)} · 더 오른 비율 ${pp(ST.good.up)}`:'표본 없음'}</div><div class="k">${ST.good.n}번 · 낮을수록 "호재에 판다"가 맞음</div></div>
+   <div><div class="k">악재로 3% 넘게 빠진 날 → 10일 뒤</div><div class="v num">${ST.bad.n?`평균 ${pct(ST.bad.avg)} · 반등 비율 ${pp(ST.bad.up)}`:'표본 없음'}</div><div class="k">${ST.bad.n}번 · 높을수록 "악재에 산다"가 맞음</div></div></div>
+   ${lst('pre','호재 전 매집 후보')}${lst('sell','호재 소진 · 차익 실현')}${lst('dip','악재 과매도 · 역발상 매수')}
+   <p class="olnote">호재는 미리 알 수 없어서, 날짜가 정해진 실적 발표와 매집 흔적으로 '호재 전' 후보를 고릅니다. 뉴스는 최근 60일치만 있어 통계 표본이 적습니다. 참고용이며 투자 권유가 아닙니다.</p>`;
+}
 
 /* ---------- 화면 모드: 오늘 분석 / AI와 대결 ---------- */
 let GAMEV=null;
