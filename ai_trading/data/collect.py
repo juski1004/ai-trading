@@ -110,6 +110,18 @@ def macro() -> dict:
                 pass
     except Exception as e:
         _warn("경제지표 시세", e)
+    for k, tk in MACRO_TICKERS.items():  # 묶음 요청에서 빠진 지표는 하나씩 다시 받기
+        if k in daily and len(daily[k]) > 30:
+            continue
+        try:
+            s = yf.Ticker(tk).history(start=start, auto_adjust=False)["Close"].dropna()
+            if len(s) > 30:
+                daily[k] = s
+            else:
+                daily.pop(k, None)
+        except Exception as e:
+            _warn(f"경제지표 {tk}", e)
+            daily.pop(k, None)
 
     us_cpi = yoy(fred("CPIAUCSL"))
     fed = fred("DFEDTARU")
