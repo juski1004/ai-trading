@@ -4,7 +4,7 @@ on:
   schedule:
     # 매매: 하루 한 번. GitHub 예약이 몇 시간씩 늦을 수 있어 장중 4번 시도하고, 먼저 돈 한 번만 매매
     - cron: "47 0,2,4,5 * * 1-5"  # 09:47, 11:47, 13:47, 14:47 KST
-    - cron: "20 7 * * 1-5"   # 화면 데이터 갱신: 평일 16:20 KST (장 마감 후)
+    - cron: "20 7,8 * * 1-5" # 화면 데이터 갱신: 평일 16:20·17:20 KST (예약이 밀려도 18시 브리핑 전에 준비되게 두 번)
   workflow_dispatch:
     inputs:
       command:
@@ -37,7 +37,7 @@ jobs:
       ECOS_API_KEY: ${{ secrets.ECOS_API_KEY }}
       DART_API_KEY: ${{ secrets.DART_API_KEY }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      CMD: ${{ inputs.command || (github.event.schedule == '20 7 * * 1-5' && 'data') || 'cycle' }}
+      CMD: ${{ inputs.command || (github.event.schedule == '20 7,8 * * 1-5' && 'data') || 'cycle' }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6

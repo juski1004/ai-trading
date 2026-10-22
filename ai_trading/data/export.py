@@ -33,6 +33,17 @@ def _r(x, nd=2):
     return None if x is None or pd.isna(x) else round(float(x), nd)
 
 
+def day_index(idx: pd.DatetimeIndex) -> pd.DatetimeIndex:
+    """시간대를 떼고 날짜만 남긴다. 야후가 시간대 붙은 날짜(Asia/Seoul)를 줄 때와 안 줄 때를 같은 모양으로 맞춘다."""
+    idx = pd.DatetimeIndex(idx)
+    if idx.tz is not None:
+        idx = idx.tz_localize(None)
+    return idx.normalize().astype("datetime64[ns]")
+
+
+MIN_STOCK_RATIO = 0.6  # 분석 대상 중 이 비율보다 적게 받으면 화면을 갱신하지 않는다
+
+
 def build(out: Path, quick: bool = False, game_dir: Path = Path("game")) -> dict:
     out.mkdir(parents=True, exist_ok=True)
     t0 = time.time()
@@ -45,12 +56,12 @@ def build(out: Path, quick: bool = False, game_dir: Path = Path("game")) -> dict
     kospi = mac["daily"].get("kospi")
     if kospi is None or len(kospi) < 150:
         raise SystemExit("코스피 지수를 받지 못해 날짜축을 만들 수 없습니다.")
-    axis = kospi.index.normalize()
+    axis = day_index(kospi.index)
     dates = [d.date().isoformat() for d in axis]
 
     def align(s: pd.Series) -> list:
         s = s.copy()
-        s.index = s.index.tz_localize(None).normalize() if s.index.tz is not None else s.index.normalize()
+        s.index = day_index(s.index)
         s = s[~s.index.duplicated(keep="last")].reindex(axis).ffill().bfill()
         return [_r(v, 4) for v in s]
 
@@ -62,7 +73,7 @@ def build(out: Path, quick: bool = False, game_dir: Path = Path("game")) -> dict
             print(f"- {s} 시세 없음, 건너뜀")
             continue
         df = df.copy()
-        df.index = df.index.tz_localize(None).normalize() if df.index.tz is not None else df.index.normalize()
+        df.index = day_index(df.index)
         df = df[~df.index.duplicated(keep="last")].reindex(axis)
         df["Close"] = df["Close"].ffill()
         for k in ("Open", "High", "Low"):
@@ -78,11 +89,15 @@ def build(out: Path, quick: bool = False, game_dir: Path = Path("game")) -> dict
                      "o": [round(v) for v in df["Open"]], "h": [round(v) for v in df["High"]], "l": [round(v) for v in df["Low"]],
                      "c": [round(v) for v in df["Close"]], "v": [int(v) for v in df["Volume"]]}
 
+    if len(stocks) < len(syms) * MIN_STOCK_RATIO:
+        # 시세 서버가 빈 값을 준 날: 빈 화면을 올리지 않고 실패로 끝내서 어제 화면을 그대로 둔다
+        raise SystemExit(f"시세를 {len(stocks)}/{len(syms)}종목만 받아 화면을 갱신하지 않습니다 (어제 화면 유지).")
+
     idx = px.get("^KS11")
     index_bars = None
     if idx is not None:
         idx = idx.copy()
-        idx.index = idx.index.tz_localize(None).normalize() if idx.index.tz is not None else idx.index.normalize()
+        idx.index = day_index(idx.index)
         idx = idx[~idx.index.duplicated(keep="last")].reindex(axis).ffill().bfill()
         index_bars = {k: [_r(v) for v in idx[c]] for k, c in (("o", "Open"), ("h", "High"), ("l", "Low"), ("c", "Close"))}
 
@@ -171,6 +186,11 @@ def build(out: Path, quick: bool = False, game_dir: Path = Path("game")) -> dict
         sc = build_scores(market, news["sym"] or None, fin or None)
         (out / "scores.json").write_text(json.dumps(sc, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
         print(f"AI 점수 {len(sc['stocks'])}종목")
+        from ..llm import from_env as _llm
+        from .pick import build_pick
+        pk = build_pick(out, _llm())
+        (out / "pick.json").write_text(json.dumps(pk, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+        print(f"추천 종목: {pk.get('name') if pk.get('found') else '없음'}")
     except Exception as e:  # 점수 실패로 화면 데이터 전체를 버리지 않게
         print(f"[AI 점수 실패] {type(e).__name__}: {e}")
 
