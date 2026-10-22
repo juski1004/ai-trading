@@ -114,11 +114,6 @@ def build(out: Path, quick: bool = False, game_dir: Path = Path("game")) -> dict
         (out / "news.json").write_text(json.dumps(news, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
         print(f"재무·뉴스 저장 ({time.time() - t0:.0f}초)")
 
-        from ..llm import from_env
-        from .summary import summarize
-        summ = summarize(news["sym"], {s: st["name"] for s, st in stocks.items()}, from_env())
-        (out / "summary.json").write_text(json.dumps(summ, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
-        print(f"AI 뉴스 요약 {len(summ)}종목 ({time.time() - t0:.0f}초)")
 
     # 수급 (외국인·기관·개인) + 수급 전망, 오늘의 시장 전망
     from . import flows as fl
@@ -150,6 +145,14 @@ def build(out: Path, quick: bool = False, game_dir: Path = Path("game")) -> dict
         print(f"수급 {len(sflows)}종목·시장 전망({ol.get('source')}) 저장 ({time.time() - t0:.0f}초)")
     except Exception as e:
         print(f"[수급·시장 전망 실패] {type(e).__name__}: {e}")
+
+    # AI 뉴스 요약은 무료 한도를 많이 쓰므로 시장 전망 다음에
+    if not quick:
+            from ..llm import from_env
+            from .summary import summarize
+            summ = summarize(news["sym"], {s: st["name"] for s, st in stocks.items()}, from_env())
+            (out / "summary.json").write_text(json.dumps(summ, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+            print(f"AI 뉴스 요약 {len(summ)}종목 ({time.time() - t0:.0f}초)")
 
     from .scores import build_scores
     try:

@@ -92,6 +92,15 @@ class GeminiClient:
                 self._rediscovered = True
                 self.model = self._discover()
                 return self.ask_json(prompt) if self.model else self._off()
+            if r.status_code in (429, 500, 503) and getattr(self, "_retry", 0) < 2:  # 분당 한도·서버 바쁨 → 쉬었다가 다시
+                self._retry = getattr(self, "_retry", 0) + 1
+                wait = 25 * self._retry
+                print(f"[AI] {r.status_code} 응답, {wait}초 쉬고 다시 시도 ({self._retry}/2)")
+                time.sleep(wait)
+                try:
+                    return self.ask_json(prompt)
+                finally:
+                    self._retry = 0
             if r.status_code in (401, 403):  # 키 문제는 다시 해 봐야 소용없음
                 print(f"[AI] 키가 거부됨 ({r.status_code}), 이번 실행은 규칙 기반으로 진행")
                 return self._off()
