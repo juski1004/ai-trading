@@ -104,9 +104,14 @@ def build(out: Path, quick: bool = False, game_dir: Path = Path("game")) -> dict
             if k % 10 == 9:
                 print(f"  재무 {k + 1}/{len(stocks)}")
         news["eco"] = collect.google_news(ECO_QUERY, limit=40)
+        research = {}
         for s, st in stocks.items():
-            news["sym"][s] = collect.google_news(f'"{st["name"]}"', limit=15)
+            nv = collect.naver_news(st["code"])
+            seen = {x["title"] for x in nv}
+            news["sym"][s] = nv + [x for x in collect.google_news(f'"{st["name"]}"', limit=15) if x["title"] not in seen]
+            research[s] = collect.naver_research(st["code"])
             time.sleep(0.3)
+        (out / "research.json").write_text(json.dumps(research, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
         for code, items in collect.dart_disclosures({st["code"] for st in stocks.values()}).items():
             s = next(k for k, st in stocks.items() if st["code"] == code)
             news["sym"].setdefault(s, []).extend(items)
