@@ -53,14 +53,14 @@ MACRO_TICKERS = {"usdkrw": "KRW=X", "dxy": "DX-Y.NYB", "wti": "CL=F", "gold": "G
                  "us10y": "^TNX", "vix": "^VIX", "kospi": "^KS11", "kosdaq": "^KQ11"}
 
 
-def fred(series: str) -> pd.Series | None:
+def fred(series: str, days: int = 900) -> pd.Series | None:
     """FRED 시계열. FRED_API_KEY 가 있으면 API, 없으면 공개 CSV."""
     key = os.getenv("FRED_API_KEY")
     try:
         if key:
             r = requests.get("https://api.stlouisfed.org/fred/series/observations",
                              params={"series_id": series, "api_key": key, "file_type": "json",
-                                     "observation_start": (date.today() - timedelta(days=900)).isoformat()}, timeout=40)
+                                     "observation_start": (date.today() - timedelta(days=days)).isoformat()}, timeout=40)
             r.raise_for_status()
             obs = [(o["date"], o["value"]) for o in r.json()["observations"] if o["value"] not in (".", "")]
         else:
@@ -69,7 +69,7 @@ def fred(series: str) -> pd.Series | None:
             lines = r.text.strip().splitlines()[1:]
             obs = [tuple(x.split(",")[:2]) for x in lines if x.split(",")[1] not in (".", "")]
         s = pd.Series({pd.Timestamp(d): float(v) for d, v in obs}).sort_index()
-        return s[s.index >= pd.Timestamp(date.today() - timedelta(days=900))]
+        return s[s.index >= pd.Timestamp(date.today() - timedelta(days=days))]
     except Exception as e:
         _warn(f"FRED {series}", e)
         return None
@@ -78,7 +78,7 @@ def fred(series: str) -> pd.Series | None:
 def ecos(stat: str, cycle: str, item: str, start: str, end: str) -> pd.Series | None:
     """한국은행 ECOS. 키가 없으면 공개 sample 키(최근 10건까지만)."""
     key = os.getenv("ECOS_API_KEY") or "sample"
-    n = 100 if key != "sample" else 10
+    n = 1000 if key != "sample" else 10
     try:
         url = f"https://ecos.bok.or.kr/api/StatisticSearch/{key}/json/kr/1/{n}/{stat}/{cycle}/{start}/{end}/{item}"
         rows = requests.get(url, timeout=30).json()["StatisticSearch"]["row"]
@@ -149,6 +149,47 @@ def macro() -> dict:
                 prev = v
     return {"daily": daily, "us_cpi": us_cpi, "kr_cpi": kr_cpi, "fed": fed_changes, "bok": bok_changes}
 
+
+
+# ---------------- 큰 흐름: 10년 지수·금리 사이클 ----------------
+CYCLE_INDICES = {"kospi": ("^KS11", "코스피"), "kosdaq": ("^KQ11", "코스닥"), "nasdaq": ("^IXIC", "나스닥"), "sp500": ("^GSPC", "S&P500")}
+
+
+def cycle_data(years: int = 12) -> dict:
+    """주봉 지수 12년, 연준·한국은행 기준금리 변경 기록, 미국 장단기 금리차(월)."""
+    import yfinance as yf
+
+    out: dict = {"indices": {}, "fed": [], "bok": [], "spread": []}
+    for k, (tk, name) in CYCLE_INDICES.items():
+        try:
+            h = yf.Ticker(tk).history(period=f"{years}y", interval="1wk", auto_adjust=False)["Close"].dropna()
+            out["indices"][k] = {"name": name, "d": [x.strftime("%Y-%m-%d") for x in h.index], "c": [round(float(v), 2) for v in h]}
+        except Exception as e:
+            _warn(f"장기 지수 {name}", e)
+    days = years * 366
+    for code in ("DFEDTARU", "DFEDTAR"):  # 2008-12 이후 상단, 그 이전은 단일 목표
+        s = fred(code, days)
+        if s is None:
+            continue
+        prev = None
+        for d0, v in s.items():
+            if v != prev:
+                out["fed"].append({"date": d0.date().isoformat(), "rate": float(v)})
+                prev = v
+    out["fed"].sort(key=lambda x: x["date"])
+    today = date.today()
+    bok = ecos("722Y001", "M", "0101000", f"{today.year - years}01", today.strftime("%Y%m"))
+    if bok is not None:
+        prev = None
+        for d0, v in bok.items():
+            if v != prev:
+                out["bok"].append({"date": d0.date().isoformat(), "rate": float(v)})
+                prev = v
+    sp = fred("T10Y2Y", days)
+    if sp is not None:
+        m = sp.resample("ME").last().dropna()
+        out["spread"] = [[d0.strftime("%Y-%m"), round(float(v), 2)] for d0, v in m.items()]
+    return out
 
 # ---------------- 재무 ----------------
 def financials(symbol: str) -> dict:
