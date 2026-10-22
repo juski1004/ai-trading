@@ -186,6 +186,11 @@ def build(out: Path, quick: bool = False, game_dir: Path = Path("game")) -> dict
         sc = build_scores(market, news["sym"] or None, fin or None)
         (out / "scores.json").write_text(json.dumps(sc, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
         print(f"AI 점수 {len(sc['stocks'])}종목")
+        from ..llm import from_env as _llm
+        from .pick import build_pick
+        pk = build_pick(out, _llm())
+        (out / "pick.json").write_text(json.dumps(pk, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+        print(f"추천 종목: {pk.get('name') if pk.get('found') else '없음'}")
     except Exception as e:  # 점수 실패로 화면 데이터 전체를 버리지 않게
         print(f"[AI 점수 실패] {type(e).__name__}: {e}")
 

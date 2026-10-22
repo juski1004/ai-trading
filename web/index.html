@@ -1807,7 +1807,7 @@ function renderWhy(){
    <p class="olnote">'소문·관측'은 확정되지 않은 소식(검토·추진·가능성 등)입니다. 기사 제목을 누르면 원문이 열립니다.</p>`;
 }
 
-/* ---------- 정서연 본부장의 오늘 브리핑 (저녁 8시 이후 첫 접속 때 자동) ---------- */
+/* ---------- 정서연 본부장의 오늘 브리핑 (저녁 6시 이후 첫 접속 때 자동) ---------- */
 const sl=id=>`<a href="#" data-bpick="${id}">${DATA[id].name}</a>`;
 let BRIEF=null,BSTEP=0,BSPEAK=false;
 function buildBrief(){
@@ -1875,9 +1875,9 @@ $('#bNext').onclick=()=>{if(BSTEP<BRIEF.length-1){BSTEP++;renderBrief()}else clo
 $('#bRead').onclick=()=>{BSPEAK=!BSPEAK;$('#bRead').textContent=BSPEAK?'읽기 멈춤 ⏸':'읽어주기 🔊';if(BSPEAK)speakStep();else try{speechSynthesis.cancel()}catch(e){}};
 $('#brief').addEventListener('click',e=>{const a=e.target.closest('[data-bpick]');if(a&&BEMB){e.preventDefault();BSPEAK=false;try{speechSynthesis.cancel()}catch(x){};parent.postMessage({type:'arenaPick',sym:a.dataset.bpick},location.origin);return}if(a){e.preventDefault();closeBrief();if(MODE!=='ana')setMode('ana');pick(a.dataset.bpick);setTimeout(()=>$('#judgePanel').scrollIntoView({behavior:'smooth'}),200);return}if(e.target.id==='brief')closeBrief()});
 document.addEventListener('keydown',e=>{if($('#brief').hidden)return;if(e.key==='Escape')closeBrief();else if(e.key==='ArrowRight'){e.stopPropagation();$('#bNext').click()}else if(e.key==='ArrowLeft'){e.stopPropagation();$('#bPrev').click()}},true);
-function maybeAutoBrief(){// 저녁 8시(한국 시간) 이후, 그날 처음 열었을 때
+function maybeAutoBrief(){// 저녁 6시(한국 시간) 이후, 그날 처음 열었을 때
   try{const h=+new Intl.DateTimeFormat('ko-KR',{hour:'numeric',hour12:false,timeZone:'Asia/Seoul'}).format(new Date()).replace(/\D/g,'');
-    if(h>=20&&localStorage.getItem('briefSeen')!==DATES[NBARS-1]&&$('#guide').hidden)setTimeout(openBrief,600)}catch(e){}
+    if(h>=18&&localStorage.getItem('briefSeen')!==DATES[NBARS-1]&&$('#guide').hidden)setTimeout(openBrief,600)}catch(e){}
 }
 
 /* ---------- 사용법 안내 (처음 방문 때 자동으로 한 번) ---------- */
