@@ -70,8 +70,10 @@ def check(d: Path, today: date | None = None) -> tuple[list[str], list[str]]:
     ol = _load(d, "outlook.json")
     if not ol:
         bad.append("오늘의 시장 전망이 없습니다.")
-    elif key("GEMINI_API_KEY") and ol.get("source") != "AI":
-        bad.append("시장 전망을 AI(Gemini)가 쓰지 못하고 자동 문장으로 대신했습니다 (Gemini 키·한도·모델 확인).")
+    elif any(key(k) for k in ("GEMINI_API_KEY", "GROQ_API_KEY", "XAI_API_KEY")) and ol.get("source") != "AI":
+        bad.append("시장 전망을 AI(Gemini·Groq·Grok)가 모두 쓰지 못하고 자동 문장으로 대신했습니다 (키·무료 한도 확인).")
+    elif ol.get("engine") and ol.get("engine") != "Gemini":
+        note.append(f"Gemini 대신 비상용 AI({ol.get('engine')})가 시장 전망을 썼습니다.")
     summ = _load(d, "summary.json", {})
     if key("GEMINI_API_KEY") and not summ:
         note.append("뉴스 AI 요약이 0종목입니다 (Gemini 무료 한도일 수 있음).")

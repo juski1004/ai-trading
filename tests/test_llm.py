@@ -81,3 +81,30 @@ def test_bad_key_disables(fake):
     state["posts"]["gemini-9.0-flash"] = Resp(403, {})
     c = GeminiClient("k", min_interval_sec=0)
     assert c.ask_json("p") is None and c.disabled
+
+
+def test_fallback_uses_next_ai_when_first_fails():
+    from ai_trading.llm import FallbackLLM
+
+    class Dead:
+        name = "Gemini"
+        def ask_json(self, p): return None
+
+    class Alive:
+        name = "Groq"
+        def ask_json(self, p): return {"ok": 1}
+
+    f = FallbackLLM([Dead(), Alive()])
+    assert f.ask_json("x") == {"ok": 1} and f.last_used == "Groq"
+    assert FallbackLLM([Dead()]).ask_json("x") is None
+
+
+def test_from_env_builds_chain(monkeypatch):
+    from ai_trading import llm
+    for k in ("GEMINI_API_KEY", "GROQ_API_KEY", "XAI_API_KEY"):
+        monkeypatch.delenv(k, raising=False)
+    assert llm.from_env() is None
+    monkeypatch.setenv("GROQ_API_KEY", "x")
+    assert isinstance(llm.from_env(), llm.OpenAICompatClient)
+    monkeypatch.setenv("GEMINI_API_KEY", "y")
+    assert isinstance(llm.from_env(), llm.FallbackLLM)

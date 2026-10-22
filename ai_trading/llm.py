@@ -116,6 +116,91 @@ class GeminiClient:
         return None
 
 
+class OpenAICompatClient:
+    """OpenAI 형식 API (Groq 무료 등급, xAI Grok). 모델은 목록에서 고른다."""
+
+    def __init__(self, name: str, base: str, api_key: str, prefer: tuple[str, ...], min_interval_sec: float = 3.0):
+        self.name, self.base, self.api_key, self.prefer = name, base, api_key, prefer
+        self.model = os.getenv(f"{name.upper()}_MODEL") or None
+        self.min_interval, self._last, self.disabled = min_interval_sec, 0.0, False
+
+    def _discover(self) -> str | None:
+        try:
+            r = requests.get(f"{self.base}/models", headers={"Authorization": f"Bearer {self.api_key}"}, timeout=30)
+            r.raise_for_status()
+            ids = [m.get("id", "") for m in r.json().get("data", [])]
+            ids = [i for i in ids if not any(s in i for s in ("whisper", "tts", "guard", "embed", "image", "vision", "audio"))]
+            for pref in self.prefer:
+                hit = [i for i in ids if pref in i]
+                if hit:
+                    print(f"[AI] {self.name} 모델: {sorted(hit)[-1]}")
+                    return sorted(hit)[-1]
+            return ids[0] if ids else None
+        except Exception as e:
+            print(f"[AI {self.name} 모델 목록 실패] {type(e).__name__}: {str(e)[:120]}")
+            return None
+
+    def ask_json(self, prompt: str) -> dict | None:
+        if self.disabled:
+            return None
+        if not self.model:
+            self.model = self._discover()
+            if not self.model:
+                self.disabled = True
+                return None
+        wait = self.min_interval - (time.monotonic() - self._last)
+        if wait > 0:
+            time.sleep(wait)
+        self._last = time.monotonic()
+        for attempt in range(3):
+            try:
+                r = requests.post(f"{self.base}/chat/completions", headers={"Authorization": f"Bearer {self.api_key}"}, timeout=60,
+                                  json={"model": self.model, "temperature": 0.2, "response_format": {"type": "json_object"},
+                                        "messages": [{"role": "system", "content": "Answer only with one JSON object. 한국어로 답한다."},
+                                                     {"role": "user", "content": prompt}]})
+                if r.status_code in (401, 403):
+                    print(f"[AI] {self.name} 키가 거부됨 ({r.status_code})")
+                    self.disabled = True
+                    return None
+                if r.status_code in (429, 500, 503) and attempt < 2:
+                    time.sleep(20 * (attempt + 1))
+                    continue
+                r.raise_for_status()
+                return json.loads(r.json()["choices"][0]["message"]["content"])
+            except Exception as e:
+                print(f"[AI {self.name} 실패] {type(e).__name__}: {str(e)[:120]}")
+                return None
+        return None
+
+
+class FallbackLLM:
+    """앞에서부터 차례로 시도: Gemini → Groq(무료) → Grok(유료)."""
+
+    def __init__(self, clients: list):
+        self.clients = clients
+        self.last_used: str | None = None
+
+    def ask_json(self, prompt: str) -> dict | None:
+        for c in self.clients:
+            ans = c.ask_json(prompt)
+            if ans is not None:
+                self.last_used = getattr(c, "name", type(c).__name__)
+                return ans
+        return None
+
+
 def from_env() -> LLM | None:
-    key = os.getenv("GEMINI_API_KEY")
-    return GeminiClient(key) if key else None
+    clients = []
+    if os.getenv("GEMINI_API_KEY"):
+        g = GeminiClient(os.environ["GEMINI_API_KEY"])
+        g.name = "Gemini"
+        clients.append(g)
+    if os.getenv("GROQ_API_KEY"):
+        clients.append(OpenAICompatClient("Groq", "https://api.groq.com/openai/v1", os.environ["GROQ_API_KEY"],
+                                          ("llama-3.3-70b", "llama-3.1-70b", "70b", "llama")))
+    if os.getenv("XAI_API_KEY"):
+        clients.append(OpenAICompatClient("Grok", "https://api.x.ai/v1", os.environ["XAI_API_KEY"],
+                                          ("grok-3-mini", "mini", "fast", "grok")))
+    if not clients:
+        return None
+    return clients[0] if len(clients) == 1 else FallbackLLM(clients)

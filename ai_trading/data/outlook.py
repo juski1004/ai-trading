@@ -57,7 +57,7 @@ def write(daily: dict, mflows: dict, big_flow: dict | None, eco_news: list[dict]
         if isinstance(ans, dict) and ans.get("lines"):
             return {"tone": str(ans.get("tone", "중립"))[:4], "headline": str(ans.get("headline", ""))[:60],
                     "lines": [str(x)[:220] for x in ans["lines"]][:5], "watch": [str(x)[:80] for x in ans.get("watch", [])][:4],
-                    "source": "AI", "facts": f}
+                    "source": "AI", "engine": getattr(llm, "last_used", None) or "Gemini", "facts": f}
     out = rule_text(f)
     out["facts"] = f
     return out

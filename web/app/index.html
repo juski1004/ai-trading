@@ -256,6 +256,7 @@ const lazy=async()=>{
 };
 const stars=x=>{const n=Math.round(x);return `<span class="stars">${'★'.repeat(n)}<i>${'★'.repeat(5-n)}</i></span>`};
 const ROLE={JOY:'시장 흐름',OSCAR:'수급·뉴스',RAY:'차트',MILES:'진입 자리'};
+const KN={JOY:'윤시아',OSCAR:'서하린',RAY:'차유나',MILES:'민채원',LLOYD:'강도윤',THEO:'정서연'};
 function rowHtml([sym,s],k){return `<li><button class="row" data-sym="${esc(sym)}" type="button">
   <span class="rank num">${k+1}</span>
   <span style="min-width:0"><div class="nm">${esc(s.name)}</div><div class="meta num">${esc(s.code)} · <span class="${cls(s.chg)}">${pct(s.chg)}</span></div></span>
@@ -318,9 +319,9 @@ function analysisDetail(sym){
     ${s.news.length?`<ul class="news" ${sm?'style="margin-top:8px"':''}>${s.news.map(n=>`<li><a href="${esc(n.link||'#')}" target="_blank" rel="noopener">${esc(n.title)}<small>${esc(n.date)} · ${esc(n.src||'')}</small></a></li>`).join('')}</ul>`:'<p class="empty">최근 소식이 없어요.</p>'}
   </section>
   <section class="card"><div class="hd"><h2>AI 분석팀 의견</h2></div>
-    <ul class="ops">${s.opinions.map(o=>{const w=Math.abs(o.score)*50,l=o.score>=0?50:50-w;return `<li><div class="who"><span>${o.agent}<small>${ROLE[o.agent]||''}</small></span><span class="num ${o.score>0?'up':o.score<0?'down':'flat'}">${o.score>0?'+':''}${Math.round(o.score*50)}</span></div>
+    <ul class="ops">${s.opinions.map(o=>{const w=Math.abs(o.score)*50,l=o.score>=0?50:50-w;return `<li><div class="who"><span>${KN[o.agent]||o.agent}<small>${ROLE[o.agent]||''}</small></span><span class="num ${o.score>0?'up':o.score<0?'down':'flat'}">${o.score>0?'+':''}${Math.round(o.score*50)}</span></div>
       <div class="meter"><i style="left:${l}%;width:${w}%;background:${o.score>=0?'var(--up)':'var(--down)'}"></i></div><p>${esc(o.summary)}</p></li>`}).join('')}
-      <li><div class="who"><span>LLOYD<small>리스크 점검</small></span><span class="lv-${s.risk.level}">${s.risk.level}</span></div><p>${s.risk.reasons.map(esc).join(' · ')}</p></li></ul>
+      <li><div class="who"><span>강도윤<small>리스크 점검</small></span><span class="lv-${s.risk.level}">${s.risk.level}</span></div><p>${s.risk.reasons.map(esc).join(' · ')}</p></li></ul>
   </section>
   <section class="card"><div class="hd"><h2>재무 지표</h2><span class="sub">최근 4분기</span></div>
     <div class="kv">

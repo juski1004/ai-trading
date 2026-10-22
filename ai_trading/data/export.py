@@ -170,7 +170,7 @@ def build(out: Path, quick: bool = False, game_dir: Path = Path("game")) -> dict
     (out / "ai.json").write_text(json.dumps(ai, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
 
     meta = {"updated": collect.now_kst(), "stocks": len(stocks), "listing": len(listing),
-            "keys": {k: bool(os.getenv(k)) for k in ("FRED_API_KEY", "ECOS_API_KEY", "DART_API_KEY", "GEMINI_API_KEY")},
+            "keys": {k: bool(os.getenv(k)) for k in ("FRED_API_KEY", "ECOS_API_KEY", "DART_API_KEY", "GEMINI_API_KEY", "GROQ_API_KEY", "XAI_API_KEY")},
             "warnings": collect.WARNINGS[:50]}
     (out / "meta.json").write_text(json.dumps(meta, ensure_ascii=False), encoding="utf-8")
     print(f"완료 {time.time() - t0:.0f}초")

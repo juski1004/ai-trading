@@ -1,5 +1,5 @@
 // 앱 화면은 저장해 두고(오프라인에서도 열림), 데이터는 항상 새로 받되 실패하면 저장본을 씀.
-const SHELL = "shell-v3";
+const SHELL = "shell-v4";
 const FILES = ["./", "./index.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png"];
 self.addEventListener("install", e => e.waitUntil(caches.open(SHELL).then(c => c.addAll(FILES)).then(() => self.skipWaiting())));
 self.addEventListener("activate", e => e.waitUntil(
