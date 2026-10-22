@@ -47,6 +47,8 @@ AI 6명이 실제 시세로 코스피·코스닥 주식을 분석하고 **가상
 | 미국 물가·기준금리 | FRED | `FRED_API_KEY` (없으면 공개 CSV) |
 | 한국 물가·기준금리 | 한국은행 ECOS | `ECOS_API_KEY` (없으면 최근 10건만) |
 | 공시 | DART OpenAPI | `DART_API_KEY` (없으면 공시 생략) |
+| AI 비상용 1 (Gemini 실패 시) | Groq 무료 등급 (Llama) | `GROQ_API_KEY` (선택) |
+| AI 비상용 2 | xAI Grok (유료) | `XAI_API_KEY` (선택) |
 | 뉴스 3줄 요약 | Gemini 무료 등급 (소식 많은 40종목) | `GEMINI_API_KEY` (없으면 헤드라인만) |
 
 키는 **Settings → Secrets and variables → Actions → New repository secret** 에 위 이름으로 넣는다. 화면이나 커밋에는 절대 들어가지 않는다.

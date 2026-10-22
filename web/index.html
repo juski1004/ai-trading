@@ -175,9 +175,9 @@ select.sel{background:var(--raise);border:1px solid var(--line2);padding:6px 8px
 .team{display:flex;flex-direction:column;margin:0;padding:0;list-style:none;border-top:1px solid var(--line)}
 .mem{display:grid;grid-template-columns:44px minmax(0,1fr) 64px;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
 .av{width:44px;height:44px;position:relative}
-.av img{width:44px;height:44px;border-radius:50%;object-fit:cover;display:block;background:var(--raise)}
+.av img{width:44px;height:44px;border-radius:50%;object-fit:cover;object-position:50% 15%;display:block;background:var(--raise)}
 .fav{display:inline-block;width:18px;height:18px;vertical-align:-4px;margin-right:6px}
-.fav img{width:18px;height:18px;border-radius:50%;object-fit:cover;display:block}
+.fav img{width:18px;height:18px;border-radius:50%;object-fit:cover;object-position:50% 15%;display:block}
 .av::after{content:"";position:absolute;right:-1px;bottom:-1px;width:9px;height:9px;border-radius:50%;background:var(--dim);border:2px solid var(--panel)}
 .mem.busy .av::after{background:var(--accent);animation:pulse 1s ease-in-out infinite}
 .mem.done .av::after{background:var(--ok)}
@@ -291,8 +291,9 @@ select.sel{background:var(--raise);border:1px solid var(--line2);padding:6px 8px
 .jgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:18px}
 @media (max-width:1100px){.jgrid{grid-template-columns:minmax(0,1fr)}}
 .experts{list-style:none;margin:0;padding:0}
-.experts li{display:grid;grid-template-columns:36px minmax(0,1fr);gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:13px}
-.experts img{width:36px;height:36px;border-radius:50%;object-fit:cover}
+.experts li{display:grid;grid-template-columns:112px minmax(0,1fr);gap:14px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13.5px;align-items:start}
+.experts img{width:112px;height:140px;border-radius:10px;object-fit:cover;object-position:50% 12%;box-shadow:0 4px 14px rgba(20,26,36,.12)}
+.experts b{font-size:15px}
 .experts small{color:var(--muted)}
 .experts .d{color:var(--muted);font-size:12.5px;margin-top:2px;line-height:1.6}
 .experts .d div::before{content:'· '}
@@ -741,6 +742,7 @@ const ret=(a,i)=>(equity(a,i)/RULES.cash0-1)*100;
 const iret=i=>(IDX[i].c/IDX[START].c-1)*100;
 
 /* ---------- AI 운용팀 6명 (ai_trading/agents.py 규칙과 같음) ---------- */
+const KNAME={JOY:'윤시아',OSCAR:'서하린',RAY:'차유나',MILES:'민채원',LLOYD:'강도윤',THEO:'정서연'};// 화면에 보이는 이름 (안쪽 코드는 영문 이름 그대로)
 const TEAM=[
  {id:'JOY',role:'시장·거시경제',col:'#e8c26a',t:'08:50',skin:'#f1d3bd',hair:'#4a2f22',style:'long',suit:'#3b4a63',shirt:'#f4efe6'},
  {id:'OSCAR',role:'수급·뉴스·실적',col:'#4fc7a4',t:'09:30',skin:'#d8a982',hair:'#17181d',style:'short',suit:'#2a3446',shirt:'#e9eef5',glasses:1,tie:'#4fc7a4'},
@@ -748,7 +750,7 @@ const TEAM=[
  {id:'MILES',role:'진입 계획',col:'#f08aa6',t:'13:10',skin:'#f3d6c2',hair:'#1c1a1f',style:'bob',suit:'#4a3a4f',shirt:'#f6eef0'},
  {id:'LLOYD',role:'리스크 점검',col:'#f0a04b',t:'14:40',skin:'#c58c66',hair:'#3a3a40',style:'buzz',suit:'#3a3f4c',shirt:'#eceae4',beard:1},
  {id:'THEO',role:'최종 판정 · 운용역',col:'#a98bff',t:'15:20',skin:'#e8c3a4',hair:'#c9ccd4',style:'side',suit:'#1e2433',shirt:'#f2f2f2',glasses:1,tie:'#9c2f3a'}];
-function face(m){return `<img src="img/team/${m.id.toLowerCase()}.jpg" alt="${m.id} 사진" loading="lazy">`}
+function face(m){return `<img src="img/team/${m.id.toLowerCase()}.jpg?v=2" alt="${m.id} 사진" loading="lazy">`}
 const clamp=x=>Math.max(-1,Math.min(1,x));
 const f1=x=>(x>=0?'+':'')+x.toFixed(1);
 function aiMaxQty(id,i){const a=S.ai,c=DATA[id].bars[i].c,eq=equity(a,i),held=a.pos[id]?a.pos[id].qty*c:0;
@@ -961,7 +963,7 @@ function renderTeam(){
     const shown=st==='done'?say:k===briefing?'분석 중…':'대기';
     const sc=score==null?`<span class="${v.risk.ok?'up':'down'}" style="font-size:12px">${v.risk.ok?'통과':'거절'}</span>`:`<span class="num ${cls(score)}">${score>=0?'+':''}${score.toFixed(2)}</span>`;
     const w=Math.abs(score||0)*50,l=(score||0)>=0?50:50-w;
-    return `<li class="mem ${st}"><div class="av">${face(m)}</div><div style="min-width:0"><div class="who">${m.id}<small>${m.role}</small></div><div class="say">${shown}</div></div>
+    return `<li class="mem ${st}"><div class="av">${face(m)}</div><div style="min-width:0"><div class="who">${KNAME[m.id]}<small>${m.role}</small></div><div class="say">${shown}</div></div>
       <div class="scv">${st==='done'?sc:''}<div class="sb">${st==='done'&&score!=null?`<b style="left:${l}%;width:${w}%;background:${score>=0?'var(--up)':'var(--down)'}"></b>`:''}</div></div></li>`}).join('');
   $('#deskMeta').textContent=`${DATA[S.sel].name} 분석 · 거래일 ${S.d+1}`;
 }
@@ -974,12 +976,12 @@ function brief(gap){
   briefing=0;renderTeam();
   const step=k=>{if(tok!==briefTok)return;
     if(k>=TEAM.length){briefing=-1;$('#typing').textContent='';renderTeam();return}
-    briefing=k;$('#typing').textContent=`${TEAM[k].id} 님이 입력 중…`;renderTeam();
+    briefing=k;$('#typing').textContent=`${KNAME[TEAM[k].id]} 님이 입력 중…`;renderTeam();
     setTimeout(()=>{if(tok!==briefTok)return;S.feed.push({d:S.d,t:TEAM[k].t,who:TEAM[k].id,col:TEAM[k].col,m:lines[k],v:TEAM[k].id==='THEO'});if(S.feed.length>60)S.feed.shift();renderFeed();step(k+1)},gap)};
   step(0);
 }
 function renderFeed(){
-  const f=$('#feed');f.innerHTML=S.feed.slice(-24).map((x,n)=>`<li><span class="t">${DATES[START+x.d].slice(5)} ${x.t}</span><span class="m${x.v?' v':''}"><span class="fav">${face(TEAM.find(m=>m.id===x.who))}</span><b style="color:${x.col}">${x.who}</b>${x.m}</span></li>`).join('');f.scrollTop=f.scrollHeight;
+  const f=$('#feed');f.innerHTML=S.feed.slice(-24).map((x,n)=>`<li><span class="t">${DATES[START+x.d].slice(5)} ${x.t}</span><span class="m${x.v?' v':''}"><span class="fav">${face(TEAM.find(m=>m.id===x.who))}</span><b style="color:${x.col}">${KNAME[x.who]}</b>${x.m}</span></li>`).join('');f.scrollTop=f.scrollHeight;
 }
 function renderOrder(){
   const i=cur(),c=DATA[S.sel].bars[i].c,q=Math.max(0,Math.floor(+$('#ordQty').value||0)),hold=S.me.pos[S.sel],B=S.side==='B';
@@ -1320,7 +1322,7 @@ function renderEst(){
 function renderOutlook(){
   const O=OUTLOOK,el=$('#outlook');if(!O){el.hidden=true;return}el.hidden=false;
   const tn=$('#olTone');tn.textContent=O.tone||'중립';tn.className='tone '+(O.tone||'');
-  $('#olHead').textContent=O.headline||'오늘의 시장 전망';$('#olMeta').textContent=`${O.date} 장 마감 기준 · ${O.source==='AI'?'AI(Gemini) 작성':'자동 문장'}`;
+  $('#olHead').textContent=O.headline||'오늘의 시장 전망';$('#olMeta').textContent=`${O.date} 장 마감 기준 · ${O.source==='AI'?`AI(${O.engine||'Gemini'}) 작성`:'자동 문장'}`;
   $('#olLines').innerHTML=(O.lines||[]).map(x=>`<li>${esc(x)}</li>`).join('');
   $('#olWatch').innerHTML=O.watch&&O.watch.length?`<b>지켜볼 것</b> · ${O.watch.map(esc).join(' · ')}`:'';
   const M=FLOWS.market||{},B=FLOWS.big||[],b5=B.slice(-5).reduce((a,x)=>({frg:a.frg+x.frg,org:a.org+x.org,ind:a.ind+x.ind}),{frg:0,org:0,ind:0});
@@ -1399,8 +1401,8 @@ function renderJudge(){
   $('#judgeMeta').textContent=`${DATES[i]} 기준 · 그날까지의 데이터만 사용 · 참고용`;
   const pp=x=>Math.round(x*100)+'%';
   el.innerHTML=`<div class="jtop"><span class="jcall ${J.call[2]}">${J.call[0]}</span><div><b>${J.call[1]}</b><div class="flat" style="font-size:12.5px">타이밍: ${J.timing} · 종합 점수 ${(J.total*100).toFixed(0)}/100</div></div></div>
-  <div class="jgrid"><div><ul class="experts">${J.ex.map(x=>`<li><img src="img/team/${x.who.toLowerCase()}.jpg" alt=""><div><b>${x.who}</b> <small>${x.role}</small> <span class="${x.label==='매수'?'up':x.label==='매도'?'down':'flat'}">${x.label}</span><div class="d">${(x.lines||[x.line]).map(l=>`<div>${esc(l)}</div>`).join('')}</div></div></li>`).join('')}
-    <li><img src="img/team/theo.jpg" alt=""><div><b>THEO</b> <small>최종 판단</small> <span class="${J.call[2]}">${J.call[0]}</span><div class="d"><div>상승 시나리오: ${won(J.P.sells[0][1])}원에서 일부, ${won(J.P.sells[1][1])}원에서 추가 익절 · 하락 시나리오: ${won(J.P.stop)}원 이하면 시장가 손절.</div><div>매매 계획: 조건 ${J.P.n}/${J.P.tot} 충족 → 투자금 ${won(J.P.seed)}원 중 ${won(J.P.alloc)}원(${J.P.pct}%)까지.</div>5명 의견 평균, 매매 계획 조건 ${J.P.n}/${J.P.tot}, 이벤트 신호(${J.EV.title}), 유사 차트의 10일 뒤 상승 확률(${R.n>=4?pp(J.prob):'자료 부족'})을 합쳐 판단했습니다.</div></div></li></ul></div>
+  <div class="jgrid"><div><ul class="experts">${J.ex.map(x=>`<li><img src="img/team/${x.who.toLowerCase()}.jpg?v=2" alt="${KNAME[x.who]} 사진"><div><b>${KNAME[x.who]}</b> <small>${x.role}</small> <span class="${x.label==='매수'?'up':x.label==='매도'?'down':'flat'}">${x.label}</span><div class="d">${(x.lines||[x.line]).map(l=>`<div>${esc(l)}</div>`).join('')}</div></div></li>`).join('')}
+    <li><img src="img/team/theo.jpg?v=2" alt="정서연 본부장 사진"><div><b>정서연 본부장</b> <small>최종 판단</small> <span class="${J.call[2]}">${J.call[0]}</span><div class="d"><div>상승 시나리오: ${won(J.P.sells[0][1])}원에서 일부, ${won(J.P.sells[1][1])}원에서 추가 익절 · 하락 시나리오: ${won(J.P.stop)}원 이하면 시장가 손절.</div><div>매매 계획: 조건 ${J.P.n}/${J.P.tot} 충족 → 투자금 ${won(J.P.seed)}원 중 ${won(J.P.alloc)}원(${J.P.pct}%)까지.</div>5명 의견 평균, 매매 계획 조건 ${J.P.n}/${J.P.tot}, 이벤트 신호(${J.EV.title}), 유사 차트의 10일 뒤 상승 확률(${R.n>=4?pp(J.prob):'자료 부족'})을 합쳐 판단했습니다.</div></div></li></ul></div>
   <div><div class="pt"><b>유사 차트 ${R.n}개</b> <span class="flat">· 최근 20일 흐름과 모양이 비슷했던 과거 구간 (78종목 전체)</span></div><canvas id="patCv" style="width:100%;height:170px;display:block" aria-label="현재 차트와 유사 차트 비교"></canvas>
     ${R.n?`<div class="flsum" style="margin-top:8px"><div><div class="k">5일 뒤 상승 확률</div><div class="v num">${pp(R.s5.up)}</div><div class="k">평균 ${pct(R.s5.avg)}</div></div><div><div class="k">10일 뒤</div><div class="v num">${pp(R.s10.up)}</div><div class="k">평균 ${pct(R.s10.avg)}</div></div><div><div class="k">20일 뒤</div><div class="v num">${pp(R.s20.up)}</div><div class="k">평균 ${pct(R.s20.avg)}</div></div><div><div class="k">모의 진입 결과</div><div class="v num">익절 ${pp(R.tp)} · 손절 ${pp(R.sl)}</div><div class="k">평균 ${pct(R.ev)} (−5%/+10% 규칙)</div></div></div>
     <div style="overflow-x:auto;max-height:200px"><table class="fltab num"><tr><th>종목</th><th>구간 끝</th><th>유사도</th><th>5일 뒤</th><th>10일 뒤</th><th>20일 뒤</th><th>모의 진입</th></tr>${R.list.map(m=>`<tr><td>${DATA[m.id].name}</td><td>${DATES[m.j]}</td><td>${(m.r*100).toFixed(0)}%</td><td class="${cls(m.f5)}">${pct(m.f5)}</td><td class="${cls(m.f10)}">${pct(m.f10)}</td><td class="${cls(m.f20)}">${pct(m.f20)}</td><td class="${m.res==='익절'?'up':m.res==='손절'?'down':'flat'}">${m.res} ${pct(m.rr)}</td></tr>`).join('')}</table></div>`:'<p class="empty">유사도 80% 이상인 과거 차트가 없습니다.</p>'}
