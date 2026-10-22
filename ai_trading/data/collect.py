@@ -16,8 +16,12 @@ from .sentiment import headline_score
 UA = {"User-Agent": "Mozilla/5.0 (ai-trading paper game)"}
 
 
+WARNINGS: list[str] = []  # 이번 수집에서 실패한 항목 (자동 점검 알림에 씀)
+
+
 def _warn(what: str, e: Exception) -> None:
     print(f"[{what} 실패] {type(e).__name__}: {str(e)[:120]}")
+    WARNINGS.append(f"{what}: {type(e).__name__}")
 
 
 # ---------------- 시세 ----------------

@@ -18,6 +18,8 @@ on:
 
 permissions:
   contents: write
+  actions: write   # 60일 멈춤 방지 (워크플로 다시 켜기)
+  issues: write    # 문제가 생기면 이슈로 알림 (GitHub가 메일로 보냄)
 
 concurrency:
   group: trade
@@ -26,16 +28,17 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
     env:
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
       ECOS_API_KEY: ${{ secrets.ECOS_API_KEY }}
       DART_API_KEY: ${{ secrets.DART_API_KEY }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       CMD: ${{ inputs.command || (github.event.schedule == '20 7 * * 1-5' && 'data') || 'cycle' }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           cache: pip
@@ -60,12 +63,42 @@ jobs:
           git diff --cached --quiet || (git commit -m "게임 기록 업데이트" && git push)
       - name: 화면을 site 브랜치에 올리기 (기록 없이 매번 덮어씀)
         if: env.CMD == 'data'
-        env:
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           rm -rf /tmp/site && cp -r web /tmp/site && cd /tmp/site
           git init -q && git checkout -q -b site
           git config user.name "ai-trading-bot"
           git config user.email "ai-trading-bot@users.noreply.github.com"
           git add -A && git commit -qm "화면 데이터 $(date -u +%F)"
-          git push -qf "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" site
+          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" site
+
+      # ---------- 자동 점검과 알림 ----------
+      - name: 데이터 점검 (비거나 오래된 항목 찾기)
+        if: env.CMD == 'data'
+        run: |
+          python -m ai_trading.data.health web/data | tee /tmp/health.md
+          {
+            echo ""
+            echo "실행 기록: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          } >> /tmp/health.md
+      - name: 점검 결과를 이슈로 알림 (문제 있으면 열고, 없어지면 닫음)
+        if: env.CMD == 'data'
+        run: |
+          gh label create "자동점검" --color d93f0b --description "자동 실행이 찾은 문제" 2>/dev/null || true
+          num=$(gh issue list --label "자동점검" --state open --json number -q '.[0].number')
+          if head -1 /tmp/health.md | grep -q "^문제 없음"; then
+            if [ -n "$num" ]; then gh issue close "$num" --comment "다시 점검해 보니 문제가 없어 닫습니다. $(date -u +%F)"; fi
+          elif [ -n "$num" ]; then
+            gh issue comment "$num" --body-file /tmp/health.md
+          else
+            gh issue create --title "[자동 점검] 화면 데이터에 문제가 있습니다" --label "자동점검" --body-file /tmp/health.md
+          fi
+      - name: 실행 실패 알림
+        if: failure()
+        run: |
+          gh label create "자동점검" --color d93f0b --description "자동 실행이 찾은 문제" 2>/dev/null || true
+          body="자동 실행($CMD)이 실패했습니다. 실행 기록에서 빨간 단계를 확인하세요: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          num=$(gh issue list --label "자동점검" --state open --json number -q '.[0].number')
+          if [ -n "$num" ]; then gh issue comment "$num" --body "$body"; else gh issue create --title "[자동 점검] 자동 실행 실패 ($CMD)" --label "자동점검" --body "$body"; fi
+      - name: 60일 멈춤 방지 (예약 실행 다시 켜두기)
+        if: always()
+        run: gh api -X PUT "repos/${GITHUB_REPOSITORY}/actions/workflows/trade.yml/enable" || true

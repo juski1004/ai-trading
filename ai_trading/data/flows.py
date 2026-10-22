@@ -8,6 +8,8 @@ import time
 
 import requests
 
+from .collect import WARNINGS
+
 UA = {"User-Agent": "Mozilla/5.0 (ai-trading paper game)"}
 
 
@@ -28,6 +30,7 @@ def stock_flows(code: str, days: int = 60) -> list[dict]:
         rows = requests.get(f"https://m.stock.naver.com/api/stock/{code}/trend?pageSize={days}", headers=UA, timeout=15).json()
     except Exception as e:
         print(f"[수급 {code} 실패] {type(e).__name__}: {str(e)[:80]}")
+        WARNINGS.append(f"수급 {code}: {type(e).__name__}")
         return []
     out = [{"date": _day(r["bizdate"]), "frg": _num(r.get("foreignerPureBuyQuant")), "org": _num(r.get("organPureBuyQuant")),
             "ind": _num(r.get("individualPureBuyQuant")), "frg_ratio": _num(r.get("foreignerHoldRatio"))} for r in rows if r.get("bizdate")]
@@ -43,6 +46,7 @@ def market_flows() -> dict:
             out[k] = {"date": _day(r["bizdate"]), "ind": _num(r["personalValue"]), "frg": _num(r["foreignValue"]), "org": _num(r["institutionalValue"])}
         except Exception as e:
             print(f"[시장 수급 {k} 실패] {type(e).__name__}: {str(e)[:80]}")
+            WARNINGS.append(f"시장 수급 {k}: {type(e).__name__}")
     return out
 
 

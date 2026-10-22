@@ -131,3 +131,17 @@ def test_news_score_recent_only():
 def test_headline_score():
     assert headline_score("삼성전자, 북미 고객사와 공급계약 체결") == 1
     assert headline_score("○○제약, 임상 실패로 주가 급락") == -1
+
+
+def test_health_finds_missing_data(tmp_path):
+    import json
+    from datetime import date
+    from ai_trading.data.health import check
+    assert check(tmp_path)[0]  # market.json 없음 → 문제
+    mk = {"dates": ["2026-10-20", "2026-10-21"], "stocks": {f"s{k}": {} for k in range(78)},
+          "macro": {k: [1.0] * 120 for k in ("usdkrw", "dxy", "wti", "gold", "us10y", "vix", "kospi", "kosdaq")},
+          "releases": {"us_cpi": [1, 2, 3], "kr_cpi": [1, 2, 3], "fed": [1], "bok": [1]}}
+    mk["macro"]["vix"] = [None] * 120
+    (tmp_path / "market.json").write_text(json.dumps(mk), encoding="utf-8")
+    bad, _ = check(tmp_path, today=date(2026, 10, 22))
+    assert any("VIX" in x for x in bad) and any("수급" in x for x in bad)
