@@ -118,7 +118,7 @@ def build(out: Path, quick: bool = False, game_dir: Path = Path("game")) -> dict
 
     from .scores import build_scores
     try:
-        sc = build_scores(market, news["sym"] or None)
+        sc = build_scores(market, news["sym"] or None, fin or None)
         (out / "scores.json").write_text(json.dumps(sc, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
         print(f"AI 점수 {len(sc['stocks'])}종목")
     except Exception as e:  # 점수 실패로 화면 데이터 전체를 버리지 않게
