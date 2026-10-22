@@ -305,6 +305,12 @@ body.ana .game-only{display:none!important}
 .evl{font-size:13px;padding:5px 0;border-bottom:1px solid var(--line)}
 .evl a{color:var(--down);text-decoration:none}
 .evl a:hover{text-decoration:underline}
+/* 앱 안에 넣어 보여줄 때 (판단·계획만) */
+html.embed body{padding:0;background:var(--panel)}
+html.embed .top,html.embed .macro,html.embed #outlook,html.embed .foot,html.embed aside,html.embed .guide,html.embed .row3,html.embed .row2b,html.embed .game-only{display:none!important}
+html.embed .grid{display:block}
+html.embed .col>.panel:not(#judgePanel):not(#planPanel){display:none!important}
+html.embed .panel{border:0;box-shadow:none;padding:10px 2px}
 /* 시장 전망 */
 .outlook{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:18px;margin-bottom:10px}
 @media (max-width:1100px){.outlook{grid-template-columns:minmax(0,1fr)}}
@@ -595,6 +601,8 @@ body.ana .game-only{display:none!important}
 <script>
 (()=>{
 const $=s=>document.querySelector(s);
+const QS=new URLSearchParams(location.search),EMBED=QS.get('view')==='judge',ESYM=QS.get('sym');
+if(EMBED)document.documentElement.classList.add('embed');
 const RULES={cash0:10_000_000,stop:-5,take:10,maxW:.2,maxPos:5,dailyLimit:-3,maxVol:6,buyTh:.3,sellTh:-.15,fee:.00015,tax:.0018,days:90};
 let START,NBARS,STOCKS=[];const INDEX={name:'코스피'};
 const DEFP={ma:[5,20,60,120],ema:[12,26],bb:[20,2],env:[20,5],ich:[9,26,52],sar:[.02,.2],macd:[12,26,9],rsi:14,sto:[14,3,3],cci:20,wr:14,mfi:14,adx:14,atr:14};
@@ -1402,7 +1410,7 @@ function renderAccum(){
   const L=accumScan(i),ol=$('#accumList');
   if(ol)ol.innerHTML=L.length?`<b>매집 흔적 포착 ${L.length}종목</b> · ${L.slice(0,8).map(x=>`<a href="#" data-acc="${x.id}">${DATA[x.id].name}</a> (${x.n}/${x.tot})`).join(' · ')}`:'<b>매집 흔적 포착</b> · 오늘 신호 4개 이상 겹친 종목 없음';
 }
-document.addEventListener('click',e=>{const a=e.target.closest('[data-acc]');if(!a)return;e.preventDefault();pick(a.dataset.acc)});
+document.addEventListener('click',e=>{const a=e.target.closest('[data-acc]');if(!a)return;e.preventDefault();if(EMBED)parent.postMessage({type:'arenaPick',sym:a.dataset.acc},location.origin);else pick(a.dataset.acc)});
 
 /* ---------- 이벤트 전략: 호재 전에 사고, 호재에 팔고, 악재에 산다 ---------- */
 const SEVERE=['횡령','배임','상장폐지','거래정지','감사의견','분식','파산','회생','부도','불성실공시'];
@@ -1473,12 +1481,13 @@ function closeGuide(){guideEl.hidden=true;try{localStorage.setItem('arenaGuideSe
 $('#helpBtn').onclick=openGuide;$('#gClose').onclick=closeGuide;$('#gStart').onclick=closeGuide;
 guideEl.addEventListener('click',e=>{if(e.target===guideEl)closeGuide()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!guideEl.hidden)closeGuide()});
-try{if(!localStorage.getItem('arenaGuideSeen'))openGuide()}catch(e){openGuide()}
+if(!EMBED){try{if(!localStorage.getItem('arenaGuideSeen'))openGuide()}catch(e){openGuide()}}
 
 /* ---------- boot ---------- */
 function start(saved){
   if(saved&&saved.S&&DATA[saved.S.sel]&&saved.S.watch){S=saved.S;S.feed=S.feed||[];S.side=S.side||'B';recalcViews()}else{S=fresh();recalcViews();{const m=MODE;MODE='game';aiTurn();MODE=m}}
   $('#myAuto').checked=S.my.auto;$('#myStop').value=S.my.stop;$('#myTake').value=S.my.take;
+  if(EMBED){MODE='ana';if(DATA[ESYM])S.sel=ESYM;new ResizeObserver(()=>parent.postMessage({type:'arenaH',h:document.documentElement.scrollHeight},location.origin)).observe(document.body)}
   renderOutlook();GAMEV=null;const m0=MODE;MODE=m0==='ana'?'game':'ana';setMode(m0);renderFeed();
 }
 window.claude?.hot?.snapshot?.(()=>({S}));

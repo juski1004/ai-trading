@@ -57,6 +57,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .gdbox .go{display:block;width:100%;padding:13px;border-radius:12px;background:var(--brand);color:#fff;font-weight:700;font-size:15px;text-align:center}
 .pclink{display:inline-block;margin-top:14px;padding:10px 16px;border-radius:12px;background:var(--brand);color:#fff;text-decoration:none;font-weight:600}
 
+.arena{display:block;width:100%;height:1400px;border:0;margin-top:6px;background:var(--card)}
 /* 카드 */
 .card{background:var(--card);border-radius:16px;padding:16px;margin-top:12px;box-shadow:0 1px 2px rgba(18,24,38,.04)}
 .card h2{font-size:16px;margin:0;font-weight:700;letter-spacing:-.2px}
@@ -310,6 +311,8 @@ function analysisDetail(sym){
       ${tile('뉴스',`${s.news.length?s.news.length+'건':'없음'}`,s.news[0]?esc(s.news[0].date.slice(5))+' 최신':'최근 소식')}
     </div>
   </section>
+  <section class="card"><div class="hd"><div><h2>AI 종합 판단 · 매매 계획</h2><p class="sub">전문가 5명 의견, 유사 차트 확률, 이벤트 전략, 매집 흔적, 분할 매수·매도 계획 (PC 화면과 같은 계산)</p></div></div>
+    <iframe class="arena" src="../?view=judge&sym=${encodeURIComponent(sym)}" title="AI 종합 판단과 매매 계획" loading="lazy"></iframe></section>
   <section class="card"><div class="hd"><h2>최근 소식</h2>${sm?'<span class="chip 중립">AI 요약</span>':''}</div>
     ${sm&&sm.lines?`<ul class="ai-sum">${sm.lines.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><p class="sub" style="margin-top:6px">최근 7일 뉴스·공시 ${sm.n}건을 AI가 요약 · 느낌: <b class="${sm.tone==='호재'?'up':sm.tone==='악재'?'down':'flat'}">${esc(sm.tone)}</b></p>`:''}
     ${s.news.length?`<ul class="news" ${sm?'style="margin-top:8px"':''}>${s.news.map(n=>`<li><a href="${esc(n.link||'#')}" target="_blank" rel="noopener">${esc(n.title)}<small>${esc(n.date)} · ${esc(n.src||'')}</small></a></li>`).join('')}</ul>`:'<p class="empty">최근 소식이 없어요.</p>'}
@@ -369,6 +372,9 @@ $('#helpBtn').onclick=openG;$('#gdOk').onclick=closeG;
 gd.addEventListener('click',e=>{if(e.target===gd)closeG()});
 addEventListener('keydown',e=>{if(e.key==='Escape'&&!gd.hidden)closeG()});
 try{if(!localStorage.getItem('appGuideSeen'))openG()}catch(e){openG()}
+addEventListener('message',e=>{if(e.origin!==location.origin)return;const d=e.data||{};
+  if(d.type==='arenaH')document.querySelectorAll('iframe.arena').forEach(f=>{if(f.contentWindow===e.source)f.style.height=(d.h+8)+'px'});
+  if(d.type==='arenaPick'&&d.sym)location.hash='analysis/'+encodeURIComponent(d.sym)});
 addEventListener('hashchange',route);
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 route();load();
