@@ -190,6 +190,41 @@ def financials(symbol: str) -> dict:
     return out
 
 
+
+def estimates(symbol: str) -> dict:
+    """증권사 컨센서스: 분기·연간 예상 EPS·매출, 목표주가, 투자의견 분포. (야후 파이낸스, 커버 종목만)"""
+    import yfinance as yf
+
+    t, out = yf.Ticker(symbol), {}
+    per = {"0q": "이번 분기", "+1q": "다음 분기", "0y": "올해", "+1y": "내년"}
+    for key, attr in (("eps", "earnings_estimate"), ("rev", "revenue_estimate")):
+        try:
+            df = getattr(t, attr)
+            rows = []
+            for p, label in per.items():
+                if df is not None and p in df.index:
+                    r = df.loc[p]
+                    g = lambda c: None if c not in r or pd.isna(r[c]) else float(r[c])
+                    rows.append({"period": label, "avg": g("avg"), "low": g("low"), "high": g("high"),
+                                 "n": g("numberOfAnalysts"), "year_ago": g("yearAgoEps" if key == "eps" else "yearAgoRevenue"), "growth": g("growth")})
+            if rows:
+                out[key] = rows
+        except Exception:
+            pass
+    try:
+        pt = t.analyst_price_targets or {}
+        out["target"] = {k: float(pt[k]) for k in ("mean", "median", "high", "low") if pt.get(k)}
+    except Exception:
+        pass
+    try:
+        rs = t.recommendations_summary
+        if rs is not None and len(rs):
+            r = rs.iloc[0]
+            out["rec"] = {k: int(r[k]) for k in ("strongBuy", "buy", "hold", "sell", "strongSell") if k in r}
+    except Exception:
+        pass
+    return out
+
 # ---------------- 뉴스·공시 ----------------
 def google_news(query: str, limit: int = 15) -> list[dict]:
     """구글 뉴스 RSS 헤드라인(제목·링크·언론사·날짜만, 본문은 가져오지 않음)."""

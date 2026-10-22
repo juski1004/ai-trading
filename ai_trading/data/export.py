@@ -97,6 +97,10 @@ def build(out: Path, quick: bool = False, game_dir: Path = Path("game")) -> dict
     if not quick:
         for k, s in enumerate(stocks):
             fin[s] = collect.financials(s)
+            try:
+                fin[s]["est"] = collect.estimates(s)
+            except Exception as e:
+                print(f"[{s} 컨센서스 실패] {type(e).__name__}")
             if k % 10 == 9:
                 print(f"  재무 {k + 1}/{len(stocks)}")
         news["eco"] = collect.google_news(ECO_QUERY, limit=40)
@@ -115,6 +119,37 @@ def build(out: Path, quick: bool = False, game_dir: Path = Path("game")) -> dict
         summ = summarize(news["sym"], {s: st["name"] for s, st in stocks.items()}, from_env())
         (out / "summary.json").write_text(json.dumps(summ, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
         print(f"AI 뉴스 요약 {len(summ)}종목 ({time.time() - t0:.0f}초)")
+
+    # 수급 (외국인·기관·개인) + 수급 전망, 오늘의 시장 전망
+    from . import flows as fl
+    from .outlook import write as write_outlook
+    try:
+        sflows = fl.all_stock_flows([st["code"] for st in stocks.values()])
+        mflows = fl.market_flows()
+        fo = {}
+        for s, st in stocks.items():
+            rows = sflows.get(st["code"])
+            if rows:
+                cl = {d: c for d, c in zip(dates, st["c"])}
+                fo[s] = fl.flow_outlook(rows, [cl.get(r["date"], st["c"][-1]) for r in rows])
+        # 대형주 합계 (금액, 원): 날짜별 외국인·기관·개인
+        agg: dict[str, dict] = {}
+        for s, st in stocks.items():
+            cl = {d: c for d, c in zip(dates, st["c"])}
+            for r in sflows.get(st["code"], []):
+                a = agg.setdefault(r["date"], {"frg": 0.0, "org": 0.0, "ind": 0.0})
+                for k2 in ("frg", "org", "ind"):
+                    a[k2] += r[k2] * cl.get(r["date"], st["c"][-1])
+        big = [{"date": d, **{k2: round(v) for k2, v in a.items()}} for d, a in sorted(agg.items())]
+        big5 = {k2: round(sum(x[k2] for x in big[-5:]) / 1e8) for k2 in ("frg", "org", "ind")} if big else None
+        (out / "flows.json").write_text(json.dumps({"market": mflows, "big": big, "stocks": {s: sflows.get(st["code"], []) for s, st in stocks.items()},
+                                                    "outlook": fo}, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+        above = sum(1 for st in stocks.values() if st["c"][-1] > sum(st["c"][-20:]) / 20)
+        ol = write_outlook(mac["daily"], mflows, big5, news["eco"], {"전체": len(stocks), "20일선_위": above})
+        (out / "outlook.json").write_text(json.dumps({"date": dates[-1], **ol}, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+        print(f"수급 {len(sflows)}종목·시장 전망({ol.get('source')}) 저장 ({time.time() - t0:.0f}초)")
+    except Exception as e:
+        print(f"[수급·시장 전망 실패] {type(e).__name__}: {e}")
 
     from .scores import build_scores
     try:
