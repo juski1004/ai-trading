@@ -1,6 +1,7 @@
 """무료 소스에서 데이터를 모은다. 하나가 실패해도 나머지는 계속 돌도록 각자 예외를 삼킨다."""
 from __future__ import annotations
 
+import html
 import os
 import time
 import xml.etree.ElementTree as ET
@@ -190,6 +191,42 @@ def cycle_data(years: int = 12) -> dict:
         m = sp.resample("ME").last().dropna()
         out["spread"] = [[d0.strftime("%Y-%m"), round(float(v), 2)] for d0, v in m.items()]
     return out
+
+
+# ---------------- 네이버 증권: 종목 뉴스 · 증권사 리포트 ----------------
+NAVER = "https://m.stock.naver.com/api"
+
+
+def naver_news(code: str, limit: int = 15) -> list[dict]:
+    """종목 뉴스 (국내 경제지). 비슷한 기사 묶음마다 대표 기사 하나."""
+    try:
+        r = requests.get(f"{NAVER}/news/stock/{code}?pageSize={limit}", headers=UA, timeout=15).json()
+    except Exception as e:
+        _warn(f"네이버 뉴스 {code}", e)
+        return []
+    out = []
+    for grp in r if isinstance(r, list) else []:
+        for it in (grp.get("items") or [])[:1]:
+            dt = str(it.get("datetime", ""))
+            if len(dt) < 8:
+                continue
+            title = html.unescape((it.get("titleFull") or it.get("title") or "").strip())
+            out.append({"date": f"{dt[:4]}-{dt[4:6]}-{dt[6:8]}", "time": f"{dt[8:10]}:{dt[10:12]}" if len(dt) >= 12 else "",
+                        "title": title, "src": it.get("officeName", ""), "link": it.get("mobileNewsUrl", ""),
+                        "body": html.unescape(it.get("body") or "")[:140], "score": headline_score(title), "group": grp.get("total", 1)})
+    return out
+
+
+def naver_research(code: str, limit: int = 6) -> list[dict]:
+    """증권사 종목 리포트 (증권사·제목·날짜·요약)."""
+    try:
+        r = requests.get(f"{NAVER}/research/stock/{code}?pageSize={limit}", headers=UA, timeout=15).json()
+    except Exception as e:
+        _warn(f"네이버 리포트 {code}", e)
+        return []
+    return [{"date": x.get("writeDate", ""), "title": html.unescape(x.get("title", "")), "broker": x.get("brokerName", ""),
+             "preview": html.unescape(x.get("previewContent") or "")[:160], "reads": x.get("readCount"),
+             "link": f"https://m.stock.naver.com/research/company/{x.get('researchId')}"} for x in (r if isinstance(r, list) else [])]
 
 # ---------------- 재무 ----------------
 def financials(symbol: str) -> dict:
