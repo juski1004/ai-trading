@@ -58,6 +58,11 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .pclink{display:inline-block;margin-top:14px;padding:10px 16px;border-radius:12px;background:var(--brand);color:#fff;text-decoration:none;font-weight:600}
 
 .arena{display:block;width:100%;height:1400px;border:0;margin-top:6px;background:var(--card)}
+.bcard{display:grid;grid-template-columns:84px minmax(0,1fr);gap:14px;align-items:center}
+.bcard img{width:84px;height:104px;object-fit:cover;object-position:50% 10%;border-radius:12px}
+.bcard .pclink{border:0;cursor:pointer;margin-top:8px}
+.bover{position:fixed;inset:0;z-index:40;background:var(--card);display:flex;flex-direction:column}
+.bover iframe{flex:1;border:0;width:100%}
 /* 카드 */
 .card{background:var(--card);border-radius:16px;padding:16px;margin-top:12px;box-shadow:0 1px 2px rgba(18,24,38,.04)}
 .card h2{font-size:16px;margin:0;font-weight:700;letter-spacing:-.2px}
@@ -228,6 +233,7 @@ function home(){
       <span style="min-width:0"><div class="nm">${esc(s.name)}</div><div class="meta num">${esc(s.code)} · <span class="${cls(s.chg)}">${pct(s.chg)}</span></div></span>
       <span class="rt">${right(s)}</span></button></li>`;
   return `
+  <section class="card bcard"><img src="../img/team/theo.jpg?v=2" alt="정서연 본부장 사진"><div><h2>오늘의 본부장 브리핑</h2><p class="sub">정서연 본부장이 시장·수급·상승/하락 종목·거래량·펀더멘탈을 8장으로 짚어 드려요.</p><button class="pclink" type="button" id="openBrief">브리핑 보기 ▶</button></div></section>
   <section class="card" aria-labelledby="h-mkt">
     <div class="hd"><h2 id="h-mkt">오늘의 시장</h2><span class="sub">${esc(SC.date)} 장 마감</span></div>
     <div class="mkt">${mk('kospi','코스피',2)}${mk('kosdaq','코스닥',2)}${mk('usdkrw','원/달러',1)}</div>
@@ -373,7 +379,9 @@ $('#helpBtn').onclick=openG;$('#gdOk').onclick=closeG;
 gd.addEventListener('click',e=>{if(e.target===gd)closeG()});
 addEventListener('keydown',e=>{if(e.key==='Escape'&&!gd.hidden)closeG()});
 try{if(!localStorage.getItem('appGuideSeen'))openG()}catch(e){openG()}
-addEventListener('message',e=>{if(e.origin!==location.origin)return;const d=e.data||{};
+function closeBriefOv(){document.querySelector('.bover')?.remove()}
+document.addEventListener('click',e=>{if(e.target.id==='openBrief'){closeBriefOv();const o=document.createElement('div');o.className='bover';o.innerHTML='<iframe src="../?view=brief" title="본부장 브리핑"></iframe>';document.body.appendChild(o)}});
+addEventListener('message',e=>{if(e.origin!==location.origin)return;const d=e.data||{};if(d.type==='briefClose')closeBriefOv();if(d.type==='arenaPick')closeBriefOv();
   if(d.type==='arenaH')document.querySelectorAll('iframe.arena').forEach(f=>{if(f.contentWindow===e.source)f.style.height=(d.h+8)+'px'});
   if(d.type==='arenaPick'&&d.sym)location.hash='analysis/'+encodeURIComponent(d.sym)});
 addEventListener('hashchange',route);
