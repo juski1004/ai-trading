@@ -256,7 +256,7 @@ const lazy=async()=>{
 };
 const stars=x=>{const n=Math.round(x);return `<span class="stars">${'★'.repeat(n)}<i>${'★'.repeat(5-n)}</i></span>`};
 const ROLE={JOY:'시장 흐름',OSCAR:'수급·뉴스',RAY:'차트',MILES:'진입 자리'};
-const KN={JOY:'윤시아',OSCAR:'서하린',RAY:'차유나',MILES:'민채원',LLOYD:'강도윤',THEO:'정서연'};
+const KN={NOVA:'한예린',JOY:'윤시아',OSCAR:'서하린',RAY:'차유나',MILES:'민채원',LLOYD:'강도윤',THEO:'정서연'};
 function rowHtml([sym,s],k){return `<li><button class="row" data-sym="${esc(sym)}" type="button">
   <span class="rank num">${k+1}</span>
   <span style="min-width:0"><div class="nm">${esc(s.name)}</div><div class="meta num">${esc(s.code)} · <span class="${cls(s.chg)}">${pct(s.chg)}</span></div></span>

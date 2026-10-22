@@ -115,6 +115,13 @@ def build(out: Path, quick: bool = False, game_dir: Path = Path("game")) -> dict
         print(f"재무·뉴스 저장 ({time.time() - t0:.0f}초)")
 
 
+    try:
+        cyc = collect.cycle_data()
+        (out / "cycle.json").write_text(json.dumps(cyc, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+        print(f"시장 사이클 저장 (지수 {len(cyc['indices'])}개, 연준 {len(cyc['fed'])}회, 한은 {len(cyc['bok'])}회 변경)")
+    except Exception as e:
+        print(f"[시장 사이클 실패] {type(e).__name__}: {e}")
+
     # 수급 (외국인·기관·개인) + 수급 전망, 오늘의 시장 전망
     from . import flows as fl
     from .outlook import write as write_outlook

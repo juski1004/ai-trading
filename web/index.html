@@ -333,6 +333,17 @@ html.embed .ana-only{display:none!important}
 .otab tr.og td{background:var(--panel2);border-top:2px solid var(--line2);font-size:13px;white-space:normal;text-align:left}
 .otab a{color:var(--fg);text-decoration:none;font-weight:600}
 .otab a:hover{text-decoration:underline}
+.cytop{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:10px;font-size:13.5px}
+.cygrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+@media (max-width:1300px){.cygrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:760px){.cygrid{grid-template-columns:minmax(0,1fr)}}
+.cyc{background:var(--panel2);border:1px solid var(--line);padding:8px 10px;min-width:0}
+.cyh{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:13.5px}
+.cys{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5}
+.cyr{font-size:13px;display:flex;flex-direction:column;gap:6px}
+html.embed #cyclePanel{display:none!important}
+.vtag{display:inline-block;font-size:11px;font-weight:700;padding:0 6px;border:1px solid var(--line2);border-radius:10px;margin:0 2px 2px 0}
+.vtag.t1{background:var(--up);border-color:var(--up);color:#fff}.vtag.t2{background:#e08a1e;border-color:#e08a1e;color:#fff}
 /* 시장 전망 */
 .outlook{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:18px;margin-bottom:10px}
 @media (max-width:1100px){.outlook{grid-template-columns:minmax(0,1fr)}}
@@ -424,6 +435,14 @@ html.embed .ana-only{display:none!important}
   <div><table class="mflow num" id="mflow"></table><p class="olwatch" id="accumList"></p><p class="olnote" id="olNote"></p></div>
 </div>
 
+<div class="panel" id="cyclePanel" style="margin-bottom:10px">
+  <div class="ph"><h2>시장 사이클 · 금리 국면 (몇 년 단위 큰 흐름)</h2><small>한예린 · 큰 흐름·금리 사이클 담당</small></div>
+  <div id="cycleBody"></div>
+</div>
+<div class="panel ana-only" id="valuePanel" style="margin-bottom:10px">
+  <div class="ph"><h2>가치 발굴 · 흑자전환·이익 증가 예상 저평가 종목</h2><small id="valueMeta">-</small></div>
+  <div id="valueBody"></div>
+</div>
 <div class="panel ana-only" id="ordersPanel" style="margin-bottom:10px">
   <div class="ph"><h2>내일 주문표 · 아침 매도 · 마감 전 매수 (지정가)</h2><small id="ordersMeta">-</small></div>
   <div id="ordersBody"></div><p class="msg" id="ordersMsg" role="status"></p>
@@ -690,9 +709,9 @@ const barAt=ds=>{let lo=0,hi=DATES.length;while(lo<hi){const m=(lo+hi)>>1;DATES[
 const moneyS=v=>Math.abs(v)>=1e12?(v/1e12).toFixed(1)+'조':Math.abs(v)>=1e8?Math.round(v/1e8).toLocaleString('ko-KR')+'억':Math.round(v).toLocaleString('ko-KR');
 async function loadData(){
   const get=async(f,def)=>{try{const r=await fetch('data/'+f,{cache:'no-cache'});if(!r.ok)throw 0;return await r.json()}catch(e){return def}};
-  const [mk,fin,news,ai,meta,listing,summ,flows,outlook]=await Promise.all([get('market.json',null),get('fin.json',{}),get('news.json',{eco:[],sym:{}}),get('ai.json',{}),get('meta.json',{}),get('listing.json',[]),get('summary.json',{}),get('flows.json',null),get('outlook.json',null)]);
+  const [mk,fin,news,ai,meta,listing,summ,flows,outlook,cyc]=await Promise.all([get('market.json',null),get('fin.json',{}),get('news.json',{eco:[],sym:{}}),get('ai.json',{}),get('meta.json',{}),get('listing.json',[]),get('summary.json',{}),get('flows.json',null),get('outlook.json',null),get('cycle.json',null)]);
   if(!mk)throw new Error('data/market.json 을 불러오지 못했습니다');
-  META=meta;AIREAL=ai;LISTING=listing;SUMM=summ||{};OUTLOOK=outlook;if(flows)FLOWS=flows;DATES=mk.dates;NBARS=DATES.length;RULES.days=Math.min(90,NBARS-131);START=NBARS-1-RULES.days;
+  META=meta;AIREAL=ai;LISTING=listing;SUMM=summ||{};OUTLOOK=outlook;if(flows)FLOWS=flows;CYCLE=cyc;DATES=mk.dates;NBARS=DATES.length;RULES.days=Math.min(90,NBARS-131);START=NBARS-1-RULES.days;
   const ix=mk.index||{o:mk.macro.kospi,h:mk.macro.kospi,l:mk.macro.kospi,c:mk.macro.kospi};
   IDX=DATES.map((_,k)=>({o:ix.o[k],h:ix.h[k],l:ix.l[k],c:ix.c[k],v:0}));IDXE=calc(IDX,DEFP);
   // 경제지표 일별 + 발표
@@ -742,7 +761,7 @@ const ret=(a,i)=>(equity(a,i)/RULES.cash0-1)*100;
 const iret=i=>(IDX[i].c/IDX[START].c-1)*100;
 
 /* ---------- AI 운용팀 6명 (ai_trading/agents.py 규칙과 같음) ---------- */
-const KNAME={JOY:'윤시아',OSCAR:'서하린',RAY:'차유나',MILES:'민채원',LLOYD:'강도윤',THEO:'정서연'};// 화면에 보이는 이름 (안쪽 코드는 영문 이름 그대로)
+const KNAME={NOVA:'한예린',JOY:'윤시아',OSCAR:'서하린',RAY:'차유나',MILES:'민채원',LLOYD:'강도윤',THEO:'정서연'};// 화면에 보이는 이름 (안쪽 코드는 영문 이름 그대로)
 const TEAM=[
  {id:'JOY',role:'시장·거시경제',col:'#e8c26a',t:'08:50',skin:'#f1d3bd',hair:'#4a2f22',style:'long',suit:'#3b4a63',shirt:'#f4efe6'},
  {id:'OSCAR',role:'수급·뉴스·실적',col:'#4fc7a4',t:'09:30',skin:'#d8a982',hair:'#17181d',style:'short',suit:'#2a3446',shirt:'#e9eef5',glasses:1,tie:'#4fc7a4'},
@@ -863,7 +882,7 @@ function render(){
   document.querySelectorAll('[data-ov]').forEach(x=>x.setAttribute('aria-pressed',!!S.ov[x.dataset.ov]));
   document.querySelectorAll('[data-sub]').forEach(x=>x.setAttribute('aria-pressed',S.subs.includes(x.dataset.sub)));
   $('#zoomTx').textContent=`${Math.min(S.N,i)}봉`;
-  renderVerdict();renderDiag();renderTeam();renderOrder();renderBook();renderSummary();renderAccounts();renderMacro();renderNews();renderFin();renderReal();renderPlan();renderJudge();renderAccum();renderEvent();renderOrders();renderFlows();renderEst();drawChart();
+  renderVerdict();renderDiag();renderTeam();renderOrder();renderBook();renderSummary();renderAccounts();renderMacro();renderNews();renderFin();renderReal();renderPlan();renderJudge();renderAccum();renderEvent();renderOrders();renderCycle();renderValue();renderFlows();renderEst();drawChart();
 }
 function renderMacro(){
   const i=cur(),M=MACRO.ser,today=new Set(MACRO.events.filter(e=>e.i===i).map(e=>e.title));
@@ -1259,9 +1278,10 @@ function tradePlan(id,i){
   add('가치',upv!=null?upv>=15:per!=null?per<20:null,upv!=null?`증권사 목표주가 평균 ${won(tg)}원 (${upv>=0?'+':''}${upv.toFixed(0)}%)`:per!=null?`PER ${per.toFixed(1)}배`:'자료 없음');
   const mac=macroScore(i),kt=IDX[i].c>IDXE.ma[1][i];add('시장·경제',mac.score>=0&&kt,`코스피 ${kt?'20일선 위':'20일선 아래'} · 환율·금리·유가·VIX 점수 ${mac.score>=0?'+':''}${mac.score.toFixed(2)}`);
   const ns=newsScore(id,i);add('뉴스',ns.top?ns.score>=0:null,ns.top?`${ns.score>=0?'호재 우위':'악재 우위'} · ${ns.top.title.slice(0,30)}`:'최근 5일 주요 소식 없음');
+  const MC=marketCycle(DATES[i]);add('큰 흐름',MC?MC.overall==='상승기':null,MC?`시장 사이클 ${MC.overall} · 코스피 ${MC.ix.kospi?.reg||'-'} · 연준 ${MC.fed?.label||'-'}`:'장기 자료 없음');
   const volOK=atrP<=RULES.maxVol,av=conds.filter(x=>x.ok!==null),n=av.filter(x=>x.ok).length,tot=av.length,ratio=tot?n/tot:0;
-  const pctv=!volOK?0:ratio>=.85?20:ratio>=.7?15:ratio>=.55?10:ratio>=.4?5:0;
-  const grade=!volOK?'진입 보류 (변동성 과다)':pctv>=20?'적극 진입':pctv>=15?'진입':pctv>=10?'분할 진입':pctv>=5?'탐색 매수':'진입 보류';
+  let pctv=!volOK?0:ratio>=.85?20:ratio>=.7?15:ratio>=.55?10:ratio>=.4?5:0;const bear=MC&&MC.overall==='하락기';if(bear)pctv=pctv/2;
+  const grade=(bear&&pctv>0?'(하락기 절반) ':'')+(!volOK?'진입 보류 (변동성 과다)':pctv>=20?'적극 진입':pctv>=15?'진입':pctv>=10?'분할 진입':pctv>=2.5?'탐색 매수':'진입 보류');
   const seed=MODE==='ana'?MY.seed:equity(S.me,i),alloc=seed*pctv/100,stop=rt(Math.max(c*.92,Math.min(c*.95,c-2*atr)));
   let p1=c-atr;const useMa=ma20<c&&ma20>c-1.5*atr;if(useMa)p1=ma20;p1=rt(Math.max(p1,stop*1.02));const p2=rt(Math.max(c-2*atr,stop*1.01));
   const buys=[['1차',c,.4,'오늘 종가 근처'],['2차 · 눌림',p1,.3,useMa?'20일선 지지':'1×ATR 아래'],['3차 · 지지',p2,.3,'2×ATR 아래, 손절가 위']].map(([k,p,w,why])=>({k,p:rt(p),w,why,won:alloc*w,qty:Math.floor(alloc*w/rt(p)),sp:pctv*w}));
@@ -1357,7 +1377,8 @@ function judge(id,i){
   const P=tradePlan(id,i),R=similar(id,i),E=DATA[id].eng,c=P.c,atr=P.atr,rs=E.rsi[i],ext=(c-P.ma20)/atr;
   const op=(score,label,line)=>({score,label:score>=.25?'매수':score<=-.25?'매도':'중립',line});
   const ex=[];
-  ex.push({who:'JOY',role:'시장·거시경제',...op(P.mac.score*.6+(IDX[i].c>IDXE.ma[1][i]?.3:-.3),'',`코스피 ${IDX[i].c>IDXE.ma[1][i]?'20일선 위로 상승 흐름':'20일선 아래 약세 흐름'}, 환율·금리·유가·VIX 종합 ${P.mac.score>=0?'+':''}${P.mac.score.toFixed(2)}.`)});
+  {const MC=marketCycle(DATES[i]);ex.push({who:'NOVA',role:'큰 흐름·금리 사이클',...op(MC?MC.score:0,'',MC?`종합 ${MC.overall}`:'자료 없음')})}
+  ex.push({who:'JOY',role:'단기 시장·거시',...op(P.mac.score*.6+(IDX[i].c>IDXE.ma[1][i]?.3:-.3),'',`코스피 ${IDX[i].c>IDXE.ma[1][i]?'20일선 위로 상승 흐름':'20일선 아래 약세 흐름'}, 환율·금리·유가·VIX 종합 ${P.mac.score>=0?'+':''}${P.mac.score.toFixed(2)}.`)});
   const fs=P.fv?P.fv.score:0,nsS=P.ns.top?P.ns.score:0;
   const AC=accum(id,i);ex.push({who:'OSCAR',role:'수급·뉴스·매집',...op(fs*.6+nsS*.25+(AC.n>=4?.3:AC.n===3?.15:0),'',`${AC.n>=3?AC.label+' ('+AC.n+'/'+AC.tot+'). ':''}${P.fv?`수급 ${P.fv.label}`:'수급 자료 부족'}${P.fl?` (외인 5일 ${eok(P.fl.frg)}, 기관 ${eok(P.fl.org)})`:''}. ${P.ns.top?(P.ns.score>=0?'호재성':'악재성')+' 소식 우위.':'눈에 띄는 소식 없음.'}`)});
   const tech=(E.macdH[i]>0?.3:-.3)+(c>P.ma20?.3:-.3)+(rs>70?-.2:rs<30?.2:0),pat=R.n>=4?(R.s10.up-.5)*1.6:0;
@@ -1584,6 +1605,10 @@ function expertDetail(id,i,X){
   const ch=(a,n)=>a[i-n]?(a[i]/a[i-n]-1)*100:0,f=x=>(x>=0?'+':'')+x.toFixed(1);
   const kc5=(ic/IDX[i-5].c-1)*100,kc20=(ic/IDX[i-20].c-1)*100,kUp=ic>IDXE.ma[1][i],mac=P.mac;
   const O=OUTLOOK&&i===NBARS-1?OUTLOOK:null,MF=i===NBARS-1?FLOWS.market?.KOSPI:null;
+  const MC=marketCycle(DATES[i]);
+  const nova=MC?[`종합 ${MC.overall} (점수 ${MC.score>=0?'+':''}${MC.score.toFixed(2)}) · 코스피 ${MC.ix.kospi?.reg||'-'} ${MC.ix.kospi?.months??'-'}개월째 · 코스닥 ${MC.ix.kosdaq?.reg||'-'} · 나스닥 ${MC.ix.nasdaq?.reg||'-'} · S&P500 ${MC.ix.sp500?.reg||'-'}`,
+    `금리: 연준 ${MC.fed?MC.fed.now.toFixed(2)+'% '+MC.fed.label:'-'} · 한국은행 ${MC.bok?MC.bok.now.toFixed(2)+'% '+MC.bok.label:'-'} · 장단기 금리차 ${MC.spr?(MC.spr[1]>=0?'+':'')+MC.spr[1].toFixed(2)+'%p':'-'}`,
+    `예상: ${MC.overall==='상승기'?'몇 달 단위로 오르는 장이 이어질 가능성이 높아 계획 비중대로 갑니다.':MC.overall==='하락기'?'큰 하락장 구간이라 반등이 와도 짧을 수 있습니다. 비중을 절반으로 줄입니다.':'상승과 하락이 엇갈리는 전환 구간입니다. 방향이 정해질 때까지 무리하지 않습니다.'}`]:['장기 지수·금리 자료가 없어 큰 흐름 판단을 보류합니다.'];
   const joy=[`코스피 ${ic.toLocaleString('ko-KR',{maximumFractionDigits:2})} · 5일 ${f(kc5)}% · 20일 ${f(kc20)}% · ${kUp?'20일선 위 (상승 흐름)':'20일선 아래 (약세 흐름)'}`,
     `원/달러 ${M.usdkrw[i].toFixed(1)}원(20일 ${f(mac.fx)}%) · 유가 20일 ${f(mac.oil)}% · 미국 10년물 ${f(mac.dr)}bp · VIX ${mac.vx.toFixed(1)}${MF?` · 오늘 외국인 ${MF.frg>=0?'+':''}${Math.round(MF.frg).toLocaleString('ko-KR')}억`:''}`,
     `예상: 거시 점수 ${f(mac.score)} → ${mac.score>.2?'앞으로 1~2주 주식에 우호적인 환경':mac.score<-.2?'환율·금리·유가 부담이 커서 1~2주 조심할 환경':'뚜렷한 방향 없이 종목별 장세'}${O?` · 오늘 시장 전망 '${O.tone}'`:''}.`];
@@ -1605,7 +1630,101 @@ function expertDetail(id,i,X){
   const lloyd=[`하루 평균 변동 ${P.atrP.toFixed(1)}% · ATR ${won(P.atr)}원 · ${P.volOK?'변동성 허용 범위':'변동성 과다로 신규 진입 제한'}`,
     `손절가 ${won(P.stop)}원 (${pct((P.stop/c-1)*100)}) · 계획대로면 최대 손실 약 ${won(loss)}원 (투자금 ${won(P.seed)}원의 ${(P.seed?loss/P.seed*100:0).toFixed(1)}%)`,
     `주의: ${risks.length?risks.join(' · '):'눈에 띄는 위험 신호 없음'} → ${risks.length>=2?'비중을 계획보다 한 단계 낮추길 권함':'계획 비중 유지 가능'}.`];
-  return{JOY:joy,OSCAR:oscar,RAY:ray,MILES:miles,LLOYD:lloyd};
+  return{NOVA:nova,JOY:joy,OSCAR:oscar,RAY:ray,MILES:miles,LLOYD:lloyd};
+}
+
+/* ---------- 시장 사이클 · 금리 국면 (몇 년 단위 큰 흐름) ---------- */
+let CYCLE=null;const CYC_W={kospi:.35,kosdaq:.2,nasdaq:.25,sp500:.2},REG_S={'상승기':1,'회복기':.4,'조정기':-.4,'하락기':-1};
+function regAt(c,n){// 주봉 n개까지로 본 국면
+  if(n<60)return null;const last=c[n-1];let s=0,sp=0;for(let j=n-40;j<n;j++)s+=c[j];for(let j=n-48;j<n-8;j++)sp+=c[j];const ma=s/40,map=sp/40;
+  let ath=0;for(let j=0;j<n;j++)ath=Math.max(ath,c[j]);const dd=(last/ath-1)*100;
+  return{reg:dd<=-20||(last<ma&&ma<map)?'하락기':last>ma&&ma>map&&dd>-10?'상승기':last>ma?'회복기':'조정기',dd,ma}}
+const CYCC={};
+function idxCycle(k,ds){
+  const ix=CYCLE?.indices?.[k];if(!ix)return null;let n=ix.d.findIndex(x=>x>ds);if(n<0)n=ix.c.length;const key=k+n;if(CYCC[key])return CYCC[key];
+  const R=regAt(ix.c,n);if(!R)return null;let j=n-1;while(j>60){const p=regAt(ix.c,j);if(!p||p.reg!==R.reg)break;j--}
+  const months=Math.max(0,Math.round((new Date(ix.d[n-1])-new Date(ix.d[j]))/(30.4*864e5)));
+  return CYCC[key]={...R,name:ix.name,last:ix.c[n-1],r52:n>53?(ix.c[n-1]/ix.c[n-53]-1)*100:0,since:ix.d[j].slice(0,7),months,n};
+}
+function rateCycle(list,ds){
+  const L=(list||[]).filter(x=>x.date<=ds);if(L.length<2)return null;const ch=[];for(let k=1;k<L.length;k++)ch.push({date:L[k].date,d:Math.sign(L[k].rate-L[k-1].rate),rate:L[k].rate});
+  const last=ch[ch.length-1],now=L[L.length-1].rate,mo=Math.round((new Date(ds)-new Date(last.date))/(30.4*864e5));
+  let run=0;for(let k=ch.length-1;k>=0&&ch[k].d===last.d;k--)run++;const prevDir=ch.length>run?ch[ch.length-1-run].d:0;
+  let label,score;
+  if(mo>=12){label=`동결기 (${last.date.slice(0,7)} 이후 ${mo}개월 동결)`;score=0}
+  else if(last.d<0){label=prevDir>0&&run<=2?`인하 전환기 (${last.date.slice(0,7)}, ${run}번째 인하)`:`인하기 (${run}번 연속 인하 중)`;score=prevDir>0&&run<=2?.4:.3}
+  else{label=prevDir<0&&run<=2?`인상 전환기 (${last.date.slice(0,7)}, ${run}번째 인상)`:`인상기 (${run}번 연속 인상 중)`;score=prevDir<0&&run<=2?-.4:-.3}
+  return{label,score,now,last:last.date,dir:last.d};
+}
+function marketCycle(ds){
+  if(!CYCLE)return null;const ix={};let s=0,w=0;
+  for(const k of Object.keys(CYC_W)){const r=idxCycle(k,ds);if(r){ix[k]=r;s+=CYC_W[k]*REG_S[r.reg];w+=CYC_W[k]}}
+  if(!w)return null;const fed=rateCycle(CYCLE.fed,ds),bok=rateCycle(CYCLE.bok,ds);
+  const spr=(CYCLE.spread||[]).filter(x=>x[0]<=ds.slice(0,7)).slice(-1)[0];
+  let tot=s/w+(fed?.score||0)*.6+(bok?.score||0)*.4+(spr&&spr[1]<0?-.2:0);
+  const overall=tot>=.45?'상승기':tot<=-.45?'하락기':'전환기';
+  return{ix,fed,bok,spr,score:tot,overall};
+}
+function drawCycleMini(cv,k,ds){
+  const ix=CYCLE.indices[k];let n=ix.d.findIndex(x=>x>ds);if(n<0)n=ix.c.length;const w=cv.clientWidth,h=86,dpr=Math.min(2,devicePixelRatio||1);if(!w)return;
+  cv.width=w*dpr;cv.height=h*dpr;const g=cv.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);
+  const c=ix.c.slice(0,n),mx=Math.max(...c),mn=Math.min(...c),X=j=>2+j/(n-1)*(w-4),Y=v=>4+(mx-v)/(mx-mn||1)*(h-8);
+  for(let j=60;j<n;j+=2){const r=regAt(c,j+1);if(!r)continue;g.fillStyle=r.reg==='하락기'?'rgba(31,111,229,.10)':r.reg==='상승기'?'rgba(229,50,63,.08)':'rgba(0,0,0,0)';g.fillRect(X(j),0,(w-4)/(n-1)*2+1,h)}
+  g.strokeStyle='#8a93a3';g.lineWidth=1;g.beginPath();for(let j=39;j<n;j++){let s=0;for(let q=j-39;q<=j;q++)s+=c[q];j===39?g.moveTo(X(j),Y(s/40)):g.lineTo(X(j),Y(s/40))}g.stroke();
+  g.strokeStyle=COL.fg;g.lineWidth=1.4;g.beginPath();c.forEach((v,j)=>j?g.lineTo(X(j),Y(v)):g.moveTo(X(j),Y(v)));g.stroke();
+}
+function renderCycle(){
+  const el=$('#cycleBody');if(!el)return;const i=cur(),ds=DATES[i],M=marketCycle(ds);
+  if(!M){$('#cyclePanel').hidden=true;return}$('#cyclePanel').hidden=false;
+  const col={'상승기':'var(--up)','하락기':'var(--down)','전환기':'var(--accent)','회복기':'#e08a1e','조정기':'#5b6575'};
+  const card=(k)=>{const r=M.ix[k];if(!r)return'';return `<div class="cyc"><div class="cyh"><b>${r.name}</b> <span class="tone" style="background:${col[r.reg]}">${r.reg}</span></div>
+    <canvas data-cyc="${k}" style="width:100%;height:86px;display:block"></canvas>
+    <div class="cys num">${r.last.toLocaleString('ko-KR',{maximumFractionDigits:2})} · 1년 ${pct(r.r52)} · 최고점 대비 ${pct(r.dd)}<br>${r.since}부터 ${r.reg} (${r.months}개월째)</div></div>`};
+  const rate=(lab,R)=>R?`<div><b>${lab}</b> ${R.now.toFixed(2)}% · <span class="${R.dir<0?'up':'down'}">${R.label}</span></div>`:`<div><b>${lab}</b> <span class="flat">자료 없음</span></div>`;
+  el.innerHTML=`<div class="cytop"><span class="tone" style="background:${col[M.overall]};font-size:15px;padding:4px 14px">종합: ${M.overall}</span>
+    <span>${M.overall==='상승기'?'큰 흐름이 오르는 장입니다. 계획 비중대로 매매합니다.':M.overall==='하락기'?'큰 흐름이 내리는 장입니다. <b>매매 계획 비중을 자동으로 절반으로 줄입니다.</b>':'상승·하락이 엇갈리는 전환 구간입니다. 종목별로 보되 무리하지 않습니다.'}</span>
+    <span class="flat" style="margin-left:auto;font-size:12px">${ds} 기준 · 주봉 10년 · 40주(≈200일) 이동평균·고점 대비 하락폭으로 판단</span></div>
+    <div class="cygrid">${['kospi','kosdaq','nasdaq','sp500'].map(card).join('')}
+    <div class="cyc cyr"><div class="cyh"><b>금리 국면</b></div>${rate('미국 연준',M.fed)}${rate('한국은행',M.bok)}
+      <div><b>미국 장단기 금리차</b> ${M.spr?`${M.spr[1]>=0?'+':''}${M.spr[1].toFixed(2)}%p ${M.spr[1]<0?'<span class="down">역전 (경기 침체 경고)</span>':'<span class="flat">정상</span>'}`:'자료 없음'}</div>
+      <p class="olnote">금리 인하기는 보통 주식에 우호적이고, 인상기·장단기 금리차 역전은 부담입니다. 차트 색: 빨강 상승기 · 파랑 하락기.</p></div></div>`;
+  requestAnimationFrame(()=>document.querySelectorAll('[data-cyc]').forEach(cv=>drawCycleMini(cv,cv.dataset.cyc,ds)));
+}
+
+/* ---------- 가치 발굴: 흑자전환·이익 증가가 예상되는 저평가 종목 ---------- */
+const FINCO=/금융|은행|지주|보험|증권|카드|캐피탈/;
+function valueScore(id){
+  const i=NBARS-1,D=DATA[id],c=D.bars[i].c,e=D.est||{},T=ttm(id,i),sh=D.shares,E=p=>(e.eps||[]).find(x=>x.period===p);
+  const ey=E('올해'),en=E('내년'),rel=released(id,i),lq=rel[rel.length-1];
+  const tags=[],why=[];let sc=0;
+  const lossNow=(T.ni<0)||(lq&&lq.ni<0),turnY=ey&&ey.avg>0,turnN=en&&en.avg>0,turn=lossNow&&(turnY||turnN);
+  if(turn){sc+=3;tags.push('흑자전환');why.push(`최근 ${T.ni<0?'4분기 순이익':'분기 순이익'} 적자 → ${turnY?'올해':'내년'} 예상 EPS ${won((turnY?ey:en).avg)}원 흑자`)}
+  const g=ey&&en&&ey.avg>0&&en.avg>0?en.avg/ey.avg-1:ey&&ey.growth!=null&&ey.avg>0?ey.growth:null;
+  if(g!=null&&g>=.2){sc+=g>=.5?2.5:2;tags.push('이익 증가');why.push(`예상 EPS ${ey&&en&&ey.avg>0?`올해 ${won(ey.avg)} → 내년 ${won(en.avg)}원`:`전년 대비`} (${pct(g*100)})`)}
+  const fe=en&&en.avg>0?en.avg:ey&&ey.avg>0?ey.avg:null,fper=fe?c/fe:null,peg=fper&&g>0?fper/(g*100):null;
+  if(fper!=null){if(fper<8)sc+=2;else if(fper<12)sc+=1.2;else if(fper>30)sc-=1}
+  if(peg!=null&&peg<1){sc+=1.5;tags.push('PEG<1')}
+  const pbr=sh&&D.equity>0?c*sh/D.equity:null;if(pbr!=null&&pbr<1){sc+=1;tags.push('PBR<1')}
+  const fin=FINCO.test(D.name),debt=D.equity>0&&D.liab!=null?D.liab/D.equity*100:null;
+  if(!fin&&debt!=null){if(debt<=100)sc+=1;else if(debt>200)sc-=2}
+  const up=e.target?.mean?(e.target.mean/c-1)*100:null;if(up!=null&&up>=20)sc+=1;
+  const n=Math.max(...(e.eps||[]).map(x=>x.n||0),0);
+  const pass=(turn||(g!=null&&g>=.2))&&((fper!=null&&fper<15)||(peg!=null&&peg<1)||(pbr!=null&&pbr<1))&&(fin||debt==null||debt<=150);
+  return{id,sc,tags,why,fper,peg,pbr,debt,fin,up,g,ey,en,n,pass,c};
+}
+let VALC=null;
+function renderValue(){
+  const el=$('#valueBody');if(!el||MODE!=='ana')return;if(!VALC)VALC=STOCKS.map(s=>valueScore(s.id)).filter(x=>x.pass).sort((a,b)=>b.sc-a.sc);
+  const L=VALC;$('#valueMeta').textContent=`${DATES[NBARS-1]} 기준 · 증권사 컨센서스·최근 4분기 실적·재무상태 · 분석 대상 ${STOCKS.length}종목 중 ${L.length}종목`;
+  const f=(x,d=1)=>x==null?'-':x.toFixed(d);
+  el.innerHTML=L.length?`<div style="overflow-x:auto"><table class="ptab num"><tr><th>종목</th><th>발굴 이유</th><th>예상 EPS (올해 → 내년)</th><th>선행 PER</th><th>PEG</th><th>PBR</th><th>부채비율</th><th>목표가 여력</th><th>점수</th></tr>
+    ${L.slice(0,15).map(x=>`<tr><td><a href="#" data-acc="${x.id}"><b>${DATA[x.id].name}</b></a><br><small class="flat">${won(x.c)}원</small></td><td class="w">${x.tags.map(t=>`<span class="vtag ${t==='흑자전환'?'t1':t==='이익 증가'?'t2':''}">${t}</span>`).join(' ')}<div>${x.why.map(esc).join(' · ')}</div></td>
+    <td>${x.ey?won(x.ey.avg):'-'} → ${x.en?won(x.en.avg):'-'}${x.n?`<br><small class="flat">증권사 ${x.n}곳${x.n<3?' (적음)':''}</small>`:''}</td><td>${f(x.fper)}배</td><td>${f(x.peg,2)}</td><td>${f(x.pbr,2)}배</td><td>${x.fin?'<span class="flat">금융업</span>':x.debt==null?'-':f(x.debt,0)+'%'}</td>
+    <td class="${x.up==null?'flat':cls(x.up)}">${x.up==null?'-':pct(x.up)}</td><td><b>${f(x.sc)}</b></td></tr>`).join('')}</table></div>
+    <ul class="prules"><li><b>고르는 기준:</b> ① 흑자전환 예상(최근 적자 → 예상 EPS 흑자) 또는 예상 이익 20% 이상 증가, ② 선행 PER 15배 미만·PEG 1 미만·PBR 1배 미만 중 하나, ③ 부채비율 150% 이하(금융업 제외)를 모두 만족한 종목입니다.</li>
+    <li><b>점수:</b> 흑자전환 +3, 이익 증가 +2~2.5, 선행 PER 8배 미만 +2·12배 미만 +1.2, PEG<1 +1.5, PBR<1 +1, 부채비율 100% 이하 +1, 목표가 여력 20% 이상 +1.</li>
+    <li>예상 실적은 증권사 컨센서스라 틀릴 수 있고, 추정 증권사가 적은 종목은 특히 조심하세요. 종목을 누르면 차트·AI 판단·매매 계획을 볼 수 있습니다. 참고용이며 투자 권유가 아닙니다.</li></ul>`
+    :'<p class="empty">오늘은 조건을 모두 만족한 종목이 없습니다.</p>';
 }
 
 /* ---------- 화면 모드: 오늘 분석 / AI와 대결 ---------- */
