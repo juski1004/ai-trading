@@ -204,3 +204,26 @@ def from_env() -> LLM | None:
     if not clients:
         return None
     return clients[0] if len(clients) == 1 else FallbackLLM(clients)
+
+
+def check() -> list[str]:
+    """등록된 AI마다 짧은 질문을 보내 응답이 오는지 확인 (키 값은 출력하지 않음)."""
+    out = []
+    for name, env in (("Gemini", "GEMINI_API_KEY"), ("Groq", "GROQ_API_KEY"), ("Grok", "XAI_API_KEY")):
+        key = os.getenv(env)
+        if not key:
+            out.append(f"{name}: 키 없음")
+            continue
+        if name == "Gemini":
+            c = GeminiClient(key)
+        elif name == "Groq":
+            c = OpenAICompatClient("Groq", "https://api.groq.com/openai/v1", key, ("llama-3.3-70b", "llama-3.1-70b", "70b", "llama"))
+        else:
+            c = OpenAICompatClient("Grok", "https://api.x.ai/v1", key, ("grok-3-mini", "mini", "fast", "grok"))
+        ans = c.ask_json('JSON으로만 답하라: {"ok": true, "word": "안녕"}')
+        out.append(f"{name}: {'정상' if isinstance(ans, dict) else '실패'} (모델 {getattr(c, 'model', None)})")
+    return out
+
+
+if __name__ == "__main__":
+    print("\n".join(check()))
