@@ -1,9 +1,108 @@
 {
   "start_date": "2026-10-20",
   "end_date": "2026-11-19",
-  "cash_krw": 10000000,
-  "positions": {},
-  "trades": [],
-  "day_start_equity": {},
-  "equity_history": []
+  "cash_krw": 258171.1948375008,
+  "positions": {
+    "326030.KS": {
+      "symbol": "326030.KS",
+      "qty": 26,
+      "avg_price": 75437.7,
+      "cost_krw": 1961674.40703
+    },
+    "263750.KQ": {
+      "symbol": "263750.KQ",
+      "qty": 57,
+      "avg_price": 34517.25,
+      "cost_krw": 1967778.3724875
+    },
+    "271560.KS": {
+      "symbol": "271560.KS",
+      "qty": 17,
+      "avg_price": 112956.45,
+      "cost_krw": 1920547.6889475
+    },
+    "068270.KS": {
+      "symbol": "068270.KS",
+      "qty": 10,
+      "avg_price": 195597.75,
+      "cost_krw": 1956270.896625
+    },
+    "000100.KS": {
+      "symbol": "000100.KS",
+      "qty": 23,
+      "avg_price": 84142.04999999999,
+      "cost_krw": 1935557.4400724997
+    }
+  },
+  "trades": [
+    {
+      "time": "2026-10-22T14:25:42+09:00",
+      "symbol": "326030.KS",
+      "side": "BUY",
+      "qty": 26,
+      "price": 75437.7,
+      "fx": 1.0,
+      "fee_krw": 294,
+      "amount_krw": 1961674,
+      "reason": "THEO 매수 판정 (규칙)",
+      "realized_krw": 0.0
+    },
+    {
+      "time": "2026-10-22T14:25:42+09:00",
+      "symbol": "263750.KQ",
+      "side": "BUY",
+      "qty": 57,
+      "price": 34517.25,
+      "fx": 1.0,
+      "fee_krw": 295,
+      "amount_krw": 1967778,
+      "reason": "THEO 매수 판정 (규칙)",
+      "realized_krw": 0.0
+    },
+    {
+      "time": "2026-10-22T14:25:42+09:00",
+      "symbol": "271560.KS",
+      "side": "BUY",
+      "qty": 17,
+      "price": 112956.45,
+      "fx": 1.0,
+      "fee_krw": 288,
+      "amount_krw": 1920548,
+      "reason": "THEO 매수 판정 (규칙)",
+      "realized_krw": 0.0
+    },
+    {
+      "time": "2026-10-22T14:25:42+09:00",
+      "symbol": "068270.KS",
+      "side": "BUY",
+      "qty": 10,
+      "price": 195597.75,
+      "fx": 1.0,
+      "fee_krw": 293,
+      "amount_krw": 1956271,
+      "reason": "THEO 매수 판정 (규칙)",
+      "realized_krw": 0.0
+    },
+    {
+      "time": "2026-10-22T14:25:42+09:00",
+      "symbol": "000100.KS",
+      "side": "BUY",
+      "qty": 23,
+      "price": 84142.05,
+      "fx": 1.0,
+      "fee_krw": 290,
+      "amount_krw": 1935557,
+      "reason": "THEO 매수 판정 (규칙)",
+      "realized_krw": 0.0
+    }
+  ],
+  "day_start_equity": {
+    "2026-10-22": 10000000
+  },
+  "equity_history": [
+    [
+      "2026-10-22T14:25+09:00",
+      9993671
+    ]
+  ]
 }
