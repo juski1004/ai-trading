@@ -43,3 +43,31 @@ def test_market_summary():
     m = build_scores(market())["market"]
     assert m["usdkrw"]["v"] == 1313.0 and m["usdkrw"]["chg"] == 1.0
     assert set(m) == {"kospi", "kosdaq", "usdkrw"}
+
+
+from ai_trading.data.scores import fin_score, tech_score, top_headlines
+
+
+def test_fin_score_uses_only_released_quarters():
+    f = {"equity": 1000.0, "liabilities": 400.0, "shares": 10.0, "div_1y": 1.0,
+         "quarters": [{"date": f"2026-0{m}-01", "rev": 100.0, "op": 20.0, "ni": 15.0} for m in range(1, 6)]
+                     + [{"date": "2026-09-01", "rev": 100.0, "op": -50.0, "ni": -50.0}]}
+    sc, m = fin_score(f, 100.0, "2026-06-30")
+    assert m["roe"] == 6.0 and m["per"] == round(1000 / 60, 2) and m["debt"] == 40.0 and m["margin"] == 20.0
+    assert 0 <= sc <= 5
+    assert fin_score(None, 100.0, "2026-06-30") == (None, {})
+
+
+def test_tech_score_trend():
+    up = pd.DataFrame({"Close": np.linspace(100, 130, 150)})
+    up["High"], up["Low"], up["Volume"] = up.Close * 1.01, up.Close * 0.99, 1000.0
+    down = up.iloc[::-1].reset_index(drop=True)
+    su, sigs = tech_score(up)
+    sd, _ = tech_score(down)
+    assert su > sd and 0 <= sd <= su <= 5 and len(sigs) == 12
+
+
+def test_top_headlines_newest_unique():
+    items = [{"date": "2026-10-01", "title": "a"}, {"date": "2026-10-03", "title": "b"},
+             {"date": "2026-10-02", "title": "b"}, {"date": "2026-10-02", "title": "c"}]
+    assert [x["title"] for x in top_headlines(items)] == ["b", "c", "a"]
