@@ -314,6 +314,7 @@ body.ana .game-only{display:none!important}
 html.embed body{padding:0;background:var(--panel)}
 html.embed .top,html.embed .macro,html.embed #outlook,html.embed .foot,html.embed aside,html.embed .guide,html.embed .row3,html.embed .row2b,html.embed .game-only{display:none!important}
 html.embed .grid{display:block}
+html.cembed .col>.panel:not(#chartPanel){display:none!important}html.embed.cembed #chartPanel{display:block!important}html.cembed .symbar{display:none!important}/* 앱 속 차트만 */
 html.embed .col>.panel:not(#judgePanel):not(#planPanel){display:none!important}
 html.embed .panel{border:0;box-shadow:none;padding:10px 2px}
 body:not(.ana) .ana-only{display:none!important}
@@ -512,7 +513,7 @@ html.bembed .bphoto{align-self:stretch}html.bembed .bphoto img{height:100vh;widt
           <div class="sact"><button class="btn sm primary" type="button" id="planFill">1차 매수 수량 주문창에 채우기</button><span class="hint">참고용 계획입니다. 투자 권유가 아닙니다.</span></div></div>
       </div>
     </div>
-    <div class="panel">
+    <div class="panel" id="chartPanel">
       <div class="symbar"><div class="tabsw" id="tabs" role="group" aria-label="관심 종목"></div><div class="search"><input id="q" type="search" placeholder="종목명·코드 검색 (코스피·코스닥 전 종목)" aria-label="종목 검색" autocomplete="off"><ul id="qres" hidden></ul></div></div>
       <div class="quote" id="quote"></div>
       <div class="stats" id="stats"></div>
@@ -705,8 +706,8 @@ html.bembed .bphoto{align-self:stretch}html.bembed .bphoto img{height:100vh;widt
 <script>
 (()=>{
 const $=s=>document.querySelector(s);
-const QS=new URLSearchParams(location.search),EMBED=QS.get('view')==='judge',ESYM=QS.get('sym'),BEMB=QS.get('view')==='brief',BTXT=QS.get('view')==='brieftext';// brieftext: 음성 녹음용으로 브리핑 글만 뽑음(Actions가 헤드리스 크롬으로 읽음)
-if(EMBED)document.documentElement.classList.add('embed');if(BEMB)document.documentElement.classList.add('bembed');
+const QS=new URLSearchParams(location.search),CEMB=QS.get('view')==='chart',EMBED=QS.get('view')==='judge'||CEMB,ESYM=QS.get('sym'),BEMB=QS.get('view')==='brief',BTXT=QS.get('view')==='brieftext';// brieftext: 음성 녹음용으로 브리핑 글만 뽑음(Actions가 헤드리스 크롬으로 읽음)
+if(EMBED)document.documentElement.classList.add('embed');if(CEMB)document.documentElement.classList.add('cembed');if(BEMB)document.documentElement.classList.add('bembed');
 const RULES={cash0:10_000_000,stop:-5,take:10,maxW:.2,maxPos:5,dailyLimit:-3,maxVol:6,buyTh:.3,sellTh:-.15,fee:.00015,tax:.0018,days:90};
 let START,NBARS,STOCKS=[];const INDEX={name:'코스피'};
 const DEFP={ma:[5,20,60,120],ema:[12,26],bb:[20,2],env:[20,5],ich:[9,26,52],sar:[.02,.2],macd:[12,26,9],rsi:14,sto:[14,3,3],cci:20,wr:14,mfi:14,adx:14,atr:14};
