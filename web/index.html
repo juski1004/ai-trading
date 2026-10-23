@@ -1880,8 +1880,15 @@ function renderBrief(){
 function speakStep(){
   try{speechSynthesis.cancel();
     // 소수점은 '점'이 아니라 '쩜'으로(3.5 → 삼쩜오)
-    const txt=`${BRIEF[BSTEP].t}. ${$('#bText').innerText}`.replace(/(\d)\.(\d)/g,'$1쩜$2').replace(/·/g,', ')
-      .replace(/(유|주|종|고|저|물|평|원|단|매입|매도)가/g,'$1까');// 된소리로 읽는 말(유가→유까, 주가→주까, 종가→종까, 평가→평까 …)
+    // 날짜는 먼저 '2026년 10월 22일'로 바꾼 뒤(2026.10.22·2026-10-22·2026-09·10-29), 남은 소수점만 '쩜'
+    const n0=x=>String(+x),md=(m,d)=>+m>=1&&+m<=12&&+d>=1&&+d<=31;
+    const txt=`${BRIEF[BSTEP].t}. ${$('#bText').innerText}`
+      .replace(/((?:19|20)\d{2})[.\-/](\d{1,2})[.\-/](\d{1,2})(?![\d])/g,(s,y,m,d)=>md(m,d)?`${y}년 ${n0(m)}월 ${n0(d)}일`:s)
+      .replace(/((?:19|20)\d{2})-(\d{1,2})(?![\d])/g,(s,y,m)=>+m>=1&&+m<=12?`${y}년 ${n0(m)}월`:s)
+      .replace(/(^|[^\d.])(\d{1,2})-(\d{1,2})(?![\d.])/g,(s,p,m,d)=>md(m,d)?`${p}${n0(m)}월 ${n0(d)}일`:s)
+      .replace(/(\d)\.(\d)/g,'$1쩜$2').replace(/\s*·\s*/g,', ')
+      // 된소리로 읽는 낱말만(앞이 한글이 아닐 때) — '권유가' 같은 조사 '가'는 그대로
+      .replace(/(^|[^가-힣])(저평|고평|재평|최고|최저|목표|현재|매입|매도|유|주|종|고|저|물|평|원|단)가(?=[^가-힣]|$|[은는이을를도와의에로만])/g,'$1$2까');
     const u=new SpeechSynthesisUtterance(txt);u.lang='ko-KR';u.rate=1.25;
     // 본부장 성별에 맞춘 아나운서 톤: 자연스러운(Natural·Online·Neural) 목소리를 먼저, 남자 본부장이면 남자 목소리
     const male=PHOTO.THEO==='seunghyun',ko=speechSynthesis.getVoices().filter(v=>/^ko/i.test(v.lang));
