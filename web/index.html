@@ -752,7 +752,7 @@ function calc(b,P){
   return R;
 }
 /* ---------- 실제 데이터 불러오기 (data/*.json, 장 마감 후 하루 한 번 갱신) ---------- */
-let DATA={},IDX=[],IDXE=null,ALLEV=[],DATES=[],LISTING=[],META={},AIREAL={},SUMM={},OUTLOOK=null,FLOWS={market:{},big:[],stocks:{},outlook:{}};
+let DATA={},IDX=[],IDXE=null,ALLEV=[],DATES=[],LISTING=[],META={},AIREAL={},SUMM={},WHY=null,OUTLOOK=null,FLOWS={market:{},big:[],stocks:{},outlook:{}};
 const MACRO={events:[],ser:{}};
 const qLabelOf=end=>{const d=new Date(end);return `${String(d.getFullYear()).slice(2)}.${Math.floor(d.getMonth()/3)+1}Q`};
 const barAt=ds=>{let lo=0,hi=DATES.length;while(lo<hi){const m=(lo+hi)>>1;DATES[m]<ds?lo=m+1:hi=m}return lo};// 그날 또는 다음 거래일
@@ -760,6 +760,7 @@ const moneyS=v=>Math.abs(v)>=1e12?(v/1e12).toFixed(1)+'조':Math.abs(v)>=1e8?Mat
 async function loadData(){
   const get=async(f,def)=>{try{const r=await fetch('data/'+f,{cache:'no-cache'});if(!r.ok)throw 0;return await r.json()}catch(e){return def}};
   const [mk,fin,news,ai,meta,listing,summ,flows,outlook,cyc,research]=await Promise.all([get('market.json',null),get('fin.json',{}),get('news.json',{eco:[],sym:{}}),get('ai.json',{}),get('meta.json',{}),get('listing.json',[]),get('summary.json',{}),get('flows.json',null),get('outlook.json',null),get('cycle.json',null),get('research.json',{})]);
+  WHY=await get('why.json',null);
   if(!mk)throw new Error('data/market.json 을 불러오지 못했습니다');
   META=meta;AIREAL=ai;LISTING=listing;SUMM=summ||{};OUTLOOK=outlook;if(flows)FLOWS=flows;CYCLE=cyc;DATES=mk.dates;NBARS=DATES.length;RULES.days=Math.min(90,NBARS-131);START=NBARS-1-RULES.days;
   const ix=mk.index||{o:mk.macro.kospi,h:mk.macro.kospi,l:mk.macro.kospi,c:mk.macro.kospi};
@@ -827,6 +828,8 @@ const PHOTO={NOVA:'nova',JOY:'joy',OSCAR:'oscar',RAY:'ray',MILES:'miles',LLOYD:'
     KNAME[a]=s?P[s][1]:D[t.dir];PHOTO[a]=s||t.dir});
 })();
 const DIRN=()=>`${KNAME.THEO} 본부장`;
+const BROLE={JOY:'시장 흐름 담당',OSCAR:'수급·뉴스·실적 담당',RAY:'차트 분석 담당',MILES:'진입 계획 담당',LLOYD:'리스크 점검 담당',NOVA:'큰 흐름·가치 발굴 담당'};
+const MALE=new Set(['seunghyun','egen','teto','puppy']);// 남자 사진 → 남자 목소리
 const TEAM=[
  {id:'JOY',role:'시장·거시경제',col:'#e8c26a',t:'08:50',skin:'#f1d3bd',hair:'#4a2f22',style:'long',suit:'#3b4a63',shirt:'#f4efe6'},
  {id:'OSCAR',role:'수급·뉴스·실적',col:'#4fc7a4',t:'09:30',skin:'#d8a982',hair:'#17181d',style:'short',suit:'#2a3446',shirt:'#e9eef5',glasses:1,tie:'#4fc7a4'},
@@ -1811,7 +1814,11 @@ function whyItems(id,i,days=3){
   const ev=DATA[id].events.filter(e=>(e.kind==='news'||e.kind==='earn')&&e.i<=i&&e.i>i-days);
   return ev.map(e=>({...e,rumor:RUMOR.test(e.title),w:(e.i===i?2:1)*(1+Math.abs(e.imp||0))*(e.tag==='공시'?1.3:1)})).sort((a,b)=>b.i-a.i||b.w-a.w);
 }
-function reasonOf(id,i){const x=whyItems(id,i)[0];return x?`“${esc(x.title.replace(/&quot;/g,'"').replace(/^["“”']+|["“”']+$/g,'').slice(0,48))}” <span class="flat">(${esc(x.src||x.tag)}${x.i===i?'':', '+DATES[x.i].slice(5)}${x.rumor?', 소문·관측':''})</span>`:'<span class="flat">관련 뉴스 없음 (수급·지수 영향으로 보임)</span>'}
+/* 오늘 움직인 이유 한 줄: 기사 본문을 읽은 AI 요약(why.json) + 호재·악재. 없으면 기사 제목 */
+function whyLine(id,i){const w=WHY&&WHY.date===DATES[i]&&WHY.sym?WHY.sym[id]:null;
+  if(w){const c=w.tone==='호재'?'up':w.tone==='악재'?'down':'flat';return `<b class="${c}">[${w.tone}]</b> ${esc(w.line)} <span class="flat">(${w.link?`<a href="${esc(w.link)}" target="_blank" rel="noopener">${esc(w.src||'기사')}</a>`:esc(w.src||'')})</span>`}
+  return `${reasonOf(id,i)} 소식이 있었어요.`}
+function reasonOf(id,i){const x=whyItems(id,i)[0];return x?`“${esc(x.title.replace(/&quot;/g,'"').replace(/&amp;/g,'&').replace(/^["“”']+|["“”']+$/g,'').slice(0,48))}” <span class="flat">(${esc(x.src||x.tag)}${x.i===i?'':', '+DATES[x.i].slice(5)}${x.rumor?', 소문·관측':''})</span>`:'<span class="flat">관련 뉴스 없음 (수급·지수 영향으로 보임)</span>'}
 function renderWhy(){
   const id=S.sel,i=cur(),el=$('#whyBox');if(!el)return;const D=DATA[id],ch=(D.bars[i].c/D.bars[i-1].c-1)*100;
   const items=whyItems(id,i,5).slice(0,6),rep=(D.research||[]).filter(r=>r.date<=DATES[i]).slice(0,4);
@@ -1837,41 +1844,56 @@ function buildBrief(){
   const acc=accumScan(i).slice(0,5),ev={pre:[],sell:[],dip:[]};STOCKS.forEach(s=>{const e=J[s.id].EV;if(ev[e.st])ev[e.st].push(s.id)});
   const soon=STOCKS.map(s=>({id:s.id,ne:nextEarn(s.id,i)})).filter(x=>x.ne&&x.ne.td<=7).sort((a,b)=>a.ne.td-b.ne.td).slice(0,5);
   const reg=MC?.overall||'전환기',expo=reg==='상승기'?[70,90]:reg==='하락기'?[20,30]:[40,60],seed=MY.seed;
-  const sgn=x=>`${x>=0?'+':''}${Math.round(x).toLocaleString('ko-KR')}억`,pc=x=>`${x>=0?'+':''}${x.toFixed(2)}%`;
+  const pc=x=>`${x>=0?'+':''}${x.toFixed(2)}%`,won8=x=>`${Math.abs(Math.round(x)).toLocaleString('ko-KR')}억`;
+  const bs=(who,x)=>`${who} ${won8(x)} ${x>=0?'<b class="up">순매수</b>':'<b class="down">순매도</b>'}`;
+  const ieum=w=>{const c=w.charCodeAt(w.length-1)-0xAC00;return c>=0&&c<11172&&c%28?'이에요':'예요'};// 받침 따라 이에요/예요
+  const call=(()=>{try{return JSON.parse(localStorage.getItem('aiLab.call.v1')||'null')}catch(e){return null}})()||'대표님';
+  const dt=`${+ds.slice(5,7)}월 ${+ds.slice(8,10)}일`,mac=macroScore(i),D=KNAME.THEO;
+  const tone=O&&O.source!=='규칙'?O.tone:null,ol=(O&&O.lines||[]).map(tidyNum);
+  const jo=(w,a,b)=>{w=String(w).trim();const ch=w[w.length-1]||'',c=ch.charCodeAt(0)-0xAC00;if(c>=0&&c<11172)return w+(c%28?a:b);if(/[0136789]/.test(ch)||/[lmnr]/i.test(ch))return w+a;return w+b};// 받침 따라 이/가·은/는
+  const nm=id=>DATA[id].name,sj=(id,a,b)=>`<a href="#" data-bpick="${id}">${jo(nm(id),a,b)}</a>`;
   const S=[];
-  S.push({t:'오늘의 결론',l:[`${ds.replace(/-/g,'.')} 장 마감 브리핑입니다. 오늘 코스피는 <b class="${cls(kc)}">${pc(kc)}</b>, 코스닥은 <b class="${cls(qc)}">${pc(qc)}</b> 마감했습니다.`,
-    `큰 흐름은 <b>${reg}</b>입니다. ${MC?`코스피 ${MC.ix.kospi?.reg||'-'}, 나스닥 ${MC.ix.nasdaq?.reg||'-'}, 연준은 ${MC.fed?.label||'-'}.`:''}`,
-    O?`시황 판단은 '<b>${O.tone}</b>' — ${esc(O.headline||'')}`:'',
-    `분석 대상 78종목 중 <b class="up">${up}종목 상승</b>, <b class="down">${dn}종목 하락</b>했습니다.`].filter(Boolean)});
-  const nova=J[STOCKS[0].id].ex.find(x=>x.who==='NOVA')?.lines||[],joy=J[STOCKS[0].id].ex.find(x=>x.who==='JOY')?.lines||[];
-  S.push({t:KNAME.NOVA===KNAME.JOY?`시장 · ${KNAME.NOVA} 보고`:`시장 · ${KNAME.NOVA} · ${KNAME.JOY} 보고`,l:[`<b>${KNAME.NOVA}(큰 흐름):</b> ${esc(nova[0]||'')}`,`${esc(nova[1]||'')}`,`<b>${KNAME.JOY}(단기):</b> ${esc(joy[1]||'')}`,...(O&&O.lines?O.lines.slice(0,2).map(x=>`<b>시황:</b> ${esc(x)}`):[])]});
-  S.push({t:`수급 · ${KNAME.OSCAR} 보고`,l:[MF.KOSPI?`코스피 외국인 <b class="${cls(MF.KOSPI.frg)}">${sgn(MF.KOSPI.frg)}</b>, 기관 <b class="${cls(MF.KOSPI.org)}">${sgn(MF.KOSPI.org)}</b>, 개인 <b class="${cls(MF.KOSPI.ind)}">${sgn(MF.KOSPI.ind)}</b> 순매수.`:'오늘 시장 수급 자료가 없습니다.',
-    MF.KOSDAQ?`코스닥 외국인 ${sgn(MF.KOSDAQ.frg)}, 기관 ${sgn(MF.KOSDAQ.org)}, 개인 ${sgn(MF.KOSDAQ.ind)}.`:'',
-    flw.length?`외국인·기관이 많이 산 종목: ${flw.slice(0,4).map(x=>`${sl(x.id)}(${eok(x.net)})`).join(', ')}`:'',
-    flw.length?`많이 판 종목: ${flw.slice(-4).reverse().map(x=>`${sl(x.id)}(${eok(x.net)})`).join(', ')}`:''].filter(Boolean)});
-  S.push({t:'상승 · 하락 종목',l:[`많이 오른 종목: ${top.slice(0,5).map(x=>`${sl(x.id)} <span class="up">${pc(x.ch)}</span>`).join(', ')}`,
-    `많이 내린 종목: ${top.slice(-5).reverse().map(x=>`${sl(x.id)} <span class="down">${pc(x.ch)}</span>`).join(', ')}`,
-    ...top.slice(0,3).map(x=>`▲ ${sl(x.id)} <span class="up">${pc(x.ch)}</span> 이유: ${reasonOf(x.id,i)}`),
-    ...top.slice(-3).reverse().map(x=>`▼ ${sl(x.id)} <span class="down">${pc(x.ch)}</span> 이유: ${reasonOf(x.id,i)}`),
-    `상승 ${up} : 하락 ${dn} — ${up>dn*1.5?'오른 종목이 훨씬 많은 고른 상승장이었습니다.':dn>up*1.5?'내린 종목이 훨씬 많은 약한 장이었습니다.':'종목별로 엇갈린 장이었습니다.'}`]});
-  S.push({t:'거래량 · 매집 흔적',l:[vol.length?`평소보다 거래가 몰린 종목: ${vol.map(x=>`${sl(x.id)}(평소의 ${x.vr.toFixed(1)}배, <span class="${cls(x.ch)}">${pc(x.ch)}</span>)`).join(', ')}`:'오늘 거래량이 크게 몰린 종목은 없었습니다.',
-    acc.length?`매집 흔적 포착: ${acc.map(x=>`${sl(x.id)}(${x.n}/${x.tot})`).join(', ')} — 주가는 조용한데 사들인 흔적이 쌓였습니다.`:'매집 흔적이 뚜렷한 종목은 없었습니다.']});
-  S.push({t:'펀더멘탈 · 실적',l:[val.length?`저평가 가치주: ${val.map(x=>`${sl(x.id)}(${x.tags.join('·')}, 선행 PER ${x.fper?x.fper.toFixed(1):'-'}배)`).join(', ')}`:'조건에 맞는 저평가 가치주는 없었습니다.',
-    soon.length?`실적 발표가 다가온 종목: ${soon.map(x=>`${sl(x.id)}(${x.ne.date.slice(5)}, 약 ${x.ne.td}거래일 뒤)`).join(', ')}`:'',
-    ev.pre.length?`호재 전 매집 후보: ${ev.pre.slice(0,5).map(sl).join(', ')}`:''].filter(Boolean)});
+  S.push({t:'오늘의 결론',who:'THEO',l:[`${esc(call)}, 오늘의 브리핑입니다.`,
+    `${dt} 코스피는 <b class="${cls(kc)}">${pc(kc)}</b>, 코스닥은 <b class="${cls(qc)}">${pc(qc)}</b>로 마감했어요.`,
+    `78종목 중에 <b class="up">${up}개가 오르고</b> <b class="down">${dn}개가 내렸어요</b>. ${up>dn*1.5?'대부분 오른 좋은 하루였어요.':dn>up*1.5?'대부분 내린 힘든 하루였어요.':'종목마다 엇갈린 하루였어요.'}`,
+    `큰 흐름으로 보면 지금은 <b>${reg}</b>${ieum(reg)}.${tone?` 시황 분위기는 '${esc(tone)}' 쪽이에요.`:''}`]});
+  const kr=MC?.ix?.kospi?.reg,us=MC?.ix?.nasdaq?.reg;
+  S.push({t:`시장 · ${KNAME.JOY} 보고`,who:'JOY',l:[
+    `<b>${KNAME.NOVA}:</b> 큰 그림부터 말씀드릴게요. ${kr?`코스피는 ${kr}, `:''}${us?`미국 나스닥은 ${us}${ieum(us)}.`:''}${MC?.fed?.label?` 미국 금리는 지금 '${MC.fed.label.replace(/\s*\(.*\)\s*/,'')}' 국면이에요.`:''}`,
+    `<b>${KNAME.JOY}:</b> 단기로는 환율이 ${M.usdkrw[i].toFixed(0)}원으로 한 달 새 ${pc(mac.fx)}, 유가는 ${pc(mac.oil)} 움직였어요. 공포지수(VIX)는 ${mac.vx.toFixed(1)}로 ${mac.vx>25?'불안한 편이에요':mac.vx<15?'아주 차분해요':'보통 수준이에요'}.`,
+    ...(O&&O.source!=='규칙'?ol.slice(0,2):[]).map(x=>`<b>시황 한마디:</b> ${esc(x)}`)]});
+  S.push({t:`수급 · ${KNAME.OSCAR} 보고`,who:'OSCAR',l:[MF.KOSPI?`<b>${KNAME.OSCAR}:</b> 오늘 코스피에서는 ${bs('외국인',MF.KOSPI.frg)}, ${bs('기관',MF.KOSPI.org)}, ${bs('개인',MF.KOSPI.ind)}했어요.`:`<b>${KNAME.OSCAR}:</b> 오늘은 시장 수급 자료가 아직 없어요.`,
+    MF.KOSDAQ?`코스닥은 ${bs('외국인',MF.KOSDAQ.frg)}, ${bs('기관',MF.KOSDAQ.org)}, ${bs('개인',MF.KOSDAQ.ind)}예요.`:'',
+    flw.length?`외국인·기관이 함께 많이 산 종목은 ${flw.slice(0,3).map(x=>`${sl(x.id)}(${eok(x.net)})`).join(', ')} 순이고,`:'',
+    flw.length?`많이 판 종목은 ${flw.slice(-3).reverse().map(x=>`${sl(x.id)}(${eok(x.net)})`).join(', ')} 순이에요.`:''].filter(Boolean)});
+  S.push({t:`오르고 내린 종목 · ${KNAME.LLOYD} 보고`,who:'LLOYD',l:[`오늘 많이 오른 종목은 ${top.slice(0,3).map(x=>`${sl(x.id)} <span class="up">${pc(x.ch)}</span>`).join(', ')} 순이에요.`,
+    `반대로 많이 내린 종목은 ${top.slice(-3).reverse().map(x=>`${sl(x.id)} <span class="down">${pc(x.ch)}</span>`).join(', ')} 순이고요.`,
+    ...top.slice(0,3).map(x=>`▲ ${sj(x.id,'은','는')} ${whyLine(x.id,i)}`),
+    ...top.slice(-3).reverse().map(x=>`▼ ${sj(x.id,'은','는')} ${whyLine(x.id,i)}`)]});
+  S.push({t:`거래량 · 매집 흔적 · ${KNAME.RAY} 보고`,who:'RAY',l:[vol.length?`평소보다 거래가 확 몰린 종목은 ${vol.slice(0,3).map(x=>`${sl(x.id)}(평소의 ${x.vr.toFixed(1)}배)`).join(', ')} 등이에요.`:'오늘은 거래가 크게 몰린 종목이 없었어요.',
+    acc.length?`주가는 조용한데 누군가 꾸준히 사 모은 흔적이 보이는 종목은 ${acc.slice(0,3).map(x=>sl(x.id)).join(', ')} 등이에요. 눈여겨볼 만해요.`:'뚜렷하게 사 모은 흔적이 보이는 종목은 없었어요.']});
+  S.push({t:`실적 · 저평가 종목 · ${KNAME.NOVA} 보고`,who:'NOVA',l:[val.length?`이익이 늘 것 같은데 아직 싸 보이는 종목은 ${val.map(x=>`${sl(x.id)}(${x.tags[0]})`).join(', ')} 등이에요.`:'지금 조건에 맞는 저평가 종목은 없어요.',
+    soon.length?`곧 실적 발표가 있는 종목은 ${soon.slice(0,3).map(x=>`${sl(x.id)}(${+x.ne.date.slice(5,7)}월 ${+x.ne.date.slice(8,10)}일)`).join(', ')} 등이에요. 발표 전후로 크게 움직일 수 있어요.`:'',
+    ev.pre.length?`좋은 소식을 앞두고 미리 사 볼 만한 후보는 ${ev.pre.slice(0,3).map(sl).join(', ')} 등이에요.`:''].filter(Boolean)});
   const ord=orderRows().filter(g=>g.side==='매수'),om=ord.reduce((a,g)=>a+g.lad.reduce((s,l)=>s+l.qty*l.price,0),0);
-  S.push({t:'팀 판단 · 내일 주문',l:[buys.length?`AI 운용팀이 매수 쪽으로 본 종목: ${buys.slice(0,6).map(id=>`${sl(id)}(${J[id].call[0]})`).join(', ')}`:'오늘은 매수 판단이 나온 종목이 없습니다.',
-    ...buys.slice(0,4).map(id=>{const rp=(DATA[id].research||[])[0];return `· ${sl(id)}: ${reasonOf(id,i)}${rp?` <span class="flat">/ 리포트 ${esc(rp.broker)} “${esc(rp.title.slice(0,30))}”</span>`:''}`}),
-    ev.sell.length?`호재 소진·차익 실현 구간: ${ev.sell.slice(0,5).map(sl).join(', ')}`:'',ev.dip.length?`악재 과매도·역발상 후보: ${ev.dip.slice(0,5).map(sl).join(', ')}`:'',
-    ord.length?`내일 주문표: 매수 후보 ${ord.length}종목, 모두 체결되면 약 ${won(om)}원 (투자금의 ${(om/seed*100).toFixed(1)}%).`:'내일 주문표에 매수 후보가 없습니다.'].filter(Boolean)});
-  S.push({t:'본부장 제언',l:[`지금 국면(${reg})에서는 투자금 ${won(seed)}원 중 <b>주식 ${expo[0]}~${expo[1]}% (${won(seed*expo[0]/100)}~${won(seed*expo[1]/100)}원)</b>, <b>현금 ${100-expo[1]}~${100-expo[0]}%</b>를 권합니다.`,
-    reg==='하락기'?'하락기에는 반등이 와도 짧습니다. 신규 매수는 매매 계획의 절반만, 손절은 반드시 시장가 감시주문으로 걸어 두세요.':reg==='상승기'?'상승기에는 눌림에서 분할로 사고, 익절은 너무 서두르지 않습니다. 단, 손절 감시주문은 그대로 유지합니다.':'방향이 엇갈리는 구간입니다. 확신 높은 종목만 1차 비중으로 들어가고 나머지는 현금으로 기다립니다.',
-    buys.length?`가장 눈여겨볼 종목은 ${sl(buys[0])}입니다. 종목 이름을 누르면 직원별 분석과 제 최종 제언을 볼 수 있습니다.`:'오늘은 새로 사기보다 보유 종목 관리에 집중하세요.',
-    '모든 내용은 공개 데이터로 만든 참고 의견이며 투자 권유가 아닙니다. 수고 많으셨습니다.']});
+  S.push({t:`팀 판단 · 내일 주문 · ${KNAME.MILES} 보고`,who:'MILES',l:[buys.length?`저희 팀이 사도 괜찮다고 본 종목은 ${buys.slice(0,4).map(id=>`${sl(id)}(${J[id].call[0]})`).join(', ')} 등이에요.`:'오늘은 새로 살 만한 종목이 없다고 봤어요.',
+    ...buys.slice(0,2).map(id=>`${sj(id,'은','는')} ${whyLine(id,i)}`),
+    ev.sell.length?`좋은 소식이 이미 반영돼서 일부 팔아도 될 종목은 ${ev.sell.slice(0,3).map(sl).join(', ')} 등이에요.`:'',
+    ord.length?`내일 주문표에는 ${ord.length}종목이 올라가 있고, 다 체결되면 투자금의 ${(om/seed*100).toFixed(1)}% 정도 써요.`:'내일 주문표에는 살 종목이 없어요.'].filter(Boolean)});
+  S.push({t:`${D} 본부장 제언`,who:'THEO',l:[`마지막으로 제 생각을 말씀드릴게요.`,
+    `지금 같은 ${reg}에는 투자금의 <b>${expo[0]}~${expo[1]}%만 주식</b>에 두고, 나머지는 현금으로 들고 계시는 게 좋겠어요.`,
+    reg==='하락기'?'하락기에는 반등이 와도 짧아요. 새로 사실 땐 계획의 절반만, 손절 주문은 꼭 걸어 두세요.':reg==='상승기'?'상승기에는 조금 내릴 때 나눠 사고, 너무 일찍 팔지 마세요. 손절 주문은 그대로 두시고요.':'방향이 엇갈릴 땐 확신 있는 종목만 조금 담고, 나머지는 현금으로 기다리는 게 좋아요.',
+    buys.length?`가장 눈여겨볼 종목은 ${sl(buys[0])}${jo(nm(buys[0]),'이에요','예요').slice(nm(buys[0]).length)}. 이름을 누르시면 직원들 분석과 제 의견을 자세히 보실 수 있어요.`:'오늘은 새로 사기보다 가진 종목 관리에 집중하세요.',
+    `모두 공개 자료로 만든 참고 의견이고 투자 권유는 아니에요. 오늘도 수고 많으셨어요, ${esc(call)}.`]});
   return S;
 }
+/* AI 시황 문장 속 긴 소수(0.2987…%)는 둘째 자리로, '9860.0억'은 '9,860억'으로 */
+function tidyNum(t){return String(t).replace(/(\d+)\.0(억|조)/g,'$1$2').replace(/\d+\.\d{3,}/g,m=>(+m).toFixed(2)).replace(/(^|[^\d.,])(\d{4,})(?=\s?(억|조|만|원))/g,(m,p,n)=>p+(+n).toLocaleString('ko-KR'))}
 function renderBrief(){
-  const s=BRIEF[BSTEP],n=BRIEF.length;
+  const s=BRIEF[BSTEP],n=BRIEF.length,w=s.who||'THEO';
+  {const p=$('#brief .bphoto img'),src=`img/team/${PHOTO[w]||w.toLowerCase()}.jpg?v=4`;if(p.getAttribute('src')!==src){p.src=src;p.alt=`${KNAME[w]} 사진`}
+   const self=w!=='THEO'&&KNAME[w]===KNAME.THEO;// 그 자리를 맡은 직원이 없으면 본부장이 직접
+   $('#brief .bname b').textContent=w==='THEO'||self?DIRN():KNAME[w];$('#brief .bname span').textContent=w==='THEO'?'AI 운용팀 최종 판단':self?`${BROLE[w]||''} · 본부장 직접 검토`:(BROLE[w]||'')}
   $('#bTitle').textContent=`${BSTEP+1}/${n} · ${s.t}`;$('#bText').innerHTML=s.l.map(x=>`<p>${x}</p>`).join('');
   $('#bDots').innerHTML=BRIEF.map((_,k)=>`<i class="${k===BSTEP?'on':''}"></i>`).join('');
   $('#bPrev').disabled=BSTEP===0;$('#bNext').textContent=BSTEP===n-1?'마치기':'다음 ▶';
@@ -1882,9 +1904,15 @@ function spoken(k){
   const n0=x=>String(+x),md=(m,d)=>+m>=1&&+m<=12&&+d>=1&&+d<=31,box=document.createElement('div');
   const body=BRIEF[k].l.map(h=>{box.innerHTML=h;return box.textContent.trim()}).filter(Boolean).join('\n');
   return `${BRIEF[k].t}. ${body}`
+    .replace(/[▲▼]\s*/g,'').replace(/\[(호재|악재|중립)\]/g,'$1,').replace(/\s*\([^()\d]*\)/g,'')// 기호·출처 괄호는 읽지 않음
     .replace(/((?:19|20)\d{2})[.\-/](\d{1,2})[.\-/](\d{1,2})(?![\d])/g,(s,y,m,d)=>md(m,d)?`${y}년 ${n0(m)}월 ${n0(d)}일`:s)
     .replace(/((?:19|20)\d{2})-(\d{1,2})(?![\d])/g,(s,y,m)=>+m>=1&&+m<=12?`${y}년 ${n0(m)}월`:s)
     .replace(/(^|[^\d.])(\d{1,2})-(\d{1,2})(?![\d.])/g,(s,p,m,d)=>md(m,d)?`${p}${n0(m)}월 ${n0(d)}일`:s)
+    // 세는 말은 고유어로: 3번째→세 번째, 1번째→첫 번째, 2명→두 명, 5개→다섯 개, 6시→여섯 시
+    .replace(/(^|[^\d.,])(\d{1,2})\s?(번째|번|명|개(?!월)|가지|시간|시(?![가-힣])|달|살|장(?![가-힣])|종목)/g,(s0,p,n,u)=>{n=+n;if(n<1||n>99||(u==='시'&&n>12))return s0;
+      if(n===1&&u==='번째')return p+'첫 번째';const one=['','한','두','세','네','다섯','여섯','일곱','여덟','아홉'],ten=['','열','스물','서른','마흔','쉰','예순','일흔','여든','아흔'];
+      const t=Math.floor(n/10),o=n%10;return p+(n===20?'스무':ten[t]+one[o])+' '+u})
+    .replace(/(\d+\.\d*?[1-9])0+(?![\d])/g,'$1').replace(/(\d+)\.0+(?![\d])/g,'$1')// 0.50→0.5, 4.00→4
     .replace(/(\d)\.(\d)/g,'$1쩜$2').replace(/\s*·\s*/g,', ')
     // 된소리로 읽는 낱말만(앞이 한글이 아닐 때) — '권유가' 같은 조사 '가'는 그대로
     .replace(/(^|[^가-힣])(저평|고평|재평|최고|최저|목표|현재|매입|매도|유|주|종|고|저|물|평|원|단)가(?=[^가-힣]|$|[은는이을를도와의에로만])/g,'$1$2까');
@@ -1895,15 +1923,15 @@ async function briefAudio(){if(BAUDIO===null){try{const r=await fetch('data/brie
 function stopVoice(){try{speechSynthesis.cancel()}catch(e){};if(BCLIP){BCLIP.onended=BCLIP.onerror=null;BCLIP.pause();BCLIP=null}}
 function nextAfterVoice(){if(BSPEAK&&BSTEP<BRIEF.length-1){BSTEP++;renderBrief()}else if(BSTEP===BRIEF.length-1){BSPEAK=false;$('#bRead').textContent='읽어주기 🔊'}}
 async function speakStep(){
-  stopVoice();const k=BSTEP,male=PHOTO.THEO==='seunghyun',g=male?'m':'f',A=await briefAudio();
+  stopVoice();const k=BSTEP,male=MALE.has(PHOTO[BRIEF[k].who||'THEO']),g=male?'m':'f',A=await briefAudio();
   if(!BSPEAK||k!==BSTEP)return;
-  if(A&&A.voices&&A.voices[g]&&k<A.n){const a=new Audio(`data/brief/${g}${k}.mp3?d=${A.date}`);BCLIP=a;a.playbackRate=1.1;
+  if(A&&A.voices&&A.voices[g]&&k<A.n){const a=new Audio(`data/brief/${g}${k}.mp3?d=${A.date}`);BCLIP=a;a.playbackRate=1.15;
     a.onended=()=>{if(BCLIP===a){BCLIP=null;nextAfterVoice()}};a.onerror=()=>{if(BCLIP===a){BCLIP=null;deviceVoice(k,male)}};
     a.play().catch(()=>{if(BCLIP===a){BCLIP=null;deviceVoice(k,male)}});return}
   deviceVoice(k,male);
 }
 function deviceVoice(k,male){
-  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(spoken(k));u.lang='ko-KR';u.rate=1.25;
+  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(spoken(k));u.lang='ko-KR';u.rate=1.4;
     // 본부장 성별에 맞춘 아나운서 톤: 자연스러운(Natural·Online·Neural) 목소리를 먼저, 남자 본부장이면 남자 목소리
     const ko=speechSynthesis.getVoices().filter(v=>/^ko/i.test(v.lang));
     const isM=v=>/InJoon|Hyunsu|GookMin|BongJin|male|남/i.test(v.name)&&!/female|여/i.test(v.name),nat=v=>/Natural|Online|Neural|Wavenet|Premium|Enhanced/i.test(v.name);
@@ -1911,7 +1939,7 @@ function deviceVoice(k,male){
     u.pitch=male&&!(v&&isM(v))?.75:1;// 남자 목소리가 없는 기기(대부분 휴대폰)에서는 낮은 톤으로
     u.onend=nextAfterVoice;speechSynthesis.speak(u)}catch(e){}
 }
-function openBrief(){if(EMBED||!STOCKS.length)return;{const p=$('#brief .bphoto img');p.src=`img/team/${PHOTO.THEO}.jpg?v=4`;p.alt=`${DIRN()} 사진`;$('#brief .bname b').textContent=DIRN()}MODE='ana';if(!BRIEF)BRIEF=buildBrief();BSTEP=0;$('#brief').hidden=false;renderBrief();try{localStorage.setItem('briefSeen',DATES[NBARS-1])}catch(e){}}
+function openBrief(){if(EMBED||!STOCKS.length)return;MODE='ana';if(!BRIEF)BRIEF=buildBrief();BSTEP=0;$('#brief').hidden=false;renderBrief();try{localStorage.setItem('briefSeen',DATES[NBARS-1])}catch(e){}}
 function closeBrief(){BSPEAK=false;stopVoice();$('#brief').hidden=true;if(BEMB)parent.postMessage({type:'briefClose'},location.origin)}
 $('#briefBtn').onclick=openBrief;$('#bClose').onclick=closeBrief;
 $('#bPrev').onclick=()=>{if(BSTEP>0){BSTEP--;renderBrief()}};

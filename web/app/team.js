@@ -1,6 +1,6 @@
-/* 시작 연출 · 호칭 · 담당 팀(본부장 1명 + 직원 5명) 고르기.
+/* 시작 연출 · 호칭 · 담당 팀(본부장 1명 + 직원 6명) 고르기.
    - 앱을 열 때마다 게임 타이틀이 화면 가운데로 날아와 붙는 연출(약 2초)
-   - 처음 한 번: 호칭 입력 → 본부장 고르기 → 직원 5명 고르기 → 환영 인사
+   - 처음 한 번: 호칭 입력 → 본부장 고르기 → 직원 6명 고르기 → 환영 인사
    - 고른 팀은 이 휴대폰에 저장되고, 알림·추천 보고·분석 의견에 그 사람들이 나온다.
    - '내 정보' 탭의 '매니저 교체'로 다시 고를 수 있다.
    다른 파일은 Team.name(agent)·Team.photo(agent)·Team.director()·Team.reporter(date)·Team.call() 을 쓴다. */
@@ -27,7 +27,8 @@
     { id: "theo", name: "정서연", role: "본부장", tag: "따뜻하지만 단호한 리더", look: "단정한 단발, 버건디 정장", mind: "따뜻하지만 결정은 단호해요", trait: "직원 의견을 모아 비중과 현금까지 깔끔하게 정리해 줘요." },
     { id: "seunghyun", name: "백승현", role: "본부장", tag: "선한 인상의 베테랑", look: "희끗한 머리, 안경, 콧수염", mind: "온화하고 신중해요", trait: "30년 경력답게 서두르지 않는 분할 매수와 원칙을 강조해요.", male: true },
   ];
-  const DEFAULT = { dir: "theo", staff: ["joy", "oscar", "ray", "miles", "lloyd"] };
+  const DEFAULT = { dir: "theo", staff: ["joy", "oscar", "ray", "miles", "lloyd", "nova"] };
+  const NSTAFF = 6; // 함께할 직원 수
   let T = load(KEY, null), CALL = load(NAME, null);
 
   const person = id => STAFF.find(s => s.id === id) || DIRS.find(d => d.id === id);
@@ -55,7 +56,7 @@
     setTimeout(() => { el.classList.add("out"); setTimeout(() => { el.remove(); onboard(); if (CALL && T) after(); }, 450); }, quick ? 600 : 2000);
   }
 
-  /* ---------- 처음 한 번: 호칭 → 본부장 → 직원 5명 ---------- */
+  /* ---------- 처음 한 번: 호칭 → 본부장 → 직원 6명 ---------- */
   let pickDir = null, pickStaff = [];
   function sheet(html) {
     let o = document.getElementById("tmSheet");
@@ -88,16 +89,16 @@
     sheet(`<div class="tm-step">1 / 2</div><h2>${esc(call())}, 담당 매니저를 골라주세요</h2>
       <p class="sub">먼저 모든 보고를 최종 정리해 드릴 <b>본부장</b>을 골라요.</p>
       <div class="tm-list">${DIRS.map(d => card(d, d.id === pickDir, "dir")).join("")}</div>
-      <button class="cta" type="button" data-tm="dirok">다음: 직원 5명 고르기</button>`);
+      <button class="cta" type="button" data-tm="dirok">다음: 직원 ${NSTAFF}명 고르기</button>`);
   }
   function chooseStaff() {
     if (!pickStaff.length) pickStaff = [...team().staff];
     const n = pickStaff.length;
-    sheet(`<div class="tm-step">2 / 2</div><h2>함께할 직원 5명을 골라주세요</h2>
+    sheet(`<div class="tm-step">2 / 2</div><h2>함께할 직원 ${NSTAFF}명을 골라주세요</h2>
       <p class="sub">고른 직원이 맡은 분야를 분석해서 보고해요. 같은 분야를 두 명 골라도 되고, 비는 분야는 본부장이 직접 봐요.</p>
-      <div class="tm-count"><b>${n}</b> / 5명 선택</div>
+      <div class="tm-count"><b>${n}</b> / ${NSTAFF}명 선택</div>
       <div class="tm-list">${STAFF.map(s => card(s, pickStaff.includes(s.id), "st")).join("")}</div>
-      <button class="cta" type="button" data-tm="stok" ${n === 5 ? "" : "disabled"}>${n === 5 ? "이 팀으로 시작" : `${5 - n}명 더 골라주세요`}</button>
+      <button class="cta" type="button" data-tm="stok" ${n === NSTAFF ? "" : "disabled"}>${n === NSTAFF ? "이 팀으로 시작" : `${NSTAFF - n}명 더 골라주세요`}</button>
       <button class="cta sub2" type="button" data-tm="back">‹ 본부장 다시 고르기</button>`);
   }
   function welcome() {
@@ -114,7 +115,7 @@
     const sc = e.target.closest("[data-st]");
     if (sc) {
       const id = sc.dataset.st, i = pickStaff.indexOf(id);
-      if (i >= 0) pickStaff.splice(i, 1); else if (pickStaff.length < 5) pickStaff.push(id);
+      if (i >= 0) pickStaff.splice(i, 1); else if (pickStaff.length < NSTAFF) pickStaff.push(id);
       const y = document.getElementById("tmSheet")?.scrollTop || 0; chooseStaff(); const o = document.getElementById("tmSheet"); if (o) o.scrollTop = y;
       return;
     }
@@ -127,7 +128,7 @@
       if (T) { closeSheet(); refresh(); } else chooseDir();
     } else if (a === "dirok") chooseStaff();
     else if (a === "back") chooseDir();
-    else if (a === "stok" && pickStaff.length === 5) { T = { dir: pickDir, staff: [...pickStaff] }; save(KEY, T); welcome(); }
+    else if (a === "stok" && pickStaff.length === NSTAFF) { T = { dir: pickDir, staff: [...pickStaff] }; save(KEY, T); welcome(); }
     else if (a === "done") { closeSheet(); refresh(); after(); }
     else if (a === "swap") { pickDir = team().dir; pickStaff = [...team().staff]; chooseDir(); }
     else if (a === "rename") askName(true);
