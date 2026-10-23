@@ -153,7 +153,8 @@ button.row:active{opacity:.6}
 .stars{color:#f5b84a;letter-spacing:1px}.stars i{color:#e3e5ee;font-style:normal}
 .lv-낮음{color:var(--pos)}.lv-보통{color:#d99a1e}.lv-높음{color:var(--neg)}
 .ops{list-style:none;margin:0;padding:0}
-.ops li{padding:12px 0;border-top:1px solid var(--line)}
+.ops li{padding:12px 0 12px 62px;border-top:1px solid var(--line);position:relative;min-height:74px}
+.ops li>img.face{position:absolute;left:0;top:12px;width:50px;height:62px;border-radius:12px;object-fit:cover;object-position:50% 12%;box-shadow:0 4px 12px rgba(40,50,90,.12)}
 .ops li:first-child{border-top:0}
 .ops .who{display:flex;justify-content:space-between;font-size:14px;font-weight:700}
 .ops .who small{font-weight:500;color:var(--muted);margin-left:7px}
@@ -360,9 +361,9 @@ function analysisDetail(sym){
     ${s.news.length?`<ul class="news" ${sm?'style="margin-top:8px"':''}>${s.news.map(n=>`<li><a href="${esc(n.link||'#')}" target="_blank" rel="noopener">${esc(n.title)}<small>${esc(n.date)} · ${esc(n.src||'')}</small></a></li>`).join('')}</ul>`:'<p class="empty">최근 소식이 없어요.</p>'}
   </section>
   <section class="card"><div class="hd"><h2>AI 분석팀 의견</h2></div>
-    <ul class="ops">${s.opinions.map(o=>{const w=Math.abs(o.score)*50,l=o.score>=0?50:50-w;return `<li><div class="who"><span>${(window.Team?Team.name(o.agent):(KN[o.agent]||o.agent))}<small>${ROLE[o.agent]||''}</small></span><span class="num ${o.score>0?'up':o.score<0?'down':'flat'}">${o.score>0?'+':''}${Math.round(o.score*50)}</span></div>
+    <ul class="ops">${s.opinions.map(o=>{const w=Math.abs(o.score)*50,l=o.score>=0?50:50-w;return `<li><img class="face" src="../img/team/${window.Team?Team.photo(o.agent):o.agent.toLowerCase()}.jpg?v=4" alt="" loading="lazy"><div class="who"><span>${(window.Team?Team.name(o.agent):(KN[o.agent]||o.agent))}<small>${ROLE[o.agent]||''}</small></span><span class="num ${o.score>0?'up':o.score<0?'down':'flat'}">${o.score>0?'+':''}${Math.round(o.score*50)}</span></div>
       <div class="meter"><i style="left:${l}%;width:${w}%;background:${o.score>=0?'var(--up)':'var(--down)'}"></i></div><p>${esc(o.summary)}</p></li>`}).join('')}
-      <li><div class="who"><span>${window.Team?Team.name('LLOYD'):'강도윤'}<small>리스크 점검</small></span><span class="lv-${s.risk.level}">${s.risk.level}</span></div><p>${s.risk.reasons.map(esc).join(' · ')}</p></li></ul>
+      <li><img class="face" src="../img/team/${window.Team?Team.photo('LLOYD'):'lloyd'}.jpg?v=4" alt="" loading="lazy"><div class="who"><span>${window.Team?Team.name('LLOYD'):'강도윤'}<small>리스크 점검</small></span><span class="lv-${s.risk.level}">${s.risk.level}</span></div><p>${s.risk.reasons.map(esc).join(' · ')}</p></li></ul>
   </section>
   <section class="card"><div class="hd"><h2>재무 지표</h2><span class="sub">최근 4분기</span></div>
     <div class="kv">
