@@ -358,7 +358,7 @@ html.embed #cyclePanel{display:none!important}
 .bmain{padding:20px 24px;display:flex;flex-direction:column;min-width:0}
 .bhead{display:flex;justify-content:space-between;align-items:center}
 .beyebrow{font-size:12px;letter-spacing:.4px;color:var(--ai);font-weight:700}
-.bmain h2{margin:6px 0 10px;font-size:22px}
+.bmain h2{margin:4px 0 8px;font-size:14px;font-weight:700;color:var(--muted)}/* 파트 이름은 작게 — 본문에 몰입되게 */
 .btext{flex:1;font-size:15.5px;line-height:1.75}
 .btext p{margin:0 0 10px}
 .btext a,#brief a{color:var(--down);font-weight:600;text-decoration:none}
@@ -379,7 +379,9 @@ html.embed #cyclePanel{display:none!important}
 html.bembed body>*:not(#brief):not(script){display:none!important}
 html.bembed body{padding:0;background:var(--panel)}
 html.bembed .brief{position:static;background:none;padding:0;display:block}
-html.bembed .bbox{box-shadow:none;min-height:100vh}
+html.bembed .bbox{box-shadow:none;height:100vh;min-height:0;grid-template-columns:min(75vh,46%) minmax(0,1fr)}/* 앱 속 카드: 사진 칸 너비=높이×3/4 → 얼굴이 꽉 차고 여백 없음 */
+html.bembed .bphoto{align-self:stretch}html.bembed .bphoto img{height:100vh;width:100%}html.bembed .bmain{overflow:auto}
+@media (max-width:820px){html.bembed .bbox{height:auto;min-height:100vh;grid-template-columns:minmax(0,1fr)}html.bembed .bphoto img{height:128px!important}}
 /* 시장 전망 */
 .outlook{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:18px;margin-bottom:10px}
 @media (max-width:1100px){.outlook{grid-template-columns:minmax(0,1fr)}}
@@ -1872,38 +1874,38 @@ function buildBrief(){
   const jo=(w,a,b)=>{w=String(w).trim();const ch=w[w.length-1]||'',c=ch.charCodeAt(0)-0xAC00;if(c>=0&&c<11172)return w+(c%28?a:b);if(/[0136789]/.test(ch)||/[lmnr]/i.test(ch))return w+a;return w+b};// 받침 따라 이/가·은/는
   const nm=id=>DATA[id].name,sj=(id,a,b)=>`<a href="#" data-bpick="${id}">${jo(nm(id),a,b)}</a>`;
   const S=[];
-  S.push({t:'오늘의 결론',who:'THEO',l:[`${esc(call)}, 오늘의 브리핑입니다.`,
+  S.push({t:'오늘의 결론',who:'THEO',l:[`<span class="bcall">${esc(call)}, </span>오늘의 브리핑입니다.`,
     `${dt} 코스피는 <b class="${cls(kc)}">${pc(kc)}</b>, 코스닥은 <b class="${cls(qc)}">${pc(qc)}</b>로 마감했어요.`,
     `78종목 중에 <b class="up">${up}개가 오르고</b> <b class="down">${dn}개가 내렸어요</b>. ${up>dn*1.5?'대부분 오른 좋은 하루였어요.':dn>up*1.5?'대부분 내린 힘든 하루였어요.':'종목마다 엇갈린 하루였어요.'}`,
     `큰 흐름으로 보면 지금은 <b>${reg}</b>${ieum(reg)}.${tone?` 시황 분위기는 '${esc(tone)}' 쪽이에요.`:''}`]});
   const kr=MC?.ix?.kospi?.reg,us=MC?.ix?.nasdaq?.reg;
-  S.push({t:`시장 · ${KNAME.JOY} 보고`,who:'JOY',l:[
-    `<b>${KNAME.NOVA}:</b> 큰 그림부터 말씀드릴게요. ${kr?`코스피는 ${kr}, `:''}${us?`미국 나스닥은 ${us}${ieum(us)}.`:''}${MC?.fed?.label?` 미국 금리는 지금 '${MC.fed.label.replace(/\s*\(.*\)\s*/,'')}' 국면이에요.`:''}`,
-    `<b>${KNAME.JOY}:</b> 단기로는 환율이 ${M.usdkrw[i].toFixed(0)}원으로 한 달 새 ${pc(mac.fx)}, 유가는 ${pc(mac.oil)} 움직였어요. 공포지수(VIX)는 ${mac.vx.toFixed(1)}로 ${mac.vx>25?'불안한 편이에요':mac.vx<15?'아주 차분해요':'보통 수준이에요'}.`,
+  S.push({t:'시황',who:'JOY',l:[
+    `<b class="bwho">${KNAME.NOVA}:</b> 큰 그림부터 말씀드릴게요. ${kr?`코스피는 ${kr}, `:''}${us?`미국 나스닥은 ${us}${ieum(us)}.`:''}${MC?.fed?.label?` 미국 금리는 지금 '${MC.fed.label.replace(/\s*\(.*\)\s*/,'')}' 국면이에요.`:''}`,
+    `<b class="bwho">${KNAME.JOY}:</b> 단기로는 환율이 ${M.usdkrw[i].toFixed(0)}원으로 한 달 새 ${pc(mac.fx)}, 유가는 ${pc(mac.oil)} 움직였어요. 공포지수(VIX)는 ${mac.vx.toFixed(1)}로 ${mac.vx>25?'불안한 편이에요':mac.vx<15?'아주 차분해요':'보통 수준이에요'}.`,
     ...(O&&O.source!=='규칙'?ol.slice(0,2):[]).map(x=>`<b>시황 한마디:</b> ${esc(x)}`)]});
-  S.push({t:`수급 · ${KNAME.OSCAR} 보고`,who:'OSCAR',l:[MF.KOSPI?`<b>${KNAME.OSCAR}:</b> 오늘 코스피에서는 ${bs('외국인',MF.KOSPI.frg)}, ${bs('기관',MF.KOSPI.org)}, ${bs('개인',MF.KOSPI.ind)}했어요.`:`<b>${KNAME.OSCAR}:</b> 오늘은 시장 수급 자료가 아직 없어요.`,
+  S.push({t:'수급',who:'OSCAR',l:[MF.KOSPI?`<b class="bwho">${KNAME.OSCAR}:</b> 오늘 코스피에서는 ${bs('외국인',MF.KOSPI.frg)}, ${bs('기관',MF.KOSPI.org)}, ${bs('개인',MF.KOSPI.ind)}했어요.`:`<b class="bwho">${KNAME.OSCAR}:</b> 오늘은 시장 수급 자료가 아직 없어요.`,
     MF.KOSDAQ?`코스닥은 ${bs('외국인',MF.KOSDAQ.frg)}, ${bs('기관',MF.KOSDAQ.org)}, ${bs('개인',MF.KOSDAQ.ind)}예요.`:'',
     flw.length?`외국인과 기관이 함께 많이 산 종목은 ${flw.slice(0,3).map(x=>`${sl(x.id)}(${eok(x.net)})`).join(', ')} 순이고,`:'',
     flw.length?`많이 판 종목은 ${flw.slice(-3).reverse().map(x=>`${sl(x.id)}(${eok(x.net)})`).join(', ')} 순이에요.`:''].filter(Boolean)});
-  S.push({t:`오르고 내린 종목 · ${KNAME.LLOYD} 보고`,who:'LLOYD',l:[`오늘 많이 오른 종목은 ${top.slice(0,3).map(x=>`${sl(x.id)} <span class="up">${pc(x.ch)}</span>`).join(', ')} 순이에요.`,
+  S.push({t:'오르고 내린 종목',who:'LLOYD',l:[`오늘 많이 오른 종목은 ${top.slice(0,3).map(x=>`${sl(x.id)} <span class="up">${pc(x.ch)}</span>`).join(', ')} 순이에요.`,
     `반대로 많이 내린 종목은 ${top.slice(-3).reverse().map(x=>`${sl(x.id)} <span class="down">${pc(x.ch)}</span>`).join(', ')} 순이고요.`,
     ...top.slice(0,3).map(x=>`▲ ${sj(x.id,'은','는')} ${whyLine(x.id,i)}`),
     ...top.slice(-3).reverse().map(x=>`▼ ${sj(x.id,'은','는')} ${whyLine(x.id,i)}`)]});
-  S.push({t:`거래량 · 매집 흔적 · ${KNAME.RAY} 보고`,who:'RAY',l:[vol.length?`평소보다 거래가 확 몰린 종목은 ${vol.slice(0,3).map(x=>`${sl(x.id)}(평소의 ${x.vr.toFixed(1)}배)`).join(', ')} 등이에요.`:'오늘은 거래가 크게 몰린 종목이 없었어요.',
+  S.push({t:'거래량 · 매집 흔적',who:'RAY',l:[vol.length?`평소보다 거래가 확 몰린 종목은 ${vol.slice(0,3).map(x=>`${sl(x.id)}(평소의 ${x.vr.toFixed(1)}배)`).join(', ')} 등이에요.`:'오늘은 거래가 크게 몰린 종목이 없었어요.',
     acc.length?`주가는 조용한데 누군가 꾸준히 사 모은 흔적이 보이는 종목은 ${acc.slice(0,3).map(x=>sl(x.id)).join(', ')} 등이에요. 눈여겨볼 만해요.`:'뚜렷하게 사 모은 흔적이 보이는 종목은 없었어요.']});
-  S.push({t:`실적 · 저평가 종목 · ${KNAME.NOVA} 보고`,who:'NOVA',l:[val.length?`이익이 늘 것 같은데 아직 싸 보이는 종목은 ${val.map(x=>`${sl(x.id)}(${x.tags[0]})`).join(', ')} 등이에요.`:'지금 조건에 맞는 저평가 종목은 없어요.',
+  S.push({t:'실적 · 저평가 종목',who:'NOVA',l:[val.length?`이익이 늘 것 같은데 아직 싸 보이는 종목은 ${val.map(x=>`${sl(x.id)}(${x.tags[0]})`).join(', ')} 등이에요.`:'지금 조건에 맞는 저평가 종목은 없어요.',
     soon.length?`곧 실적 발표가 있는 종목은 ${soon.slice(0,3).map(x=>`${sl(x.id)}(${+x.ne.date.slice(5,7)}월 ${+x.ne.date.slice(8,10)}일)`).join(', ')} 등이에요. 발표 전후로 크게 움직일 수 있어요.`:'',
     ev.pre.length?`좋은 소식을 앞두고 미리 사 볼 만한 후보는 ${ev.pre.slice(0,3).map(sl).join(', ')} 등이에요.`:''].filter(Boolean)});
   const ord=orderRows().filter(g=>g.side==='매수'),om=ord.reduce((a,g)=>a+g.lad.reduce((s,l)=>s+l.qty*l.price,0),0);
-  S.push({t:`팀 판단 · 내일 주문 · ${KNAME.MILES} 보고`,who:'MILES',l:[buys.length?`저희 팀이 사도 괜찮다고 본 종목은 ${buys.slice(0,4).map(id=>`${sl(id)}(${J[id].call[0]})`).join(', ')} 등이에요.`:'오늘은 새로 살 만한 종목이 없다고 봤어요.',
+  S.push({t:'팀 판단 · 내일 주문',who:'MILES',l:[buys.length?`저희 팀이 사도 괜찮다고 본 종목은 ${buys.slice(0,4).map(id=>`${sl(id)}(${J[id].call[0]})`).join(', ')} 등이에요.`:'오늘은 새로 살 만한 종목이 없다고 봤어요.',
     ...buys.slice(0,2).map(id=>`${sj(id,'은','는')} ${whyLine(id,i)}`),
     ev.sell.length?`좋은 소식이 이미 반영돼서 일부 팔아도 될 종목은 ${ev.sell.slice(0,3).map(sl).join(', ')} 등이에요.`:'',
     ord.length?`내일 주문표에는 ${ord.length}종목이 올라가 있고, 다 체결되면 투자금의 ${(om/seed*100).toFixed(1)}% 정도 써요.`:'내일 주문표에는 살 종목이 없어요.'].filter(Boolean)});
-  S.push({t:`${D} 본부장 제언`,who:'THEO',l:[`마지막으로 제 생각을 말씀드릴게요.`,
+  S.push({t:'본부장 제언',who:'THEO',l:[`마지막으로 제 생각을 말씀드릴게요.`,
     `지금 같은 ${reg}에는 투자금의 <b>${expo[0]}~${expo[1]}%만 주식</b>에 두고, 나머지는 현금으로 들고 계시는 게 좋겠어요.`,
     reg==='하락기'?'하락기에는 반등이 와도 짧아요. 새로 사실 땐 계획의 절반만, 손절 주문은 꼭 걸어 두세요.':reg==='상승기'?'상승기에는 조금 내릴 때 나눠 사고, 너무 일찍 팔지 마세요. 손절 주문은 그대로 두시고요.':'방향이 엇갈릴 땐 확신 있는 종목만 조금 담고, 나머지는 현금으로 기다리는 게 좋아요.',
     buys.length?`가장 눈여겨볼 종목은 ${sl(buys[0])}${jo(nm(buys[0]),'이에요','예요').slice(nm(buys[0]).length)}. 이름을 누르시면 직원들 분석과 제 의견을 자세히 보실 수 있어요.`:'오늘은 새로 사기보다 가진 종목 관리에 집중하세요.',
-    `모두 공개 자료로 만든 참고 의견이고 투자 권유는 아니에요. 오늘도 수고 많으셨어요, ${esc(call)}.`]});
+    `모두 공개 자료로 만든 참고 의견이고 투자 권유는 아니에요. 오늘도 수고 많으셨어요<span class="bcall">, ${esc(call)}</span>.`]});
   return S;
 }
 /* AI 시황 문장 속 긴 소수(0.2987…%)는 둘째 자리로, '9860.0억'은 '9,860억'으로 */
@@ -1913,7 +1915,7 @@ function renderBrief(){
   {const p=$('#brief .bphoto img'),src=`img/team/${PHOTO[w]||w.toLowerCase()}.jpg?v=4`;if(p.getAttribute('src')!==src){p.src=src;p.alt=`${KNAME[w]} 사진`}
    const self=w!=='THEO'&&KNAME[w]===KNAME.THEO;// 그 자리를 맡은 직원이 없으면 본부장이 직접
    $('#brief .bname b').textContent=w==='THEO'||self?DIRN():KNAME[w];$('#brief .bname span').textContent=w==='THEO'?'AI 운용팀 최종 판단':self?`${BROLE[w]||''} · 본부장 직접 검토`:(BROLE[w]||'')}
-  $('#bTitle').textContent=`${BSTEP+1}/${n} · ${s.t}`;$('#bText').innerHTML=s.l.map(x=>`<p>${x}</p>`).join('');
+  $('#bTitle').textContent=s.t;// 쪽 번호는 아래 점으로만$('#bText').innerHTML=s.l.map(x=>`<p>${x}</p>`).join('');
   $('#bDots').innerHTML=BRIEF.map((_,k)=>`<i class="${k===BSTEP?'on':''}"></i>`).join('');
   $('#bPrev').disabled=BSTEP===0;$('#bNext').textContent=BSTEP===n-1?'마치기':'다음 ▶';
   if(BSPEAK)speakStep();
@@ -1921,8 +1923,8 @@ function renderBrief(){
 /* 읽어줄 글: 날짜는 '2026년 10월 22일', 남은 소수점은 '쩜'(3.5 → 삼쩜오), 된소리 낱말(유까·주까·평까…) */
 function spoken(k){
   const n0=x=>String(+x),md=(m,d)=>+m>=1&&+m<=12&&+d>=1&&+d<=31,box=document.createElement('div');
-  const body=BRIEF[k].l.map(h=>{box.innerHTML=h;return box.textContent.trim()}).filter(Boolean).join('\n');
-  return body// 제목(○○ 보고)은 읽지 않음
+  const body=BRIEF[k].l.map(h=>{box.innerHTML=h;box.querySelectorAll('.bcall,.bwho').forEach(e=>e.remove());return box.textContent.trim()}).filter(Boolean).join('\n');
+  return BRIEF[k].t.replace(/ · /g,', ')+'.'+String.fromCharCode(10)+body// 이름·호칭은 읽지 않고 '수급', '시황'처럼 파트 이름으로 시작
     .replace(/%p/g,' 퍼센트포인트').replace(/%/g,' 퍼센트')// '%.'를 '퍼센트 사인'으로 읽지 않게
     .replace(/S&P/g,'SP').replace(/\b[A-Z]{2,6}\b/g,w=>[...w].map(c=>ABC[c]).join(''))// HMM → 에이치엠엠, SK → 에스케이
     .replace(/[▲▼]\s*/g,'').replace(/\[(호재|악재|중립)\]/g,'$1,').replace(/\s*\([^()\d]*\)/g,'')// 기호·출처 괄호는 읽지 않음

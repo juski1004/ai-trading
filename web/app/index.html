@@ -79,8 +79,9 @@ a{color:var(--lav-d)}
 .bcard{display:grid;grid-template-columns:84px minmax(0,1fr);gap:16px;align-items:center}
 .bcard img{width:84px;height:106px;object-fit:cover;object-position:50% 10%;border-radius:18px;box-shadow:0 8px 20px rgba(40,50,90,.14)}
 .bcard .pclink{margin-top:10px}
-.bover{position:fixed;inset:0;z-index:40;background:#fff;display:flex;flex-direction:column}
-.bover iframe{flex:1;border:0;width:100%}
+.bover{position:fixed;inset:0;z-index:40;background:rgba(29,32,51,.45);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-top)) 12px 16px}
+.bover iframe{flex:none;border:0;width:min(1040px,100%);height:min(620px,86vh);border-radius:24px;background:#fff;box-shadow:0 24px 70px rgba(20,24,50,.35)}
+@media (max-width:820px){.bover iframe{height:86vh}}/* 브리핑: 화면 전체가 아니라 떠 있는 카드 */
 
 /* 카드 */
 .card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-top:14px;box-shadow:0 8px 26px rgba(40,50,90,.06)}
@@ -416,7 +417,7 @@ try{if(!localStorage.getItem('appGuideSeen')&&localStorage.getItem('aiLab.team.v
 document.addEventListener('toggle',e=>{const d=e.target;if(!d.classList||!d.classList.contains('judge')||!d.open||d.querySelector('iframe'))return;
   const f=document.createElement('iframe');f.className='arena';f.title='AI 종합 판단과 매매 계획';f.src=d.dataset.src;d.appendChild(f)},true);
 function closeBriefOv(){document.querySelector('.bover')?.remove()}
-document.addEventListener('click',e=>{if(e.target.id==='openBrief'){closeBriefOv();const o=document.createElement('div');o.className='bover';o.innerHTML='<iframe src="../?view=brief" title="본부장 브리핑"></iframe>';document.body.appendChild(o)}});
+document.addEventListener('click',e=>{if(e.target.classList&&e.target.classList.contains('bover')){closeBriefOv();return}/* 카드 바깥을 누르면 닫기 */if(e.target.id==='openBrief'){closeBriefOv();const o=document.createElement('div');o.className='bover';o.innerHTML='<iframe src="../?view=brief" title="본부장 브리핑"></iframe>';document.body.appendChild(o)}});
 addEventListener('message',e=>{if(e.origin!==location.origin)return;const d=e.data||{};if(d.type==='briefClose')closeBriefOv();if(d.type==='arenaPick')closeBriefOv();
   if(d.type==='arenaH')document.querySelectorAll('iframe.arena').forEach(f=>{if(f.contentWindow===e.source)f.style.height=(d.h+8)+'px'});
   if(d.type==='arenaPick'&&d.sym)location.hash='analysis/'+encodeURIComponent(d.sym)});
