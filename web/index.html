@@ -1878,8 +1878,16 @@ function renderBrief(){
   if(BSPEAK)speakStep();
 }
 function speakStep(){
-  try{speechSynthesis.cancel();const txt=$('#bText').innerText;const u=new SpeechSynthesisUtterance(`${BRIEF[BSTEP].t}. ${txt}`);u.lang='ko-KR';u.rate=1.05;
-    const v=speechSynthesis.getVoices().find(v=>v.lang.startsWith('ko')&&/female|여|Heami|SunHi|Google/i.test(v.name))||speechSynthesis.getVoices().find(v=>v.lang.startsWith('ko'));if(v)u.voice=v;
+  try{speechSynthesis.cancel();
+    // 소수점은 '점'이 아니라 '쩜'으로(3.5 → 삼쩜오)
+    const txt=`${BRIEF[BSTEP].t}. ${$('#bText').innerText}`.replace(/(\d)\.(\d)/g,'$1쩜$2').replace(/·/g,', ')
+      .replace(/(유|주|종|고|저|물|평|원|단|매입|매도)가/g,'$1까');// 된소리로 읽는 말(유가→유까, 주가→주까, 종가→종까, 평가→평까 …)
+    const u=new SpeechSynthesisUtterance(txt);u.lang='ko-KR';u.rate=1.25;
+    // 본부장 성별에 맞춘 아나운서 톤: 자연스러운(Natural·Online·Neural) 목소리를 먼저, 남자 본부장이면 남자 목소리
+    const male=PHOTO.THEO==='seunghyun',ko=speechSynthesis.getVoices().filter(v=>/^ko/i.test(v.lang));
+    const isM=v=>/InJoon|Hyunsu|GookMin|BongJin|male|남/i.test(v.name)&&!/female|여/i.test(v.name),nat=v=>/Natural|Online|Neural|Wavenet|Premium|Enhanced/i.test(v.name);
+    const pool=ko.filter(v=>male?isM(v):!isM(v)),v=pool.find(nat)||pool[0]||ko.find(nat)||ko[0];if(v)u.voice=v;
+    u.pitch=male&&!(v&&isM(v))?.75:1;// 남자 목소리가 없는 기기(대부분 휴대폰)에서는 낮은 톤으로
     u.onend=()=>{if(BSPEAK&&BSTEP<BRIEF.length-1){BSTEP++;renderBrief()}else if(BSTEP===BRIEF.length-1){BSPEAK=false;$('#bRead').textContent='읽어주기 🔊'}};speechSynthesis.speak(u)}catch(e){}
 }
 function openBrief(){if(EMBED||!STOCKS.length)return;{const p=$('#brief .bphoto img');p.src=`img/team/${PHOTO.THEO}.jpg?v=4`;p.alt=`${DIRN()} 사진`;$('#brief .bname b').textContent=DIRN()}MODE='ana';if(!BRIEF)BRIEF=buildBrief();BSTEP=0;$('#brief').hidden=false;renderBrief();try{localStorage.setItem('briefSeen',DATES[NBARS-1])}catch(e){}}
