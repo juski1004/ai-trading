@@ -696,7 +696,7 @@ html.bembed .bbox{box-shadow:none;min-height:100vh}
 <script>
 (()=>{
 const $=s=>document.querySelector(s);
-const QS=new URLSearchParams(location.search),EMBED=QS.get('view')==='judge',ESYM=QS.get('sym'),BEMB=QS.get('view')==='brief';
+const QS=new URLSearchParams(location.search),EMBED=QS.get('view')==='judge',ESYM=QS.get('sym'),BEMB=QS.get('view')==='brief',BTXT=QS.get('view')==='brieftext';// brieftext: 음성 녹음용으로 브리핑 글만 뽑음(Actions가 헤드리스 크롬으로 읽음)
 if(EMBED)document.documentElement.classList.add('embed');if(BEMB)document.documentElement.classList.add('bembed');
 const RULES={cash0:10_000_000,stop:-5,take:10,maxW:.2,maxPos:5,dailyLimit:-3,maxVol:6,buyTh:.3,sellTh:-.15,fee:.00015,tax:.0018,days:90};
 let START,NBARS,STOCKS=[];const INDEX={name:'코스피'};
@@ -1877,33 +1877,47 @@ function renderBrief(){
   $('#bPrev').disabled=BSTEP===0;$('#bNext').textContent=BSTEP===n-1?'마치기':'다음 ▶';
   if(BSPEAK)speakStep();
 }
-function speakStep(){
-  try{speechSynthesis.cancel();
-    // 소수점은 '점'이 아니라 '쩜'으로(3.5 → 삼쩜오)
-    // 날짜는 먼저 '2026년 10월 22일'로 바꾼 뒤(2026.10.22·2026-10-22·2026-09·10-29), 남은 소수점만 '쩜'
-    const n0=x=>String(+x),md=(m,d)=>+m>=1&&+m<=12&&+d>=1&&+d<=31;
-    const txt=`${BRIEF[BSTEP].t}. ${$('#bText').innerText}`
-      .replace(/((?:19|20)\d{2})[.\-/](\d{1,2})[.\-/](\d{1,2})(?![\d])/g,(s,y,m,d)=>md(m,d)?`${y}년 ${n0(m)}월 ${n0(d)}일`:s)
-      .replace(/((?:19|20)\d{2})-(\d{1,2})(?![\d])/g,(s,y,m)=>+m>=1&&+m<=12?`${y}년 ${n0(m)}월`:s)
-      .replace(/(^|[^\d.])(\d{1,2})-(\d{1,2})(?![\d.])/g,(s,p,m,d)=>md(m,d)?`${p}${n0(m)}월 ${n0(d)}일`:s)
-      .replace(/(\d)\.(\d)/g,'$1쩜$2').replace(/\s*·\s*/g,', ')
-      // 된소리로 읽는 낱말만(앞이 한글이 아닐 때) — '권유가' 같은 조사 '가'는 그대로
-      .replace(/(^|[^가-힣])(저평|고평|재평|최고|최저|목표|현재|매입|매도|유|주|종|고|저|물|평|원|단)가(?=[^가-힣]|$|[은는이을를도와의에로만])/g,'$1$2까');
-    const u=new SpeechSynthesisUtterance(txt);u.lang='ko-KR';u.rate=1.25;
+/* 읽어줄 글: 날짜는 '2026년 10월 22일', 남은 소수점은 '쩜'(3.5 → 삼쩜오), 된소리 낱말(유까·주까·평까…) */
+function spoken(k){
+  const n0=x=>String(+x),md=(m,d)=>+m>=1&&+m<=12&&+d>=1&&+d<=31,box=document.createElement('div');
+  const body=BRIEF[k].l.map(h=>{box.innerHTML=h;return box.textContent.trim()}).filter(Boolean).join('\n');
+  return `${BRIEF[k].t}. ${body}`
+    .replace(/((?:19|20)\d{2})[.\-/](\d{1,2})[.\-/](\d{1,2})(?![\d])/g,(s,y,m,d)=>md(m,d)?`${y}년 ${n0(m)}월 ${n0(d)}일`:s)
+    .replace(/((?:19|20)\d{2})-(\d{1,2})(?![\d])/g,(s,y,m)=>+m>=1&&+m<=12?`${y}년 ${n0(m)}월`:s)
+    .replace(/(^|[^\d.])(\d{1,2})-(\d{1,2})(?![\d.])/g,(s,p,m,d)=>md(m,d)?`${p}${n0(m)}월 ${n0(d)}일`:s)
+    .replace(/(\d)\.(\d)/g,'$1쩜$2').replace(/\s*·\s*/g,', ')
+    // 된소리로 읽는 낱말만(앞이 한글이 아닐 때) — '권유가' 같은 조사 '가'는 그대로
+    .replace(/(^|[^가-힣])(저평|고평|재평|최고|최저|목표|현재|매입|매도|유|주|종|고|저|물|평|원|단)가(?=[^가-힣]|$|[은는이을를도와의에로만])/g,'$1$2까');
+}
+/* 미리 녹음한 브리핑 음성(data/brief, 데이터 갱신 때 일레븐랩스→구글→엣지→구글 번역 순으로 만듦). 오늘 것이 없거나 재생이 안 되면 기기 목소리로 */
+let BAUDIO=null,BCLIP=null;
+async function briefAudio(){if(BAUDIO===null){try{const r=await fetch('data/brief/brief.json',{cache:'no-cache'});BAUDIO=r.ok?await r.json():false}catch(e){BAUDIO=false}}return BAUDIO&&BAUDIO.date===DATES[NBARS-1]?BAUDIO:null}
+function stopVoice(){try{speechSynthesis.cancel()}catch(e){};if(BCLIP){BCLIP.onended=BCLIP.onerror=null;BCLIP.pause();BCLIP=null}}
+function nextAfterVoice(){if(BSPEAK&&BSTEP<BRIEF.length-1){BSTEP++;renderBrief()}else if(BSTEP===BRIEF.length-1){BSPEAK=false;$('#bRead').textContent='읽어주기 🔊'}}
+async function speakStep(){
+  stopVoice();const k=BSTEP,male=PHOTO.THEO==='seunghyun',g=male?'m':'f',A=await briefAudio();
+  if(!BSPEAK||k!==BSTEP)return;
+  if(A&&A.voices&&A.voices[g]&&k<A.n){const a=new Audio(`data/brief/${g}${k}.mp3?d=${A.date}`);BCLIP=a;a.playbackRate=1.1;
+    a.onended=()=>{if(BCLIP===a){BCLIP=null;nextAfterVoice()}};a.onerror=()=>{if(BCLIP===a){BCLIP=null;deviceVoice(k,male)}};
+    a.play().catch(()=>{if(BCLIP===a){BCLIP=null;deviceVoice(k,male)}});return}
+  deviceVoice(k,male);
+}
+function deviceVoice(k,male){
+  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(spoken(k));u.lang='ko-KR';u.rate=1.25;
     // 본부장 성별에 맞춘 아나운서 톤: 자연스러운(Natural·Online·Neural) 목소리를 먼저, 남자 본부장이면 남자 목소리
-    const male=PHOTO.THEO==='seunghyun',ko=speechSynthesis.getVoices().filter(v=>/^ko/i.test(v.lang));
+    const ko=speechSynthesis.getVoices().filter(v=>/^ko/i.test(v.lang));
     const isM=v=>/InJoon|Hyunsu|GookMin|BongJin|male|남/i.test(v.name)&&!/female|여/i.test(v.name),nat=v=>/Natural|Online|Neural|Wavenet|Premium|Enhanced/i.test(v.name);
     const pool=ko.filter(v=>male?isM(v):!isM(v)),v=pool.find(nat)||pool[0]||ko.find(nat)||ko[0];if(v)u.voice=v;
     u.pitch=male&&!(v&&isM(v))?.75:1;// 남자 목소리가 없는 기기(대부분 휴대폰)에서는 낮은 톤으로
-    u.onend=()=>{if(BSPEAK&&BSTEP<BRIEF.length-1){BSTEP++;renderBrief()}else if(BSTEP===BRIEF.length-1){BSPEAK=false;$('#bRead').textContent='읽어주기 🔊'}};speechSynthesis.speak(u)}catch(e){}
+    u.onend=nextAfterVoice;speechSynthesis.speak(u)}catch(e){}
 }
 function openBrief(){if(EMBED||!STOCKS.length)return;{const p=$('#brief .bphoto img');p.src=`img/team/${PHOTO.THEO}.jpg?v=4`;p.alt=`${DIRN()} 사진`;$('#brief .bname b').textContent=DIRN()}MODE='ana';if(!BRIEF)BRIEF=buildBrief();BSTEP=0;$('#brief').hidden=false;renderBrief();try{localStorage.setItem('briefSeen',DATES[NBARS-1])}catch(e){}}
-function closeBrief(){BSPEAK=false;try{speechSynthesis.cancel()}catch(e){};$('#brief').hidden=true;if(BEMB)parent.postMessage({type:'briefClose'},location.origin)}
+function closeBrief(){BSPEAK=false;stopVoice();$('#brief').hidden=true;if(BEMB)parent.postMessage({type:'briefClose'},location.origin)}
 $('#briefBtn').onclick=openBrief;$('#bClose').onclick=closeBrief;
 $('#bPrev').onclick=()=>{if(BSTEP>0){BSTEP--;renderBrief()}};
 $('#bNext').onclick=()=>{if(BSTEP<BRIEF.length-1){BSTEP++;renderBrief()}else closeBrief()};
-$('#bRead').onclick=()=>{BSPEAK=!BSPEAK;$('#bRead').textContent=BSPEAK?'읽기 멈춤 ⏸':'읽어주기 🔊';if(BSPEAK)speakStep();else try{speechSynthesis.cancel()}catch(e){}};
-$('#brief').addEventListener('click',e=>{const a=e.target.closest('[data-bpick]');if(a&&BEMB){e.preventDefault();BSPEAK=false;try{speechSynthesis.cancel()}catch(x){};parent.postMessage({type:'arenaPick',sym:a.dataset.bpick},location.origin);return}if(a){e.preventDefault();closeBrief();if(MODE!=='ana')setMode('ana');pick(a.dataset.bpick);setTimeout(()=>$('#judgePanel').scrollIntoView({behavior:'smooth'}),200);return}if(e.target.id==='brief')closeBrief()});
+$('#bRead').onclick=()=>{BSPEAK=!BSPEAK;$('#bRead').textContent=BSPEAK?'읽기 멈춤 ⏸':'읽어주기 🔊';if(BSPEAK)speakStep();else stopVoice()};
+$('#brief').addEventListener('click',e=>{const a=e.target.closest('[data-bpick]');if(a&&BEMB){e.preventDefault();BSPEAK=false;stopVoice();parent.postMessage({type:'arenaPick',sym:a.dataset.bpick},location.origin);return}if(a){e.preventDefault();closeBrief();if(MODE!=='ana')setMode('ana');pick(a.dataset.bpick);setTimeout(()=>$('#judgePanel').scrollIntoView({behavior:'smooth'}),200);return}if(e.target.id==='brief')closeBrief()});
 document.addEventListener('keydown',e=>{if($('#brief').hidden)return;if(e.key==='Escape')closeBrief();else if(e.key==='ArrowRight'){e.stopPropagation();$('#bNext').click()}else if(e.key==='ArrowLeft'){e.stopPropagation();$('#bPrev').click()}},true);
 function maybeAutoBrief(){// 저녁 6시(한국 시간) 이후, 그날 처음 열었을 때
   try{const h=+new Intl.DateTimeFormat('ko-KR',{hour:'numeric',hour12:false,timeZone:'Asia/Seoul'}).format(new Date()).replace(/\D/g,'');
@@ -1924,6 +1938,7 @@ function start(saved){
   if(saved&&saved.S&&DATA[saved.S.sel]&&saved.S.watch){S=saved.S;S.feed=S.feed||[];S.side=S.side||'B';recalcViews()}else{S=fresh();recalcViews();{const m=MODE;MODE='game';aiTurn();MODE=m}}
   $('#myAuto').checked=S.my.auto;$('#myStop').value=S.my.stop;$('#myTake').value=S.my.take;
   if(EMBED){MODE='ana';if(DATA[ESYM])S.sel=ESYM;new ResizeObserver(()=>parent.postMessage({type:'arenaH',h:document.documentElement.scrollHeight},location.origin)).observe(document.body)}
+  if(BTXT){BRIEF=buildBrief();const o=document.createElement('pre');o.id='briefjson';o.textContent=JSON.stringify({date:DATES[NBARS-1],steps:BRIEF.map((_,k)=>spoken(k))});document.body.prepend(o);return}
   if(BEMB){MODE='ana';setTimeout(openBrief,300)}else setTimeout(maybeAutoBrief,1200);renderOutlook();GAMEV=null;const m0=MODE;MODE=m0==='ana'?'game':'ana';setMode(m0);renderFeed();
 }
 window.claude?.hot?.snapshot?.(()=>({S}));
