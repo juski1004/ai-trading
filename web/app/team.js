@@ -6,7 +6,8 @@
    다른 파일은 Team.name(agent)·Team.photo(agent)·Team.director()·Team.reporter(date)·Team.call() 을 쓴다. */
 (() => {
   const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-  const img = f => `../img/team/${f}.jpg?v=4`;
+  const BASE = window.TEAM_BASE ?? "../"; // PC 화면(사이트 맨 위)에서 쓸 때는 ""
+  const img = f => `${BASE}img/team/${f}.jpg?v=4`;
   const KEY = "aiLab.team.v1", NAME = "aiLab.call.v1";
   const load = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
   const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
@@ -50,7 +51,7 @@
   function splash() {
     const el = document.createElement("div");
     el.className = "tm-splash"; el.setAttribute("aria-hidden", "true");
-    el.innerHTML = `<div class="tm-burst"></div><div class="tm-title"><img src="icon-192.png" alt=""><b>AI 투자연구소</b><small>PREMIUM AI RESEARCH</small></div>`;
+    el.innerHTML = `<div class="tm-burst"></div><div class="tm-title"><img src="${BASE}app/icon-192.png" alt=""><b>AI 투자연구소</b><small>PREMIUM AI RESEARCH</small></div>`;
     document.body.appendChild(el);
     const quick = matchMedia("(prefers-reduced-motion: reduce)").matches;
     setTimeout(() => { el.classList.add("out"); setTimeout(() => { el.remove(); onboard(); if (CALL && T) after(); }, 450); }, quick ? 600 : 2000);
@@ -134,7 +135,7 @@
     else if (a === "rename") askName(true);
   });
   document.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.id === "tmName") document.querySelector('[data-tm="name"]')?.click(); });
-  const refresh = () => window.dispatchEvent(new HashChangeEvent("hashchange"));
+  const refresh = () => window.onTeamChange ? window.onTeamChange() : window.dispatchEvent(new HashChangeEvent("hashchange"));
   /* 팀까지 고른 뒤: 처음이면 사용법 안내, 그다음 알림 확인 */
   function after() {
     let seen = null; try { seen = localStorage.getItem("appGuideSeen"); } catch (e) {}
@@ -190,7 +191,15 @@
   .tm-sm{margin-top:0!important;padding:8px 14px!important;font-size:13px!important}
   @media (prefers-reduced-motion:reduce){.tm-title,.tm-burst,.tm-box{animation:none}}`;
   document.head.appendChild(css);
+  if (BASE === "") { // PC 화면: 앱의 버튼 모양이 없으니 여기서 채움
+    const pc = document.createElement("style");
+    pc.textContent = `.tm-box .cta{display:block;width:100%;margin-top:16px;padding:14px;border:0;border-radius:16px;background:linear-gradient(135deg,#6c5ce7,#4a90f0);color:#fff;font:inherit;font-size:16px;font-weight:800;cursor:pointer}
+    .tm-box .cta.sub2{background:#f1f0fb;color:#6c5ce7;margin-top:8px}.tm-box .sub{color:#6b7088;font-size:14px;margin:0}
+    .tm-box .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.tm-box .chips button{border:1px solid #dcd8ff;background:#fff;border-radius:20px;padding:6px 12px;font:inherit;cursor:pointer}
+    .tm-box{color:#1d2033}.tm-card{cursor:pointer;font:inherit}`;
+    document.head.appendChild(pc);
+  }
 
   window.Team = { name: a => forAgent(a).name, photo: a => forAgent(a).id, person: forAgent, director, members, reporter, call, meView, open: () => onboard(true) };
-  document.addEventListener("DOMContentLoaded", splash);
+  if (!window.TEAM_SKIP) document.addEventListener("DOMContentLoaded", splash);
 })();
