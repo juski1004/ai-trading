@@ -24,3 +24,11 @@ def test_axis_keeps_day_missing_from_kospi():
     ax = trading_axis(kospi, [full, full, odd])
     assert [str(d.date()) for d in ax] == ["2026-10-20", "2026-10-21", "2026-10-22", "2026-10-23"]
     assert trading_axis(kospi, []).equals(day_index(kospi))
+
+
+def test_drops_today_only_during_market_hours():
+    from ai_trading.data.export import drop_unfinished_day
+    ax = pd.DatetimeIndex(["2026-10-22", "2026-10-23"])
+    assert len(drop_unfinished_day(ax, pd.Timestamp("2026-10-23 09:30", tz="Asia/Seoul"))) == 1
+    assert len(drop_unfinished_day(ax, pd.Timestamp("2026-10-23 16:20", tz="Asia/Seoul"))) == 2
+    assert len(drop_unfinished_day(ax, pd.Timestamp("2026-10-24 09:30", tz="Asia/Seoul"))) == 2

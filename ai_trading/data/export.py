@@ -42,6 +42,13 @@ def day_index(idx: pd.DatetimeIndex) -> pd.DatetimeIndex:
     return idx.normalize().astype("datetime64[ns]")
 
 
+def drop_unfinished_day(axis: pd.DatetimeIndex, now_kst: pd.Timestamp) -> pd.DatetimeIndex:
+    """장중(15:40 KST 전)에 돌리면 오늘 막대는 아직 종가가 아니라서 뺀다."""
+    if len(axis) and axis[-1].date() == now_kst.date() and (now_kst.hour, now_kst.minute) < (15, 40):
+        return axis[:-1]
+    return axis
+
+
 def trading_axis(kospi_idx, stock_idxs: list, min_ratio: float = 0.5) -> pd.DatetimeIndex:
     """날짜축 = 코스피 지수 날짜 + 종목 절반 이상이 거래한 날짜.
     야후 코스피 지수에 하루가 빠지는 일이 있어서 (2026-10-22), 지수만 믿으면 그날 시세가 화면에서 통째로 사라진다."""
@@ -78,6 +85,7 @@ def build(out: Path, quick: bool = False, game_dir: Path = Path("game")) -> dict
 
     px = collect.bars(syms + ["^KS11"])
     axis = trading_axis(kospi.index, [px[s].index for s in syms if px.get(s) is not None])
+    axis = drop_unfinished_day(axis, pd.Timestamp.now(tz="Asia/Seoul"))
     dates = [d.date().isoformat() for d in axis]
     stocks = {}
     for s in syms:
