@@ -192,6 +192,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var
 #view>*{animation:rise .35s ease both}
 @keyframes rise{from{opacity:0;transform:translateY(8px)}}
 @media (max-width:440px){.top .asof{display:none}}
+@media (min-width:1300px){.wrap,.top{max-width:min(1680px,96vw)!important}}/* 큰 PC 화면은 양옆까지 넓게 */
 @media (min-width:900px){.wrap,.top{max-width:1180px}nav .in{max-width:640px}.gdbox{max-width:680px}}/* PC: 같은 앱 화면을 넓게(리포트 세 장을 한눈에) */
 .top h1{white-space:nowrap}
 @media (prefers-reduced-motion:reduce){.skel,#view>*{animation:none}}
