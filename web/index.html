@@ -1864,7 +1864,7 @@ function buildBrief(){
     ...(O&&O.source!=='규칙'?ol.slice(0,2):[]).map(x=>`<b>시황 한마디:</b> ${esc(x)}`)]});
   S.push({t:`수급 · ${KNAME.OSCAR} 보고`,who:'OSCAR',l:[MF.KOSPI?`<b>${KNAME.OSCAR}:</b> 오늘 코스피에서는 ${bs('외국인',MF.KOSPI.frg)}, ${bs('기관',MF.KOSPI.org)}, ${bs('개인',MF.KOSPI.ind)}했어요.`:`<b>${KNAME.OSCAR}:</b> 오늘은 시장 수급 자료가 아직 없어요.`,
     MF.KOSDAQ?`코스닥은 ${bs('외국인',MF.KOSDAQ.frg)}, ${bs('기관',MF.KOSDAQ.org)}, ${bs('개인',MF.KOSDAQ.ind)}예요.`:'',
-    flw.length?`외국인·기관이 함께 많이 산 종목은 ${flw.slice(0,3).map(x=>`${sl(x.id)}(${eok(x.net)})`).join(', ')} 순이고,`:'',
+    flw.length?`외국인과 기관이 함께 많이 산 종목은 ${flw.slice(0,3).map(x=>`${sl(x.id)}(${eok(x.net)})`).join(', ')} 순이고,`:'',
     flw.length?`많이 판 종목은 ${flw.slice(-3).reverse().map(x=>`${sl(x.id)}(${eok(x.net)})`).join(', ')} 순이에요.`:''].filter(Boolean)});
   S.push({t:`오르고 내린 종목 · ${KNAME.LLOYD} 보고`,who:'LLOYD',l:[`오늘 많이 오른 종목은 ${top.slice(0,3).map(x=>`${sl(x.id)} <span class="up">${pc(x.ch)}</span>`).join(', ')} 순이에요.`,
     `반대로 많이 내린 종목은 ${top.slice(-3).reverse().map(x=>`${sl(x.id)} <span class="down">${pc(x.ch)}</span>`).join(', ')} 순이고요.`,
@@ -1913,10 +1913,18 @@ function spoken(k){
       if(n===1&&u==='번째')return p+'첫 번째';const one=['','한','두','세','네','다섯','여섯','일곱','여덟','아홉'],ten=['','열','스물','서른','마흔','쉰','예순','일흔','여든','아흔'];
       const t=Math.floor(n/10),o=n%10;return p+(n===20?'스무':ten[t]+one[o])+' '+u})
     .replace(/(\d+\.\d*?[1-9])0+(?![\d])/g,'$1').replace(/(\d+)\.0+(?![\d])/g,'$1')// 0.50→0.5, 4.00→4
-    .replace(/(\d)\.(\d)/g,'$1쩜$2').replace(/\s*·\s*/g,', ')
+    // 소수는 한글로 풀어 씀(-2.29 → 마이너스 이쩜이구): 음성 엔진이 '점'이나 '이십구'로 읽지 않게
+    .replace(/([+-]?)(\d[\d,]*)\.(\d+)/g,(m,sg,a,b)=>`${sg==='-'?'마이너스 ':sg==='+'?'플러스 ':''}${sino(+a.replace(/,/g,''))}쩜${[...b].map(d=>'영일이삼사오육칠팔구'[d]).join('')}`)
+    .replace(/(^|[\s(])([+-])(\d)/g,(m,p,sg,d)=>`${p}${sg==='-'?'마이너스 ':'플러스 '}${d}`)
+    // 쉼표·줄바꿈에서는 문장 끝처럼 한 박자 쉬기
+    .replace(/\s*·\s*/g,', ').replace(/(?<!\d),(?!\d)\s*|,\s+/g,'.\n').replace(/\s*\n+\s*/g,'.\n').replace(/([.?!…])\s*\.+/g,'$1')
     // 된소리로 읽는 낱말만(앞이 한글이 아닐 때) — '권유가' 같은 조사 '가'는 그대로
     .replace(/(^|[^가-힣])(저평|고평|재평|최고|최저|목표|현재|매입|매도|유|주|종|고|저|물|평|원|단)가(?=[^가-힣]|$|[은는이을를도와의에로만])/g,'$1$2까');
 }
+/* 정수를 한자어 수로(1330 → 천삼백삼십) */
+function sino(n){if(!n)return '영';const D='영일이삼사오육칠팔구',U=['','십','백','천'],G=['','만','억','조'];let out='',g=0;
+  while(n>0){const q=n%10000;if(q){let t='';[...String(q).padStart(4,'0')].forEach((c,k)=>{const d=+c,u=U[3-k];if(d)t+=(d===1&&u?'':D[d])+u});out=(g===1&&t==='일'?'':t)+G[g]+out}n=Math.floor(n/10000);g++}
+  return out}
 /* 미리 녹음한 브리핑 음성(data/brief, 데이터 갱신 때 일레븐랩스→구글→엣지→구글 번역 순으로 만듦). 오늘 것이 없거나 재생이 안 되면 기기 목소리로 */
 let BAUDIO=null,BCLIP=null;
 async function briefAudio(){if(BAUDIO===null){try{const r=await fetch('data/brief/brief.json',{cache:'no-cache'});BAUDIO=r.ok?await r.json():false}catch(e){BAUDIO=false}}return BAUDIO&&BAUDIO.date===DATES[NBARS-1]?BAUDIO:null}
