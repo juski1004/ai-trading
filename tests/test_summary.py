@@ -39,3 +39,20 @@ def test_summarize_skips_bad_answers_and_no_key():
     assert summarize(NEWS, {}, FakeLLM(None), TODAY) == {}
     out = summarize(NEWS, {}, FakeLLM({"lines": ["x"], "tone": "대박"}), TODAY)
     assert out["A.KS"]["tone"] == "중립"
+
+
+def test_stops_at_time_budget():
+    from datetime import date
+    from ai_trading.data import summary
+
+    class Slow:
+        n = 0
+        def ask_json(self, p):
+            Slow.n += 1
+            return {"lines": ["a"], "tone": "중립"}
+
+    news = {f"S{i}": [{"date": "2026-10-22", "title": f"t{i}"}] for i in range(5)}
+    out = summary.summarize(news, {}, Slow(), today=date(2026, 10, 22), budget_sec=-1)
+    assert out == {} and Slow.n == 0
+    out = summary.summarize(news, {}, Slow(), today=date(2026, 10, 22))
+    assert len(out) == 5
