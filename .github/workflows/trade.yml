@@ -59,6 +59,20 @@ jobs:
           else
             python -m ai_trading.run "$CMD"
           fi
+      - name: 본부장 브리핑 미리 녹음 (일레븐랩스 → 구글 → 엣지 → 구글 번역, 실패해도 계속)
+        if: env.CMD == 'data'
+        continue-on-error: true   # 녹음이 안 돼도 화면 갱신은 그대로 (화면은 기기 목소리로 읽음)
+        timeout-minutes: 12
+        env:
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          GOOGLE_TTS_API_KEY: ${{ secrets.GOOGLE_TTS_API_KEY }}
+        run: |
+          pip install -q edge-tts gTTS
+          (cd web && python -m http.server 8000 >/dev/null 2>&1 &)
+          sleep 2
+          google-chrome --headless=new --disable-gpu --no-sandbox --virtual-time-budget=40000 \
+            --dump-dom "http://localhost:8000/?view=brieftext" > /tmp/brief.html
+          python -m ai_trading.brief_audio /tmp/brief.html web/data/brief
       - name: 게임 기록 저장
         if: env.CMD != 'data' && env.CMD != 'aicheck'
         run: |
