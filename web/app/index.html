@@ -264,7 +264,7 @@ function home(){
       <span style="min-width:0"><div class="nm">${esc(s.name)}</div><div class="meta num">${esc(s.code)} · <span class="${cls(s.chg)}">${pct(s.chg)}</span></div></span>
       <span class="rt">${right(s)}</span></button></li>`;
   return `${window.Report?Report.homeCard(SC):''}
-  <section class="card bcard"><img src="../img/team/${window.Team?Team.director().id:'theo'}.jpg?v=3" alt="본부장 사진"><div><h2>오늘의 본부장 브리핑</h2><p class="sub">${window.Team?Team.director().name:'정서연'} 본부장이 시장·수급·상승/하락 종목·거래량·펀더멘탈을 8장으로 짚어 드려요.</p><button class="pclink" type="button" id="openBrief">브리핑 보기 ▶</button></div></section>
+  <section class="card bcard"><img src="../img/team/${window.Team?Team.director().id:'theo'}.jpg?v=4" alt="본부장 사진"><div><h2>오늘의 본부장 브리핑</h2><p class="sub">${window.Team?Team.director().name:'정서연'} 본부장이 시장·수급·상승/하락 종목·거래량·펀더멘탈을 8장으로 짚어 드려요.</p><button class="pclink" type="button" id="openBrief">브리핑 보기 ▶</button></div></section>
   <section class="card" aria-labelledby="h-mkt">
     <div class="hd"><h2 id="h-mkt">오늘의 시장</h2><span class="sub">${esc(SC.date)} 장 마감</span></div>
     <div class="mkt">${mk('kospi','코스피',2)}${mk('kosdaq','코스닥',2)}${mk('usdkrw','원/달러',1)}</div>
