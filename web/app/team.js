@@ -6,7 +6,7 @@
    다른 파일은 Team.name(agent)·Team.photo(agent)·Team.director()·Team.reporter(date)·Team.call() 을 쓴다. */
 (() => {
   const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-  const img = f => `../img/team/${f}.jpg?v=3`;
+  const img = f => `../img/team/${f}.jpg?v=4`;
   const KEY = "aiLab.team.v1", NAME = "aiLab.call.v1";
   const load = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
   const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };

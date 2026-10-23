@@ -9,7 +9,7 @@
   const pct = x => (x > 0 ? "+" : "") + x.toFixed(2) + "%";
   const cls = x => (x > 0 ? "up" : x < 0 ? "down" : "flat");
   const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-  const img = id => `../img/team/${id}.jpg?v=3`;
+  const img = id => `../img/team/${id}.jpg?v=4`;
   const get = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
   const set = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
 
