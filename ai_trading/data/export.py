@@ -215,6 +215,12 @@ def build(out: Path, quick: bool = False, game_dir: Path = Path("game")) -> dict
             print(f"오늘 움직인 이유 {len(wy['sym'])}종목 ({time.time() - t0:.0f}초)")
         except Exception as e:
             print(f"[움직인 이유 실패] {type(e).__name__}: {e}")
+        try:  # 실적 발표 임박 종목 + 호재 전 진입 판단 (앱 알림)
+            from .earnings import build_earnings
+            ea = build_earnings(stocks, fin, dates[-1])
+            (out / "earnings.json").write_text(json.dumps(ea, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+        except Exception as e:
+            print(f"[실적 발표 알림 실패] {type(e).__name__}: {e}")
         # 앱 '오늘의 리포트' 넘겨보기용 가벼운 묶음 (news.json 은 1MB 넘어 휴대폰에서 무거움)
         try:
             since = dates[-2] if len(dates) >= 2 else dates[-1]
