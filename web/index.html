@@ -812,6 +812,21 @@ const iret=i=>(IDX[i].c/IDX[START].c-1)*100;
 
 /* ---------- AI 운용팀 6명 (ai_trading/agents.py 규칙과 같음) ---------- */
 const KNAME={NOVA:'한예린',JOY:'윤시아',OSCAR:'서하린',RAY:'차유나',MILES:'민채원',LLOYD:'강도윤',THEO:'정서연'};// 화면에 보이는 이름 (안쪽 코드는 영문 이름 그대로)
+const PHOTO={NOVA:'nova',JOY:'joy',OSCAR:'oscar',RAY:'ray',MILES:'miles',LLOYD:'lloyd',THEO:'theo'};// 사진 파일 이름
+/* 휴대폰 앱에서 고른 담당 팀(web/app/team.js와 같은 목록)을 이름·사진에 반영.
+   ?dir=seunghyun&staff=joy,oscar,egen,teto,puppy 가 있으면 그것, 없으면 앱이 저장한 aiLab.team.v1(같은 사이트라 공유됨). 고른 팀이 없으면 기본 7명 그대로. */
+(()=>{
+  const P={joy:['JOY','윤시아'],oscar:['OSCAR','서하린'],ray:['RAY','차유나'],miles:['MILES','민채원'],lloyd:['LLOYD','강도윤'],nova:['NOVA','한예린'],
+    egen:['RAY','윤하진'],teto:['LLOYD','강태오'],puppy:['OSCAR','서은찬']},D={theo:'정서연',seunghyun:'백승현'};
+  let t=null;try{t=JSON.parse(localStorage.getItem('aiLab.team.v1')||'null')}catch(e){}
+  const qd=QS.get('dir'),qs=QS.get('staff');if(qd||qs)t={dir:qd||t?.dir||'theo',staff:qs?qs.split(','):(t?.staff||[])};
+  if(!t||!D[t.dir])return;
+  KNAME.THEO=D[t.dir];PHOTO.THEO=t.dir;
+  const mine=(t.staff||[]).filter(s=>P[s]);
+  ['NOVA','JOY','OSCAR','RAY','MILES','LLOYD'].forEach(a=>{const s=mine.find(x=>P[x][0]===a);// 그 자리를 맡은 직원이 없으면 본부장이 직접 본다(앱과 같음)
+    KNAME[a]=s?P[s][1]:D[t.dir];PHOTO[a]=s||t.dir});
+})();
+const DIRN=()=>`${KNAME.THEO} 본부장`;
 const TEAM=[
  {id:'JOY',role:'시장·거시경제',col:'#e8c26a',t:'08:50',skin:'#f1d3bd',hair:'#4a2f22',style:'long',suit:'#3b4a63',shirt:'#f4efe6'},
  {id:'OSCAR',role:'수급·뉴스·실적',col:'#4fc7a4',t:'09:30',skin:'#d8a982',hair:'#17181d',style:'short',suit:'#2a3446',shirt:'#e9eef5',glasses:1,tie:'#4fc7a4'},
@@ -819,7 +834,7 @@ const TEAM=[
  {id:'MILES',role:'진입 계획',col:'#f08aa6',t:'13:10',skin:'#f3d6c2',hair:'#1c1a1f',style:'bob',suit:'#4a3a4f',shirt:'#f6eef0'},
  {id:'LLOYD',role:'리스크 점검',col:'#f0a04b',t:'14:40',skin:'#c58c66',hair:'#3a3a40',style:'buzz',suit:'#3a3f4c',shirt:'#eceae4',beard:1},
  {id:'THEO',role:'최종 판정 · 운용역',col:'#a98bff',t:'15:20',skin:'#e8c3a4',hair:'#c9ccd4',style:'side',suit:'#1e2433',shirt:'#f2f2f2',glasses:1,tie:'#9c2f3a'}];
-function face(m){return `<img src="img/team/${m.id.toLowerCase()}.jpg?v=2" alt="${m.id} 사진" loading="lazy">`}
+function face(m){return `<img src="img/team/${PHOTO[m.id]||m.id.toLowerCase()}.jpg?v=4" alt="${KNAME[m.id]||m.id} 사진" loading="lazy">`}
 const clamp=x=>Math.max(-1,Math.min(1,x));
 const f1=x=>(x>=0?'+':'')+x.toFixed(1);
 function aiMaxQty(id,i){const a=S.ai,c=DATA[id].bars[i].c,eq=equity(a,i),held=a.pos[id]?a.pos[id].qty*c:0;
@@ -1121,7 +1136,7 @@ const SUBN={vol:'거래량',macd:'MACD',rsi:'RSI',sto:'스토캐스틱',cci:'CCI
 const FONT='12px "IBM Plex Mono",Consolas,monospace',FONTK='12px "IBM Plex Sans KR",sans-serif';
 function chartH(){return Math.round(Math.min(980,Math.max(560,window.innerHeight-200)))}
 function drawChart(){
-  const cv=$('#chart'),wrap=$('#chartwrap'),dpr=Math.min(2,window.devicePixelRatio||1),w=wrap.clientWidth;if(!w||!S)return;
+  const cv=$('#chart'),wrap=$('#chartwrap'),dpr=Math.min(2,window.devicePixelRatio||1),w=wrap?.clientWidth;if(!cv||!w||!S)return;// 차트 없는 화면(판단·브리핑만 보이는 화면)에서는 그리지 않음
   const h=chartH();cv.style.height=h+'px';cv.width=w*dpr;cv.height=h*dpr;const g=cv.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,w,h);
   const D=DATA[S.sel],b=D.bars,V=D.view,i=cur(),N=Math.min(S.N,i),from=i-N+1;
   const pl=6,pr=78,cw=(w-pl-pr)/N,axisH=22,sg=8,ns=S.subs.length,subH=ns?Math.round((h-axisH)*[0,.2,.17,.15][ns]):0,mainH=h-axisH-ns*(subH+sg),top=8;
@@ -1219,7 +1234,7 @@ function drawSub(g,t,y0,sh,from,i,X,bw,pl,pr,w,hk,D){
   vals.forEach(([s,c])=>{g.fillStyle=c;g.fillText(s,x,y0+12);x+=g.measureText(s).width+12});
 }
 function drawCmp(){
-  const cv=$('#cmp'),w=cv.clientWidth;if(!w||!S)return;const h=150,dpr=Math.min(2,window.devicePixelRatio||1);cv.width=w*dpr;cv.height=h*dpr;const g=cv.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);
+  const cv=$('#cmp'),w=cv?.clientWidth;if(!w||!S)return;const h=150,dpr=Math.min(2,window.devicePixelRatio||1);cv.width=w*dpr;cv.height=h*dpr;const g=cv.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);
   const me=S.me.eq.map(x=>(x/RULES.cash0-1)*100),ai=S.ai.eq.map(x=>(x/RULES.cash0-1)*100),ix=me.map((_,d)=>iret(START+d));
   const all=[...me,...ai,...ix];let mx=Math.max(2,...all),mn=Math.min(-2,...all);const pr=48,X=d=>4+d/RULES.days*(w-pr-8),Y=x=>8+(mx-x)/(mx-mn)*(h-16);
   g.font='11px "IBM Plex Mono",monospace';g.textBaseline='middle';
@@ -1472,8 +1487,8 @@ function renderJudge(){
   $('#judgeMeta').textContent=`${DATES[i]} 기준 · 그날까지의 데이터만 사용 · 참고용`;
   const pp=x=>Math.round(x*100)+'%';
   el.innerHTML=`<div class="jtop"><span class="jcall ${J.call[2]}">${J.call[0]}</span><div><b>${J.call[1]}</b><div class="flat" style="font-size:12.5px">타이밍: ${J.timing} · 종합 점수 ${(J.total*100).toFixed(0)}/100</div></div></div>
-  <div class="jgrid"><div><ul class="experts">${J.ex.map(x=>`<li><img src="img/team/${x.who.toLowerCase()}.jpg?v=2" alt="${KNAME[x.who]} 사진"><div><b>${KNAME[x.who]}</b> <small>${x.role}</small> <span class="${x.label==='매수'?'up':x.label==='매도'?'down':'flat'}">${x.label}</span><div class="d">${(x.lines||[x.line]).map(l=>`<div>${esc(l)}</div>`).join('')}</div></div></li>`).join('')}
-    <li><img src="img/team/theo.jpg?v=2" alt="정서연 본부장 사진"><div><b>정서연 본부장</b> <small>최종 제언</small> <span class="${J.call[2]}">${J.call[0]}</span><div class="d"><div>상승 시나리오: ${won(J.P.sells[0][1])}원에서 일부, ${won(J.P.sells[1][1])}원에서 추가 익절 · 하락 시나리오: ${won(J.P.stop)}원 이하면 시장가 손절.</div><div>매매 계획: 조건 ${J.P.n}/${J.P.tot} 충족 → 투자금 ${won(J.P.seed)}원 중 ${won(J.P.alloc)}원(${J.P.pct}%)까지.</div>5명 의견 평균, 매매 계획 조건 ${J.P.n}/${J.P.tot}, 이벤트 신호(${J.EV.title}), 유사 차트의 10일 뒤 상승 확률(${R.n>=4?pp(J.prob):'자료 부족'})을 합쳐 판단했습니다.</div></div></li></ul></div>
+  <div class="jgrid"><div><ul class="experts">${J.ex.map(x=>`<li><img src="img/team/${PHOTO[x.who]||x.who.toLowerCase()}.jpg?v=4" alt="${KNAME[x.who]} 사진"><div><b>${KNAME[x.who]}</b> <small>${x.role}</small> <span class="${x.label==='매수'?'up':x.label==='매도'?'down':'flat'}">${x.label}</span><div class="d">${(x.lines||[x.line]).map(l=>`<div>${esc(l)}</div>`).join('')}</div></div></li>`).join('')}
+    <li><img src="img/team/${PHOTO.THEO}.jpg?v=4" alt="${DIRN()} 사진"><div><b>${DIRN()}</b> <small>최종 제언</small> <span class="${J.call[2]}">${J.call[0]}</span><div class="d"><div>상승 시나리오: ${won(J.P.sells[0][1])}원에서 일부, ${won(J.P.sells[1][1])}원에서 추가 익절 · 하락 시나리오: ${won(J.P.stop)}원 이하면 시장가 손절.</div><div>매매 계획: 조건 ${J.P.n}/${J.P.tot} 충족 → 투자금 ${won(J.P.seed)}원 중 ${won(J.P.alloc)}원(${J.P.pct}%)까지.</div>5명 의견 평균, 매매 계획 조건 ${J.P.n}/${J.P.tot}, 이벤트 신호(${J.EV.title}), 유사 차트의 10일 뒤 상승 확률(${R.n>=4?pp(J.prob):'자료 부족'})을 합쳐 판단했습니다.</div></div></li></ul></div>
   <div><div class="pt"><b>유사 차트 ${R.n}개</b> <span class="flat">· 최근 20일 흐름과 모양이 비슷했던 과거 구간 (78종목 전체)</span></div><canvas id="patCv" style="width:100%;height:170px;display:block" aria-label="현재 차트와 유사 차트 비교"></canvas>
     ${R.n?`<div class="flsum" style="margin-top:8px"><div><div class="k">5일 뒤 상승 확률</div><div class="v num">${pp(R.s5.up)}</div><div class="k">평균 ${pct(R.s5.avg)}</div></div><div><div class="k">10일 뒤</div><div class="v num">${pp(R.s10.up)}</div><div class="k">평균 ${pct(R.s10.avg)}</div></div><div><div class="k">20일 뒤</div><div class="v num">${pp(R.s20.up)}</div><div class="k">평균 ${pct(R.s20.avg)}</div></div><div><div class="k">모의 진입 결과</div><div class="v num">익절 ${pp(R.tp)} · 손절 ${pp(R.sl)}</div><div class="k">평균 ${pct(R.ev)} (−5%/+10% 규칙)</div></div></div>
     <div style="overflow-x:auto;max-height:200px"><table class="fltab num"><tr><th>종목</th><th>구간 끝</th><th>유사도</th><th>5일 뒤</th><th>10일 뒤</th><th>20일 뒤</th><th>모의 진입</th></tr>${R.list.map(m=>`<tr><td>${DATA[m.id].name}</td><td>${DATES[m.j]}</td><td>${(m.r*100).toFixed(0)}%</td><td class="${cls(m.f5)}">${pct(m.f5)}</td><td class="${cls(m.f10)}">${pct(m.f10)}</td><td class="${cls(m.f20)}">${pct(m.f20)}</td><td class="${m.res==='익절'?'up':m.res==='손절'?'down':'flat'}">${m.res} ${pct(m.rr)}</td></tr>`).join('')}</table></div>`:'<p class="empty">유사도 80% 이상인 과거 차트가 없습니다.</p>'}
@@ -1716,7 +1731,7 @@ function marketCycle(ds){
   return{ix,fed,bok,spr,score:tot,overall};
 }
 function drawCycleMini(cv,k,ds){
-  const ix=CYCLE.indices[k];let n=ix.d.findIndex(x=>x>ds);if(n<0)n=ix.c.length;const w=cv.clientWidth,h=86,dpr=Math.min(2,devicePixelRatio||1);if(!w)return;
+  if(!cv)return;const ix=CYCLE.indices[k];let n=ix.d.findIndex(x=>x>ds);if(n<0)n=ix.c.length;const w=cv.clientWidth,h=86,dpr=Math.min(2,devicePixelRatio||1);if(!w)return;
   cv.width=w*dpr;cv.height=h*dpr;const g=cv.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);
   const c=ix.c.slice(0,n),mx=Math.max(...c),mn=Math.min(...c),X=j=>2+j/(n-1)*(w-4),Y=v=>4+(mx-v)/(mx-mn||1)*(h-8);
   for(let j=60;j<n;j+=2){const r=regAt(c,j+1);if(!r)continue;g.fillStyle=r.reg==='하락기'?'rgba(31,111,229,.10)':r.reg==='상승기'?'rgba(229,50,63,.08)':'rgba(0,0,0,0)';g.fillRect(X(j),0,(w-4)/(n-1)*2+1,h)}
@@ -1807,7 +1822,7 @@ function renderWhy(){
    <p class="olnote">'소문·관측'은 확정되지 않은 소식(검토·추진·가능성 등)입니다. 기사 제목을 누르면 원문이 열립니다.</p>`;
 }
 
-/* ---------- 정서연 본부장의 오늘 브리핑 (저녁 6시 이후 첫 접속 때 자동) ---------- */
+/* ---------- 본부장(기본 정서연, 앱에서 고른 사람)의 오늘 브리핑 (저녁 6시 이후 첫 접속 때 자동) ---------- */
 const sl=id=>`<a href="#" data-bpick="${id}">${DATA[id].name}</a>`;
 let BRIEF=null,BSTEP=0,BSPEAK=false;
 function buildBrief(){
@@ -1829,8 +1844,8 @@ function buildBrief(){
     O?`시황 판단은 '<b>${O.tone}</b>' — ${esc(O.headline||'')}`:'',
     `분석 대상 78종목 중 <b class="up">${up}종목 상승</b>, <b class="down">${dn}종목 하락</b>했습니다.`].filter(Boolean)});
   const nova=J[STOCKS[0].id].ex.find(x=>x.who==='NOVA')?.lines||[],joy=J[STOCKS[0].id].ex.find(x=>x.who==='JOY')?.lines||[];
-  S.push({t:'시장 · 한예린 · 윤시아 보고',l:[`<b>한예린(큰 흐름):</b> ${esc(nova[0]||'')}`,`${esc(nova[1]||'')}`,`<b>윤시아(단기):</b> ${esc(joy[1]||'')}`,...(O&&O.lines?O.lines.slice(0,2).map(x=>`<b>시황:</b> ${esc(x)}`):[])]});
-  S.push({t:'수급 · 서하린 보고',l:[MF.KOSPI?`코스피 외국인 <b class="${cls(MF.KOSPI.frg)}">${sgn(MF.KOSPI.frg)}</b>, 기관 <b class="${cls(MF.KOSPI.org)}">${sgn(MF.KOSPI.org)}</b>, 개인 <b class="${cls(MF.KOSPI.ind)}">${sgn(MF.KOSPI.ind)}</b> 순매수.`:'오늘 시장 수급 자료가 없습니다.',
+  S.push({t:KNAME.NOVA===KNAME.JOY?`시장 · ${KNAME.NOVA} 보고`:`시장 · ${KNAME.NOVA} · ${KNAME.JOY} 보고`,l:[`<b>${KNAME.NOVA}(큰 흐름):</b> ${esc(nova[0]||'')}`,`${esc(nova[1]||'')}`,`<b>${KNAME.JOY}(단기):</b> ${esc(joy[1]||'')}`,...(O&&O.lines?O.lines.slice(0,2).map(x=>`<b>시황:</b> ${esc(x)}`):[])]});
+  S.push({t:`수급 · ${KNAME.OSCAR} 보고`,l:[MF.KOSPI?`코스피 외국인 <b class="${cls(MF.KOSPI.frg)}">${sgn(MF.KOSPI.frg)}</b>, 기관 <b class="${cls(MF.KOSPI.org)}">${sgn(MF.KOSPI.org)}</b>, 개인 <b class="${cls(MF.KOSPI.ind)}">${sgn(MF.KOSPI.ind)}</b> 순매수.`:'오늘 시장 수급 자료가 없습니다.',
     MF.KOSDAQ?`코스닥 외국인 ${sgn(MF.KOSDAQ.frg)}, 기관 ${sgn(MF.KOSDAQ.org)}, 개인 ${sgn(MF.KOSDAQ.ind)}.`:'',
     flw.length?`외국인·기관이 많이 산 종목: ${flw.slice(0,4).map(x=>`${sl(x.id)}(${eok(x.net)})`).join(', ')}`:'',
     flw.length?`많이 판 종목: ${flw.slice(-4).reverse().map(x=>`${sl(x.id)}(${eok(x.net)})`).join(', ')}`:''].filter(Boolean)});
@@ -1867,7 +1882,7 @@ function speakStep(){
     const v=speechSynthesis.getVoices().find(v=>v.lang.startsWith('ko')&&/female|여|Heami|SunHi|Google/i.test(v.name))||speechSynthesis.getVoices().find(v=>v.lang.startsWith('ko'));if(v)u.voice=v;
     u.onend=()=>{if(BSPEAK&&BSTEP<BRIEF.length-1){BSTEP++;renderBrief()}else if(BSTEP===BRIEF.length-1){BSPEAK=false;$('#bRead').textContent='읽어주기 🔊'}};speechSynthesis.speak(u)}catch(e){}
 }
-function openBrief(){if(EMBED||!STOCKS.length)return;MODE='ana';if(!BRIEF)BRIEF=buildBrief();BSTEP=0;$('#brief').hidden=false;renderBrief();try{localStorage.setItem('briefSeen',DATES[NBARS-1])}catch(e){}}
+function openBrief(){if(EMBED||!STOCKS.length)return;{const p=$('#brief .bphoto img');p.src=`img/team/${PHOTO.THEO}.jpg?v=4`;p.alt=`${DIRN()} 사진`;$('#brief .bname b').textContent=DIRN()}MODE='ana';if(!BRIEF)BRIEF=buildBrief();BSTEP=0;$('#brief').hidden=false;renderBrief();try{localStorage.setItem('briefSeen',DATES[NBARS-1])}catch(e){}}
 function closeBrief(){BSPEAK=false;try{speechSynthesis.cancel()}catch(e){};$('#brief').hidden=true;if(BEMB)parent.postMessage({type:'briefClose'},location.origin)}
 $('#briefBtn').onclick=openBrief;$('#bClose').onclick=closeBrief;
 $('#bPrev').onclick=()=>{if(BSTEP>0){BSTEP--;renderBrief()}};
