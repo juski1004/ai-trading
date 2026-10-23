@@ -109,9 +109,14 @@ class GeminiClient:
                 return self._off()
             r.raise_for_status()
             text = r.json()["candidates"][0]["content"]["parts"][0]["text"]
+            self._fails = 0
             return json.loads(text)
         except Exception as e:  # 한도 초과, 네트워크, 형식 오류 → 규칙 기반으로 대체
             print(f"[AI 연결 실패, 규칙 기반으로 진행] {type(e).__name__}: {str(e)[:120]}")
+            self._fails = getattr(self, "_fails", 0) + 1
+            if self._fails >= 2:  # 연달아 응답이 없으면(한도에 걸려 매번 60초씩 기다림) 이번 실행은 다음 AI(Groq)로
+                print("[AI] Gemini 응답이 연달아 없어 이번 실행에서는 Groq 등 다음 AI를 씀")
+                return self._off()
             return None
 
     def _off(self) -> None:
@@ -127,18 +132,22 @@ class OpenAICompatClient:
         self.model = os.getenv(f"{name.upper()}_MODEL") or None
         self.min_interval, self._last, self.disabled = min_interval_sec, 0.0, False
 
+    SKIP = ("whisper", "tts", "guard", "embed", "image", "vision", "audio", "orpheus", "playai", "speech", "distil")
+
     def _discover(self) -> str | None:
+        """대화용 모델만 후보로(음성·안전 필터 모델 제외) 선호 순서대로 줄 세움. 400으로 막히면 ask_json 이 다음 후보로."""
         try:
             r = requests.get(f"{self.base}/models", headers={"Authorization": f"Bearer {self.api_key}"}, timeout=30)
             r.raise_for_status()
-            ids = [m.get("id", "") for m in r.json().get("data", [])]
-            ids = [i for i in ids if not any(s in i for s in ("whisper", "tts", "guard", "embed", "image", "vision", "audio"))]
+            ids = [m.get("id", "") for m in r.json().get("data", []) if m.get("active", True)]
+            ids = [i for i in ids if not any(s in i.lower() for s in self.SKIP)]
+            ranked = []
             for pref in self.prefer:
-                hit = [i for i in ids if pref in i]
-                if hit:
-                    print(f"[AI] {self.name} 모델: {sorted(hit)[-1]}")
-                    return sorted(hit)[-1]
-            return ids[0] if ids else None
+                ranked += [i for i in sorted(ids, reverse=True) if pref in i and i not in ranked]
+            self._cands = ranked or ids
+            if self._cands:
+                print(f"[AI] {self.name} 모델: {self._cands[0]} (후보 {len(self._cands)}개)")
+            return self._cands[0] if self._cands else None
         except Exception as e:
             print(f"[AI {self.name} 모델 목록 실패] {type(e).__name__}: {str(e)[:120]}")
             return None
@@ -169,7 +178,12 @@ class OpenAICompatClient:
                     time.sleep(20 * (attempt + 1))
                     continue
                 if r.status_code == 400:  # 요청 형식 거절은 다시 해도 같음 → 이유를 남기고 이번 실행에서는 끄기
-                    print(f"[AI] {self.name} 요청 거절 (400): {r.text[:300]}")
+                    print(f"[AI] {self.name} 요청 거절 (400, {self.model}): {r.text[:200]}")
+                    rest = [m for m in getattr(self, "_cands", []) if m != self.model]
+                    if "model" in r.text.lower() and rest:  # 모델 문제(약관·지원 안 함)면 다음 후보 모델로
+                        self._cands, self.model = rest, rest[0]
+                        print(f"[AI] {self.name} 다음 모델로: {self.model}")
+                        continue
                     self.disabled = True
                     return None
                 if r.status_code == 429:  # 다시 해도 한도 초과 → 이번 실행에서는 끄기
@@ -208,7 +222,7 @@ def from_env() -> LLM | None:
         clients.append(g)
     if os.getenv("GROQ_API_KEY"):
         clients.append(OpenAICompatClient("Groq", "https://api.groq.com/openai/v1", os.environ["GROQ_API_KEY"],
-                                          ("llama-3.3-70b", "llama-3.1-70b", "70b", "llama")))
+                                          ("llama-3.3-70b", "gpt-oss-120b", "llama-4", "kimi", "qwen", "gpt-oss", "llama-3.1-70b", "70b", "llama")))
     if os.getenv("XAI_API_KEY"):
         clients.append(OpenAICompatClient("Grok", "https://api.x.ai/v1", os.environ["XAI_API_KEY"],
                                           ("grok-3-mini", "mini", "fast", "grok")))
@@ -228,7 +242,7 @@ def check() -> list[str]:
         if name == "Gemini":
             c = GeminiClient(key)
         elif name == "Groq":
-            c = OpenAICompatClient("Groq", "https://api.groq.com/openai/v1", key, ("llama-3.3-70b", "llama-3.1-70b", "70b", "llama"))
+            c = OpenAICompatClient("Groq", "https://api.groq.com/openai/v1", key, ("llama-3.3-70b", "gpt-oss-120b", "llama-4", "kimi", "qwen", "gpt-oss", "llama-3.1-70b", "70b", "llama"))
         else:
             c = OpenAICompatClient("Grok", "https://api.x.ai/v1", key, ("grok-3-mini", "mini", "fast", "grok"))
         ans = c.ask_json('JSON으로만 답하라: {"ok": true, "word": "안녕"}')
