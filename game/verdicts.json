@@ -1,23 +1,23 @@
 {
- "time": "2026-10-22T14:25+09:00",
+ "time": "2026-10-23T14:26+09:00",
  "verdicts": [
   {
    "symbol": "005930.KS",
    "action": "HOLD",
-   "score": -0.31,
+   "score": -0.412,
    "qty": 0,
    "source": "규칙",
    "reason": "",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
     },
     {
      "agent": "OSCAR",
-     "score": 0.278,
-     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -4.5%"
+     "score": -0.213,
+     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -0.8%"
     },
     {
      "agent": "RAY",
@@ -27,669 +27,40 @@
     {
      "agent": "MILES",
      "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -14.7%), 최대 9주"
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -14.0%), 최대 1주"
     }
    ],
    "risk": {
     "approved": false,
     "reasons": [
-     "변동성 과다 (하루 평균 6.2%)"
+     "변동성 과다 (하루 평균 6.2%)",
+     "보유 종목 5개 꽉 참"
     ]
    },
    "plan": {
-    "entry": 213500.0,
-    "stop": 202825.0,
-    "target": 234850.0,
-    "qty": 9
+    "entry": 212750.0,
+    "stop": 202112.5,
+    "target": 234025.0,
+    "qty": 1
    }
   },
   {
    "symbol": "000660.KS",
    "action": "HOLD",
-   "score": -0.376,
+   "score": -0.366,
    "qty": 0,
-   "source": "규칙",
-   "reason": "",
+   "source": "AI",
+   "reason": "현재 종목을 보유하고 있지 않아 매도가 불가능하며, LLOYD의 리스크 점검 거절 및 매수 가능 수량 부재로 인해 관망을 유지합니다.",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
     },
     {
      "agent": "OSCAR",
-     "score": -0.581,
-     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -5.9%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.4,
-     "summary": "단기 하락추세, MACD 음, RSI 28"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -23.3%), 최대 1주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 7.6%)"
-    ]
-   },
-   "plan": {
-    "entry": 1218000.0,
-    "stop": 1157100.0,
-    "target": 1339800.0,
-    "qty": 1
-   }
-  },
-  {
-   "symbol": "373220.KS",
-   "action": "HOLD",
-   "score": 0.314,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.055,
-     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -4.1% · 호재 뉴스: [단독] LG엔솔의 아픈 손가락 폴란드 공장 4분기 흑자 눈앞"
-    },
-    {
-     "agent": "RAY",
-     "score": 0.7,
-     "summary": "단기 상승추세, MACD 양, RSI 53"
-    },
-    {
-     "agent": "MILES",
-     "score": 0.5,
-     "summary": "20일선 근처, 진입 적기 (20일선 대비 +2.1%), 최대 5주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 5.6%)"
-    ]
-   },
-   "plan": {
-    "entry": 394500.0,
-    "stop": 374775.0,
-    "target": 433950.0,
-    "qty": 5
-   }
-  },
-  {
-   "symbol": "207940.KS",
-   "action": "HOLD",
-   "score": 0.522,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.984,
-     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -3.6% · 호재 뉴스: 삼성바이오로직스, 3분기 매출 1조 4903억원… 전년 대비 19% 증가"
-    },
-    {
-     "agent": "RAY",
-     "score": 0.7,
-     "summary": "단기 상승추세, MACD 양, RSI 51"
-    },
-    {
-     "agent": "MILES",
-     "score": 0.5,
-     "summary": "20일선 근처, 진입 적기 (20일선 대비 +2.7%), 최대 1주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 5.2%)"
-    ]
-   },
-   "plan": {
-    "entry": 1366000.0,
-    "stop": 1297700.0,
-    "target": 1502600.0,
-    "qty": 1
-   }
-  },
-  {
-   "symbol": "005380.KS",
-   "action": "HOLD",
-   "score": -0.303,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.31,
-     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -2.7%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 31"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -9.2%), 최대 6주"
-    }
-   ],
-   "risk": {
-    "approved": true,
-    "reasons": [
-     "변동성 4.9%, 이상 없음"
-    ]
-   },
-   "plan": {
-    "entry": 301000.0,
-    "stop": 285950.0,
-    "target": 331100.0,
-    "qty": 6
-   }
-  },
-  {
-   "symbol": "000270.KS",
-   "action": "HOLD",
-   "score": -0.073,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.409,
-     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -1.8%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.1,
-     "summary": "단기 하락추세, MACD 양, RSI 39"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -3.3%), 최대 18주"
-    }
-   ],
-   "risk": {
-    "approved": true,
-    "reasons": [
-     "변동성 4.0%, 이상 없음"
-    ]
-   },
-   "plan": {
-    "entry": 108500.0,
-    "stop": 103075.0,
-    "target": 119350.0,
-    "qty": 18
-   }
-  },
-  {
-   "symbol": "068270.KS",
-   "action": "BUY",
-   "score": 0.412,
-   "qty": 10,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.936,
-     "summary": "평범한 거래량 (평소 대비 0.7배), 하루 -1.1% · 호재 뉴스: [속보]\"시간 없어, 빨리 타\" 셀트리온 주가 급등에 난리난 '이재용 밈"
-    },
-    {
-     "agent": "RAY",
-     "score": 0.7,
-     "summary": "단기 상승추세, MACD 양, RSI 65"
-    },
-    {
-     "agent": "MILES",
-     "score": 0.1,
-     "summary": "다소 올라온 자리 (20일선 대비 +6.0%), 최대 10주"
-    }
-   ],
-   "risk": {
-    "approved": true,
-    "reasons": [
-     "변동성 3.4%, 이상 없음"
-    ]
-   },
-   "plan": {
-    "entry": 195500.0,
-    "stop": 185725.0,
-    "target": 215050.0,
-    "qty": 10
-   }
-  },
-  {
-   "symbol": "035420.KS",
-   "action": "HOLD",
-   "score": -0.309,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.278,
-     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -1.7%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 35"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -5.5%), 최대 11주"
-    }
-   ],
-   "risk": {
-    "approved": true,
-    "reasons": [
-     "변동성 3.1%, 이상 없음"
-    ]
-   },
-   "plan": {
-    "entry": 176500.0,
-    "stop": 167675.0,
-    "target": 194150.0,
-    "qty": 11
-   }
-  },
-  {
-   "symbol": "105560.KS",
-   "action": "HOLD",
-   "score": -0.325,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.202,
-     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -1.2%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 38"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -4.4%), 최대 12주"
-    }
-   ],
-   "risk": {
-    "approved": true,
-    "reasons": [
-     "변동성 3.1%, 이상 없음"
-    ]
-   },
-   "plan": {
-    "entry": 158600.0,
-    "stop": 150670.0,
-    "target": 174460.0,
-    "qty": 12
-   }
-  },
-  {
-   "symbol": "055550.KS",
-   "action": "HOLD",
-   "score": -0.395,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.672,
-     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -1.4%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.4,
-     "summary": "단기 하락추세, MACD 음, RSI 24"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -10.9%), 최대 22주"
-    }
-   ],
-   "risk": {
-    "approved": true,
-    "reasons": [
-     "변동성 3.4%, 이상 없음"
-    ]
-   },
-   "plan": {
-    "entry": 90400.0,
-    "stop": 85880.0,
-    "target": 99440.0,
-    "qty": 22
-   }
-  },
-  {
-   "symbol": "005490.KS",
-   "action": "HOLD",
-   "score": -0.411,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.228,
-     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -4.3%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 39"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -5.9%), 최대 6주"
-    }
-   ],
-   "risk": {
-    "approved": true,
-    "reasons": [
-     "변동성 4.6%, 이상 없음"
-    ]
-   },
-   "plan": {
-    "entry": 288000.0,
-    "stop": 273600.0,
-    "target": 316800.0,
-    "qty": 6
-   }
-  },
-  {
-   "symbol": "028260.KS",
-   "action": "HOLD",
-   "score": -0.207,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.792,
-     "summary": "평범한 거래량 (평소 대비 0.9배), 하루 -1.0% · 호재 뉴스: 삼성물산, 2조원 ’여의도 시범’ 재건축 수주…한강 조망 2천 세대"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 36"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -10.6%), 최대 6주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 6.1%)"
-    ]
-   },
-   "plan": {
-    "entry": 287000.0,
-    "stop": 272650.0,
-    "target": 315700.0,
-    "qty": 6
-   }
-  },
-  {
-   "symbol": "012330.KS",
-   "action": "HOLD",
-   "score": -0.16,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.025,
-     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -2.6%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.1,
-     "summary": "단기 하락추세, MACD 양, RSI 34"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -7.0%), 최대 5주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 5.2%)"
-    ]
-   },
-   "plan": {
-    "entry": 337000.0,
-    "stop": 320150.0,
-    "target": 370700.0,
-    "qty": 5
-   }
-  },
-  {
-   "symbol": "051910.KS",
-   "action": "HOLD",
-   "score": -0.476,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.552,
-     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -5.9% · 악재 뉴스: 반짝 이익 끝⋯ 롯데케미칼·LG화학 3분기 수천억대 적자 예고"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 41"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -7.7%), 최대 8주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 7.5%)"
-    ]
-   },
-   "plan": {
-    "entry": 240500.0,
-    "stop": 228475.0,
-    "target": 264550.0,
-    "qty": 8
-   }
-  },
-  {
-   "symbol": "006400.KS",
-   "action": "HOLD",
-   "score": -0.128,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.215,
-     "summary": "평범한 거래량 (평소 대비 0.7배), 하루 -6.5% · 호재 뉴스: 필에너지, 올해만 삼성SDI 美 ESS 장비 1500억 수주"
-    },
-    {
-     "agent": "RAY",
-     "score": 0.1,
-     "summary": "단기 상승추세, MACD 음, RSI 45"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -4.9%), 최대 3주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 7.3%)"
-    ]
-   },
-   "plan": {
-    "entry": 518000.0,
-    "stop": 492100.0,
-    "target": 569800.0,
-    "qty": 3
-   }
-  },
-  {
-   "symbol": "035720.KS",
-   "action": "HOLD",
-   "score": -0.435,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.349,
-     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -1.9%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 31"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -6.7%), 최대 65주"
-    }
-   ],
-   "risk": {
-    "approved": true,
-    "reasons": [
-     "변동성 3.3%, 이상 없음"
-    ]
-   },
-   "plan": {
-    "entry": 30350.0,
-    "stop": 28832.5,
-    "target": 33385.0,
-    "qty": 65
-   }
-  },
-  {
-   "symbol": "086790.KS",
-   "action": "HOLD",
-   "score": -0.433,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.34,
-     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -1.6%"
+     "score": 0.018,
+     "summary": "평범한 거래량 (평소 대비 0.8배), 하루 +2.7% · 호재 뉴스: [속보]수급공백 올까…SK하이닉스, 40조원 규모 자사주 매입 완료"
     },
     {
      "agent": "RAY",
@@ -699,150 +70,26 @@
     {
      "agent": "MILES",
      "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -5.9%), 최대 16주"
-    }
-   ],
-   "risk": {
-    "approved": true,
-    "reasons": [
-     "변동성 3.2%, 이상 없음"
-    ]
-   },
-   "plan": {
-    "entry": 119900.0,
-    "stop": 113905.0,
-    "target": 131890.0,
-    "qty": 16
-   }
-  },
-  {
-   "symbol": "032830.KS",
-   "action": "HOLD",
-   "score": -0.175,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.95,
-     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -1.6%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 36"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -10.0%), 최대 8주"
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -19.3%), 최대 0주"
     }
    ],
    "risk": {
     "approved": false,
     "reasons": [
-     "변동성 과다 (하루 평균 5.8%)"
+     "변동성 과다 (하루 평균 7.4%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
     ]
    },
    "plan": {
-    "entry": 241000.0,
-    "stop": 228950.0,
-    "target": 265100.0,
-    "qty": 8
+    "entry": 1256000.0,
+    "stop": 1193200.0,
+    "target": 1381600.0,
+    "qty": 0
    }
   },
   {
-   "symbol": "000810.KS",
-   "action": "HOLD",
-   "score": -0.216,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.747,
-     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 +0.8%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 44"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -2.5%), 최대 3주"
-    }
-   ],
-   "risk": {
-    "approved": true,
-    "reasons": [
-     "변동성 4.0%, 이상 없음"
-    ]
-   },
-   "plan": {
-    "entry": 606000.0,
-    "stop": 575700.0,
-    "target": 666600.0,
-    "qty": 3
-   }
-  },
-  {
-   "symbol": "096770.KS",
-   "action": "HOLD",
-   "score": -0.565,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -1.0,
-     "summary": "평범한 거래량 (평소 대비 0.7배), 하루 -6.9%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 47"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -5.7%), 최대 13주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 8.3%)"
-    ]
-   },
-   "plan": {
-    "entry": 143600.0,
-    "stop": 136420.0,
-    "target": 157960.0,
-    "qty": 13
-   }
-  },
-  {
-   "symbol": "034730.KS",
+   "symbol": "373220.KS",
    "action": "HOLD",
    "score": -0.167,
    "qty": 0,
@@ -851,265 +98,101 @@
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
     },
     {
      "agent": "OSCAR",
-     "score": 0.992,
-     "summary": "평범한 거래량 (평소 대비 1.1배), 하루 -3.9%"
+     "score": -0.388,
+     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -1.7% · 호재 뉴스: [단독] LG엔솔의 아픈 손가락 폴란드 공장 4분기 흑자 눈앞"
     },
     {
      "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 39"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -13.2%), 최대 4주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 7.5%)"
-    ]
-   },
-   "plan": {
-    "entry": 463000.0,
-    "stop": 439850.0,
-    "target": 509300.0,
-    "qty": 4
-   }
-  },
-  {
-   "symbol": "066570.KS",
-   "action": "HOLD",
-   "score": -0.422,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.282,
-     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -2.7% · 호재 뉴스: LG전자, 가전용 칩 '100만개' 돌파…반도체로 가전 영토 넓힌다"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 32"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -17.1%), 최대 12주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 7.0%)"
-    ]
-   },
-   "plan": {
-    "entry": 160600.0,
-    "stop": 152570.0,
-    "target": 176660.0,
-    "qty": 12
-   }
-  },
-  {
-   "symbol": "015760.KS",
-   "action": "HOLD",
-   "score": -0.138,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.088,
-     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -0.9%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.1,
-     "summary": "단기 하락추세, MACD 양, RSI 39"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -3.2%), 최대 69주"
-    }
-   ],
-   "risk": {
-    "approved": true,
-    "reasons": [
-     "변동성 3.1%, 이상 없음"
-    ]
-   },
-   "plan": {
-    "entry": 28600.0,
-    "stop": 27170.0,
-    "target": 31460.0,
-    "qty": 69
-   }
-  },
-  {
-   "symbol": "033780.KS",
-   "action": "HOLD",
-   "score": 0.213,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.467,
-     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 +0.1% · 호재 뉴스: KT&G, 해외 생산기지 확충 마무리…3분기 최대 실적 전망"
-    },
-    {
-     "agent": "RAY",
-     "score": 0.4,
-     "summary": "단기 상승추세, MACD 양, RSI 76"
-    },
-    {
-     "agent": "MILES",
      "score": 0.1,
-     "summary": "다소 올라온 자리 (20일선 대비 +6.8%), 최대 10주"
-    }
-   ],
-   "risk": {
-    "approved": true,
-    "reasons": [
-     "변동성 2.4%, 이상 없음"
-    ]
-   },
-   "plan": {
-    "entry": 194200.0,
-    "stop": 184490.0,
-    "target": 213620.0,
-    "qty": 10
-   }
-  },
-  {
-   "symbol": "329180.KS",
-   "action": "HOLD",
-   "score": -0.46,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -1.0,
-     "summary": "평범한 거래량 (평소 대비 0.7배), 하루 -3.3%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.4,
-     "summary": "단기 하락추세, MACD 음, RSI 19"
+     "summary": "단기 상승추세, MACD 음, RSI 49"
     },
     {
      "agent": "MILES",
      "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -20.8%), 최대 6주"
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -1.1%), 최대 0주"
     }
    ],
    "risk": {
     "approved": false,
     "reasons": [
-     "변동성 과다 (하루 평균 5.8%)"
+     "변동성 과다 (하루 평균 5.9%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
     ]
    },
    "plan": {
-    "entry": 309500.0,
-    "stop": 294025.0,
-    "target": 340450.0,
-    "qty": 6
+    "entry": 383500.0,
+    "stop": 364325.0,
+    "target": 421850.0,
+    "qty": 0
    }
   },
   {
-   "symbol": "012450.KS",
+   "symbol": "207940.KS",
    "action": "HOLD",
-   "score": -0.377,
+   "score": 0.27,
    "qty": 0,
    "source": "규칙",
    "reason": "",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
     },
     {
      "agent": "OSCAR",
-     "score": -0.061,
-     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 +0.9%"
+     "score": 1.0,
+     "summary": "평범한 거래량 (평소 대비 1.2배), 하루 +8.1% · 호재 뉴스: 삼성바이오로직스, 3분기 매출 1.49조…연간 성장률 20%로 상향"
     },
     {
      "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 36"
+     "score": 0.7,
+     "summary": "단기 상승추세, MACD 양, RSI 59"
     },
     {
      "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -12.6%), 최대 2주"
+     "score": -0.5,
+     "summary": "많이 오른 자리, 추격 매수 위험 (20일선 대비 +10.3%), 최대 0주"
     }
    ],
    "risk": {
     "approved": false,
     "reasons": [
-     "변동성 과다 (하루 평균 7.2%)"
+     "변동성 과다 (하루 평균 5.1%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
     ]
    },
    "plan": {
-    "entry": 821000.0,
-    "stop": 779950.0,
-    "target": 903100.0,
-    "qty": 2
+    "entry": 1471000.0,
+    "stop": 1397450.0,
+    "target": 1618100.0,
+    "qty": 0
    }
   },
   {
-   "symbol": "034020.KS",
+   "symbol": "005380.KS",
    "action": "HOLD",
-   "score": -0.344,
+   "score": -0.462,
    "qty": 0,
    "source": "규칙",
    "reason": "",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
     },
     {
      "agent": "OSCAR",
-     "score": -0.421,
-     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -2.8%"
+     "score": -0.988,
+     "summary": "평범한 거래량 (평소 대비 0.7배), 하루 -2.7%"
     },
     {
      "agent": "RAY",
@@ -1119,123 +202,209 @@
     {
      "agent": "MILES",
      "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -17.4%), 최대 32주"
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -10.6%), 최대 0주"
     }
    ],
    "risk": {
     "approved": false,
     "reasons": [
-     "변동성 과다 (하루 평균 6.1%)"
+     "변동성 과다 (하루 평균 5.3%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
     ]
    },
    "plan": {
-    "entry": 61700.0,
-    "stop": 58615.0,
-    "target": 67870.0,
-    "qty": 32
+    "entry": 293500.0,
+    "stop": 278825.0,
+    "target": 322850.0,
+    "qty": 0
    }
   },
   {
-   "symbol": "009150.KS",
+   "symbol": "000270.KS",
    "action": "HOLD",
-   "score": -0.333,
+   "score": -0.263,
    "qty": 0,
    "source": "규칙",
    "reason": "",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
     },
     {
      "agent": "OSCAR",
-     "score": 0.159,
-     "summary": "평범한 거래량 (평소 대비 1.0배), 하루 -1.7% · 호재 뉴스: 삼성전기, 3605억원 규모 '메모리 반도체용 패키지기판' 장기 공급계약"
+     "score": -0.514,
+     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -1.8%"
     },
     {
      "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 34"
+     "score": -0.1,
+     "summary": "단기 하락추세, MACD 양, RSI 37"
     },
     {
      "agent": "MILES",
      "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -18.4%), 최대 1주"
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -4.3%), 최대 2주"
     }
    ],
    "risk": {
     "approved": false,
     "reasons": [
-     "변동성 과다 (하루 평균 8.6%)"
+     "보유 종목 5개 꽉 참"
     ]
    },
    "plan": {
-    "entry": 1148000.0,
-    "stop": 1090600.0,
-    "target": 1262800.0,
+    "entry": 106800.0,
+    "stop": 101460.0,
+    "target": 117480.0,
+    "qty": 2
+   }
+  },
+  {
+   "symbol": "068270.KS",
+   "action": "HOLD",
+   "score": 0.282,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": 0.309,
+     "summary": "평범한 거래량 (평소 대비 0.7배), 하루 +0.1% · 호재 뉴스: [속보]\"시간 없어, 빨리 타\" 셀트리온 주가 급등에 난리난 '이재용 밈"
+    },
+    {
+     "agent": "RAY",
+     "score": 0.7,
+     "summary": "단기 상승추세, MACD 양, RSI 63"
+    },
+    {
+     "agent": "MILES",
+     "score": 0.1,
+     "summary": "다소 올라온 자리 (20일선 대비 +5.1%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 194400.0,
+    "stop": 184680.0,
+    "target": 213840.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "035420.KS",
+   "action": "HOLD",
+   "score": -0.455,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.426,
+     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -1.8% · 악재 뉴스: 뉴욕증시, AI 거품 우려와 유가 급등에 일제히 하락"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 32"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -6.6%), 최대 1주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 173200.0,
+    "stop": 164540.0,
+    "target": 190520.0,
     "qty": 1
    }
   },
   {
-   "symbol": "010140.KS",
+   "symbol": "105560.KS",
    "action": "HOLD",
-   "score": -0.506,
+   "score": -0.541,
    "qty": 0,
    "source": "규칙",
    "reason": "",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
     },
     {
      "agent": "OSCAR",
-     "score": -0.706,
-     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -1.6%"
+     "score": -0.854,
+     "summary": "평범한 거래량 (평소 대비 0.8배), 하루 -4.0%"
     },
     {
      "agent": "RAY",
      "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 34"
+     "summary": "단기 하락추세, MACD 음, RSI 31"
     },
     {
      "agent": "MILES",
      "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -8.6%), 최대 114주"
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -7.8%), 최대 1주"
     }
    ],
    "risk": {
-    "approved": true,
+    "approved": false,
     "reasons": [
-     "변동성 4.6%, 이상 없음"
+     "보유 종목 5개 꽉 참"
     ]
    },
    "plan": {
-    "entry": 17400.0,
-    "stop": 16530.0,
-    "target": 19140.0,
-    "qty": 114
+    "entry": 151800.0,
+    "stop": 144210.0,
+    "target": 166980.0,
+    "qty": 1
    }
   },
   {
-   "symbol": "042660.KS",
+   "symbol": "055550.KS",
    "action": "HOLD",
-   "score": -0.46,
+   "score": -0.465,
    "qty": 0,
    "source": "규칙",
    "reason": "",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
     },
     {
      "agent": "OSCAR",
      "score": -1.0,
-     "summary": "평범한 거래량 (평소 대비 0.2배), 하루 -2.9%"
+     "summary": "평범한 거래량 (평소 대비 0.7배), 하루 -3.2%"
     },
     {
      "agent": "RAY",
@@ -1245,1887 +414,39 @@
     {
      "agent": "MILES",
      "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -19.3%), 최대 34주"
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -12.7%), 최대 2주"
     }
    ],
    "risk": {
     "approved": false,
     "reasons": [
-     "변동성 과다 (하루 평균 6.0%)"
+     "보유 종목 5개 꽉 참"
     ]
    },
    "plan": {
-    "entry": 57700.0,
-    "stop": 54815.0,
-    "target": 63470.0,
-    "qty": 34
-   }
-  },
-  {
-   "symbol": "010130.KS",
-   "action": "HOLD",
-   "score": -0.413,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.764,
-     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -2.0%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.4,
-     "summary": "단기 하락추세, MACD 음, RSI 28"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -12.9%), 최대 2주"
-    }
-   ],
-   "risk": {
-    "approved": true,
-    "reasons": [
-     "변동성 4.8%, 이상 없음"
-    ]
-   },
-   "plan": {
-    "entry": 895000.0,
-    "stop": 850250.0,
-    "target": 984500.0,
+    "entry": 87400.0,
+    "stop": 83030.0,
+    "target": 96140.0,
     "qty": 2
    }
   },
   {
-   "symbol": "003670.KS",
+   "symbol": "005490.KS",
    "action": "HOLD",
-   "score": -0.44,
+   "score": -0.57,
    "qty": 0,
    "source": "규칙",
    "reason": "",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.376,
-     "summary": "평범한 거래량 (평소 대비 0.7배), 하루 -6.5%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 44"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -7.2%), 최대 11주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 8.2%)"
-    ]
-   },
-   "plan": {
-    "entry": 169100.0,
-    "stop": 160645.0,
-    "target": 186010.0,
-    "qty": 11
-   }
-  },
-  {
-   "symbol": "009540.KS",
-   "action": "HOLD",
-   "score": -0.307,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.236,
-     "summary": "평범한 거래량 (평소 대비 0.3배), 하루 -2.7% · 호재 뉴스: HD한국조선해양, 1.9조원 규모 친환경 컨테이너선 8척 수주"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.4,
-     "summary": "단기 하락추세, MACD 음, RSI 26"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -15.0%), 최대 7주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 5.6%)"
-    ]
-   },
-   "plan": {
-    "entry": 253000.0,
-    "stop": 240350.0,
-    "target": 278300.0,
-    "qty": 7
-   }
-  },
-  {
-   "symbol": "003550.KS",
-   "action": "HOLD",
-   "score": -0.427,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.308,
-     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -1.9%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 35"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -7.0%), 최대 19주"
-    }
-   ],
-   "risk": {
-    "approved": true,
-    "reasons": [
-     "변동성 4.2%, 이상 없음"
-    ]
-   },
-   "plan": {
-    "entry": 100800.0,
-    "stop": 95760.0,
-    "target": 110880.0,
-    "qty": 19
-   }
-  },
-  {
-   "symbol": "017670.KS",
-   "action": "HOLD",
-   "score": -0.366,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.529,
-     "summary": "평범한 거래량 (평소 대비 0.3배), 하루 -1.3%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.4,
-     "summary": "단기 하락추세, MACD 음, RSI 29"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -8.3%), 최대 26주"
-    }
-   ],
-   "risk": {
-    "approved": true,
-    "reasons": [
-     "변동성 4.1%, 이상 없음"
-    ]
-   },
-   "plan": {
-    "entry": 76300.0,
-    "stop": 72485.0,
-    "target": 83930.0,
-    "qty": 26
-   }
-  },
-  {
-   "symbol": "030200.KS",
-   "action": "HOLD",
-   "score": -0.448,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.941,
-     "summary": "평범한 거래량 (평소 대비 1.1배), 하루 -3.0%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.4,
-     "summary": "단기 하락추세, MACD 음, RSI 26"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -6.9%), 최대 41주"
-    }
-   ],
-   "risk": {
-    "approved": true,
-    "reasons": [
-     "변동성 3.0%, 이상 없음"
-    ]
-   },
-   "plan": {
-    "entry": 47650.0,
-    "stop": 45267.5,
-    "target": 52415.0,
-    "qty": 41
-   }
-  },
-  {
-   "symbol": "316140.KS",
-   "action": "HOLD",
-   "score": -0.354,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.054,
-     "summary": "평범한 거래량 (평소 대비 0.2배), 하루 -0.8%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 35"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -6.0%), 최대 63주"
-    }
-   ],
-   "risk": {
-    "approved": true,
-    "reasons": [
-     "변동성 3.4%, 이상 없음"
-    ]
-   },
-   "plan": {
-    "entry": 31250.0,
-    "stop": 29687.5,
-    "target": 34375.0,
-    "qty": 63
-   }
-  },
-  {
-   "symbol": "138040.KS",
-   "action": "HOLD",
-   "score": 0.102,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.064,
-     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -0.2%"
-    },
-    {
-     "agent": "RAY",
-     "score": 0.1,
-     "summary": "단기 상승추세, MACD 음, RSI 53"
-    },
-    {
-     "agent": "MILES",
-     "score": 0.5,
-     "summary": "20일선 근처, 진입 적기 (20일선 대비 +0.3%), 최대 15주"
-    }
-   ],
-   "risk": {
-    "approved": true,
-    "reasons": [
-     "변동성 3.0%, 이상 없음"
-    ]
-   },
-   "plan": {
-    "entry": 130200.0,
-    "stop": 123690.0,
-    "target": 143220.0,
-    "qty": 15
-   }
-  },
-  {
-   "symbol": "323410.KS",
-   "action": "BUY",
-   "score": 0.325,
-   "qty": 99,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.0,
-     "summary": "평범한 거래량 (평소 대비 0.2배), 하루 -0.5%"
-    },
-    {
-     "agent": "RAY",
-     "score": 0.7,
-     "summary": "단기 상승추세, MACD 양, RSI 45"
-    },
-    {
-     "agent": "MILES",
-     "score": 0.5,
-     "summary": "20일선 근처, 진입 적기 (20일선 대비 +0.1%), 최대 99주"
-    }
-   ],
-   "risk": {
-    "approved": true,
-    "reasons": [
-     "변동성 2.3%, 이상 없음"
-    ]
-   },
-   "plan": {
-    "entry": 20100.0,
-    "stop": 19095.0,
-    "target": 22110.0,
-    "qty": 99
-   }
-  },
-  {
-   "symbol": "259960.KS",
-   "action": "HOLD",
-   "score": -0.162,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.034,
-     "summary": "평범한 거래량 (평소 대비 0.3배), 하루 -0.8%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.1,
-     "summary": "단기 하락추세, MACD 양, RSI 41"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -1.7%), 최대 10주"
-    }
-   ],
-   "risk": {
-    "approved": true,
-    "reasons": [
-     "변동성 4.0%, 이상 없음"
-    ]
-   },
-   "plan": {
-    "entry": 192900.0,
-    "stop": 183255.0,
-    "target": 212190.0,
-    "qty": 10
-   }
-  },
-  {
-   "symbol": "036570.KS",
-   "action": "HOLD",
-   "score": -0.208,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.788,
-     "summary": "평범한 거래량 (평소 대비 0.3배), 하루 -1.6%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 47"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -2.7%), 최대 9주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 6.5%)"
-    ]
-   },
-   "plan": {
-    "entry": 210500.0,
-    "stop": 199975.0,
-    "target": 231550.0,
-    "qty": 9
-   }
-  },
-  {
-   "symbol": "086280.KS",
-   "action": "HOLD",
-   "score": -0.335,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.15,
-     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -2.4%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 38"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -6.2%), 최대 11주"
-    }
-   ],
-   "risk": {
-    "approved": true,
-    "reasons": [
-     "변동성 4.5%, 이상 없음"
-    ]
-   },
-   "plan": {
-    "entry": 178900.0,
-    "stop": 169955.0,
-    "target": 196790.0,
-    "qty": 11
-   }
-  },
-  {
-   "symbol": "042700.KS",
-   "action": "HOLD",
-   "score": -0.327,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.191,
-     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -4.2%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 37"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -17.6%), 최대 10주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 8.7%)"
-    ]
-   },
-   "plan": {
-    "entry": 194400.0,
-    "stop": 184680.0,
-    "target": 213840.0,
-    "qty": 10
-   }
-  },
-  {
-   "symbol": "079550.KS",
-   "action": "HOLD",
-   "score": -0.565,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -1.0,
-     "summary": "평범한 거래량 (평소 대비 1.4배), 하루 -2.0% · 악재 뉴스: [특징주] LIG디펜스앤에어로스페이스, 방위청 제재.. '급락'"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 31"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -22.6%), 최대 4주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 10.0%)"
-    ]
-   },
-   "plan": {
-    "entry": 488500.0,
-    "stop": 464075.0,
-    "target": 537350.0,
-    "qty": 4
-   }
-  },
-  {
-   "symbol": "064350.KS",
-   "action": "HOLD",
-   "score": -0.438,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.888,
-     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -3.2% · 악재 뉴스: 현대로템, 3분기 영업익 '어닝쇼크'… 장 초반 10%대 ↓ - 머니투데"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.4,
-     "summary": "단기 하락추세, MACD 음, RSI 27"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -18.0%), 최대 23주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 7.1%)"
-    ]
-   },
-   "plan": {
-    "entry": 85800.0,
-    "stop": 81510.0,
-    "target": 94380.0,
-    "qty": 23
-   }
-  },
-  {
-   "symbol": "047810.KS",
-   "action": "HOLD",
-   "score": -0.346,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.095,
-     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -2.7%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 35"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -11.3%), 최대 18주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 5.6%)"
-    ]
-   },
-   "plan": {
-    "entry": 106400.0,
-    "stop": 101080.0,
-    "target": 117040.0,
-    "qty": 18
-   }
-  },
-  {
-   "symbol": "010950.KS",
-   "action": "HOLD",
-   "score": -0.565,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -1.0,
-     "summary": "평범한 거래량 (평소 대비 1.0배), 하루 -5.5%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 40"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -11.2%), 최대 14주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 7.8%)"
-    ]
-   },
-   "plan": {
-    "entry": 139700.0,
-    "stop": 132715.0,
-    "target": 153670.0,
-    "qty": 14
-   }
-  },
-  {
-   "symbol": "003490.KS",
-   "action": "HOLD",
-   "score": -0.565,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -1.0,
-     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -2.0%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 38"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -10.4%), 최대 74주"
-    }
-   ],
-   "risk": {
-    "approved": true,
-    "reasons": [
-     "변동성 4.7%, 이상 없음"
-    ]
-   },
-   "plan": {
-    "entry": 26700.0,
-    "stop": 25365.0,
-    "target": 29370.0,
-    "qty": 74
-   }
-  },
-  {
-   "symbol": "011200.KS",
-   "action": "BUY",
-   "score": 0.353,
-   "qty": 88,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.141,
-     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -3.4% · 호재 뉴스: HD현대, HMM 컨테이너선 8척 수주…1.9조원규모"
-    },
-    {
-     "agent": "RAY",
-     "score": 0.7,
-     "summary": "단기 상승추세, MACD 양, RSI 55"
-    },
-    {
-     "agent": "MILES",
-     "score": 0.5,
-     "summary": "20일선 근처, 진입 적기 (20일선 대비 +2.8%), 최대 88주"
-    }
-   ],
-   "risk": {
-    "approved": true,
-    "reasons": [
-     "변동성 4.1%, 이상 없음"
-    ]
-   },
-   "plan": {
-    "entry": 22600.0,
-    "stop": 21470.0,
-    "target": 24860.0,
-    "qty": 88
-   }
-  },
-  {
-   "symbol": "090430.KS",
-   "action": "HOLD",
-   "score": -0.326,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.194,
-     "summary": "평범한 거래량 (평소 대비 0.2배), 하루 -1.5% · 호재 뉴스: 마몽드, '크리미 틴트 컬러 밤' 출시 10주년 맞아 새롭게 선보여"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 44"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -2.5%), 최대 14주"
-    }
-   ],
-   "risk": {
-    "approved": true,
-    "reasons": [
-     "변동성 4.2%, 이상 없음"
-    ]
-   },
-   "plan": {
-    "entry": 133600.0,
-    "stop": 126920.0,
-    "target": 146960.0,
-    "qty": 14
-   }
-  },
-  {
-   "symbol": "352820.KS",
-   "action": "HOLD",
-   "score": 0.425,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 1.0,
-     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -2.7%"
-    },
-    {
-     "agent": "RAY",
-     "score": 0.7,
-     "summary": "단기 상승추세, MACD 양, RSI 56"
-    },
-    {
-     "agent": "MILES",
-     "score": 0.1,
-     "summary": "다소 올라온 자리 (20일선 대비 +7.5%), 최대 11주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 5.5%)"
-    ]
-   },
-   "plan": {
-    "entry": 178000.0,
-    "stop": 169100.0,
-    "target": 195800.0,
-    "qty": 11
-   }
-  },
-  {
-   "symbol": "018260.KS",
-   "action": "HOLD",
-   "score": 0.005,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.8,
-     "summary": "거래량 급증 + 상승 (평소 대비 2.6배), 하루 +3.2%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.1,
-     "summary": "단기 하락추세, MACD 양, RSI 48"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -0.7%), 최대 9주"
-    }
-   ],
-   "risk": {
-    "approved": true,
-    "reasons": [
-     "변동성 4.8%, 이상 없음"
-    ]
-   },
-   "plan": {
-    "entry": 208000.0,
-    "stop": 197600.0,
-    "target": 228800.0,
-    "qty": 9
-   }
-  },
-  {
-   "symbol": "011070.KS",
-   "action": "HOLD",
-   "score": -0.415,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
      "score": -0.249,
-     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -2.8%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 33"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -21.8%), 최대 5주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 10.6%)"
-    ]
-   },
-   "plan": {
-    "entry": 395000.0,
-    "stop": 375250.0,
-    "target": 434500.0,
-    "qty": 5
-   }
-  },
-  {
-   "symbol": "000720.KS",
-   "action": "HOLD",
-   "score": -0.285,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.401,
-     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 +0.5% · 호재 뉴스: 현대건설, 목동10단지 재건축사업 수주 | 뉴스 | 현대자동차그룹"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 32"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -13.7%), 최대 21주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 6.3%)"
-    ]
-   },
-   "plan": {
-    "entry": 93000.0,
-    "stop": 88350.0,
-    "target": 102300.0,
-    "qty": 21
-   }
-  },
-  {
-   "symbol": "000100.KS",
-   "action": "BUY",
-   "score": 0.393,
-   "qty": 23,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.84,
-     "summary": "평범한 거래량 (평소 대비 0.9배), 하루 -3.0% · 호재 뉴스: 유한양행, 다이소 전용 화장품 내놨다…'더마푸라민Rx' 8종 출시 - 머"
-    },
-    {
-     "agent": "RAY",
-     "score": 0.7,
-     "summary": "단기 상승추세, MACD 양, RSI 61"
-    },
-    {
-     "agent": "MILES",
-     "score": 0.1,
-     "summary": "다소 올라온 자리 (20일선 대비 +9.3%), 최대 23주"
-    }
-   ],
-   "risk": {
-    "approved": true,
-    "reasons": [
-     "변동성 4.4%, 이상 없음"
-    ]
-   },
-   "plan": {
-    "entry": 84000.0,
-    "stop": 79800.0,
-    "target": 92400.0,
-    "qty": 23
-   }
-  },
-  {
-   "symbol": "128940.KS",
-   "action": "HOLD",
-   "score": -0.469,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.518,
-     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -1.4%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 31"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -18.8%), 최대 5주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 8.1%)"
-    ]
-   },
-   "plan": {
-    "entry": 374000.0,
-    "stop": 355300.0,
-    "target": 411400.0,
-    "qty": 5
-   }
-  },
-  {
-   "symbol": "326030.KS",
-   "action": "BUY",
-   "score": 0.525,
-   "qty": 26,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 1.0,
-     "summary": "평범한 거래량 (평소 대비 1.3배), 하루 +0.5%"
-    },
-    {
-     "agent": "RAY",
-     "score": 0.7,
-     "summary": "단기 상승추세, MACD 양, RSI 48"
-    },
-    {
-     "agent": "MILES",
-     "score": 0.5,
-     "summary": "20일선 근처, 진입 적기 (20일선 대비 +1.2%), 최대 26주"
-    }
-   ],
-   "risk": {
-    "approved": true,
-    "reasons": [
-     "변동성 4.0%, 이상 없음"
-    ]
-   },
-   "plan": {
-    "entry": 75400.0,
-    "stop": 71630.0,
-    "target": 82940.0,
-    "qty": 26
-   }
-  },
-  {
-   "symbol": "271560.KS",
-   "action": "BUY",
-   "score": 0.499,
-   "qty": 17,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.869,
-     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 +0.6%"
-    },
-    {
-     "agent": "RAY",
-     "score": 0.7,
-     "summary": "단기 상승추세, MACD 양, RSI 53"
-    },
-    {
-     "agent": "MILES",
-     "score": 0.5,
-     "summary": "20일선 근처, 진입 적기 (20일선 대비 +4.1%), 최대 17주"
-    }
-   ],
-   "risk": {
-    "approved": true,
-    "reasons": [
-     "변동성 2.8%, 이상 없음"
-    ]
-   },
-   "plan": {
-    "entry": 113000.0,
-    "stop": 107350.0,
-    "target": 124300.0,
-    "qty": 17
-   }
-  },
-  {
-   "symbol": "097950.KS",
-   "action": "HOLD",
-   "score": -0.125,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.2,
-     "summary": "평범한 거래량 (평소 대비 0.8배), 하루 -3.2% · 호재 뉴스: CJ제일제당, ‘비비고 김부각’ 인기에 ‘비비고 캔김’ 출시하며 라인업 "
-    },
-    {
-     "agent": "RAY",
-     "score": 0.1,
-     "summary": "단기 상승추세, MACD 음, RSI 33"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -4.8%), 최대 11주"
-    }
-   ],
-   "risk": {
-    "approved": true,
-    "reasons": [
-     "변동성 3.1%, 이상 없음"
-    ]
-   },
-   "plan": {
-    "entry": 171400.0,
-    "stop": 162830.0,
-    "target": 188540.0,
-    "qty": 11
-   }
-  },
-  {
-   "symbol": "011170.KS",
-   "action": "HOLD",
-   "score": -0.504,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.696,
-     "summary": "평범한 거래량 (평소 대비 0.7배), 하루 -3.6% · 악재 뉴스: 반짝 이익 끝⋯ 롯데케미칼·LG화학 3분기 수천억대 적자 예고"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 31"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -13.4%), 최대 39주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 5.7%)"
-    ]
-   },
-   "plan": {
-    "entry": 50500.0,
-    "stop": 47975.0,
-    "target": 55550.0,
-    "qty": 39
-   }
-  },
-  {
-   "symbol": "009830.KS",
-   "action": "HOLD",
-   "score": -0.443,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.387,
-     "summary": "평범한 거래량 (평소 대비 0.3배), 하루 -3.4%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 43"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -9.4%), 최대 67주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 8.6%)"
-    ]
-   },
-   "plan": {
-    "entry": 29450.0,
-    "stop": 27977.5,
-    "target": 32395.0,
-    "qty": 67
-   }
-  },
-  {
-   "symbol": "247540.KQ",
-   "action": "HOLD",
-   "score": -0.543,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.888,
-     "summary": "평범한 거래량 (평소 대비 1.2배), 하루 -9.1% · 악재 뉴스: 에코프로비엠, 8천861억 유상증자…내달 5일 신주 상장"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 42"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -11.7%), 최대 20주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 9.5%)"
-    ]
-   },
-   "plan": {
-    "entry": 98800.0,
-    "stop": 93860.0,
-    "target": 108680.0,
-    "qty": 20
-   }
-  },
-  {
-   "symbol": "086520.KQ",
-   "action": "HOLD",
-   "score": -0.458,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.464,
-     "summary": "평범한 거래량 (평소 대비 0.8배), 하루 -5.9% · 악재 뉴스: 에코프로비엠, 8천861억 유상증자…내달 5일 신주 상장"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 43"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -7.0%), 최대 25주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 8.3%)"
-    ]
-   },
-   "plan": {
-    "entry": 78600.0,
-    "stop": 74670.0,
-    "target": 86460.0,
-    "qty": 25
-   }
-  },
-  {
-   "symbol": "196170.KQ",
-   "action": "HOLD",
-   "score": 0.045,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 1.0,
-     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -3.5%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.1,
-     "summary": "단기 하락추세, MACD 양, RSI 41"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -4.9%), 최대 8주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 5.8%)"
-    ]
-   },
-   "plan": {
-    "entry": 231500.0,
-    "stop": 219925.0,
-    "target": 254650.0,
-    "qty": 8
-   }
-  },
-  {
-   "symbol": "028300.KQ",
-   "action": "HOLD",
-   "score": 0.168,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.266,
-     "summary": "평범한 거래량 (평소 대비 0.2배), 하루 -2.2%"
-    },
-    {
-     "agent": "RAY",
-     "score": 0.1,
-     "summary": "단기 상승추세, MACD 음, RSI 54"
-    },
-    {
-     "agent": "MILES",
-     "score": 0.5,
-     "summary": "20일선 근처, 진입 적기 (20일선 대비 +1.3%), 최대 48주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 6.6%)"
-    ]
-   },
-   "plan": {
-    "entry": 41400.0,
-    "stop": 39330.0,
-    "target": 45540.0,
-    "qty": 48
-   }
-  },
-  {
-   "symbol": "141080.KQ",
-   "action": "HOLD",
-   "score": 0.045,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 1.0,
-     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -2.0%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.1,
-     "summary": "단기 하락추세, MACD 양, RSI 39"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -6.9%), 최대 28주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 7.4%)"
-    ]
-   },
-   "plan": {
-    "entry": 69900.0,
-    "stop": 66405.0,
-    "target": 76890.0,
-    "qty": 28
-   }
-  },
-  {
-   "symbol": "000250.KQ",
-   "action": "HOLD",
-   "score": 0.267,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.761,
-     "summary": "평범한 거래량 (평소 대비 0.3배), 하루 -5.2%"
-    },
-    {
-     "agent": "RAY",
-     "score": 0.1,
-     "summary": "단기 상승추세, MACD 음, RSI 53"
-    },
-    {
-     "agent": "MILES",
-     "score": 0.5,
-     "summary": "20일선 근처, 진입 적기 (20일선 대비 +1.3%), 최대 9주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 11.0%)"
-    ]
-   },
-   "plan": {
-    "entry": 201500.0,
-    "stop": 191425.0,
-    "target": 221650.0,
-    "qty": 9
-   }
-  },
-  {
-   "symbol": "277810.KQ",
-   "action": "HOLD",
-   "score": -0.172,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.965,
-     "summary": "평범한 거래량 (평소 대비 0.8배), 하루 -2.3%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 38"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -10.2%), 최대 5주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 7.0%)"
-    ]
-   },
-   "plan": {
-    "entry": 365500.0,
-    "stop": 347225.0,
-    "target": 402050.0,
-    "qty": 5
-   }
-  },
-  {
-   "symbol": "263750.KQ",
-   "action": "BUY",
-   "score": 0.525,
-   "qty": 57,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 1.0,
-     "summary": "평범한 거래량 (평소 대비 0.8배), 하루 -0.4%"
-    },
-    {
-     "agent": "RAY",
-     "score": 0.7,
-     "summary": "단기 상승추세, MACD 양, RSI 57"
-    },
-    {
-     "agent": "MILES",
-     "score": 0.5,
-     "summary": "20일선 근처, 진입 적기 (20일선 대비 +3.8%), 최대 57주"
-    }
-   ],
-   "risk": {
-    "approved": true,
-    "reasons": [
-     "변동성 3.3%, 이상 없음"
-    ]
-   },
-   "plan": {
-    "entry": 34650.0,
-    "stop": 32917.5,
-    "target": 38115.0,
-    "qty": 57
-   }
-  },
-  {
-   "symbol": "214150.KQ",
-   "action": "HOLD",
-   "score": -0.033,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.612,
-     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 +0.4%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.1,
-     "summary": "단기 하락추세, MACD 양, RSI 39"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -4.9%), 최대 70주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 5.4%)"
-    ]
-   },
-   "plan": {
-    "entry": 28250.0,
-    "stop": 26837.5,
-    "target": 31075.0,
-    "qty": 70
-   }
-  },
-  {
-   "symbol": "214450.KQ",
-   "action": "HOLD",
-   "score": -0.299,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.193,
-     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -3.2%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.4,
-     "summary": "단기 하락추세, MACD 음, RSI 26"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -13.3%), 최대 7주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 5.9%)"
-    ]
-   },
-   "plan": {
-    "entry": 255500.0,
-    "stop": 242725.0,
-    "target": 281050.0,
-    "qty": 7
-   }
-  },
-  {
-   "symbol": "145020.KQ",
-   "action": "BUY",
-   "score": 0.325,
-   "qty": 10,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 1.0,
-     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -2.1%"
-    },
-    {
-     "agent": "RAY",
-     "score": 0.7,
-     "summary": "단기 상승추세, MACD 양, RSI 39"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -0.3%), 최대 10주"
-    }
-   ],
-   "risk": {
-    "approved": true,
-    "reasons": [
-     "변동성 3.9%, 이상 없음"
-    ]
-   },
-   "plan": {
-    "entry": 181900.0,
-    "stop": 172805.0,
-    "target": 200090.0,
-    "qty": 10
-   }
-  },
-  {
-   "symbol": "058470.KQ",
-   "action": "HOLD",
-   "score": -0.459,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.471,
-     "summary": "평범한 거래량 (평소 대비 0.3배), 하루 -3.1%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 40"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -13.2%), 최대 30주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 8.3%)"
-    ]
-   },
-   "plan": {
-    "entry": 65300.0,
-    "stop": 62035.0,
-    "target": 71830.0,
-    "qty": 30
-   }
-  },
-  {
-   "symbol": "039030.KQ",
-   "action": "HOLD",
-   "score": -0.424,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.296,
-     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -3.4%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 41"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -13.9%), 최대 4주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 8.3%)"
-    ]
-   },
-   "plan": {
-    "entry": 415500.0,
-    "stop": 394725.0,
-    "target": 457050.0,
-    "qty": 4
-   }
-  },
-  {
-   "symbol": "357780.KQ",
-   "action": "HOLD",
-   "score": -0.565,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
     },
     {
      "agent": "OSCAR",
      "score": -1.0,
-     "summary": "평범한 거래량 (평소 대비 0.3배), 하루 -5.7%"
+     "summary": "평범한 거래량 (평소 대비 0.7배), 하루 -4.0%"
     },
     {
      "agent": "RAY",
@@ -3135,39 +456,41 @@
     {
      "agent": "MILES",
      "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -18.0%), 최대 6주"
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -9.7%), 최대 0주"
     }
    ],
    "risk": {
     "approved": false,
     "reasons": [
-     "변동성 과다 (하루 평균 8.4%)"
+     "변동성 과다 (하루 평균 5.1%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
     ]
    },
    "plan": {
-    "entry": 305000.0,
-    "stop": 289750.0,
-    "target": 335500.0,
-    "qty": 6
+    "entry": 274500.0,
+    "stop": 260775.0,
+    "target": 301950.0,
+    "qty": 0
    }
   },
   {
-   "symbol": "240810.KQ",
+   "symbol": "028260.KS",
    "action": "HOLD",
-   "score": -0.531,
+   "score": -0.364,
    "qty": 0,
    "source": "규칙",
    "reason": "",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
     },
     {
      "agent": "OSCAR",
-     "score": -0.828,
-     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -6.9%"
+     "score": 0.029,
+     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -0.5%"
     },
     {
      "agent": "RAY",
@@ -3177,81 +500,2439 @@
     {
      "agent": "MILES",
      "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -21.1%), 최대 20주"
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -9.5%), 최대 0주"
     }
    ],
    "risk": {
     "approved": false,
     "reasons": [
-     "변동성 과다 (하루 평균 10.3%)"
+     "변동성 과다 (하루 평균 6.2%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
     ]
    },
    "plan": {
-    "entry": 97600.0,
-    "stop": 92720.0,
-    "target": 107360.0,
-    "qty": 20
+    "entry": 287000.0,
+    "stop": 272650.0,
+    "target": 315700.0,
+    "qty": 0
    }
   },
   {
-   "symbol": "035900.KQ",
+   "symbol": "012330.KS",
    "action": "HOLD",
-   "score": 0.199,
+   "score": -0.36,
    "qty": 0,
    "source": "규칙",
    "reason": "",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
     },
     {
      "agent": "OSCAR",
-     "score": 0.371,
-     "summary": "평범한 거래량 (평소 대비 1.4배), 하루 -3.7% · 호재 뉴스: [MK 골든크로스 돌파종목 : JYP Ent.(035900) & 레이(2"
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -2.5%"
     },
     {
      "agent": "RAY",
-     "score": 0.7,
-     "summary": "단기 상승추세, MACD 양, RSI 46"
+     "score": -0.1,
+     "summary": "단기 하락추세, MACD 양, RSI 32"
     },
     {
      "agent": "MILES",
      "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -0.1%), 최대 52주"
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -8.8%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 5.1%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 328500.0,
+    "stop": 312075.0,
+    "target": 361350.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "051910.KS",
+   "action": "HOLD",
+   "score": -0.499,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.648,
+     "summary": "평범한 거래량 (평소 대비 0.7배), 하루 -3.8% · 악재 뉴스: 반짝 이익 끝⋯ 롯데케미칼·LG화학 3분기 수천억대 적자 예고"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 38"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -11.6%), 최대 1주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 8.0%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 229000.0,
+    "stop": 217550.0,
+    "target": 251900.0,
+    "qty": 1
+   }
+  },
+  {
+   "symbol": "006400.KS",
+   "action": "HOLD",
+   "score": -0.57,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 1.0배), 하루 -5.0%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 40"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -10.3%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 8.3%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 486500.0,
+    "stop": 462175.0,
+    "target": 535150.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "035720.KS",
+   "action": "HOLD",
+   "score": -0.465,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.7배), 하루 -1.6%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.4,
+     "summary": "단기 하락추세, MACD 음, RSI 28"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -7.8%), 최대 8주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 29850.0,
+    "stop": 28357.5,
+    "target": 32835.0,
+    "qty": 8
+   }
+  },
+  {
+   "symbol": "086790.KS",
+   "action": "HOLD",
+   "score": -0.465,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.9배), 하루 -5.0%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.4,
+     "summary": "단기 하락추세, MACD 음, RSI 25"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -9.8%), 최대 2주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 113900.0,
+    "stop": 108205.0,
+    "target": 125290.0,
+    "qty": 2
+   }
+  },
+  {
+   "symbol": "032830.KS",
+   "action": "HOLD",
+   "score": -0.239,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": 0.657,
+     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 +1.4% · 호재 뉴스: 웅진프리드라이프, 삼성생명과 업무협약…'건강케어서비스' 출시"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 39"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -7.7%), 최대 1주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 5.9%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 245000.0,
+    "stop": 232750.0,
+    "target": 269500.0,
+    "qty": 1
+   }
+  },
+  {
+   "symbol": "000810.KS",
+   "action": "HOLD",
+   "score": -0.279,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": 0.455,
+     "summary": "평범한 거래량 (평소 대비 0.7배), 하루 -1.0%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 43"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -2.7%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 602000.0,
+    "stop": 571900.0,
+    "target": 662200.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "096770.KS",
+   "action": "HOLD",
+   "score": -0.57,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -3.2%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 44"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -9.7%), 최대 1주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 8.4%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 137200.0,
+    "stop": 130340.0,
+    "target": 150920.0,
+    "qty": 1
+   }
+  },
+  {
+   "symbol": "034730.KS",
+   "action": "HOLD",
+   "score": -0.307,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": 0.314,
+     "summary": "평범한 거래량 (평소 대비 0.8배), 하루 -1.3% · 호재 뉴스: \"SK하닉 주주에 큰 선물 나오나\"…자사주 매입 끝, 반등은 언제쯤? -"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 38"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -13.7%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 7.8%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 455500.0,
+    "stop": 432725.0,
+    "target": 501050.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "066570.KS",
+   "action": "HOLD",
+   "score": -0.57,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -2.2%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 30"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -18.3%), 최대 1주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 7.3%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 156400.0,
+    "stop": 148580.0,
+    "target": 172040.0,
+    "qty": 1
+   }
+  },
+  {
+   "symbol": "015760.KS",
+   "action": "HOLD",
+   "score": -0.142,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": 0.087,
+     "summary": "평범한 거래량 (평소 대비 0.9배), 하루 -0.2%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.1,
+     "summary": "단기 하락추세, MACD 양, RSI 40"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -2.4%), 최대 8주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 28750.0,
+    "stop": 27312.5,
+    "target": 31625.0,
+    "qty": 8
+   }
+  },
+  {
+   "symbol": "033780.KS",
+   "action": "HOLD",
+   "score": 0.335,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": 0.076,
+     "summary": "평범한 거래량 (평소 대비 0.9배), 하루 -2.4% · 호재 뉴스: KT&G, 해외 생산기지 확충 마무리…3분기 최대 실적 전망"
+    },
+    {
+     "agent": "RAY",
+     "score": 0.7,
+     "summary": "단기 상승추세, MACD 양, RSI 63"
+    },
+    {
+     "agent": "MILES",
+     "score": 0.5,
+     "summary": "20일선 근처, 진입 적기 (20일선 대비 +3.6%), 최대 1주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 189200.0,
+    "stop": 179740.0,
+    "target": 208120.0,
+    "qty": 1
+   }
+  },
+  {
+   "symbol": "329180.KS",
+   "action": "HOLD",
+   "score": -0.465,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.9배), 하루 -1.1%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.4,
+     "summary": "단기 하락추세, MACD 음, RSI 19"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -20.3%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 6.1%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 305500.0,
+    "stop": 290225.0,
+    "target": 336050.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "012450.KS",
+   "action": "HOLD",
+   "score": -0.57,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.7배), 하루 -2.2%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 33"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -14.3%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 7.7%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 793000.0,
+    "stop": 753350.0,
+    "target": 872300.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "034020.KS",
+   "action": "HOLD",
+   "score": -0.465,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.8배), 하루 -3.6%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.4,
+     "summary": "단기 하락추세, MACD 음, RSI 26"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -19.1%), 최대 4주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 6.6%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 59400.0,
+    "stop": 56430.0,
+    "target": 65340.0,
+    "qty": 4
+   }
+  },
+  {
+   "symbol": "009150.KS",
+   "action": "HOLD",
+   "score": -0.451,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.408,
+     "summary": "평범한 거래량 (평소 대비 0.9배), 하루 -3.5% · 호재 뉴스: 삼성전기, 메모리 기판 3605억 수주… 장기계약 누적 4.3조"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 32"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -20.6%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 9.0%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 1105000.0,
+    "stop": 1049750.0,
+    "target": 1215500.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "010140.KS",
+   "action": "HOLD",
+   "score": -0.57,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -2.7%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 32"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -10.6%), 최대 15주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 16860.0,
+    "stop": 16017.0,
+    "target": 18546.0,
+    "qty": 15
+   }
+  },
+  {
+   "symbol": "042660.KS",
+   "action": "HOLD",
+   "score": -0.465,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.3배), 하루 -4.0%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.4,
+     "summary": "단기 하락추세, MACD 음, RSI 19"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -21.7%), 최대 4주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 6.6%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 54900.0,
+    "stop": 52155.0,
+    "target": 60390.0,
+    "qty": 4
+   }
+  },
+  {
+   "symbol": "010130.KS",
+   "action": "HOLD",
+   "score": -0.465,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 1.1배), 하루 -4.5% · 악재 뉴스: 고려아연 최윤범, 영풍 제기 8370억 손배소송 1심 승소…법원 청구 전"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.4,
+     "summary": "단기 하락추세, MACD 음, RSI 25"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -16.1%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 5.3%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 851000.0,
+    "stop": 808450.0,
+    "target": 936100.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "003670.KS",
+   "action": "HOLD",
+   "score": -0.57,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -3.4%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 41"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -11.1%), 최대 1주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 8.9%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 161100.0,
+    "stop": 153045.0,
+    "target": 177210.0,
+    "qty": 1
+   }
+  },
+  {
+   "symbol": "009540.KS",
+   "action": "HOLD",
+   "score": -0.366,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.504,
+     "summary": "평범한 거래량 (평소 대비 0.8배), 하루 -2.4% · 호재 뉴스: HD한국조선해양, 1.9조원 규모 친환경 컨테이너선 8척 수주"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.4,
+     "summary": "단기 하락추세, MACD 음, RSI 24"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -16.1%), 최대 1주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 6.0%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 246000.0,
+    "stop": 233700.0,
+    "target": 270600.0,
+    "qty": 1
+   }
+  },
+  {
+   "symbol": "003550.KS",
+   "action": "HOLD",
+   "score": -0.512,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.711,
+     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -2.1%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 33"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -8.4%), 최대 2주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 98800.0,
+    "stop": 93860.0,
+    "target": 108680.0,
+    "qty": 2
+   }
+  },
+  {
+   "symbol": "017670.KS",
+   "action": "HOLD",
+   "score": -0.452,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.935,
+     "summary": "평범한 거래량 (평소 대비 0.7배), 하루 -2.9%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.4,
+     "summary": "단기 하락추세, MACD 음, RSI 26"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -10.4%), 최대 3주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 74000.0,
+    "stop": 70300.0,
+    "target": 81400.0,
+    "qty": 3
+   }
+  },
+  {
+   "symbol": "030200.KS",
+   "action": "HOLD",
+   "score": -0.465,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.8배), 하루 -1.6%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.4,
+     "summary": "단기 하락추세, MACD 음, RSI 24"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -8.0%), 최대 5주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 46800.0,
+    "stop": 44460.0,
+    "target": 51480.0,
+    "qty": 5
+   }
+  },
+  {
+   "symbol": "316140.KS",
+   "action": "HOLD",
+   "score": -0.43,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.824,
+     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -4.6%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.4,
+     "summary": "단기 하락추세, MACD 음, RSI 28"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -9.5%), 최대 8주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 29800.0,
+    "stop": 28310.0,
+    "target": 32780.0,
+    "qty": 8
+   }
+  },
+  {
+   "symbol": "138040.KS",
+   "action": "HOLD",
+   "score": -0.144,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.27,
+     "summary": "평범한 거래량 (평소 대비 0.8배), 하루 -2.2%"
+    },
+    {
+     "agent": "RAY",
+     "score": 0.1,
+     "summary": "단기 상승추세, MACD 음, RSI 48"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -1.5%), 최대 2주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 127700.0,
+    "stop": 121315.0,
+    "target": 140470.0,
+    "qty": 2
+   }
+  },
+  {
+   "symbol": "323410.KS",
+   "action": "HOLD",
+   "score": 0.05,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.352,
+     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -0.6%"
+    },
+    {
+     "agent": "RAY",
+     "score": 0.7,
+     "summary": "단기 상승추세, MACD 양, RSI 42"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -0.7%), 최대 12주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 19920.0,
+    "stop": 18924.0,
+    "target": 21912.0,
+    "qty": 12
+   }
+  },
+  {
+   "symbol": "259960.KS",
+   "action": "HOLD",
+   "score": -0.308,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.738,
+     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -3.3%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.1,
+     "summary": "단기 하락추세, MACD 양, RSI 35"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -5.1%), 최대 1주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 185500.0,
+    "stop": 176225.0,
+    "target": 204050.0,
+    "qty": 1
+   }
+  },
+  {
+   "symbol": "036570.KS",
+   "action": "HOLD",
+   "score": -0.41,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.201,
+     "summary": "평범한 거래량 (평소 대비 0.3배), 하루 -3.3%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 44"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -5.4%), 최대 1주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 6.0%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 204500.0,
+    "stop": 194275.0,
+    "target": 224950.0,
+    "qty": 1
+   }
+  },
+  {
+   "symbol": "086280.KS",
+   "action": "HOLD",
+   "score": -0.57,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -2.1%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 35"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -7.9%), 최대 1주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 174400.0,
+    "stop": 165680.0,
+    "target": 191840.0,
+    "qty": 1
+   }
+  },
+  {
+   "symbol": "042700.KS",
+   "action": "HOLD",
+   "score": -0.57,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.8배), 하루 -1.4%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 35"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -19.2%), 최대 1주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 8.8%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 188600.0,
+    "stop": 179170.0,
+    "target": 207460.0,
+    "qty": 1
+   }
+  },
+  {
+   "symbol": "079550.KS",
+   "action": "HOLD",
+   "score": -0.465,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -2.5% · 악재 뉴스: \"24조6000억 일감 어쩌라고\"…이틀 새 12% 급락에 '비명' [종목"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.4,
+     "summary": "단기 하락추세, MACD 음, RSI 30"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -23.8%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 10.0%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 471000.0,
+    "stop": 447450.0,
+    "target": 518100.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "064350.KS",
+   "action": "HOLD",
+   "score": -0.414,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.744,
+     "summary": "평범한 거래량 (평소 대비 0.8배), 하루 -2.3% · 악재 뉴스: 현대로템, 3분기 영업익 '어닝쇼크'… 장 초반 10%대 ↓ - 머니투데"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.4,
+     "summary": "단기 하락추세, MACD 음, RSI 26"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -18.8%), 최대 3주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 7.5%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 83500.0,
+    "stop": 79325.0,
+    "target": 91850.0,
+    "qty": 3
+   }
+  },
+  {
+   "symbol": "047810.KS",
+   "action": "HOLD",
+   "score": -0.554,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.923,
+     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -3.3%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 33"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -13.6%), 최대 2주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 6.1%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 102400.0,
+    "stop": 97280.0,
+    "target": 112640.0,
+    "qty": 2
+   }
+  },
+  {
+   "symbol": "010950.KS",
+   "action": "HOLD",
+   "score": -0.57,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 1.1배), 하루 -6.1%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 36"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -15.9%), 최대 1주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 8.1%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 131300.0,
+    "stop": 124735.0,
+    "target": 144430.0,
+    "qty": 1
+   }
+  },
+  {
+   "symbol": "003490.KS",
+   "action": "HOLD",
+   "score": -0.458,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.443,
+     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -3.0%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 34"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -13.5%), 최대 10주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 25650.0,
+    "stop": 24367.5,
+    "target": 28215.0,
+    "qty": 10
+   }
+  },
+  {
+   "symbol": "011200.KS",
+   "action": "HOLD",
+   "score": 0.328,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": 0.038,
+     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 +0.0% · 호재 뉴스: HD현대, HMM 컨테이너선 8척 수주…1.9조원규모"
+    },
+    {
+     "agent": "RAY",
+     "score": 0.7,
+     "summary": "단기 상승추세, MACD 양, RSI 55"
+    },
+    {
+     "agent": "MILES",
+     "score": 0.5,
+     "summary": "20일선 근처, 진입 적기 (20일선 대비 +2.6%), 최대 11주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 22650.0,
+    "stop": 21517.5,
+    "target": 24915.0,
+    "qty": 11
+   }
+  },
+  {
+   "symbol": "090430.KS",
+   "action": "HOLD",
+   "score": -0.48,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.552,
+     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -2.8% · 호재 뉴스: 마몽드, '크리미 틴트 컬러 밤' 출시 10주년 맞아 새롭게 선보여"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 39"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -4.8%), 최대 1주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 129800.0,
+    "stop": 123310.0,
+    "target": 142780.0,
+    "qty": 1
+   }
+  },
+  {
+   "symbol": "352820.KS",
+   "action": "HOLD",
+   "score": 0.216,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.019,
+     "summary": "평범한 거래량 (평소 대비 0.8배), 하루 -0.3%"
+    },
+    {
+     "agent": "RAY",
+     "score": 0.7,
+     "summary": "단기 상승추세, MACD 양, RSI 55"
+    },
+    {
+     "agent": "MILES",
+     "score": 0.1,
+     "summary": "다소 올라온 자리 (20일선 대비 +6.2%), 최대 1주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 5.7%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 176600.0,
+    "stop": 167770.0,
+    "target": 194260.0,
+    "qty": 1
+   }
+  },
+  {
+   "symbol": "018260.KS",
+   "action": "HOLD",
+   "score": 0.2,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": 0.8,
+     "summary": "거래량 급증 + 상승 (평소 대비 1.9배), 하루 +3.6%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.1,
+     "summary": "단기 하락추세, MACD 양, RSI 53"
+    },
+    {
+     "agent": "MILES",
+     "score": 0.5,
+     "summary": "20일선 근처, 진입 적기 (20일선 대비 +2.6%), 최대 1주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 214500.0,
+    "stop": 203775.0,
+    "target": 235950.0,
+    "qty": 1
+   }
+  },
+  {
+   "symbol": "011070.KS",
+   "action": "HOLD",
+   "score": -0.461,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.456,
+     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -4.6% · 호재 뉴스: AI 기판 수주戰 뛰어든 삼성전기·LG이노텍, 베트남서 대량 생산 불붙였"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 31"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -24.3%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 11.1%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 377000.0,
+    "stop": 358150.0,
+    "target": 414700.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "000720.KS",
+   "action": "HOLD",
+   "score": -0.387,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.085,
+     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -1.0% · 호재 뉴스: 현대건설, 목동10단지 재건축 시공사 선정…정비사업 수주 12조 돌파 |"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 32"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -13.1%), 최대 2주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 6.0%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 92100.0,
+    "stop": 87495.0,
+    "target": 101310.0,
+    "qty": 2
+   }
+  },
+  {
+   "symbol": "000100.KS",
+   "action": "HOLD",
+   "score": 0.27,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": 1.0,
+     "summary": "평범한 거래량 (평소 대비 1.1배), 하루 +1.7%"
+    },
+    {
+     "agent": "RAY",
+     "score": 0.7,
+     "summary": "단기 상승추세, MACD 양, RSI 64"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.5,
+     "summary": "많이 오른 자리, 추격 매수 위험 (20일선 대비 +10.4%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 85400.0,
+    "stop": 81130.0,
+    "target": 93940.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "128940.KS",
+   "action": "HOLD",
+   "score": -0.465,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -2.6%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.4,
+     "summary": "단기 하락추세, MACD 음, RSI 29"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -20.4%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 8.1%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 361000.0,
+    "stop": 342950.0,
+    "target": 397100.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "326030.KS",
+   "action": "HOLD",
+   "score": 0.48,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": 0.8,
+     "summary": "거래량 급증 + 상승 (평소 대비 1.6배), 하루 +3.1%"
+    },
+    {
+     "agent": "RAY",
+     "score": 0.7,
+     "summary": "단기 상승추세, MACD 양, RSI 53"
+    },
+    {
+     "agent": "MILES",
+     "score": 0.5,
+     "summary": "20일선 근처, 진입 적기 (20일선 대비 +3.8%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 77250.0,
+    "stop": 73387.5,
+    "target": 84975.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "271560.KS",
+   "action": "BUY",
+   "score": 0.412,
+   "qty": 1,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": 0.461,
+     "summary": "평범한 거래량 (평소 대비 0.7배), 하루 -1.0%"
+    },
+    {
+     "agent": "RAY",
+     "score": 0.7,
+     "summary": "단기 상승추세, MACD 양, RSI 49"
+    },
+    {
+     "agent": "MILES",
+     "score": 0.5,
+     "summary": "20일선 근처, 진입 적기 (20일선 대비 +2.7%), 최대 1주"
     }
    ],
    "risk": {
     "approved": true,
     "reasons": [
-     "변동성 4.2%, 이상 없음"
+     "변동성 2.9%, 이상 없음"
     ]
    },
    "plan": {
-    "entry": 38250.0,
-    "stop": 36337.5,
-    "target": 42075.0,
-    "qty": 52
+    "entry": 111500.0,
+    "stop": 105925.0,
+    "target": 122650.0,
+    "qty": 1
    }
   },
   {
-   "symbol": "041510.KQ",
+   "symbol": "097950.KS",
    "action": "HOLD",
-   "score": 0.525,
+   "score": -0.48,
    "qty": 0,
    "source": "규칙",
    "reason": "",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.226,
-     "summary": "코스피 하락 흐름, 5일 -0.4% · 환율 20일 -2.9% · 유가 +4.7% · 美10년물 +3bp · VIX 16.7"
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
     },
     {
      "agent": "OSCAR",
-     "score": 1.0,
-     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -1.0%"
+     "score": -0.549,
+     "summary": "평범한 거래량 (평소 대비 1.2배), 하루 +1.7% · 호재 뉴스: CJ제일제당 ‘비비고 김부각’ 출시 3개월 만에 50만 봉 팔려 나가 -"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 40"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -2.9%), 최대 1주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 174800.0,
+    "stop": 166060.0,
+    "target": 192280.0,
+    "qty": 1
+   }
+  },
+  {
+   "symbol": "011170.KS",
+   "action": "HOLD",
+   "score": -0.394,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.648,
+     "summary": "평범한 거래량 (평소 대비 0.8배), 하루 -4.3% · 악재 뉴스: 반짝 이익 끝⋯ 롯데케미칼·LG화학 3분기 수천억대 적자 예고"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.4,
+     "summary": "단기 하락추세, MACD 음, RSI 28"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -16.4%), 최대 5주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 6.1%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 48050.0,
+    "stop": 45647.5,
+    "target": 52855.0,
+    "qty": 5
+   }
+  },
+  {
+   "symbol": "009830.KS",
+   "action": "HOLD",
+   "score": -0.57,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -1.2%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 41"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -11.7%), 최대 8주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 8.8%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 28750.0,
+    "stop": 27312.5,
+    "target": 31625.0,
+    "qty": 8
+   }
+  },
+  {
+   "symbol": "247540.KQ",
+   "action": "HOLD",
+   "score": -0.509,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.696,
+     "summary": "평범한 거래량 (평소 대비 0.8배), 하루 -4.7% · 악재 뉴스: 에코프로비엠, 8천861억 유상증자…내달 5일 신주 상장"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 39"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -16.0%), 최대 2주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 10.1%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 93600.0,
+    "stop": 88920.0,
+    "target": 102960.0,
+    "qty": 2
+   }
+  },
+  {
+   "symbol": "086520.KQ",
+   "action": "HOLD",
+   "score": -0.509,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.696,
+     "summary": "평범한 거래량 (평소 대비 0.7배), 하루 -4.9% · 악재 뉴스: 에코프로비엠, 8천861억 유상증자…내달 5일 신주 상장"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 39"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -12.7%), 최대 3주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 9.0%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 73400.0,
+    "stop": 69730.0,
+    "target": 80740.0,
+    "qty": 3
+   }
+  },
+  {
+   "symbol": "196170.KQ",
+   "action": "HOLD",
+   "score": -0.281,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.605,
+     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -2.4%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.1,
+     "summary": "단기 하락추세, MACD 양, RSI 39"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -6.8%), 최대 1주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 5.8%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 225500.0,
+    "stop": 214225.0,
+    "target": 248050.0,
+    "qty": 1
+   }
+  },
+  {
+   "symbol": "028300.KQ",
+   "action": "HOLD",
+   "score": 0.11,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": 0.0,
+     "summary": "평범한 거래량 (평소 대비 0.2배), 하루 +1.0%"
+    },
+    {
+     "agent": "RAY",
+     "score": 0.1,
+     "summary": "단기 상승추세, MACD 음, RSI 55"
+    },
+    {
+     "agent": "MILES",
+     "score": 0.5,
+     "summary": "20일선 근처, 진입 적기 (20일선 대비 +0.9%), 최대 6주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 6.3%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 41700.0,
+    "stop": 39615.0,
+    "target": 45870.0,
+    "qty": 6
+   }
+  },
+  {
+   "symbol": "141080.KQ",
+   "action": "HOLD",
+   "score": -0.16,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": 0.0,
+     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -1.6%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.1,
+     "summary": "단기 하락추세, MACD 양, RSI 37"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -8.2%), 최대 3주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 7.1%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 68300.0,
+    "stop": 64885.0,
+    "target": 75130.0,
+    "qty": 3
+   }
+  },
+  {
+   "symbol": "000250.KQ",
+   "action": "HOLD",
+   "score": -0.163,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.367,
+     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -0.2%"
+    },
+    {
+     "agent": "RAY",
+     "score": 0.1,
+     "summary": "단기 상승추세, MACD 음, RSI 52"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -0.4%), 최대 1주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 10.2%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 200000.0,
+    "stop": 190000.0,
+    "target": 220000.0,
+    "qty": 1
+   }
+  },
+  {
+   "symbol": "277810.KQ",
+   "action": "HOLD",
+   "score": -0.351,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": 0.095,
+     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -2.9%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 35"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -12.0%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 7.2%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 354500.0,
+    "stop": 336775.0,
+    "target": 389950.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "263750.KQ",
+   "action": "HOLD",
+   "score": 0.47,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": 0.75,
+     "summary": "평범한 거래량 (평소 대비 0.9배), 하루 +1.2%"
     },
     {
      "agent": "RAY",
@@ -3261,20 +2942,407 @@
     {
      "agent": "MILES",
      "score": 0.5,
-     "summary": "20일선 근처, 진입 적기 (20일선 대비 +4.5%), 최대 23주"
+     "summary": "20일선 근처, 진입 적기 (20일선 대비 +4.4%), 최대 0주"
     }
    ],
    "risk": {
     "approved": false,
     "reasons": [
-     "변동성 과다 (하루 평균 5.5%)"
+     "살 수 있는 수량 없음 (비중 한도·현금)"
     ]
    },
    "plan": {
-    "entry": 85000.0,
-    "stop": 80750.0,
-    "target": 93500.0,
-    "qty": 23
+    "entry": 34850.0,
+    "stop": 33107.5,
+    "target": 38335.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "214150.KQ",
+   "action": "HOLD",
+   "score": -0.142,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": 0.091,
+     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -2.3%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.1,
+     "summary": "단기 하락추세, MACD 양, RSI 37"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -6.1%), 최대 9주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 5.3%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 27750.0,
+    "stop": 26362.5,
+    "target": 30525.0,
+    "qty": 9
+   }
+  },
+  {
+   "symbol": "214450.KQ",
+   "action": "HOLD",
+   "score": -0.465,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 1.1배), 하루 -6.3%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.4,
+     "summary": "단기 하락추세, MACD 음, RSI 23"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -17.7%), 최대 1주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 6.7%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 239000.0,
+    "stop": 227050.0,
+    "target": 262900.0,
+    "qty": 1
+   }
+  },
+  {
+   "symbol": "145020.KQ",
+   "action": "HOLD",
+   "score": 0.156,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": 0.177,
+     "summary": "평범한 거래량 (평소 대비 0.8배), 하루 +0.1%"
+    },
+    {
+     "agent": "RAY",
+     "score": 0.7,
+     "summary": "단기 상승추세, MACD 양, RSI 39"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -0.1%), 최대 1주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 181000.0,
+    "stop": 171950.0,
+    "target": 199100.0,
+    "qty": 1
+   }
+  },
+  {
+   "symbol": "058470.KQ",
+   "action": "HOLD",
+   "score": -0.57,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -4.5%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 36"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -18.0%), 최대 4주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 8.5%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 61300.0,
+    "stop": 58235.0,
+    "target": 67430.0,
+    "qty": 4
+   }
+  },
+  {
+   "symbol": "039030.KQ",
+   "action": "HOLD",
+   "score": -0.57,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.9배), 하루 -2.7%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 38"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -16.6%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 8.2%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 399000.0,
+    "stop": 379050.0,
+    "target": 438900.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "357780.KQ",
+   "action": "HOLD",
+   "score": -0.57,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -0.2%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 34"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -18.2%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 8.4%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 302500.0,
+    "stop": 287375.0,
+    "target": 332750.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "240810.KQ",
+   "action": "HOLD",
+   "score": -0.57,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -2.6%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 34"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -22.9%), 최대 2주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 10.4%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 94000.0,
+    "stop": 89300.0,
+    "target": 103400.0,
+    "qty": 2
+   }
+  },
+  {
+   "symbol": "035900.KQ",
+   "action": "HOLD",
+   "score": 0.029,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.455,
+     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -3.1% · 호재 뉴스: [MK 골든크로스 돌파종목 : JYP Ent.(035900) & 레이(2"
+    },
+    {
+     "agent": "RAY",
+     "score": 0.7,
+     "summary": "단기 상승추세, MACD 양, RSI 40"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -3.4%), 최대 6주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 36900.0,
+    "stop": 35055.0,
+    "target": 40590.0,
+    "qty": 6
+   }
+  },
+  {
+   "symbol": "041510.KQ",
+   "action": "HOLD",
+   "score": 0.281,
+   "qty": 0,
+   "source": "규칙",
+   "reason": "",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.249,
+     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.197,
+     "summary": "평범한 거래량 (평소 대비 0.7배), 하루 -1.6%"
+    },
+    {
+     "agent": "RAY",
+     "score": 0.7,
+     "summary": "단기 상승추세, MACD 양, RSI 55"
+    },
+    {
+     "agent": "MILES",
+     "score": 0.5,
+     "summary": "20일선 근처, 진입 적기 (20일선 대비 +2.8%), 최대 3주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 5.6%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 83700.0,
+    "stop": 79515.0,
+    "target": 92070.0,
+    "qty": 3
    }
   }
  ]
