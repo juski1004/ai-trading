@@ -133,6 +133,15 @@
     else if (a === "done") { closeSheet(); refresh(); after(); }
     else if (a === "swap") { pickDir = team().dir; pickStaff = [...team().staff]; chooseDir(); }
     else if (a === "rename") askName(true);
+    else if (a === "resetrec") {
+      if (!confirm("모의투자와 AI 대결 기록을 모두 지울까요? 되돌릴 수 없어요.")) return;
+      ["aiLab.game.v1", "aiLab.games.v1", "arenaLive.v1"].forEach(k => { try { localStorage.removeItem(k); } catch (e) {} });
+      alert("투자·대결 기록을 지웠어요."); location.reload();
+    } else if (a === "resetall") {
+      if (!confirm("호칭·매니저·투자·대결 기록을 모두 지우고 처음 화면부터 다시 시작할까요? 되돌릴 수 없어요.")) return;
+      try { localStorage.clear(); } catch (e) {} // 이 사이트에 저장한 것만 지워짐
+      location.hash = ""; location.reload();
+    }
   });
   document.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.id === "tmName") document.querySelector('[data-tm="name"]')?.click(); });
   const refresh = () => window.onTeamChange ? window.onTeamChange() : window.dispatchEvent(new HashChangeEvent("hashchange"));
@@ -149,6 +158,10 @@
     return `<section class="card tm-me"><div class="tm-hi"><div><div class="sub">반갑습니다</div><h2>${esc(call())}</h2></div><button class="pclink tm-sm" type="button" data-tm="rename">호칭 바꾸기</button></div></section>
     <section class="card"><div class="hd"><h2>나의 담당 팀</h2><button class="pclink tm-sm" type="button" data-tm="swap">매니저 교체</button></div>
       <div class="tm-list tm-mine">${card(d, false, "x")}${ms.map(m => card(m, false, "x")).join("")}</div></section>
+    <section class="card"><div class="hd"><h2>초기화</h2></div>
+      <p class="sub">이 기기에 저장된 기록을 지워요. 지운 기록은 되돌릴 수 없어요.</p>
+      <button class="cta sub2" type="button" data-tm="resetrec">투자·AI 대결 기록만 초기화</button>
+      <button class="cta sub2" type="button" data-tm="resetall">처음부터 다시 시작 (호칭·매니저 선택부터)</button></section>
     <section class="card"><div class="hd"><h2>앱처럼 쓰기</h2></div><p class="sub">아이폰: 공유 → 홈 화면에 추가 · 안드로이드: 메뉴 → 홈 화면에 추가</p></section>`;
   }
 
