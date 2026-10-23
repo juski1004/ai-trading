@@ -1376,7 +1376,7 @@ function tradePlan(id,i){
   const buys=[['1차',c,.4,'오늘 종가 근처'],['2차 · 눌림',p1,.3,useMa?'20일선 지지':'1×ATR 아래'],['3차 · 지지',p2,.3,'2×ATR 아래, 손절가 위']].map(([k,p,w,why])=>({k,p:rt(p),w,why,won:alloc*w,qty:Math.floor(alloc*w/rt(p)),sp:pctv*w}));
   const avg=buys.reduce((a,x)=>a+x.p*x.w,0);let hi20=0;for(let k=i-19;k<=i;k++)hi20=Math.max(hi20,b[k].h);
   const res=hi20>c*1.03&&hi20<c*1.08,t1=rt(res?hi20:avg*1.05),t2c=rt(avg*1.10),t2=tg&&tg>t1*1.02&&tg<avg*1.25?rt(Math.min(t2c,tg)):t2c;
-  const sells=[['1차 익절',t1,.3,res?'최근 20일 고점(저항)':'평균가 +5%'],['2차 익절',t2,.4,t2<t2c?'증권사 목표주가':'평균가 +10%'],['나머지',null,.3,'고점 대비 −2×ATR 또는 20일선 종가 이탈'],['손절',stop,1,'종가 기준 이탈 시 남은 물량 전부']];
+  const sells=[['1차 익절',t1,.3,res?'최근 20일 고점(저항)':'평균가 +5%'],['2차 익절',Math.max(t2,rt(t1*1.03)),.4,t2<t2c?'증권사 목표주가':'평균가 +10%'],['나머지',null,.3,'고점 대비 −2×ATR 또는 20일선 종가 이탈'],['손절',stop,1,'종가 기준 이탈 시 남은 물량 전부']];
   return{conds,n,tot,pct:pctv,grade,seed,alloc,buys,sells,stop,avg,atr,atrP,volOK,fv,fl,p1,ma20,c,mac,ns,upv};
 }
 function renderPlan(){
@@ -1506,13 +1506,20 @@ function drawPattern(R,id,i){
   lines.forEach(a=>{const end=a[a.length-1]-a[PL-1];g.strokeStyle=end>=0?'rgba(229,50,63,.35)':'rgba(31,111,229,.35)';g.lineWidth=1.2;g.beginPath();a.forEach((v,k)=>k?g.lineTo(X(k),Y(v)):g.moveTo(X(k),Y(v)));g.stroke()});
   g.strokeStyle=COL.fg;g.lineWidth=2.4;g.beginPath();me.forEach((v,k)=>k?g.lineTo(X(k),Y(v)):g.moveTo(X(k),Y(v)));g.stroke();g.lineWidth=1;
 }
+/* 본부장 제언의 3분할 진입가: 얼마 · 몇 주 · 투자금의 몇 % (조건이 모자라 비중 0%인데 매수 판단이면 탐색 비중 5%로 안내) */
+function dirLadder(J){
+  const P=J.P,buy=BUYCALL.includes(J.call[0]),probe=buy&&!(P.alloc>0),alloc=probe?P.seed*.05:P.alloc;
+  if(!buy&&!(P.alloc>0))return `<div>진입: 지금은 사지 않습니다 (매매 계획 조건 ${P.n}/${P.tot} 충족).</div>`;
+  const rows=P.buys.map(b=>{const q=Math.floor(alloc*b.w/b.p);return `<b>${b.k.split(' ')[0]}</b> ${won(b.p)}원 · ${won(q)}주 · ${(q*b.p/P.seed*100).toFixed(1)}% (${won(q*b.p)}원)`});
+  return `<div>3분할 진입${probe?' <span class="flat">(조건 '+P.n+'/'+P.tot+'라 탐색 비중 5%만)</span>':''}:<br>${rows.join('<br>')}<br>합계 투자금 ${won(P.seed)}원의 ${(alloc/P.seed*100).toFixed(0)}% 안쪽 · 손절 ${won(P.stop)}원 이하 시장가.</div>`;
+}
 function renderJudge(){
   const id=S.sel,i=cur(),J=judge(id,i),R=J.R,el=$('#judge');
   $('#judgeMeta').textContent=`${DATES[i]} 기준 · 그날까지의 데이터만 사용 · 참고용`;
   const pp=x=>Math.round(x*100)+'%';
   el.innerHTML=`<div class="jtop"><span class="jcall ${J.call[2]}">${J.call[0]}</span><div><b>${J.call[1]}</b><div class="flat" style="font-size:12.5px">타이밍: ${J.timing} · 종합 점수 ${(J.total*100).toFixed(0)}/100</div></div></div>
   <div class="jgrid"><div><ul class="experts">${J.ex.map(x=>`<li><img src="img/team/${PHOTO[x.who]||x.who.toLowerCase()}.jpg?v=4" alt="${KNAME[x.who]} 사진"><div><b>${KNAME[x.who]}</b> <small>${x.role}</small> <span class="${x.label==='매수'?'up':x.label==='매도'?'down':'flat'}">${x.label}</span><div class="d">${(x.lines||[x.line]).map(l=>`<div>${esc(l)}</div>`).join('')}</div></div></li>`).join('')}
-    <li><img src="img/team/${PHOTO.THEO}.jpg?v=4" alt="${DIRN()} 사진"><div><b>${DIRN()}</b> <small>최종 제언</small> <span class="${J.call[2]}">${J.call[0]}</span><div class="d"><div>상승 시나리오: ${won(J.P.sells[0][1])}원에서 일부, ${won(J.P.sells[1][1])}원에서 추가 익절 · 하락 시나리오: ${won(J.P.stop)}원 이하면 시장가 손절.</div><div>매매 계획: 조건 ${J.P.n}/${J.P.tot} 충족 → 투자금 ${won(J.P.seed)}원 중 ${won(J.P.alloc)}원(${J.P.pct}%)까지.</div>5명 의견 평균, 매매 계획 조건 ${J.P.n}/${J.P.tot}, 이벤트 신호(${J.EV.title}), 유사 차트의 10일 뒤 상승 확률(${R.n>=4?pp(J.prob):'자료 부족'})을 합쳐 판단했습니다.</div></div></li></ul></div>
+    <li><img src="img/team/${PHOTO.THEO}.jpg?v=4" alt="${DIRN()} 사진"><div><b>${DIRN()}</b> <small>최종 제언</small> <span class="${J.call[2]}">${J.call[0]}</span><div class="d"><div>상승 시나리오: ${won(J.P.sells[0][1])}원에서 일부, ${won(J.P.sells[1][1])}원에서 추가 익절 · 하락 시나리오: ${won(J.P.stop)}원 이하면 시장가 손절.</div>${dirLadder(J)}5명 의견 평균, 매매 계획 조건 ${J.P.n}/${J.P.tot}, 이벤트 신호(${J.EV.title}), 유사 차트의 10일 뒤 상승 확률(${R.n>=4?pp(J.prob):'자료 부족'})을 합쳐 판단했습니다.</div></div></li></ul></div>
   <div><div class="pt"><b>유사 차트 ${R.n}개</b> <span class="flat">· 최근 20일 흐름과 모양이 비슷했던 과거 구간 (78종목 전체)</span></div><canvas id="patCv" style="width:100%;height:170px;display:block" aria-label="현재 차트와 유사 차트 비교"></canvas>
     ${R.n?`<div class="flsum" style="margin-top:8px"><div><div class="k">5일 뒤 상승 확률</div><div class="v num">${pp(R.s5.up)}</div><div class="k">평균 ${pct(R.s5.avg)}</div></div><div><div class="k">10일 뒤</div><div class="v num">${pp(R.s10.up)}</div><div class="k">평균 ${pct(R.s10.avg)}</div></div><div><div class="k">20일 뒤</div><div class="v num">${pp(R.s20.up)}</div><div class="k">평균 ${pct(R.s20.avg)}</div></div><div><div class="k">모의 진입 결과</div><div class="v num">익절 ${pp(R.tp)} · 손절 ${pp(R.sl)}</div><div class="k">평균 ${pct(R.ev)} (−5%/+10% 규칙)</div></div></div>
     <div style="overflow-x:auto;max-height:200px"><table class="fltab num"><tr><th>종목</th><th>구간 끝</th><th>유사도</th><th>5일 뒤</th><th>10일 뒤</th><th>20일 뒤</th><th>모의 진입</th></tr>${R.list.map(m=>`<tr><td>${DATA[m.id].name}</td><td>${DATES[m.j]}</td><td>${(m.r*100).toFixed(0)}%</td><td class="${cls(m.f5)}">${pct(m.f5)}</td><td class="${cls(m.f10)}">${pct(m.f10)}</td><td class="${cls(m.f20)}">${pct(m.f20)}</td><td class="${m.res==='익절'?'up':m.res==='손절'?'down':'flat'}">${m.res} ${pct(m.rr)}</td></tr>`).join('')}</table></div>`:'<p class="empty">유사도 80% 이상인 과거 차트가 없습니다.</p>'}
