@@ -21,7 +21,27 @@ def facts(daily: dict, mflows: dict, big_flow: dict | None, eco_news: list[dict]
         "오늘_시장수급_억원": mflows, "대형주_수급_5일": big_flow, "대형주_20일선_위_비율": breadth,
         "주요_뉴스": [x["title"] for x in eco_news[:8]],
     }
-    return {k: (round(v, 2) if isinstance(v, float) else v) for k, v in f.items()}
+    return _round(f)
+
+
+def _round(v):
+    """안쪽(코스피 1일 등)까지 소수 둘째 자리로 — AI가 0.29870748…% 처럼 그대로 옮겨 쓰지 않게"""
+    if isinstance(v, float):
+        return round(v, 2)
+    if isinstance(v, dict):
+        return {k: _round(x) for k, x in v.items()}
+    if isinstance(v, list):
+        return [_round(x) for x in v]
+    return v
+
+
+def tidy(t: str) -> str:
+    """문장 속 긴 소수(0.2987…)는 둘째 자리로, '9860.0억'은 '9,860억'으로"""
+    import re
+
+    t = re.sub(r"(\d+)\.0(억|조)", r"\1\2", t)
+    t = re.sub(r"\d+\.\d{3,}", lambda m: f"{float(m.group()):.2f}", t)
+    return re.sub(r"(?<![\d.,])(\d{4,})(?=\s?(억|조|만|원))", lambda m: f"{int(m.group(1)):,}", t)
 
 
 def rule_text(f: dict) -> dict:
@@ -37,7 +57,9 @@ def rule_text(f: dict) -> dict:
 
 
 PROMPT = """너는 한국 증권사 리서치센터의 시황 담당이다. 아래 사실만 근거로 '오늘의 시장 전망'을 써라.
-없는 사실을 지어내지 말고, 수치는 그대로 인용하라. 투자 권유 표현(사라/팔아라/수익 보장)은 쓰지 마라.
+없는 사실을 지어내지 말고, 투자 권유 표현(사라/팔아라/수익 보장)은 쓰지 마라.
+초보 투자자도 바로 이해하게 쉬운 말로, 각 줄은 한 문장 40자 안팎으로 짧게 써라.
+퍼센트는 소수 둘째 자리까지만(예: +0.30%), 금액은 '9,860억 원'처럼 쉼표를 넣어라. 괄호 속 숫자 나열은 하지 마라.
 
 사실(JSON): {facts}
 
@@ -56,7 +78,7 @@ def write(daily: dict, mflows: dict, big_flow: dict | None, eco_news: list[dict]
         ans = llm.ask_json(PROMPT.format(facts=json.dumps(f, ensure_ascii=False)))
         if isinstance(ans, dict) and ans.get("lines"):
             return {"tone": str(ans.get("tone", "중립"))[:4], "headline": str(ans.get("headline", ""))[:60],
-                    "lines": [str(x)[:220] for x in ans["lines"]][:5], "watch": [str(x)[:80] for x in ans.get("watch", [])][:4],
+                    "lines": [tidy(str(x))[:220] for x in ans["lines"]][:5], "watch": [str(x)[:80] for x in ans.get("watch", [])][:4],
                     "source": "AI", "engine": getattr(llm, "last_used", None) or "Gemini", "facts": f}
     out = rule_text(f)
     out["facts"] = f

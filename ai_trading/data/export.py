@@ -194,6 +194,17 @@ def build(out: Path, quick: bool = False, game_dir: Path = Path("game")) -> dict
     except Exception as e:
         print(f"[수급·시장 전망 실패] {type(e).__name__}: {e}")
 
+    # 많이 오르고 내린 종목: 기사 본문을 읽고 '왜 움직였나' 한 줄 + 호재·악재 (브리핑에 씀)
+    if not quick:
+        try:
+            from ..llm import from_env as _why_llm
+            from .why import build_why
+            wy = build_why(stocks, news["sym"], dates, _why_llm())
+            (out / "why.json").write_text(json.dumps(wy, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+            print(f"오늘 움직인 이유 {len(wy['sym'])}종목 ({time.time() - t0:.0f}초)")
+        except Exception as e:
+            print(f"[움직인 이유 실패] {type(e).__name__}: {e}")
+
     # AI 뉴스 요약은 무료 한도를 많이 쓰므로 시장 전망 다음에
     if not quick:
             from ..llm import from_env
