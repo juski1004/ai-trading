@@ -45,6 +45,25 @@ def article_text(url: str, limit: int = 900) -> str:
         return ""
 
 
+CAUSE = re.compile(r"실적|영업이익|매출|순이익|수주|계약|공급|인수|합병|투자|승인|허가|출시|흑자|적자|목표가|상향|하향|"
+                   r"급등|급락|강세|약세|때문|영향|우려|기대|발표|소송|제재|리콜|배당|자사주|증자|감자|분할|상장")
+GOOD = re.compile(r"수주|계약|흑자|상향|호실적|증가|승인|허가|출시|자사주|배당|강세|급등|기대")
+BAD = re.compile(r"적자|하향|감소|부진|쇼크|소송|제재|리콜|우려|증자|급락|약세|화재|사고")
+
+
+def rule_reason(name: str, items: list[dict]) -> dict:
+    """AI가 없을 때: 기사 본문에서 종목 이름(앞 두 글자)과 이유 낱말이 같이 나오는 첫 문장을 한 줄로."""
+    key = name[:2]
+    for x in items:
+        for sent in re.split(r"(?<=[.다요])\s+", x.get("_text") or ""):
+            sent = re.sub(r"^\[[^\]]*\]\s*|^\S+ 기자\]?\s*", "", sent).strip()
+            if key in sent and CAUSE.search(sent) and 12 <= len(sent):
+                g, b = len(GOOD.findall(sent)), len(BAD.findall(sent))
+                return {"line": sent[:70] + ("…" if len(sent) > 70 else ""), "tone": "호재" if g > b else "악재" if b > g else "중립",
+                        "src_item": x, "by": "규칙(본문)"}
+    return {"line": "뚜렷한 개별 소식 없이 시장 흐름을 따랐어요", "tone": "중립", "src_item": items[0], "by": "규칙"}
+
+
 def build_why(stocks: dict, news_sym: dict, dates: list[str], llm, n_each: int = 6, budget_sec: float = 240) -> dict:
     last = dates[-1]
     since = dates[-3] if len(dates) >= 3 else last
@@ -59,7 +78,7 @@ def build_why(stocks: dict, news_sym: dict, dates: list[str], llm, n_each: int =
         if not items:
             continue
         for x in items:
-            x["_text"] = article_text(x.get("link", "")) or x.get("body", "") or ""
+            x["_text"] = article_text(x.get("link", "")) or html.unescape(x.get("body", "") or "")
         res = None
         if llm is not None and time.monotonic() < deadline:
             arts = "\n".join(f"[{k + 1}] ({x.get('src') or '뉴스'}, {x['date']}) {html.unescape(x['title'])}\n    {x['_text'][:600]}" for k, x in enumerate(items))
@@ -69,15 +88,9 @@ def build_why(stocks: dict, news_sym: dict, dates: list[str], llm, n_each: int =
                 k = ans.get("pick") if isinstance(ans.get("pick"), int) and 1 <= ans["pick"] <= len(items) else 1
                 tone = ans.get("tone") if ans.get("tone") in ("호재", "악재", "중립") else "중립"
                 res = {"line": str(ans["line"]).strip()[:80], "tone": tone, "src_item": items[k - 1], "by": "AI"}
-        if res is None:  # AI 없이: 종목 이름이 제목에 있고 호재·악재 점수가 큰 기사의 제목
+        if res is None:  # AI 없이: 본문에서 종목 이름과 '이유' 낱말이 함께 있는 첫 문장
             name = stocks[s].get("name", s)
-            x = max(items, key=lambda x: (name[:2] in x["title"], abs(x.get("score", 0) or 0)))
-            sc = x.get("score", 0) or 0
-            if name[:2] in x["title"]:
-                res = {"line": re.sub(r"^\[[^\]]*\]\s*", "", html.unescape(x["title"]))[:60],
-                       "tone": "호재" if sc > 0 else "악재" if sc < 0 else "중립", "src_item": x, "by": "규칙"}
-            else:  # 이 종목 이야기가 아닌 시장 기사뿐
-                res = {"line": "뚜렷한 개별 소식 없이 시장 흐름을 따랐어요", "tone": "중립", "src_item": x, "by": "규칙"}
+            res = rule_reason(name, items)
         it = res.pop("src_item")
         out[s] = {**res, "title": html.unescape(it["title"])[:80], "src": it.get("src", ""), "link": it.get("link", ""), "date": it.get("date", "")}
         time.sleep(0.2)

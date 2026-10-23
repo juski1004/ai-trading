@@ -41,7 +41,7 @@ def eleven(text, g):
         f"https://api.elevenlabs.io/v1/text-to-speech/{VOICES[g]['eleven']}",
         headers={"xi-api-key": key, "accept": "audio/mpeg"},
         json={"text": text, "model_id": "eleven_multilingual_v2",
-              "voice_settings": {"stability": 0.6, "similarity_boost": 0.8, "speed": 1.15}},
+              "voice_settings": {"stability": 0.6, "similarity_boost": 0.8, "speed": 1.2}},
         timeout=120,
     )
     if r.status_code in (401, 402, 403, 429) or "quota" in r.text[:300].lower():
@@ -57,7 +57,7 @@ def google(text, g):
     r = requests.post(
         f"https://texttospeech.googleapis.com/v1/text:synthesize?key={key}",
         json={"input": {"text": text}, "voice": {"languageCode": "ko-KR", "name": VOICES[g]["google"]},
-              "audioConfig": {"audioEncoding": "MP3", "speakingRate": 1.3}},
+              "audioConfig": {"audioEncoding": "MP3", "speakingRate": 1.5}},
         timeout=120,
     )
     if r.status_code in (400, 401, 403, 429):
@@ -71,7 +71,7 @@ def edge(text, g):
 
     async def run():
         out = b""
-        async for c in edge_tts.Communicate(text, VOICES[g]["edge"], rate="+30%").stream():
+        async for c in edge_tts.Communicate(text, VOICES[g]["edge"], rate="+50%").stream():
             if c["type"] == "audio":
                 out += c["data"]
         return out
