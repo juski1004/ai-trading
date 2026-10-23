@@ -8,10 +8,10 @@ on:
   workflow_dispatch:
     inputs:
       command:
-        description: "start / cycle / report / data / aicheck"
+        description: "start / cycle / report / data / aicheck / site(화면만 1분 만에 올리기)"
         default: cycle
         type: choice
-        options: [start, cycle, report, data, aicheck]
+        options: [start, cycle, report, data, aicheck, site]
       days:
         description: "start 할 때 투자 기간 (7~90일)"
         default: "30"
@@ -52,6 +52,10 @@ jobs:
             python -m ai_trading.run start --days "${{ inputs.days }}"
           elif [ "$CMD" = "aicheck" ]; then
             python -m ai_trading.llm
+          elif [ "$CMD" = "site" ]; then
+            # 화면 파일만 바뀐 경우: 지금 사이트에 있는 데이터(data/)를 그대로 가져와 화면만 새로 올림
+            git fetch -q --depth 1 origin site
+            git archive origin/site data | tar -x -C web
           elif [ "$CMD" = "data" ]; then
             python -m ai_trading.data.export --out web/data
           elif [ "$CMD" = "cycle" ] && [ ! -f game/state.json ]; then
@@ -60,7 +64,7 @@ jobs:
             python -m ai_trading.run "$CMD"
           fi
       - name: 본부장 브리핑 미리 녹음 (일레븐랩스 → 구글 → 엣지 → 구글 번역, 실패해도 계속)
-        if: env.CMD == 'data'
+        if: env.CMD == 'data' || env.CMD == 'site'
         continue-on-error: true   # 녹음이 안 돼도 화면 갱신은 그대로 (화면은 기기 목소리로 읽음)
         timeout-minutes: 12
         env:
@@ -74,14 +78,14 @@ jobs:
             --dump-dom "http://localhost:8000/?view=brieftext" > /tmp/brief.html
           python -m ai_trading.brief_audio /tmp/brief.html web/data/brief
       - name: 게임 기록 저장
-        if: env.CMD != 'data' && env.CMD != 'aicheck'
+        if: env.CMD != 'data' && env.CMD != 'aicheck' && env.CMD != 'site'
         run: |
           git config user.name "ai-trading-bot"
           git config user.email "ai-trading-bot@users.noreply.github.com"
           git add game/ || true
           git diff --cached --quiet || (git commit -m "게임 기록 업데이트" && git push)
       - name: 화면을 site 브랜치에 올리기 (기록 없이 매번 덮어씀)
-        if: env.CMD == 'data'
+        if: env.CMD == 'data' || env.CMD == 'site'
         run: |
           rm -rf /tmp/site && cp -r web /tmp/site && cd /tmp/site
           git init -q && git checkout -q -b site
