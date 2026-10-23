@@ -109,6 +109,17 @@ def build(out: Path, quick: bool = False, game_dir: Path = Path("game")) -> dict
         stocks[s] = {"sym": s, "code": code, "name": names.get(code, code), "market": "KOSPI" if s.endswith(".KS") else "KOSDAQ",
                      "o": [round(v) for v in df["Open"]], "h": [round(v) for v in df["High"]], "l": [round(v) for v in df["Low"]],
                      "c": [round(v) for v in df["Close"]], "v": [int(v) for v in df["Volume"]]}
+        # 최근 10거래일은 거래소 정규장 값(네이버)으로 바로잡기 — 야후가 장중 값·잘못된 종가를 줄 때가 있음
+        nd = collect.naver_daily(code)
+        for k, d in enumerate(dates[-10:], start=len(dates) - 10):
+            x = nd.get(d)
+            if x:
+                for f in ("o", "h", "l", "c"):
+                    stocks[s][f][k] = round(x[f])
+                stocks[s]["v"][k] = x["v"] or stocks[s]["v"][k]
+        if not nd:
+            print(f"- {s} 네이버 일봉 못 받음 (야후 값 그대로)")
+        time.sleep(0.1)
 
     if len(stocks) < len(syms) * MIN_STOCK_RATIO:
         # 시세 서버가 빈 값을 준 날: 빈 화면을 올리지 않고 실패로 끝내서 어제 화면을 그대로 둔다

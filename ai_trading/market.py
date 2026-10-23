@@ -52,6 +52,17 @@ class YahooMarketData:
         return float(hist["Close"].iloc[-1])
 
     def price(self, symbol: str) -> float:
+        # 한국 종목은 네이버 실시간 현재가를 먼저 (야후는 15~20분 늦고 가끔 틀림), 안 되면 야후
+        if symbol.endswith((".KS", ".KQ")):
+            try:
+                import requests
+                r = requests.get(f"https://m.stock.naver.com/api/stock/{symbol.split('.')[0]}/basic",
+                                 headers={"User-Agent": "Mozilla/5.0"}, timeout=8).json()
+                p = float(str(r.get("closePrice", "")).replace(",", ""))
+                if p > 0:
+                    return p
+            except Exception:
+                pass
         return self._last_close(symbol)
 
     def usdkrw(self) -> float:
