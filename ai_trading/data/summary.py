@@ -5,6 +5,7 @@
 """
 from __future__ import annotations
 
+import time
 from datetime import date, timedelta
 
 PROMPT = """다음은 '{name}' 종목의 최근 {days}일 뉴스·공시 제목이다. 제목만 보고 투자자에게 필요한 핵심을 요약하라.
@@ -33,15 +34,19 @@ def recent_items(items: list[dict], today: date, days: int) -> list[dict]:
 
 
 def summarize(news_sym: dict[str, list[dict]], names: dict[str, str], llm, today: date | None = None,
-              days: int = 7, max_stocks: int = 40, max_headlines: int = 12) -> dict:
-    """{종목: {"date", "lines", "tone", "n"}}"""
+              days: int = 7, max_stocks: int = 40, max_headlines: int = 12, budget_sec: float = 600) -> dict:
+    """{종목: {"date", "lines", "tone", "n"}}. budget_sec 이 지나면 남은 종목은 건너뛴다 (실행 시간 초과 방지)."""
     if llm is None:
         return {}
     today = today or date.today()
     pool = {s: recent_items(items, today, days) for s, items in news_sym.items()}
     order = sorted((s for s in pool if pool[s]), key=lambda s: -len(pool[s]))[:max_stocks]
     out = {}
+    deadline = time.monotonic() + budget_sec
     for s in order:
+        if time.monotonic() > deadline:
+            print(f"[AI 뉴스 요약] 시간 한도({budget_sec:.0f}초) 도달, {len(out)}종목에서 멈춤")
+            break
         items = pool[s][:max_headlines]
         heads = "\n".join(f"- ({x['date']}, {x.get('src') or '뉴스'}) {x['title']}" for x in items)
         ans = llm.ask_json(PROMPT.format(name=names.get(s, s), days=days, headlines=heads))

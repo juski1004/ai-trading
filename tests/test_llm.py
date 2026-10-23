@@ -108,3 +108,34 @@ def test_from_env_builds_chain(monkeypatch):
     assert isinstance(llm.from_env(), llm.OpenAICompatClient)
     monkeypatch.setenv("GEMINI_API_KEY", "y")
     assert isinstance(llm.from_env(), llm.FallbackLLM)
+
+
+def test_quota_exhausted_disables_for_rest_of_run(fake, monkeypatch):
+    calls, state = fake
+    monkeypatch.setattr(llm.time, "sleep", lambda s: None)
+    state["posts"]["gemini-9.0-flash"] = Resp(429, {})
+    c = GeminiClient("k", min_interval_sec=0)
+    assert c.ask_json("p") is None and c.disabled
+    n = len(calls["post"])
+    assert n == 3  # 처음 1번 + 쉬었다가 2번
+    assert c.ask_json("p") is None and len(calls["post"]) == n  # 다음 종목부터는 기다리지 않음
+
+
+def test_groq_quota_exhausted_disables(monkeypatch):
+    monkeypatch.setattr(llm.time, "sleep", lambda s: None)
+    posts = []
+    monkeypatch.setattr(llm.requests, "post", lambda url, **kw: posts.append(url) or Resp(429, {}))
+    c = llm.OpenAICompatClient("Groq", "https://x", "k", ("llama",), min_interval_sec=0)
+    c.model = "llama"
+    assert c.ask_json("p") is None and c.disabled and len(posts) == 3
+    assert c.ask_json("p") is None and len(posts) == 3
+
+
+def test_groq_bad_request_disables_once(monkeypatch):
+    posts = []
+    r = Resp(400, {}); r.text = '{"error":{"message":"bad"}}'
+    monkeypatch.setattr(llm.requests, "post", lambda url, **kw: posts.append(url) or r)
+    c = llm.OpenAICompatClient("Groq", "https://x", "k", ("llama",), min_interval_sec=0)
+    c.model = "llama"
+    assert c.ask_json("p") is None and c.disabled
+    assert c.ask_json("p") is None and len(posts) == 1
