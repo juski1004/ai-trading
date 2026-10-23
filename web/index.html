@@ -409,6 +409,8 @@ html.bembed .bbox{box-shadow:none;min-height:100vh}
 .ptab{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:10px}
 .ptab caption{text-align:left;font-weight:600;font-size:13px;padding:0 0 4px}
 .ptab th,.ptab td{padding:5px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+@media (max-width:1400px){.ptab th,.ptab td{white-space:normal;word-break:keep-all}}/* 좁으면 줄바꿈 — 옆으로 넘치지 않게 */
+.plan2>*{min-width:0}html.embed{overflow-x:hidden}
 .ptab th:first-child,.ptab td:first-child{text-align:left}
 .ptab th{font-weight:500;color:var(--muted);font-size:12px}
 .ptab td.w{white-space:normal;text-align:left;color:var(--muted);font-size:12px}

@@ -112,7 +112,7 @@
   /* 넘기기·탭·종목 질문 */
   document.addEventListener("click", e => {
     const t = e.target.closest("[data-dk]"); if (t) { document.getElementById("dk-" + t.dataset.dk)?.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" }); return; }
-    const m = e.target.closest("[data-dkm]"); if (m) { const dk = document.getElementById("dk"); if (dk) dk.scrollBy({ left: +m.dataset.dkm * dk.querySelector(".dk-page").offsetWidth, behavior: "smooth" }); }
+    const m = e.target.closest("[data-dkm]"); if (m) { const dk = document.getElementById("dk"); if (dk) dk.scrollBy({ left: +m.dataset.dkm * (dk.clientWidth - 20), behavior: "smooth" }); } // 보이는 장 수만큼(PC 3장, 휴대폰 1장) 넘김
   });
   document.addEventListener("submit", e => {
     if (!e.target.matches("[data-ask]")) return; e.preventDefault();
@@ -156,8 +156,8 @@
   .dk-res{margin-top:12px}.dk-res-hd{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.dk-res-hd b{font-size:18px}.dk-res-hd i{font-style:normal}
   .dk-ops li{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--line,#eceef6)}.dk-ops img{width:38px;height:38px;border-radius:50%;object-fit:cover;object-position:50% 15%;flex:none}.dk-ops p{margin:2px 0 0;font-size:13.5px;line-height:1.5}
   .dk-nav{display:flex;justify-content:space-between;align-items:center;margin-top:6px}.dk-nav button{width:40px;height:40px;border-radius:50%;border:1px solid var(--line2,#dcd8ff);background:#fff;font-size:22px;color:var(--lav-d,#6c5ce7)}
-  @media (min-width:900px){.dk{grid-auto-columns:calc((100% - 24px)/3)}.dk-tabs{top:62px}}/* PC: 세 장을 한눈에 */
-  @media (min-width:640px) and (max-width:899px){.dk{grid-auto-columns:calc((100% - 12px)/2)}}`;
+  @media (min-width:900px){.dk{grid-auto-columns:calc((100% - 24px)/3)}.dk-page{scroll-snap-align:none}.dk-page:nth-child(3n+1){scroll-snap-align:start}.dk-tabs{top:62px}}/* PC: 세 장씩 넘어가게 *//* PC: 세 장을 한눈에 */
+  @media (min-width:640px) and (max-width:899px){.dk{grid-auto-columns:calc((100% - 12px)/2)}.dk-page{scroll-snap-align:none}.dk-page:nth-child(2n+1){scroll-snap-align:start}}`;
   document.head.appendChild(css);
 
   window.Deck = { view };
