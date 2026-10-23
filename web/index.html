@@ -1922,7 +1922,7 @@ function renderBrief(){
   {const p=$('#brief .bphoto img'),src=`img/team/${PHOTO[w]||w.toLowerCase()}.jpg?v=4`;if(p.getAttribute('src')!==src){p.src=src;p.alt=`${KNAME[w]} 사진`}
    const self=w!=='THEO'&&KNAME[w]===KNAME.THEO;// 그 자리를 맡은 직원이 없으면 본부장이 직접
    $('#brief .bname b').textContent=w==='THEO'||self?DIRN():KNAME[w];$('#brief .bname span').textContent=w==='THEO'?'AI 운용팀 최종 판단':self?`${BROLE[w]||''} · 본부장 직접 검토`:(BROLE[w]||'')}
-  $('#bTitle').textContent=s.t;// 쪽 번호는 아래 점으로만$('#bText').innerHTML=s.l.map(x=>`<p>${x}</p>`).join('');
+  $('#bTitle').textContent=s.t;/* 쪽 번호는 아래 점으로만 */$('#bText').innerHTML=s.l.map(x=>`<p>${x}</p>`).join('');
   $('#bDots').innerHTML=BRIEF.map((_,k)=>`<i class="${k===BSTEP?'on':''}"></i>`).join('');
   $('#bPrev').disabled=BSTEP===0;$('#bNext').textContent=BSTEP===n-1?'마치기':'다음 ▶';
   if(BSPEAK)speakStep();
