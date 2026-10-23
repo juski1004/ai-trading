@@ -352,6 +352,7 @@ html.embed #cyclePanel{display:none!important}
 .bphoto{position:relative;background:#e9e4dc}
 .bphoto img{width:100%;height:100%;object-fit:cover;object-position:50% 10%;display:block}
 .bname{position:absolute;left:0;right:0;bottom:0;padding:14px 16px;background:linear-gradient(transparent,rgba(10,12,20,.75));color:#fff;display:flex;flex-direction:column}
+#replayBar{position:sticky;top:0;z-index:40;background:#fff4d6;color:#7a4b00;border-bottom:2px solid #f0b429;padding:10px 16px;font-size:15px;text-align:center}#replayBar button{margin-left:10px;padding:5px 12px;border-radius:8px;border:0;background:#7a4b00;color:#fff;font-weight:700;cursor:pointer}
 .bname b{font-size:18px}.bname span{font-size:12.5px;opacity:.85}
 .bmain{padding:20px 24px;display:flex;flex-direction:column;min-width:0}
 .bhead{display:flex;justify-content:space-between;align-items:center}
@@ -805,7 +806,7 @@ let S;
 const mkAcct=name=>({name,cash:RULES.cash0,pos:{},trades:[],eq:[RULES.cash0],closed:[]});
 function fresh(){return{d:0,me:mkAcct('나'),ai:mkAcct('AI'),sel:STOCKS[0].id,watch:STOCKS.slice(0,8).map(s=>s.id),side:'B',P:clone(DEFP),ov:{ma:true,ema:false,bb:false,env:false,ich:false,sar:false,fib:false,vp:true},
   subs:['vol','macd','rsi'],N:90,my:{auto:true,stop:-5,take:10},verdicts:{},feed:[]}}
-let MODE='ana';try{MODE=localStorage.getItem('arenaMode')||'ana'}catch(e){}
+let MODE='ana';// 열 때는 항상 '오늘 분석'(최근 종가). 'AI와 대결'은 지난 날짜를 재생하므로 눌렀을 때만
 const cur=()=>MODE==='ana'?NBARS-1:START+S.d;
 const equity=(a,i)=>a.cash+Object.entries(a.pos).reduce((s,[id,p])=>s+p.qty*DATA[id].bars[i].c,0);
 const ret=(a,i)=>(equity(a,i)/RULES.cash0-1)*100;
@@ -920,6 +921,9 @@ const ACT={BUY:'매수',SELL:'매도',HOLD:'관망'};
 /* ---------- render ---------- */
 function render(){
   const i=cur(),rm=ret(S.me,i),ra=ret(S.ai,i),ri=iret(i),lead=rm-ra;
+  {let rb=$('#replayBar');if(!rb){rb=document.createElement('div');rb.id='replayBar';document.body.prepend(rb);rb.addEventListener('click',e=>{if(e.target.closest('button'))setMode('ana')})}
+   const live=MODE==='ana'&&i===NBARS-1;rb.hidden=live||EMBED||BEMB||BTXT;
+   if(!rb.hidden)rb.innerHTML=`⏪ 과거 재생 중 — 지금 보이는 가격·그래프는 <b>${+DATES[i].slice(0,4)}년 ${+DATES[i].slice(5,7)}월 ${+DATES[i].slice(8,10)}일</b> 기준이에요 (오늘 아님) <button type="button">오늘 시세로 보기</button>`}
   $('#dayBox').innerHTML=MODE==='ana'?`오늘 분석 · 최근 종가<b>${DATES[i].replace(/-/g,'.')}</b>`:`대결 ${S.d+1}/${RULES.days+1}일째<b>${DATES[i].replace(/-/g,'.')}</b>`;$('#nextBtn').disabled=S.d>=RULES.days;
   $('#score').innerHTML=`<div class="sc ${rm>=ra?'lead':''}"><div class="k"><i style="background:var(--accent)"></i>나${rm>ra?'<span class="lead-tag">선두</span>':''}</div><div class="v num ${cls(rm)}">${pct(rm)}</div></div>
     <div class="sc ${ra>rm?'lead':''}"><div class="k"><i style="background:var(--ai)"></i>AI 운용팀${ra>rm?'<span class="lead-tag">선두</span>':''}</div><div class="v num ${cls(ra)}">${pct(ra)}</div></div>
