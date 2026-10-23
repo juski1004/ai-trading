@@ -1,6 +1,6 @@
-// 앱 화면은 저장해 두고(오프라인에서도 열림), 데이터는 항상 새로 받되 실패하면 저장본을 씀.
-const SHELL = "shell-v9";
-const FILES = ["./", "./index.html", "./team.js", "./game.js", "./report.js", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png"];
+// 앱 화면·데이터 모두 항상 새로 받고(고친 화면이 바로 보이게), 인터넷이 안 될 때만 저장본을 씀.
+const SHELL = "shell-v10";
+const FILES = ["./", "./index.html", "./team.js", "./game.js", "./report.js", "./deck.js", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png"];
 self.addEventListener("install", e => e.waitUntil(caches.open(SHELL).then(c => c.addAll(FILES)).then(() => self.skipWaiting())));
 self.addEventListener("activate", e => e.waitUntil(
   caches.keys().then(ks => Promise.all(ks.filter(k => k !== SHELL && k !== "data").map(k => caches.delete(k)))).then(() => self.clients.claim())));
@@ -11,6 +11,7 @@ self.addEventListener("fetch", e => {
     e.respondWith(fetch(e.request).then(r => { const copy = r.clone(); caches.open("data").then(c => c.put(e.request, copy)); return r; })
       .catch(() => caches.match(e.request)));
   } else {
-    e.respondWith(caches.match(e.request).then(hit => hit || fetch(e.request)));
+    e.respondWith(fetch(e.request).then(r => { const copy = r.clone(); caches.open(SHELL).then(c => c.put(e.request, copy)); return r; })
+      .catch(() => caches.match(e.request)));
   }
 });

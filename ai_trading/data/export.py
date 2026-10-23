@@ -215,6 +215,16 @@ def build(out: Path, quick: bool = False, game_dir: Path = Path("game")) -> dict
             print(f"오늘 움직인 이유 {len(wy['sym'])}종목 ({time.time() - t0:.0f}초)")
         except Exception as e:
             print(f"[움직인 이유 실패] {type(e).__name__}: {e}")
+        # 앱 '오늘의 리포트' 넘겨보기용 가벼운 묶음 (news.json 은 1MB 넘어 휴대폰에서 무거움)
+        try:
+            since = dates[-2] if len(dates) >= 2 else dates[-1]
+            disc = [{"sym": s, "name": stocks[s]["name"], "date": x["date"], "title": x["title"], "link": x.get("link", "")}
+                    for s, items in news["sym"].items() if s in stocks for x in items if x.get("src") == "DART" and x.get("date", "") >= since]
+            disc.sort(key=lambda x: x["date"], reverse=True)
+            eco = [{"date": x.get("date", ""), "title": x["title"], "src": x.get("src", ""), "link": x.get("link", "")} for x in news["eco"][:12]]
+            (out / "deck.json").write_text(json.dumps({"date": dates[-1], "eco": eco, "disc": disc[:20]}, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+        except Exception as e:
+            print(f"[리포트 묶음 실패] {type(e).__name__}: {e}")
 
     # AI 뉴스 요약은 무료 한도를 많이 쓰므로 시장 전망 다음에
     if not quick:
