@@ -15,6 +15,7 @@
   const P = a => (window.Team ? Team.person(a) : { id: a.toLowerCase(), name: a, role: "" });
   const DIR = () => (window.Team ? { ...Team.director(), role: "본부장" } : { id: "theo", name: "정서연", role: "본부장" });
   const SEEN = "aiLab.seen.v1";
+  const jo = (w, a, b) => { const c = String(w).charCodeAt(String(w).length - 1) - 0xac00; return w + (c >= 0 && c < 11172 ? (c % 28 ? a : b) : /[0136789lmnr]$/i.test(w) ? a : b); }; // 받침 따라 이/가
 
   let AI = null, EA = null, PK = null, ITEMS = [], queue = [], ready = false;
   Promise.all([get("ai.json"), get("earnings.json"), get("pick.json")]).then(([a, e, p]) => { AI = a; EA = e; PK = p; ready = true; build(); });
@@ -27,7 +28,7 @@
     // 1) AI 대결: AI 실전 계좌 매매 알림 + 잔고
     if (G && AI && AI.state) {
       const st = AI.state, since = G.start || "";
-      (st.trades || []).filter(t => t.time.slice(0, 10) >= since).slice(-6).forEach(t => {
+      (st.trades || []).filter(t => t.time.slice(0, 10) >= since).slice(-4).forEach(t => {
         const buy = t.side === "BUY";
         add(`ai:${t.time}:${t.symbol}`, DIR(), `AI 운용팀이 <b>${esc(nm(t.symbol))}</b> ${won(t.qty)}주를 ${won(t.price)}원에 ${buy ? "매수" : "매도"}했습니다.${t.realized_krw ? ` 실현 손익 ${won(t.realized_krw)}원입니다.` : ""}`, "#game");
       });
@@ -39,10 +40,10 @@
     if (G && G.pos) Object.entries(G.pos).forEach(([s, p]) => {
       const x = S[s]; if (!x || !p.avg) return;
       const r = (x.price / p.avg - 1) * 100, L = P("LLOYD");
-      if (r >= 10) add(`tp:${s}:${SC.date}`, L, `<b>${esc(x.name)}</b>이(가) 목표가(+10%)에 다다랐습니다(${pct(r)}). 일부 매도로 수익 실현을 권합니다.`, "#game/" + encodeURIComponent(s));
-      else if (r >= 8) add(`tp8:${s}:${SC.date}`, L, `<b>${esc(x.name)}</b>이(가) 목표가에 거의 다다랐습니다(${pct(r)}). 매도 준비를 권합니다.`, "#game/" + encodeURIComponent(s));
-      else if (r <= -5) add(`sl:${s}:${SC.date}`, L, `<b>${esc(x.name)}</b>이(가) 손절가(−5%)에 다다랐습니다(${pct(r)}). 원칙대로 매도를 권합니다.`, "#game/" + encodeURIComponent(s));
-      else if (r <= -4) add(`sl4:${s}:${SC.date}`, L, `<b>${esc(x.name)}</b>이(가) 손절가에 가까워졌습니다(${pct(r)}). 손절 주문을 확인하시길 권합니다.`, "#game/" + encodeURIComponent(s));
+      if (r >= 10) add(`tp:${s}:${SC.date}`, L, `<b>${esc(jo(x.name, "이", "가"))}</b> 목표가(+10%)에 다다랐습니다(${pct(r)}). 일부 매도로 수익 실현을 권합니다.`, "#game/" + encodeURIComponent(s));
+      else if (r >= 8) add(`tp8:${s}:${SC.date}`, L, `<b>${esc(jo(x.name, "이", "가"))}</b> 목표가에 거의 다다랐습니다(${pct(r)}). 매도 준비를 권합니다.`, "#game/" + encodeURIComponent(s));
+      else if (r <= -5) add(`sl:${s}:${SC.date}`, L, `<b>${esc(jo(x.name, "이", "가"))}</b> 손절가(−5%)에 다다랐습니다(${pct(r)}). 원칙대로 매도를 권합니다.`, "#game/" + encodeURIComponent(s));
+      else if (r <= -4) add(`sl4:${s}:${SC.date}`, L, `<b>${esc(jo(x.name, "이", "가"))}</b> 손절가에 가까워졌습니다(${pct(r)}). 손절 주문을 확인하시길 권합니다.`, "#game/" + encodeURIComponent(s));
       if (x.label === "부정") add(`neg:${s}:${SC.date}`, P("RAY"), `보유 중인 <b>${esc(x.name)}</b>의 AI 판단이 '부정'으로 바뀌었습니다. 비중 축소를 검토하시길 권합니다.`, "#analysis/" + encodeURIComponent(s));
     });
     // 3) 실적 발표 임박: 미리 판단
@@ -57,7 +58,8 @@
     else Object.entries(S).filter(([, x]) => x.label === "긍정").sort((a, b) => b[1].score - a[1].score).slice(0, 2).forEach(([s, x]) =>
       add(`buy:${s}:${SC.date}`, P("MILES"), `<b>${esc(x.name)}</b> AI 점수 ${Math.round((x.score + 1) * 50)}점으로 '긍정'입니다. ${won(x.price)}원 근처에서 분할 매수를 권합니다(손절 ${won(x.stop)}원).`, "#analysis/" + encodeURIComponent(s)));
 
-    ITEMS = out;
+    const rank = k => (/^(tp|sl|neg)/.test(k) ? 0 : /^ai/.test(k) ? 1 : /^ea/.test(k) ? 2 : 3);
+    ITEMS = out.sort((a, b) => rank(a.key) - rank(b.key));
     const seen = load(SEEN, {});
     queue = out.filter(x => !seen[x.key]);
     tick();
