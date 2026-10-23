@@ -129,3 +129,13 @@ def test_groq_quota_exhausted_disables(monkeypatch):
     c.model = "llama"
     assert c.ask_json("p") is None and c.disabled and len(posts) == 3
     assert c.ask_json("p") is None and len(posts) == 3
+
+
+def test_groq_bad_request_disables_once(monkeypatch):
+    posts = []
+    r = Resp(400, {}); r.text = '{"error":{"message":"bad"}}'
+    monkeypatch.setattr(llm.requests, "post", lambda url, **kw: posts.append(url) or r)
+    c = llm.OpenAICompatClient("Groq", "https://x", "k", ("llama",), min_interval_sec=0)
+    c.model = "llama"
+    assert c.ask_json("p") is None and c.disabled
+    assert c.ask_json("p") is None and len(posts) == 1

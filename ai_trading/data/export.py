@@ -21,6 +21,7 @@ import os
 import time
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 from . import collect
@@ -41,6 +42,18 @@ def day_index(idx: pd.DatetimeIndex) -> pd.DatetimeIndex:
     return idx.normalize().astype("datetime64[ns]")
 
 
+def trading_axis(kospi_idx, stock_idxs: list, min_ratio: float = 0.5) -> pd.DatetimeIndex:
+    """날짜축 = 코스피 지수 날짜 + 종목 절반 이상이 거래한 날짜.
+    야후 코스피 지수에 하루가 빠지는 일이 있어서 (2026-10-22), 지수만 믿으면 그날 시세가 화면에서 통째로 사라진다."""
+    axis = day_index(kospi_idx)
+    if not stock_idxs:
+        return axis
+    counts = pd.Series(np.concatenate([day_index(i).unique().values for i in stock_idxs])).value_counts()
+    busy = pd.DatetimeIndex(counts[counts >= len(stock_idxs) * min_ratio].index)
+    busy = busy[busy >= axis.min()]
+    return axis.union(busy).unique().sort_values()
+
+
 MIN_STOCK_RATIO = 0.6  # 분석 대상 중 이 비율보다 적게 받으면 화면을 갱신하지 않는다
 
 
@@ -56,8 +69,6 @@ def build(out: Path, quick: bool = False, game_dir: Path = Path("game")) -> dict
     kospi = mac["daily"].get("kospi")
     if kospi is None or len(kospi) < 150:
         raise SystemExit("코스피 지수를 받지 못해 날짜축을 만들 수 없습니다.")
-    axis = day_index(kospi.index)
-    dates = [d.date().isoformat() for d in axis]
 
     def align(s: pd.Series) -> list:
         s = s.copy()
@@ -66,6 +77,8 @@ def build(out: Path, quick: bool = False, game_dir: Path = Path("game")) -> dict
         return [_r(v, 4) for v in s]
 
     px = collect.bars(syms + ["^KS11"])
+    axis = trading_axis(kospi.index, [px[s].index for s in syms if px.get(s) is not None])
+    dates = [d.date().isoformat() for d in axis]
     stocks = {}
     for s in syms:
         df = px.get(s)

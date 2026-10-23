@@ -14,3 +14,13 @@ def test_day_index_matches_tz_aware_and_naive():
 def test_day_index_drops_time_of_day():
     idx = pd.DatetimeIndex(["2026-10-21 15:30"]).tz_localize("UTC")
     assert str(day_index(idx)[0].date()) == "2026-10-21"
+
+
+def test_axis_keeps_day_missing_from_kospi():
+    from ai_trading.data.export import trading_axis
+    kospi = pd.DatetimeIndex(["2026-10-20", "2026-10-21", "2026-10-23"]).tz_localize("Asia/Seoul")
+    full = pd.DatetimeIndex(["2026-10-19", "2026-10-20", "2026-10-21", "2026-10-22", "2026-10-23"])
+    odd = pd.DatetimeIndex(["2026-10-21", "2026-10-24"])  # 한 종목에만 있는 날은 넣지 않음
+    ax = trading_axis(kospi, [full, full, odd])
+    assert [str(d.date()) for d in ax] == ["2026-10-20", "2026-10-21", "2026-10-22", "2026-10-23"]
+    assert trading_axis(kospi, []).equals(day_index(kospi))

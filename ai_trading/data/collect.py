@@ -69,7 +69,9 @@ def fred(series: str, days: int = 900) -> pd.Series | None:
             r.raise_for_status()
             lines = r.text.strip().splitlines()[1:]
             obs = [tuple(x.split(",")[:2]) for x in lines if x.split(",")[1] not in (".", "")]
-        s = pd.Series({pd.Timestamp(d): float(v) for d, v in obs}).sort_index()
+        if not obs:  # 기간 안에 값이 없음 (예: 2008년에 끝난 DFEDTAR)
+            return None
+        s = pd.Series([float(v) for _, v in obs], index=pd.DatetimeIndex(pd.to_datetime([d for d, _ in obs]))).sort_index()
         return s[s.index >= pd.Timestamp(date.today() - timedelta(days=days))]
     except Exception as e:
         _warn(f"FRED {series}", e)

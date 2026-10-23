@@ -168,6 +168,10 @@ class OpenAICompatClient:
                 if r.status_code in (429, 500, 503) and attempt < 2:
                     time.sleep(20 * (attempt + 1))
                     continue
+                if r.status_code == 400:  # 요청 형식 거절은 다시 해도 같음 → 이유를 남기고 이번 실행에서는 끄기
+                    print(f"[AI] {self.name} 요청 거절 (400): {r.text[:300]}")
+                    self.disabled = True
+                    return None
                 if r.status_code == 429:  # 다시 해도 한도 초과 → 이번 실행에서는 끄기
                     print(f"[AI] {self.name} 무료 한도 소진, 이번 실행에서는 더 부르지 않음")
                     self.disabled = True
