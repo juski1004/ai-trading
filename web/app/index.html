@@ -238,6 +238,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var
 <script src="report.js"></script>
 <script src="deck.js"></script>
 <script src="advise.js"></script>
+<script src="vs.js"></script>
 <script>
 (()=>{
 const $=s=>document.querySelector(s);
@@ -394,15 +395,15 @@ const me=()=>window.Team?Team.meView():soon('👤','내 정보','게임 기록�
 /* ---------- 화면 전환 ---------- */
 function route(){
   const [tab,arg]=(location.hash.slice(1)||'home').split('/');
-  const t=['home','analysis','game','me','pick'].includes(tab)?tab:'home';
-  document.querySelectorAll('nav a').forEach(a=>a.dataset.tab===t?a.setAttribute('aria-current','page'):a.removeAttribute('aria-current'));
+  const t=['home','analysis','game','me','pick','vs'].includes(tab)?tab:'home';
+  document.querySelectorAll('nav a').forEach(a=>a.dataset.tab===(t==='vs'?'game':t)?a.setAttribute('aria-current','page'):a.removeAttribute('aria-current'));
   render();window.scrollTo(0,0);
 }
 function render(){
   const [tab,arg]=(location.hash.slice(1)||'home').split('/');
-  const t=['home','analysis','game','me','pick'].includes(tab)?tab:'home';
+  const t=['home','analysis','game','me','pick','vs'].includes(tab)?tab:'home';
   const typing=document.activeElement&&document.activeElement.id==='q',pos=typing?document.activeElement.selectionStart:0;
-  $('#view').innerHTML=t==='home'?home():t==='analysis'?analysis(arg&&decodeURIComponent(arg)):t==='game'?game(arg):t==='pick'?(window.Report&&SC?Report.view(SC):home()):me();
+  $('#view').innerHTML=t==='home'?home():t==='analysis'?analysis(arg&&decodeURIComponent(arg)):t==='game'?game(arg):t==='pick'?(window.Report&&SC?Report.view(SC):home()):t==='vs'?(window.Versus?Versus.view(SC):home()):me();
   if(typing){const q=$('#q');if(q){q.focus();q.setSelectionRange(pos,pos)}}
   $('#asof').textContent=SC?`${SC.date.slice(5).replace('-','.')} 기준`:'';
 }
