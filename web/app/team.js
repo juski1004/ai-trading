@@ -214,7 +214,9 @@
   }
 
   // 내가 고르지 않은 본부장·직원 = AI 대결 상대 '알파' 팀
-  const rivals = () => ({ dir: DIRS.find(d => d.id !== team().dir) || DIRS[1], staff: STAFF.filter(s => !team().staff.includes(s.id)) });
-  window.Team = { name: a => forAgent(a).name, photo: a => forAgent(a).id, person: forAgent, director, members, rivals, reporter, call, meView, open: () => onboard(true) };
+  // AI 대결은 4대4: 내 본부장 + 내 직원 앞 3명  vs  상대 본부장 + 내가 고르지 않은 직원 3명
+  const rivals = () => ({ dir: DIRS.find(d => d.id !== team().dir) || DIRS[1], staff: STAFF.filter(s => !team().staff.includes(s.id)).slice(0, 3) });
+  const squad = () => members().slice(0, 3);
+  window.Team = { name: a => forAgent(a).name, photo: a => forAgent(a).id, person: forAgent, director, members, rivals, squad, reporter, call, meView, open: () => onboard(true) };
   if (!window.TEAM_SKIP) document.addEventListener("DOMContentLoaded", splash);
 })();

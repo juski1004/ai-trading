@@ -104,7 +104,7 @@
     const back = `<a class="back" href="#home">‹ 홈</a>`;
     if (!AI || !SC) return `${back}<div class="card"><div class="skel" style="width:50%"></div><div class="skel"></div></div>`;
     const S = sides(SC), T = window.Team;
-    const myDir = T ? T.director() : { id: "theo", name: "정서연" }, myStaff = T ? T.members() : [];
+    const myDir = T ? T.director() : { id: "theo", name: "정서연" }, myStaff = T ? (T.squad ? T.squad() : T.members().slice(0, 3)) : [];
     const rv = T && T.rivals ? T.rivals() : { dir: { id: "seunghyun", name: "백승현" }, staff: [] };
     const lead = S.me ? S.me.ret - S.ai.same : null;
     const verdict = lead == null ? "대결을 시작하면 같은 날부터 수익률을 겨뤄요" : Math.abs(lead) < 0.005 ? "팽팽한 동점이에요" : lead > 0 ? `🏆 내 팀이 <b class="up">${lead.toFixed(2)}%p</b> 앞서요` : `알파 팀이 <b class="down">${(-lead).toFixed(2)}%p</b> 앞서요`;
@@ -119,7 +119,6 @@
         <div class="vs-x big">VS</div>
         <div class="vs-team ai"><div class="k">${bot(26)} 알파 팀</div>${faces(rv.dir, rv.staff)}<div class="sub">${esc(rv.dir.name)} 본부장 + 직원 ${rv.staff.length}명</div></div>
       </div>
-      <p class="sub vs-story">내가 뽑지 않은 본부장과 직원들이 AI 투자자 '알파'로 뭉쳤어요. 같은 1,000만 원, 같은 종가로 승부해요.</p>
     </section>
     <section class="card">
       <div class="hd"><h2>누가 이기고 있나</h2><span class="sub">${S.start ? esc(S.start.slice(5).replace("-", ".")) + "부터" : ""}${S.me ? ` · 하루 승부 ${S.mw}승 ${S.aw}패` : ""}</span></div>

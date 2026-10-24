@@ -81,7 +81,7 @@
        <a class="pclink" href="#game">거래 화면 열기 ▶</a>`, "MILES", "주문 도우미")]);
 
     out.push(["vs", "AI 대결", page("vs", "AI 대결", "내 팀 vs 알파 팀, 같은 1,000만 원",
-      `<p class="dk-line">내가 뽑지 않은 본부장·직원들이 AI 투자자 '알파'로 뭉쳤어요. 매일 실제 종가로 수익률을 겨뤄요.</p>${window.Versus ? Versus.summary(SC) : ""}
+      `${window.Versus ? Versus.summary(SC) : ""}
        <a class="pclink" href="#vs">대결 현황 보기 ▶</a>`, "THEO", "심판")]);
     return out;
   }
