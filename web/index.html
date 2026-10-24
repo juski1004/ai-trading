@@ -11,6 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
 /* Layout: 증권사 HTS 같은 트레이딩 터미널. 왼쪽 넓은 차트+주문·호가·지표요약, 오른쪽 AI 운용팀 데스크·판정·나 vs AI 계좌. 사용자 요청으로 밝은 화면 하나만 씀. */
 :root{
@@ -312,6 +313,10 @@ body.ana .game-only{display:none!important}
 .evl a{color:var(--down);text-decoration:none}
 .evl a:hover{text-decoration:underline}
 /* 앱 안에 넣어 보여줄 때 (판단·계획만) */
+/* 앱 속 액자(embed): 앱과 같은 글꼴·색 */
+html.embed{--f-body:"Pretendard Variable","Pretendard",-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;--f-num:"Pretendard Variable","Pretendard",-apple-system,sans-serif;
+  --accent:#6c5ce7;--ai:#3d6fe6;--panel:#fff;--panel2:#f6f7fb;--raise:#f6f7fb;--line:#eceef6;--line2:#dcd8ff;--fg:#1d2033;--muted:#6b7088;--dim:#8a8fa6;--up:#ef4565;--down:#3d7bf2}
+html.embed .num{font-variant-numeric:tabular-nums;letter-spacing:0}
 html.embed body{padding:0;background:var(--panel)}
 html.embed .top,html.embed .macro,html.embed #outlook,html.embed .foot,html.embed aside,html.embed .guide,html.embed .row3,html.embed .row2b,html.embed .game-only{display:none!important}
 html.embed .grid{display:block}
@@ -1163,12 +1168,12 @@ const COL={grid:'#eceff4',axis:'#5b6575',up:'#e5323f',down:'#1f6fe5',ma:['#d99a0
 function niceStep(r){const p=Math.pow(10,Math.floor(Math.log10(r))),m=r/p;return(m<1.5?1:m<3?2:m<7?5:10)*p}
 let hover=null,LAY=null;
 const SUBN={vol:'거래량',macd:'MACD',rsi:'RSI',sto:'스토캐스틱',cci:'CCI',wr:'윌리엄스 %R',mfi:'MFI',obv:'OBV',adx:'ADX/DMI',atr:'ATR'};
-const FONT='12px "IBM Plex Mono",Consolas,monospace',FONTK='12px "IBM Plex Sans KR",sans-serif';
+const FONT=EMBED?'12px "Pretendard Variable",Pretendard,sans-serif':'12px "IBM Plex Mono",Consolas,monospace',FONTK=EMBED?'12px "Pretendard Variable",Pretendard,sans-serif':'12px "IBM Plex Sans KR",sans-serif';
 let CF=FONT,NR=false;// 휴대폰처럼 좁은 화면(NR)에서는 글씨를 줄이고 겹치는 표시는 건너뜀
 function chartH(){return Math.round(Math.min(980,Math.max(NR?600:560,window.innerHeight-200)))}
 function drawChart(){
   const cv=$('#chart'),wrap=$('#chartwrap'),dpr=Math.min(2,window.devicePixelRatio||1),w=wrap?.clientWidth;if(!cv||!w||!S)return;// 차트 없는 화면(판단·브리핑만 보이는 화면)에서는 그리지 않음
-  NR=w<520;CF=NR?'10.5px "IBM Plex Mono",Consolas,monospace':FONT;
+  NR=w<520;CF=NR?(EMBED?'10.5px "Pretendard Variable",Pretendard,sans-serif':'10.5px "IBM Plex Mono",Consolas,monospace'):FONT;
   const h=chartH();cv.style.height=h+'px';cv.width=w*dpr;cv.height=h*dpr;const g=cv.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,w,h);
   const D=DATA[S.sel],b=D.bars,V=D.view,i=cur(),N=Math.min(S.N,i),from=i-N+1;
   const pl=6,pr=NR?64:78,cw=(w-pl-pr)/N,axisH=22,sg=8,ns=S.subs.length,subH=ns?Math.round((h-axisH)*(NR?[0,.17,.14,.12]:[0,.2,.17,.15])[ns]):0,mainH=h-axisH-ns*(subH+sg),top=8;
