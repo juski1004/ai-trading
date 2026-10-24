@@ -136,6 +136,11 @@ button.row:active{opacity:.6}
 .chips button{font-size:13.5px;font-weight:600;padding:7px 14px;border-radius:20px;background:#fff;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
 .chips button[aria-pressed="true"]{background:var(--lav-s);border-color:var(--line2);color:var(--lav-d)}
 .off{opacity:.5}
+.asof-line{margin:10px 2px 0;font-size:12.5px;color:var(--muted)}
+.star{border:0;background:none;font-size:22px;line-height:1;color:#f5b301;vertical-align:middle;padding:0 2px;cursor:pointer}.star[aria-pressed="false"]{color:#c9c6dd}
+.dir-row{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}.dir-row img{width:36px;height:36px;border-radius:50%;object-fit:cover;object-position:50% 15%}
+.more{display:block;width:100%;margin-top:10px;border:1px solid var(--line2);background:#fff;border-radius:14px;padding:11px;font:inherit;font-weight:700;color:var(--lav-d)}
+.ring b small{font-size:11px;font-weight:600;margin-left:1px}
 .back{display:inline-flex;align-items:center;gap:4px;color:var(--muted);font-size:14px;margin-top:8px;text-decoration:none}
 .dhead{display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
 .dname{font-size:24px;font-weight:800;letter-spacing:-.6px;line-height:1.2}
@@ -247,7 +252,10 @@ const pct=x=>(x>0?'+':'')+x.toFixed(2)+'%';
 const cls=x=>x>0?'up':x<0?'down':'flat';
 const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
 const pts=s=>Math.round((s+1)/2*100);  // -1~+1 → 0~100점
-let SC=null,META={},ERR=null,SUMM=null,LIST=null,FILTER='전체',Q='';
+let SC=null,META={},ERR=null,SUMM=null,LIST=null,FILTER='전체',Q='',LIMIT=20;
+let WATCH=(()=>{try{return JSON.parse(localStorage.getItem('aiLab.watch.v1')||'[]')}catch(e){return[]}})();
+const saveWatch=()=>{try{localStorage.setItem('aiLab.watch.v1',JSON.stringify(WATCH))}catch(e){}};
+window.getWatch=()=>WATCH;
 
 async function load(){
   const get=async f=>{const r=await fetch('../data/'+f,{cache:'no-cache'});if(!r.ok)throw new Error(f+' '+r.status);return r.json()};
@@ -256,39 +264,22 @@ async function load(){
 }
 
 /* ---------- 홈 ---------- */
+/* 다음 데이터 갱신 시각 (평일 16:20 KST, 예약이 밀리면 17:20에 한 번 더) */
+function nextRefresh(){
+  const now=new Date(Date.now()+9*3600e3),d=now.getUTCDay(),h=now.getUTCHours()*60+now.getUTCMinutes();
+  if(d>=1&&d<=5&&h<16*60+20)return '오늘 16:20';
+  if(d>=1&&d<=4)return '내일 16:20';
+  return '월요일 16:20';
+}
 function home(){
   if(ERR)return `<div class="card"><h2>데이터를 불러오지 못했어요</h2><p class="sub">잠시 뒤 다시 열어 주세요. (${esc(ERR.message)})</p></div>`;
   if(!SC)return `<div class="card"><div class="skel" style="width:40%"></div><div class="skel"></div><div class="skel" style="width:70%"></div></div>`.repeat(2);
   const M=SC.market||{},S=Object.entries(SC.stocks);
-  const mk=(k,lab,dec)=>{const x=M[k];if(!x)return'';return `<div class="mk"><div class="k">${lab}</div><div class="v num">${x.v.toLocaleString('ko-KR',{minimumFractionDigits:dec,maximumFractionDigits:dec})}</div><div class="c num ${cls(x.chg)}">${x.chg>0?'▲':x.chg<0?'▼':''} ${Math.abs(x.chg).toFixed(2)}%</div></div>`};
-  const cnt={긍정:0,중립:0,부정:0};S.forEach(([,s])=>cnt[s.label]++);const n=S.length||1;
-  const joy=(S[0]&&S[0][1].opinions.find(o=>o.agent==='JOY'))||null;
-  const mood=cnt.긍정>cnt.부정?'좋은 편':cnt.부정>cnt.긍정*2?'약한 편':'엇갈리는 편';
-  const top=[...S].sort((a,b)=>b[1].score-a[1].score).slice(0,5);
-  const hot=S.filter(([,s])=>s.vol_ratio).sort((a,b)=>b[1].vol_ratio-a[1].vol_ratio).slice(0,5);
-  const row=([sym,s],k,right)=>`<li><button class="row" data-sym="${esc(sym)}" type="button">
-      <span class="rank num">${k+1}</span>
-      <span style="min-width:0"><div class="nm">${esc(s.name)}</div><div class="meta num">${esc(s.code)} · <span class="${cls(s.chg)}">${pct(s.chg)}</span></div></span>
-      <span class="rt">${right(s)}</span></button></li>`;
-  return `${window.Report?Report.homeCard(SC):''}
+  return `<p class="asof-line">${esc(SC.date.slice(5).replace('-','.'))} 장 마감 기준 · 다음 갱신 ${nextRefresh()}</p>
+  ${window.Report?Report.homeCard(SC):''}
+  <section class="card bcard"><img src="../img/team/${window.Team?Team.director().id:'theo'}.jpg?v=4" alt="본부장 사진"><div><h2>오늘의 본부장 브리핑</h2><p class="sub">${window.Team?Team.director().name:'정서연'} 본부장이 시장·수급·상승/하락 종목·거래량·펀더멘탈을 8장으로 짚어 드려요.</p><button class="pclink" type="button" id="openBrief">브리핑 보기 ▶</button></div></section>
   ${window.Advise?Advise.homeCard():''}
   ${window.Deck?Deck.view(SC):''}
-  <section class="card bcard"><img src="../img/team/${window.Team?Team.director().id:'theo'}.jpg?v=4" alt="본부장 사진"><div><h2>오늘의 본부장 브리핑</h2><p class="sub">${window.Team?Team.director().name:'정서연'} 본부장이 시장·수급·상승/하락 종목·거래량·펀더멘탈을 8장으로 짚어 드려요.</p><button class="pclink" type="button" id="openBrief">브리핑 보기 ▶</button></div></section>
-  <section class="card" aria-labelledby="h-mkt">
-    <div class="hd"><h2 id="h-mkt">오늘의 시장</h2><span class="sub">${esc(SC.date)} 장 마감</span></div>
-    <div class="mkt">${mk('kospi','코스피',2)}${mk('kosdaq','코스닥',2)}${mk('usdkrw','원/달러',1)}</div>
-    <p class="mood">AI가 본 대형주 <b>${S.length}종목</b>의 분위기는 <b>${mood}</b>이에요.${joy?`<br><span class="sub">${esc(joy.summary)}</span>`:''}</p>
-    <div class="bar3" aria-hidden="true"><i style="width:${cnt.긍정/n*100}%;background:var(--pos)"></i><i style="width:${cnt.중립/n*100}%;background:var(--neu)"></i><i style="width:${cnt.부정/n*100}%;background:var(--neg)"></i></div>
-    <div class="legend"><span style="--c:var(--pos)">긍정 ${cnt.긍정}</span><span style="--c:var(--neu)">중립 ${cnt.중립}</span><span style="--c:var(--neg)">부정 ${cnt.부정}</span></div>
-  </section>
-  <section class="card" aria-labelledby="h-top">
-    <div class="hd"><div><h2 id="h-top">AI 점수 상위 종목</h2><p class="sub">차트·거래량·시장 흐름을 합친 점수 (100점 만점)</p></div></div>
-    <ul class="list">${top.map((x,k)=>row(x,k,s=>`<div class="px num">${won(s.price)}</div><div class="sc num"><b>${pts(s.score)}</b>점 <span class="chip ${s.label}">${s.label}</span></div>`)).join('')}</ul>
-  </section>
-  <section class="card" aria-labelledby="h-hot">
-    <div class="hd"><div><h2 id="h-hot">거래량 급증 종목</h2><p class="sub">최근 20일 평균보다 거래가 많이 몰린 종목</p></div></div>
-    <ul class="list">${hot.map((x,k)=>row(x,k,s=>`<div class="px num">${won(s.price)}</div><div class="sc num">평소의 <b>${s.vol_ratio.toFixed(1)}</b>배</div>`)).join('')}</ul>
-  </section>
   <p class="note">AI 점수는 공개된 시세와 지표로 계산한 참고 정보이며 투자 권유가 아닙니다. 시세는 15~20분 이상 늦을 수 있고, 투자 판단과 결과의 책임은 본인에게 있습니다.</p>`;
 }
 
@@ -310,7 +301,7 @@ function rowHtml([sym,s],k){return `<li><button class="row" data-sym="${esc(sym)
 function analysisList(){
   lazy();
   const S=Object.entries(SC.stocks),q=Q.trim().toLowerCase();
-  let list=S.filter(([,s])=>FILTER==='전체'||s.label===FILTER).sort((a,b)=>b[1].score-a[1].score);
+  let list=S.filter(([sym,s])=>FILTER==='전체'||(FILTER==='관심'?WATCH.includes(sym):s.label===FILTER)).sort((a,b)=>b[1].score-a[1].score);
   let extra='';
   if(q){
     list=S.filter(([,s])=>s.name.toLowerCase().includes(q)||s.code.startsWith(q)).sort((a,b)=>b[1].score-a[1].score);
@@ -320,9 +311,9 @@ function analysisList(){
   }
   return `<div class="search" style="margin-top:12px"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16 16l5 5"/></svg>
     <input id="q" type="search" placeholder="종목명 또는 코드 검색" value="${esc(Q)}" autocomplete="off" aria-label="종목 검색"></div>
-    ${q?'':`<div class="chips" role="group" aria-label="분류">${['전체','긍정','중립','부정'].map(f=>`<button type="button" data-f="${f}" aria-pressed="${f===FILTER}">${f}</button>`).join('')}</div>`}
-    <section class="card"><div class="hd"><div><h2>${q?'검색 결과':'AI 분석 종목'}</h2><p class="sub">AI 점수 높은 순 · ${list.length}종목</p></div></div>
-    ${list.length?`<ul class="list">${list.map(rowHtml).join('')}</ul>`:'<p class="empty">찾는 종목이 없어요.</p>'}</section>${extra}`;
+    ${q?'':`<div class="chips" role="group" aria-label="분류">${['전체','관심','긍정','중립','부정'].map(f=>`<button type="button" data-f="${f}" aria-pressed="${f===FILTER}">${f==='관심'?'★ 관심':f}</button>`).join('')}</div>`}
+    <section class="card"><div class="hd"><div><h2>${q?'검색 결과':FILTER==='관심'?'관심 종목':'AI 분석 종목'}</h2><p class="sub">AI 점수 높은 순 · ${list.length}종목</p></div></div>
+    ${list.length?`<ul class="list">${list.slice(0,LIMIT).map(rowHtml).join('')}</ul>${list.length>LIMIT?`<button class="more" type="button" data-more>더 보기 (${list.length-LIMIT}종목)</button>`:''}`:FILTER==='관심'?'<p class="empty">아직 관심 종목이 없어요. 종목 화면의 ★을 눌러 담아 보세요.</p>':'<p class="empty">찾는 종목이 없어요.</p>'}</section>${extra}`;
 }
 function spark(s){
   const c=s.closes;if(!c||c.length<2)return'';
@@ -342,18 +333,19 @@ function analysisDetail(sym){
   const nb=s.tech.filter(x=>x[2]==='B').length,ns=s.tech.filter(x=>x[2]==='S').length;
   return `<a class="back" href="#analysis">‹ 목록</a>
   <section class="card">
-    <div class="dhead"><div><div class="dname">${esc(s.name)}</div><div class="meta">${esc(s.code)} · ${esc(s.market)}</div></div>
+    <div class="dhead"><div><div class="dname">${esc(s.name)} <button class="star" type="button" data-watch="${esc(sym)}" aria-pressed="${WATCH.includes(sym)}" aria-label="관심 종목">${WATCH.includes(sym)?'★':'☆'}</button></div><div class="meta">${esc(s.code)} · ${esc(s.market)}</div></div>
       <div><div class="dprice num">${won(s.price)}</div><div class="meta num ${cls(s.chg)}" style="text-align:right">${pct(s.chg)}</div></div></div>
     ${spark(s)}<p class="sub" style="margin-top:2px">최근 6개월 · ${esc(SC.date)} 종가 기준</p>
   </section>
   <section class="card">
-    <div class="big"><div class="ring" style="--p:${P};--rc:${rc}"><b class="num">${P}</b></div>
-      <div><h2>AI 종합 점수 <span class="chip ${s.label}">${s.label}</span></h2><p class="sub">차트·거래량·시장 흐름·진입 자리를 합친 점수예요. 50점이 중간이에요.</p></div></div>
+    <div class="big"><div class="ring" style="--p:${P};--rc:${rc}"><b class="num">${P}<small>점</small></b></div>
+      <div><h2>AI 종합 점수 <span class="chip ${s.label}">${s.label}</span></h2><p class="sub">100점 만점, 50점이 중간이에요. 차트·거래량·시장 흐름·진입 자리를 합쳤어요.</p></div></div>
+    <div class="dk-who dir-row"><img src="../img/team/${window.Team?Team.director().id:'theo'}.jpg?v=4" alt=""><span><b>${window.Team?Team.director().name:'정서연'} 본부장</b><small>종합 판단</small></span></div>
     <div class="tiles">
       ${tile('참고 목표가',`<span class="up">${won(s.target)}</span>`,'현재가 +10%')}
       ${tile('참고 손절가',`<span class="down">${won(s.stop)}</span>`,'현재가 −5%')}
-      ${tile('재무 점수',s.fin_score==null?'-':s.fin_score.toFixed(1)+'<small class="sub"> /5</small>',s.fin_score==null?'실적 자료 부족':stars(s.fin_score))}
-      ${tile('기술 점수',s.tech_score.toFixed(1)+'<small class="sub"> /5</small>',stars(s.tech_score))}
+      ${tile('재무 점수',s.fin_score==null?'-':s.fin_score.toFixed(1)+'<small class="sub"> / 5</small>',s.fin_score==null?'실적 자료 부족':stars(s.fin_score))}
+      ${tile('기술 점수',s.tech_score.toFixed(1)+'<small class="sub"> / 5</small>',stars(s.tech_score))}
       ${tile('리스크',`<span class="lv-${s.risk.level}">${s.risk.level}</span>`,`하루 평균 변동 ${s.risk.vol.toFixed(1)}%`)}
       ${tile('뉴스',`${s.news.length?s.news.length+'건':'없음'}`,s.news[0]?esc(s.news[0].date.slice(5))+' 최신':'최근 소식')}
     </div>
@@ -389,7 +381,7 @@ function analysis(sym){
   if(ERR||!SC)return home();
   return sym?analysisDetail(sym):analysisList();
 }
-const game=sym=>window.Game&&SC?Game.view(SC,sym&&decodeURIComponent(sym)):soon('🎮','모의투자 게임','가상 1,000만 원으로 AI 운용팀과 수익률을 겨루는 게임은 지금 PC 화면에서 할 수 있어요. 휴대폰용은 곧 열려요.<br><a class="pclink" href="../?full=1" target="_blank" rel="noopener">PC 대결 화면 열기 ↗</a>');
+const game=sym=>window.Game&&SC?Game.view(SC,sym&&decodeURIComponent(sym)):soon('🎮','모의투자 게임','가상 1,000만 원으로 AI 투자자 알파와 수익률을 겨루는 게임은 지금 PC 화면에서 할 수 있어요. 휴대폰용은 곧 열려요.<br><a class="pclink" href="../?full=1" target="_blank" rel="noopener">PC 대결 화면 열기 ↗</a>');
 const me=()=>window.Team?Team.meView():soon('👤','내 정보','게임 기록과 지난 성적표가 여기에 모여요.<br><br><span class="sub">휴대폰 홈 화면에 추가하면 앱처럼 쓸 수 있어요.<br>아이폰: 공유 → 홈 화면에 추가 · 안드로이드: 메뉴 → 홈 화면에 추가</span>');
 
 /* ---------- 화면 전환 ---------- */
@@ -409,7 +401,11 @@ function render(){
 }
 $('#view').addEventListener('click',e=>{
   const b=e.target.closest('[data-sym]');if(b){location.hash='analysis/'+encodeURIComponent(b.dataset.sym);return}
-  const f=e.target.closest('[data-f]');if(f){FILTER=f.dataset.f;render()}});
+  const f=e.target.closest('[data-f]');if(f){FILTER=f.dataset.f;LIMIT=20;render()}
+  const m=e.target.closest('[data-more]');if(m){LIMIT+=30;render()}});
+$('#view').addEventListener('click',e=>{const w=e.target.closest('[data-watch]');if(!w)return;e.stopPropagation();const sym=w.dataset.watch;
+  WATCH=WATCH.includes(sym)?WATCH.filter(x=>x!==sym):[sym,...WATCH].slice(0,30);saveWatch();render()},true);
+$('#view').addEventListener('input',e=>{if(e.target.id==='q'){LIMIT=20}});
 $('#view').addEventListener('input',e=>{if(e.target.id==='q'){Q=e.target.value;render()}});
 /* ---------- 사용법 (처음 한 번 자동) ---------- */
 const gd=$('#guide');
