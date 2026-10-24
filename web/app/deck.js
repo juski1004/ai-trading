@@ -80,8 +80,8 @@
       `<p class="dk-line">관심 종목을 고르고 매수·매도 버튼으로 바로 주문해요. 체결은 그날 실제 종가, 자동 손절 -5% · 익절 +10%.</p>
        <a class="pclink" href="#game">거래 화면 열기 ▶</a>`, "MILES", "주문 도우미")]);
 
-    out.push(["vs", "AI 대결", page("vs", "AI 대결", "실제 날짜로 AI 운용팀과 수익률 대결",
-      `<p class="dk-line">AI 투자자 '알파'와 같은 1,000만 원으로 수익률을 겨뤄요. 알파는 매일 실제 종가로 사고팔고, 내 계좌와 나란히 비교해요.</p>
+    out.push(["vs", "AI 대결", page("vs", "AI 대결", "내 팀 vs 알파 팀, 같은 1,000만 원",
+      `<p class="dk-line">내가 뽑지 않은 본부장·직원들이 AI 투자자 '알파'로 뭉쳤어요. 매일 실제 종가로 수익률을 겨뤄요.</p>${window.Versus ? Versus.summary(SC) : ""}
        <a class="pclink" href="#vs">대결 현황 보기 ▶</a>`, "THEO", "심판")]);
     return out;
   }

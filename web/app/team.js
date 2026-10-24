@@ -213,6 +213,8 @@
     document.head.appendChild(pc);
   }
 
-  window.Team = { name: a => forAgent(a).name, photo: a => forAgent(a).id, person: forAgent, director, members, reporter, call, meView, open: () => onboard(true) };
+  // 내가 고르지 않은 본부장·직원 = AI 대결 상대 '알파' 팀
+  const rivals = () => ({ dir: DIRS.find(d => d.id !== team().dir) || DIRS[1], staff: STAFF.filter(s => !team().staff.includes(s.id)) });
+  window.Team = { name: a => forAgent(a).name, photo: a => forAgent(a).id, person: forAgent, director, members, rivals, reporter, call, meView, open: () => onboard(true) };
   if (!window.TEAM_SKIP) document.addEventListener("DOMContentLoaded", splash);
 })();
