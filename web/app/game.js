@@ -175,7 +175,7 @@
     if (G) catchUp(G);
     const body = !G ? (sym ? `<div class="card"><h2>먼저 게임을 시작해 주세요</h2><p class="sub">기간을 고르고 시작하면 바로 이 종목을 살 수 있어요.</p></div>` : "") + setupView()
       : sym && !G.done ? orderView(G, sym) : gameView(G);
-    const out = `<div id="gameRoot">${body}<p class="note">모의투자는 가상 돈으로 하는 연습이며 실제 거래가 아닙니다. 하루 한 번 장 마감 가격으로 체결되고, 실제 수익을 보장하지 않습니다.</p></div>`;
+    const out = `<div id="gameRoot">${sym && G && !G.done ? "" : '<div class="g-top"><a class="back" href="#home">‹ 홈</a><a class="back" href="#vs">AI 대결 보기 ›</a></div>'}${body}<p class="note">모의투자는 가상 돈으로 하는 연습이며 실제 거래가 아닙니다. 하루 한 번 장 마감 가격으로 체결되고, 실제 수익을 보장하지 않습니다.</p></div>`;
     msg = "";
     return out;
   }
@@ -224,6 +224,7 @@
   /* 이 파일 전용 모양 */
   const css = document.createElement("style");
   css.textContent = `
+  .g-top{display:flex;justify-content:space-between}
   .g-k{font-size:13px;color:var(--muted);margin:14px 0 6px;display:block}
   .g-rules{margin:14px 0 0;padding-left:18px;font-size:13.5px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
   .g-big{font-family:var(--f-disp,inherit);font-size:34px;font-weight:600;letter-spacing:-.5px;margin-top:4px}.g-big small{font-size:16px;margin-left:3px;color:var(--muted)}

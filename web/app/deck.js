@@ -81,8 +81,8 @@
        <a class="pclink" href="#game">거래 화면 열기 ▶</a>`, "MILES", "주문 도우미")]);
 
     out.push(["vs", "AI 대결", page("vs", "AI 대결", "실제 날짜로 AI 운용팀과 수익률 대결",
-      `<p class="dk-line">시작한 날부터 매일 실제 종가로 나와 AI 실전 계좌, 코스피의 수익률을 비교해요. 기간은 1주~3개월.</p>
-       <a class="pclink" href="#game">대결 현황 보기 ▶</a>`, "THEO", "심판")]);
+      `<p class="dk-line">AI 투자자 '알파'와 같은 1,000만 원으로 수익률을 겨뤄요. 알파는 매일 실제 종가로 사고팔고, 내 계좌와 나란히 비교해요.</p>
+       <a class="pclink" href="#vs">대결 현황 보기 ▶</a>`, "THEO", "심판")]);
     return out;
   }
 
@@ -106,14 +106,31 @@
     const P = pages(SC);
     return `<div class="dk-tabs" role="tablist">${P.map(([id, t], k) => `<button type="button" data-dk="${id}" ${k ? "" : 'aria-current="true"'}>${t}</button>`).join("")}</div>
       <div class="dk" id="dk">${P.map(p => p[2]).join("")}</div>
-      <div class="dk-nav"><button type="button" data-dkm="-1" aria-label="이전">‹</button><span class="sub">옆으로 밀어서 넘겨 보세요</span><button type="button" data-dkm="1" aria-label="다음">›</button></div>`;
+      <div class="dk-nav"><button type="button" data-dkm="-1" aria-label="이전">‹</button><span class="sub">옆으로 밀어서 넘겨 보세요 · 끝에서 처음으로 이어져요</span><button type="button" data-dkm="1" aria-label="다음">›</button></div>`;
   }
 
   /* 넘기기·탭·종목 질문 */
   document.addEventListener("click", e => {
     const t = e.target.closest("[data-dk]"); if (t) { document.getElementById("dk-" + t.dataset.dk)?.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" }); return; }
-    const m = e.target.closest("[data-dkm]"); if (m) { const dk = document.getElementById("dk"); if (dk) dk.scrollBy({ left: +m.dataset.dkm * (dk.clientWidth - 20), behavior: "smooth" }); } // 보이는 장 수만큼(PC 3장, 휴대폰 1장) 넘김
+    const m = e.target.closest("[data-dkm]"); if (m) step(+m.dataset.dkm); // 보이는 장 수만큼(PC 3장, 휴대폰 1장) 넘김, 끝에서는 처음으로
   });
+  // 끝에서 다음 → 처음, 처음에서 이전 → 끝 (화살표와 손가락 밀기 모두)
+  function step(dir) {
+    const dk = document.getElementById("dk"); if (!dk) return;
+    const max = dk.scrollWidth - dk.clientWidth, x = dk.scrollLeft;
+    if (dir > 0 && x >= max - 4) dk.scrollTo({ left: 0, behavior: "smooth" });
+    else if (dir < 0 && x <= 4) dk.scrollTo({ left: max, behavior: "smooth" });
+    else dk.scrollBy({ left: dir * (dk.clientWidth - 20), behavior: "smooth" });
+  }
+  let tx = null, tl = 0;
+  document.addEventListener("touchstart", e => { const dk = e.target.closest && e.target.closest("#dk"); if (dk) { tx = e.touches[0].clientX; tl = dk.scrollLeft; } }, { passive: true });
+  document.addEventListener("touchend", e => {
+    if (tx == null) return; const dk = document.getElementById("dk"), dx = e.changedTouches[0].clientX - tx; tx = null;
+    if (!dk || Math.abs(dx) < 50) return;
+    const max = dk.scrollWidth - dk.clientWidth;
+    if (dx > 0 && tl <= 4) step(-1);            // 첫 장에서 오른쪽으로 밀면 마지막 장
+    else if (dx < 0 && tl >= max - 4) step(1);  // 마지막 장에서 왼쪽으로 밀면 첫 장
+  }, { passive: true });
   document.addEventListener("submit", e => {
     if (!e.target.matches("[data-ask]")) return; e.preventDefault();
     asked = e.target.q.value; const box = document.getElementById("dk-ans"), SC = window.__SC;
@@ -152,7 +169,7 @@
   .dk-news li a{display:block;padding:10px 0;border-bottom:1px solid var(--line,#eceef6);color:var(--fg,#1d2033);text-decoration:none;line-height:1.5;font-size:14px}.dk-news small{display:block;color:var(--muted,#6b7088);font-size:12px;margin-top:2px}
   .dk-flow{display:grid;grid-template-columns:70px 1fr 1fr 1fr;gap:6px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line,#eceef6);font-size:13px}.dk-flow i{font-style:normal;font-weight:800;display:block}
   .dk-pick{background:linear-gradient(135deg,#f6f4ff,#f0f7ff);border-radius:16px;padding:14px}.dk-pick b{font-size:18px}.dk-pick p{margin:6px 0 0;line-height:1.6}
-  .dk-ask{display:flex;gap:8px}.dk-ask input{flex:1;font:inherit;font-size:16px;padding:12px 14px;border-radius:14px;border:1.5px solid var(--line2,#dcd8ff)}.dk-ask button{border:0;border-radius:14px;padding:0 18px;font:inherit;font-weight:800;background:var(--gold-g);color:var(--ink,#2d2a63)}
+  .dk-ask{display:flex;gap:8px}.dk-ask input{flex:1;min-width:0;font:inherit;font-size:16px;padding:12px 14px;border-radius:14px;border:1.5px solid var(--line2,#dcd8ff)}.dk-ask button{flex:none;border:0;border-radius:14px;padding:0 18px;font:inherit;font-weight:800;background:var(--gold-g);color:var(--ink,#2d2a63)}
   .dk-res{margin-top:12px}.dk-res-hd{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.dk-res-hd b{font-size:18px}.dk-res-hd i{font-style:normal}
   .dk-ops li{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--line,#eceef6)}.dk-ops img{width:38px;height:38px;border-radius:50%;object-fit:cover;object-position:50% 15%;flex:none}.dk-ops p{margin:2px 0 0;font-size:13.5px;line-height:1.5}
   .dk-nav{display:flex;justify-content:space-between;align-items:center;margin-top:6px}.dk-nav button{width:40px;height:40px;border-radius:50%;border:1px solid var(--line2,#dcd8ff);background:#fff;font-size:22px;color:var(--lav-d,#6c5ce7)}
