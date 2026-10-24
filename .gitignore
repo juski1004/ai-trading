@@ -6,3 +6,5 @@ __pycache__/
 web/data/
 .export.log
 .pytest_cache/
+worker/wrangler.toml
+worker/node_modules/

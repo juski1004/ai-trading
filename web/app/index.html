@@ -244,6 +244,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var
 <script src="deck.js"></script>
 <script src="advise.js"></script>
 <script src="vs.js"></script>
+<script src="push.js"></script>
 <script>
 (()=>{
 const $=s=>document.querySelector(s);
@@ -393,7 +394,7 @@ function analysis(sym){
   return sym?analysisDetail(sym):analysisList();
 }
 const game=sym=>window.Game&&SC?Game.view(SC,sym&&decodeURIComponent(sym)):soon('🎮','모의투자 게임','가상 1,000만 원으로 AI 투자자 알파와 수익률을 겨루는 게임은 지금 PC 화면에서 할 수 있어요. 휴대폰용은 곧 열려요.<br><a class="pclink" href="../?full=1" target="_blank" rel="noopener">PC 대결 화면 열기 ↗</a>');
-const me=()=>window.Team?Team.meView():soon('👤','내 정보','게임 기록과 지난 성적표가 여기에 모여요.<br><br><span class="sub">휴대폰 홈 화면에 추가하면 앱처럼 쓸 수 있어요.<br>아이폰: 공유 → 홈 화면에 추가 · 안드로이드: 메뉴 → 홈 화면에 추가</span>');
+const me=()=>window.Team?Team.meView()+(window.Push?Push.card():''):soon('👤','내 정보','게임 기록과 지난 성적표가 여기에 모여요.<br><br><span class="sub">휴대폰 홈 화면에 추가하면 앱처럼 쓸 수 있어요.<br>아이폰: 공유 → 홈 화면에 추가 · 안드로이드: 메뉴 → 홈 화면에 추가</span>');
 
 /* ---------- 화면 전환 ---------- */
 function route(){

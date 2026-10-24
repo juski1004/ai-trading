@@ -130,6 +130,7 @@
       <div class="vs-accts">${acct(S.me, "내 팀", `<img class="vs-av" src="${face(myDir.id)}" alt="">`)}${acct(S.ai, "알파 팀", bot(28))}</div>
       ${S.me ? `<button class="cta vs-share" type="button" data-vs="share">결과 이미지로 공유하기</button>` : ""}
     </section>
+    ${rankCard(S)}
     <section class="card"><div class="hd"><h2>내 보유 종목</h2><a class="sub" href="#game">거래하기 ›</a></div>${holdings(S.me ? S.me.pos : [], S.me ? "아직 산 종목이 없어요." : "대결을 시작하면 여기에 보여요.")}</section>
     <section class="card"><div class="hd"><h2>알파 보유 종목</h2><span class="sub">현금 ${won(S.ai.cash)}원</span></div>${holdings(S.ai.pos, "지금은 현금으로 기다리고 있어요.")}</section>
     <section class="card"><div class="hd"><h2>알파의 최근 매매</h2><span class="sub">${(st.trades || []).length}회</span></div>
@@ -138,6 +139,21 @@
         <span class="rt"><div class="px num">${won(t.qty)}주</div><div class="sc num">@${won(t.price)}</div></span></div></li>`; }).join("")}</ul>` : '<p class="empty">아직 매매가 없어요.</p>'}</section>
     <p class="note">알파는 가상 계좌로 움직이는 AI이며, 매매 내역은 참고용이고 투자 권유가 아닙니다. 승패는 내 게임 시작일부터 같은 기간으로 비교해요.</p>`;
   }
+
+  /* ---------- 전체 랭킹 (push.js 가 서버와 통신) ---------- */
+  let RB = null;
+  function rankCard(S) {
+    if (!window.Push) return "";
+    const sent = S.me && window.Push.rankOn() ? Push.report({ date: window.__SC.date, ret: S.me.ret, ai: S.ai.same, start: S.start, days: S.G.days, done: !!S.G.done }) : Promise.resolve();
+    if (!RB) sent.then(() => Push.getBoard()).then(b => { RB = b; const el = document.getElementById("vsRank"); if (el) el.outerHTML = rankCard(S); });
+    const b = RB, on = window.Push.rankOn();
+    const rows = b && b.top ? b.top.map((r, i) => `<li class="${r.me ? "me" : ""}"><span class="rk num">${i + 1}</span><span class="nk">${esc(r.nick)}${r.done ? "" : ' <small class="sub">진행 중</small>'}</span><span class="num ${cls(r.ret)}">${pct(r.ret)}</span></li>`).join("") : "";
+    return `<section class="card" id="vsRank"><div class="hd"><h2>전체 랭킹</h2><span class="sub">${b && b.total != null ? `${b.total}명 참여 · 최근 3주` : ""}</span></div>
+      ${!b ? '<p class="sub">불러오는 중…</p>' : b.error ? '<p class="sub">랭킹 서버를 준비 중이에요.</p>' : rows ? `<ol class="vs-rank">${rows}</ol>` : '<p class="empty">아직 참여한 사람이 없어요. 첫 번째가 되어 보세요!</p>'}
+      ${b && b.me && b.me.rank > 20 ? `<p class="mood">내 순위 <b>${b.me.rank}위</b> · ${pct(b.me.ret)}</p>` : ""}
+      ${on ? "" : `<p class="sub" style="margin-top:8px">${S.me ? "" : "대결을 시작한 뒤 "}<a href="#me">내 정보</a>에서 '랭킹 참여'를 켜면 내 수익률도 올라가요.</p>`}</section>`;
+  }
+  window.addEventListener("rankchange", () => { RB = null; });
 
   /* ---------- 결과 공유 이미지 (인스타 세로 1080×1350) ---------- */
   async function share() {
@@ -192,6 +208,8 @@
   .vs-go{display:block;text-align:center;text-decoration:none;font-size:14px;padding:10px;margin-top:10px}
   .vs-share{margin-top:12px}
   .vs-tr{cursor:default;grid-template-columns:34px minmax(0,1fr) auto}.vs-side{font-size:12.5px;font-weight:700;text-align:center}
+.vs-rank{list-style:none;margin:6px 0 0;padding:0}.vs-rank li{display:grid;grid-template-columns:30px 1fr auto;gap:8px;align-items:center;padding:9px 4px;border-top:1px solid var(--line,#eceef6);font-size:14.5px}
+  .vs-rank li:first-child{border-top:0}.vs-rank li.me{background:#f4f2ff;border-radius:12px}.vs-rank .rk{font-weight:800;color:#6c5ce7;text-align:center}.vs-rank .nk{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .vs-mini{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;font-size:14px}.vs-mini b.num{font-size:18px;margin-left:4px}
   a.cta{display:block;text-align:center;text-decoration:none}`;
   document.head.appendChild(css);
