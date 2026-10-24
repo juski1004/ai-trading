@@ -1,98 +1,201 @@
-/* 'AI 대결' 화면 (#vs): 상대 AI 투자자 '알파'의 실전 계좌(data/ai.json)와 나의 모의투자 계좌를 나란히 보여 준다.
-   - 알파: AI 운용팀(본부장 + 직원)의 판단으로 하루 한 번 실제 종가에 사고파는 가상 1,000만 원 계좌
-   - 나: game.js 모의투자 계좌(같은 1,000만 원). 아직 시작 안 했으면 시작 버튼
-   index.html 이 Versus.view(SC) 를 부른다. */
+/* 'AI 대결' 화면 (#vs): 내 팀 vs 알파 팀.
+   - 내 팀: 내가 고른 본부장 + 직원 (= 내 모의투자 계좌, game.js)
+   - 알파 팀: 내가 고르지 않은 본부장·직원이 운용하는 AI 투자자 '알파'의 실전 계좌 (data/ai.json, 하루 한 번 실제 종가 매매)
+   - 총자산·현금·주식 평가액·손익·수익률, 줄다리기 막대와 수익률 경주 그래프로 누가 이기고 있는지 보여 준다.
+   - 승패는 같은 기간(내 게임 시작일부터)으로 비교한다. 결과를 인스타 등에 올릴 공유 이미지로 만들 수 있다.
+   index.html 이 Versus.view(SC) 를, deck.js 가 Versus.summary(SC) 를 부른다. */
 (() => {
   const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
   const won = n => Math.round(n).toLocaleString("ko-KR");
-  const pct = x => (x > 0 ? "+" : "") + x.toFixed(2) + "%";
-  const cls = x => (x > 0 ? "up" : x < 0 ? "down" : "flat");
+  const pct = x => { const t = Math.abs(x) < 0.005 ? "0.00" : x.toFixed(2); return (x >= 0.005 ? "+" : "") + t + "%"; };
+  const sgn = n => (n >= 0 ? "+" : "−") + won(Math.abs(n));
+  const cls = x => (x >= 0.005 ? "up" : x <= -0.005 ? "down" : "flat");
   const CASH0 = 10_000_000;
+  const face = id => `../img/team/${id}.jpg?v=4`;
 
   let AI = null, tried = false;
   function load() {
     if (tried) return; tried = true;
     fetch("../data/ai.json", { cache: "no-cache" }).then(r => (r.ok ? r.json() : null)).then(d => {
-      AI = d || {}; if (location.hash.startsWith("#vs")) window.dispatchEvent(new HashChangeEvent("hashchange"));
+      AI = d || {}; window.dispatchEvent(new HashChangeEvent("hashchange"));
     }).catch(() => { AI = {}; });
   }
 
-  // 알파 얼굴: PC 작업방이 사진(img/team/alpha.jpg)을 만들면 그걸 쓰고, 없으면 이 그림을 씀
+  // 알파 마스코트: PC 작업방이 사진(img/team/alpha.jpg)을 넣으면 사진, 없으면 그림
   const BOT = `<svg viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="vsg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#cfc9ff"/><stop offset="1" stop-color="#a8d8ff"/></linearGradient></defs>
     <rect width="120" height="120" rx="60" fill="url(#vsg)"/><line x1="60" y1="18" x2="60" y2="30" stroke="#6c5ce7" stroke-width="4" stroke-linecap="round"/><circle cx="60" cy="16" r="5" fill="#ff9fb2"/>
     <rect x="26" y="30" width="68" height="56" rx="20" fill="#fff"/><rect x="34" y="42" width="52" height="24" rx="12" fill="#2d2a63"/>
     <circle cx="48" cy="54" r="5" fill="#8ff0d0"/><circle cx="72" cy="54" r="5" fill="#8ff0d0"/><path d="M50 74 q10 7 20 0" stroke="#6c5ce7" stroke-width="4" fill="none" stroke-linecap="round"/>
     <rect x="38" y="88" width="44" height="18" rx="9" fill="#fff"/><path d="M48 97 l7 -5 l6 4 l9 -8" stroke="#6c5ce7" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-  const face = () => `<span class="vs-face"><img src="../img/team/alpha.jpg" alt="" onerror="this.remove()">${BOT}</span>`;
+  const bot = (sz = 44) => `<span class="vs-bot" style="width:${sz}px;height:${sz}px"><img src="../img/team/alpha.jpg" alt="" onerror="this.remove()">${BOT}</span>`;
 
-  function aiStats(st) {
-    const eh = st.equity_history || [];
-    const eq = eh.length ? eh[eh.length - 1][1] : CASH0;
-    return { eq, ret: (eq / CASH0 - 1) * 100, start: st.start_date, end: st.end_date, n: eh.length };
+  /* ---------- 계산 ---------- */
+  function sides(SC) {
+    const st = (AI && AI.state) || {}, G = window.Game && Game._state ? Game._state() : null;
+    const px = (sym, fb) => (SC.stocks[sym] ? SC.stocks[sym].price : fb);
+    // 알파 계좌
+    const aPos = Object.entries(st.positions || {}).map(([sym, p]) => ({ sym, name: SC.stocks[sym]?.name || sym, qty: p.qty, avg: p.avg_price, now: px(sym, p.avg_price) }));
+    const aStock = aPos.reduce((s, p) => s + p.qty * p.now, 0), aCash = st.cash_krw || 0, aEq = (st.positions || st.cash_krw != null) ? aCash + aStock : CASH0;
+    // 내 계좌
+    const mPos = G ? Object.entries(G.pos || {}).map(([sym, p]) => ({ sym, name: p.name, qty: p.qty, avg: p.avg, now: px(sym, p.last ?? p.avg) })) : [];
+    const mStock = mPos.reduce((s, p) => s + p.qty * p.now, 0), mEq = G ? G.cash + mStock : null;
+    // 같은 기간 비교: 내 시작일 시점의 알파 자산을 기준으로
+    const eh = (st.equity_history || []).map(([t, e]) => [t.slice(0, 10), e]);
+    const at = d => { let v = null; for (const [t, e] of eh) if (t <= d) v = e; return v; };
+    const start = G ? G.start : st.start_date;
+    const aBase = G ? (at(G.start) ?? (eh.length && eh[0][0] > G.start ? CASH0 : CASH0)) : CASH0;
+    const aRetSame = (aEq / aBase - 1) * 100, mRet = mEq == null ? null : (mEq / CASH0 - 1) * 100;
+    // 경주 그래프 자료 (날짜별 수익률)
+    const days = [...new Set([...(G ? G.eq.map(x => x[0]) : []), ...eh.map(x => x[0]), SC.date])].filter(d => !start || d >= start).sort();
+    const mAt = d => { if (!G) return null; let v = null; for (const [t, e] of G.eq) if (t <= d) v = e; return v == null ? null : (v / CASH0 - 1) * 100; };
+    const series = days.map(d => ({ d, a: ((d === SC.date ? aEq : at(d) ?? aBase) / aBase - 1) * 100, m: d === SC.date && mRet != null ? mRet : mAt(d) }));
+    // 일별 승부
+    let mw = 0, aw = 0;
+    for (let i = 1; i < series.length; i++) { const p = series[i - 1], c = series[i]; if (p.m == null || c.m == null) continue; const dm = c.m - p.m, da = c.a - p.a; if (Math.abs(dm - da) < 0.005) continue; dm > da ? mw++ : aw++; }
+    return { st, G, start, me: G && { eq: mEq, cash: G.cash, stock: mStock, pnl: mEq - CASH0, ret: mRet, pos: mPos },
+      ai: { eq: aEq, cash: aCash, stock: aStock, pnl: aEq - CASH0, ret: (aEq / CASH0 - 1) * 100, same: aRetSame, pos: aPos }, series, mw, aw };
   }
-  const dleft = end => end ? Math.max(0, Math.ceil((new Date(end + "T00:00:00+09:00") - Date.now()) / 864e5)) : null;
+
+  /* 홈 카드용 한 줄 요약 */
+  function summary(SC) {
+    load(); if (!AI || !SC) return "";
+    const S = sides(SC);
+    if (!S.me) return `<div class="vs-mini"><span>알파 <b class="num ${cls(S.ai.ret)}">${pct(S.ai.ret)}</b></span><span class="sub">나는 아직 시작 전</span></div>`;
+    const lead = S.me.ret - S.ai.same;
+    return `<div class="vs-mini"><span>나 <b class="num ${cls(S.me.ret)}">${pct(S.me.ret)}</b></span><b class="vs-x">VS</b><span>알파 <b class="num ${cls(S.ai.same)}">${pct(S.ai.same)}</b></span></div>
+      ${tug(lead)}<p class="sub" style="margin:6px 0 0">${Math.abs(lead) < 0.005 ? "팽팽한 동점" : lead > 0 ? `내가 ${lead.toFixed(2)}%p 앞서요` : `알파가 ${(-lead).toFixed(2)}%p 앞서요`}</p>`;
+  }
+
+  /* 줄다리기 막대: 가운데가 동점, 5%p 차이면 끝까지 */
+  function tug(lead) {
+    const x = Math.max(4, Math.min(96, 50 + lead / 5 * 46));
+    return `<div class="vs-tug" role="img" aria-label="${lead >= 0 ? "내가" : "알파가"} ${Math.abs(lead).toFixed(2)}%p 앞섬"><i class="me" style="width:${x}%"></i><i class="ai" style="width:${100 - x}%"></i><b style="left:${x}%"></b></div>`;
+  }
+
+  /* 수익률 경주 그래프 */
+  function race(series) {
+    const pts = series.filter(p => p.a != null);
+    if (pts.length < 2) return `<p class="empty">하루 이상 지나면 두 계좌의 수익률 경주 그래프가 그려져요.</p>`;
+    const W = 320, H = 150, pl = 6, pr = 78, pt = 10, pb = 22, vals = pts.flatMap(p => [p.a, p.m]).filter(v => v != null);
+    let hi = Math.max(0.5, ...vals), lo = Math.min(-0.5, ...vals); const pad = (hi - lo) * 0.12; hi += pad; lo -= pad;
+    const X = i => pl + i / (pts.length - 1) * (W - pl - pr), Y = v => pt + (hi - v) / (hi - lo) * (H - pt - pb);
+    const path = k => { let d = "", on = false; pts.forEach((p, i) => { if (p[k] == null) { on = false; return; } d += `${on ? "L" : "M"}${X(i).toFixed(1)},${Y(p[k]).toFixed(1)}`; on = true; }); return d; };
+    const last = k => { for (let i = pts.length - 1; i >= 0; i--) if (pts[i][k] != null) return [i, pts[i][k]]; return null; };
+    const lab = (k, col, name) => { const l = last(k); return l ? `<circle cx="${X(l[0])}" cy="${Y(l[1])}" r="3.5" fill="${col}"/><text x="${X(l[0]) + 6}" y="${Y(l[1]) + 4}" fill="${col}" font-size="11" font-weight="700">${name} ${pct(l[1])}</text>` : ""; };
+    return `<svg class="vs-race" viewBox="0 0 ${W} ${H}" role="img" aria-label="날짜별 수익률 경주">
+      <line x1="${pl}" x2="${W - pr}" y1="${Y(0)}" y2="${Y(0)}" stroke="#d8dbe6" stroke-dasharray="3 3"/>
+      <path d="${path("a")}" fill="none" stroke="#5b8cff" stroke-width="2.4" stroke-linejoin="round"/>
+      <path d="${path("m")}" fill="none" stroke="#ff6b8a" stroke-width="2.4" stroke-linejoin="round"/>
+      ${lab("a", "#3d6fe6", "알파")}${lab("m", "#e2486b", "나")}
+      <text x="${pl}" y="${H - 6}" font-size="10" fill="#8a8fa6">${esc(pts[0].d.slice(5).replace("-", "."))}</text><text x="${W - pr}" y="${H - 6}" font-size="10" fill="#8a8fa6" text-anchor="end">${esc(pts[pts.length - 1].d.slice(5).replace("-", "."))}</text></svg>`;
+  }
+
+  const acct = (A, title, who) => !A ? `<div class="vs-acct me"><div class="vs-acct-hd">${who}<b>${title}</b></div><p class="sub">아직 대결을 시작하지 않았어요.</p><a class="cta vs-go" href="#game">1,000만 원으로 시작</a></div>` :
+    `<div class="vs-acct ${title === "알파 팀" ? "ai" : "me"}"><div class="vs-acct-hd">${who}<b>${title}</b></div>
+      <div class="vs-eq num">${won(A.eq)}<small>원</small></div><div class="num ${cls(A.ret)} vs-ret">${pct(A.ret)} <small>(${sgn(A.pnl)}원)</small></div>
+      <dl class="vs-dl"><dt>현금</dt><dd class="num">${won(A.cash)}</dd><dt>주식</dt><dd class="num">${won(A.stock)}</dd><dt>종목 수</dt><dd class="num">${A.pos.length}개</dd></dl></div>`;
+
+  const holdings = (list, empty) => list.length ? `<ul class="list">${list.map(p => { const r = (p.now / p.avg - 1) * 100, pnl = (p.now - p.avg) * p.qty; return `<li><button class="row" type="button" data-sym="${esc(p.sym)}"><span></span>
+      <span style="min-width:0"><div class="nm">${esc(p.name)}</div><div class="meta num">${won(p.qty)}주 · 평단 ${won(p.avg)}</div></span>
+      <span class="rt"><div class="px num">${won(p.now * p.qty)}</div><div class="sc num ${cls(r)}">${pct(r)} · ${sgn(pnl)}</div></span></button></li>`; }).join("")}</ul>` : `<p class="empty">${empty}</p>`;
 
   function view(SC) {
     load();
     const back = `<a class="back" href="#home">‹ 홈</a>`;
     if (!AI || !SC) return `${back}<div class="card"><div class="skel" style="width:50%"></div><div class="skel"></div></div>`;
-    const st = AI.state || {}, A = aiStats(st);
-    const G = window.Game && Game._state ? Game._state() : null;
-    const meEq = G ? (() => { let e = G.cash; for (const [s, p] of Object.entries(G.pos || {})) e += (SC.stocks[s]?.price ?? p.last ?? p.avg) * p.qty; return e; })() : null;
-    const meRet = meEq == null ? null : (meEq / CASH0 - 1) * 100;
-    const d = window.Team ? Team.director() : { name: "정서연", id: "theo" };
-    const team = window.Team ? Team.members() : [];
-    const lead = meRet == null ? "" : Math.abs(meRet - A.ret) < 0.005 ? "지금은 동점이에요" : meRet > A.ret ? `내가 알파보다 <b class="up">${(meRet - A.ret).toFixed(2)}%p</b> 앞서요` : `알파가 <b class="down">${(A.ret - meRet).toFixed(2)}%p</b> 앞서요`;
-
-    const pos = Object.entries(st.positions || {}).map(([sym, p]) => {
-      const s = SC.stocks[sym], now = s ? s.price : p.avg_price, r = (now / p.avg_price - 1) * 100;
-      return `<li><button class="row" type="button" data-sym="${esc(sym)}"><span></span><span style="min-width:0"><div class="nm">${esc(s ? s.name : sym)}</div><div class="meta num">${won(p.qty)}주 · 평단 ${won(p.avg_price)}</div></span>
-        <span class="rt"><div class="px num">${won(now * p.qty)}</div><div class="sc num ${cls(r)}">${pct(r)}</div></span></button></li>`;
-    }).join("");
-    const trades = (st.trades || []).slice(-8).reverse().map(t => {
-      const s = SC.stocks[t.symbol], buy = t.side === "BUY";
-      return `<li><div class="row vs-tr"><span class="${buy ? "up" : "down"} vs-side">${buy ? "매수" : "매도"}</span><span style="min-width:0"><div class="nm">${esc(s ? s.name : t.symbol)}</div>
-        <div class="meta">${esc((t.time || "").slice(5, 10).replace("-", "."))} · ${esc((t.reason || "").replace(/^THEO/, d.name + " 본부장"))}</div></span>
-        <span class="rt"><div class="px num">${won(t.qty)}주</div><div class="sc num">@${won(t.price)}</div></span></div></li>`;
-    }).join("");
+    const S = sides(SC), T = window.Team;
+    const myDir = T ? T.director() : { id: "theo", name: "정서연" }, myStaff = T ? T.members() : [];
+    const rv = T && T.rivals ? T.rivals() : { dir: { id: "seunghyun", name: "백승현" }, staff: [] };
+    const lead = S.me ? S.me.ret - S.ai.same : null;
+    const verdict = lead == null ? "대결을 시작하면 같은 날부터 수익률을 겨뤄요" : Math.abs(lead) < 0.005 ? "팽팽한 동점이에요" : lead > 0 ? `🏆 내 팀이 <b class="up">${lead.toFixed(2)}%p</b> 앞서요` : `알파 팀이 <b class="down">${(-lead).toFixed(2)}%p</b> 앞서요`;
+    const faces = (d, ms) => `<span class="vs-faces"><img class="lead" src="${face(d.id)}" alt="${esc(d.name)}" title="${esc(d.name)} 본부장">${ms.map(m => `<img src="${face(m.id)}" alt="${esc(m.name)}" title="${esc(m.name)}">`).join("")}</span>`;
+    const st = S.st, trades = (st.trades || []).slice(-8).reverse();
+    const by = r => r.replace(/^THEO/, `${rv.dir.name} 본부장`).replace(/\(규칙\)/, "").trim();
 
     return `${back}
-    <section class="card vs-hero">
-      <div class="vs-bot">${face()}<div><div class="vs-tag">AI 투자자</div><h2>알파</h2><p class="sub">${esc(d.name)} 본부장 팀의 분석을 받아 하루 한 번 실제 종가로 사고파는 AI예요. 원칙만 따르고 감정에 흔들리지 않아요.</p></div></div>
-      ${team.length ? `<div class="vs-team"><span class="sub">알파의 분석팀</span><span class="vs-faces">${[d, ...team].map(m => `<img src="../img/team/${esc(m.id)}.jpg?v=4" alt="${esc(m.name)}" title="${esc(m.name)}">`).join("")}</span></div>` : ""}
+    <section class="card vs-arena">
+      <div class="vs-teams">
+        <div class="vs-team me"><div class="k">내 팀</div>${faces(myDir, myStaff)}<div class="sub">${esc(myDir.name)} 본부장 + 직원 ${myStaff.length}명</div></div>
+        <div class="vs-x big">VS</div>
+        <div class="vs-team ai"><div class="k">${bot(26)} 알파 팀</div>${faces(rv.dir, rv.staff)}<div class="sub">${esc(rv.dir.name)} 본부장 + 직원 ${rv.staff.length}명</div></div>
+      </div>
+      <p class="sub vs-story">내가 뽑지 않은 본부장과 직원들이 AI 투자자 '알파'로 뭉쳤어요. 같은 1,000만 원, 같은 종가로 승부해요.</p>
     </section>
     <section class="card">
-      <div class="hd"><h2>대결 현황</h2><span class="sub">${A.start ? `${esc(A.start.slice(5).replace("-", "."))} 시작${A.end ? ` · D-${dleft(A.end)}` : ""}` : "알파 계좌 준비 중"}</span></div>
-      <div class="vs-board">
-        <div class="vs-side-box me"><div class="k">나</div><div class="v num ${meRet == null ? "flat" : cls(meRet)}">${meRet == null ? "-" : pct(meRet)}</div><div class="c sub">${meEq == null ? "아직 시작 안 함" : won(meEq) + "원"}</div></div>
-        <div class="vs-vs">VS</div>
-        <div class="vs-side-box ai"><div class="k">알파</div><div class="v num ${cls(A.ret)}">${pct(A.ret)}</div><div class="c sub">${won(A.eq)}원</div></div>
-      </div>
-      ${lead ? `<p class="mood">${lead}</p>` : `<a class="cta" href="#game">나도 1,000만 원으로 대결 시작하기</a>`}
+      <div class="hd"><h2>누가 이기고 있나</h2><span class="sub">${S.start ? esc(S.start.slice(5).replace("-", ".")) + "부터" : ""}${S.me ? ` · 하루 승부 ${S.mw}승 ${S.aw}패` : ""}</span></div>
+      ${lead == null ? "" : tug(lead)}<p class="mood">${verdict}</p>
+      ${race(S.series)}
+      <div class="vs-legend"><span><i style="background:#ff6b8a"></i>나</span><span><i style="background:#5b8cff"></i>알파</span><span class="sub">${S.me ? "같은 기간 수익률" : "알파 수익률"}</span></div>
     </section>
-    <section class="card"><div class="hd"><h2>알파가 가진 종목</h2><span class="sub">현금 ${won(st.cash_krw || 0)}원</span></div>
-      ${pos ? `<ul class="list">${pos}</ul>` : '<p class="empty">지금은 보유 종목 없이 현금으로 기다리고 있어요.</p>'}</section>
+    <section class="card"><div class="hd"><h2>두 계좌</h2><span class="sub">${esc(SC.date)} 종가 기준</span></div>
+      <div class="vs-accts">${acct(S.me, "내 팀", `<img class="vs-av" src="${face(myDir.id)}" alt="">`)}${acct(S.ai, "알파 팀", bot(28))}</div>
+      ${S.me ? `<button class="cta vs-share" type="button" data-vs="share">결과 이미지로 공유하기</button>` : ""}
+    </section>
+    <section class="card"><div class="hd"><h2>내 보유 종목</h2><a class="sub" href="#game">거래하기 ›</a></div>${holdings(S.me ? S.me.pos : [], S.me ? "아직 산 종목이 없어요." : "대결을 시작하면 여기에 보여요.")}</section>
+    <section class="card"><div class="hd"><h2>알파 보유 종목</h2><span class="sub">현금 ${won(S.ai.cash)}원</span></div>${holdings(S.ai.pos, "지금은 현금으로 기다리고 있어요.")}</section>
     <section class="card"><div class="hd"><h2>알파의 최근 매매</h2><span class="sub">${(st.trades || []).length}회</span></div>
-      ${trades ? `<ul class="list">${trades}</ul>` : '<p class="empty">아직 매매가 없어요.</p>'}</section>
-    <p class="note">알파는 가상 계좌로 움직이는 AI이며, 매매 내역은 참고용이고 투자 권유가 아닙니다.</p>`;
+      ${trades.length ? `<ul class="list">${trades.map(t => { const s = SC.stocks[t.symbol], b = t.side === "BUY"; return `<li><div class="row vs-tr"><span class="${b ? "up" : "down"} vs-side">${b ? "매수" : "매도"}</span>
+        <span style="min-width:0"><div class="nm">${esc(s ? s.name : t.symbol)}</div><div class="meta">${esc((t.time || "").slice(5, 10).replace("-", "."))} · ${esc(by(t.reason || ""))}</div></span>
+        <span class="rt"><div class="px num">${won(t.qty)}주</div><div class="sc num">@${won(t.price)}</div></span></div></li>`; }).join("")}</ul>` : '<p class="empty">아직 매매가 없어요.</p>'}</section>
+    <p class="note">알파는 가상 계좌로 움직이는 AI이며, 매매 내역은 참고용이고 투자 권유가 아닙니다. 승패는 내 게임 시작일부터 같은 기간으로 비교해요.</p>`;
   }
+
+  /* ---------- 결과 공유 이미지 (인스타 세로 1080×1350) ---------- */
+  async function share() {
+    const SC = window.__SC; if (!SC) return;
+    const S = sides(SC); if (!S.me) return;
+    const c = document.createElement("canvas"); c.width = 1080; c.height = 1350; const g = c.getContext("2d");
+    const F = (w, s) => `${w} ${s}px Pretendard, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif`;
+    const bg = g.createLinearGradient(0, 0, 1080, 1350); bg.addColorStop(0, "#f4f2ff"); bg.addColorStop(1, "#eaf4ff"); g.fillStyle = bg; g.fillRect(0, 0, 1080, 1350);
+    g.fillStyle = "#6c5ce7"; g.font = F(800, 44); g.textAlign = "center"; g.fillText("AI 투자연구소 · AI 대결", 540, 130);
+    g.fillStyle = "#2d2a63"; g.font = F(800, 80); g.fillText("나 VS 알파", 540, 250);
+    const lead = S.me.ret - S.ai.same;
+    g.font = F(700, 46); g.fillStyle = lead >= 0 ? "#e2486b" : "#3d6fe6"; g.fillText(Math.abs(lead) < 0.005 ? "팽팽한 동점!" : lead > 0 ? `내가 ${lead.toFixed(2)}%p 앞서는 중 🏆` : `알파가 ${(-lead).toFixed(2)}%p 앞서는 중`, 540, 340);
+    const box = (x, bgc, name, r, eq) => { g.fillStyle = bgc; g.beginPath(); g.roundRect(x, 420, 440, 400, 40); g.fill();
+      g.fillStyle = "#2d2a63"; g.font = F(800, 52); g.fillText(name, x + 220, 510); g.fillStyle = r >= 0 ? "#e2486b" : "#3d6fe6"; g.font = F(800, 96); g.fillText(pct(r), x + 220, 650);
+      g.fillStyle = "#6b7088"; g.font = F(600, 38); g.fillText(won(eq) + "원", x + 220, 740); };
+    box(80, "#fff1f4", "나", S.me.ret, S.me.eq); box(560, "#eef3ff", "알파", S.ai.same, S.ai.eq);
+    g.fillStyle = "#e9e7f5"; g.beginPath(); g.roundRect(120, 900, 840, 40, 20); g.fill();
+    const x = Math.max(4, Math.min(96, 50 + lead / 5 * 46)) / 100 * 840;
+    g.fillStyle = "#ff8fa6"; g.beginPath(); g.roundRect(120, 900, x, 40, 20); g.fill();
+    g.fillStyle = "#2d2a63"; g.beginPath(); g.arc(120 + x, 920, 30, 0, 7); g.fill();
+    g.fillStyle = "#6b7088"; g.font = F(600, 36); g.fillText(`${S.start ? S.start.slice(5).replace("-", ".") : ""} ~ ${SC.date.slice(5).replace("-", ".")} · 하루 승부 ${S.mw}승 ${S.aw}패`, 540, 1040);
+    g.fillStyle = "#6c5ce7"; g.font = F(700, 38); g.fillText("가상 1,000만 원 모의투자 · 실제 종가 기준", 540, 1160);
+    g.fillStyle = "#8a8fa6"; g.font = F(500, 30); g.fillText("juski1004.github.io/ai-trading/app · 참고용, 투자 권유 아님", 540, 1250);
+    const blob = await new Promise(r => c.toBlob(r, "image/png"));
+    const file = new File([blob], "ai-battle.png", { type: "image/png" });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file], title: "나 vs 알파 AI 대결" }); return; } catch (e) { if (e.name === "AbortError") return; } }
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "ai-battle.png"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  }
+  document.addEventListener("click", e => { if (e.target.closest('[data-vs="share"]')) share(); });
 
   const css = document.createElement("style");
   css.textContent = `
-  .vs-hero{background:linear-gradient(135deg,#f4f2ff,#eef7ff)}
-  .vs-bot{display:flex;gap:14px;align-items:center}.vs-bot h2{margin:2px 0 4px;font-size:24px}.vs-bot .sub{margin:0;line-height:1.55}
-  .vs-face{position:relative;flex:none;width:84px;height:84px;border-radius:50%;overflow:hidden;box-shadow:0 8px 22px rgba(108,92,231,.25)}
-  .vs-face svg,.vs-face img{position:absolute;inset:0;width:100%;height:100%}.vs-face img{object-fit:cover;object-position:50% 15%;z-index:1}
-  .vs-tag{display:inline-block;font-size:11.5px;font-weight:800;color:#6c5ce7;background:#fff;border-radius:10px;padding:2px 8px}
-  .vs-team{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line,#eceef6)}
-  .vs-faces{display:flex}.vs-faces img{width:32px;height:32px;border-radius:50%;object-fit:cover;object-position:50% 15%;border:2px solid #fff;margin-left:-8px}
-  .vs-board{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;margin-top:8px}
-  .vs-side-box{border-radius:16px;padding:12px;text-align:center}.vs-side-box.me{background:#fff1f4}.vs-side-box.ai{background:#eef3ff}
-  .vs-side-box .k{font-weight:800;font-size:14px}.vs-side-box .v{font-size:22px;font-weight:700;margin-top:2px}.vs-side-box .c{font-size:12px}
-  .vs-vs{font-weight:900;color:#6c5ce7;font-size:18px}
+  .vs-arena{background:linear-gradient(135deg,#fff3f6,#f4f2ff 50%,#eef5ff)}
+  .vs-teams{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center}
+  .vs-team{text-align:center;min-width:0}.vs-team .k{font-weight:900;font-size:16px;display:flex;align-items:center;justify-content:center;gap:5px;margin-bottom:8px}
+  .vs-team.me .k{color:#e2486b}.vs-team.ai .k{color:#3d6fe6}.vs-team .sub{font-size:11.5px;margin-top:6px}
+  .vs-faces{display:flex;justify-content:center;flex-wrap:wrap;padding-left:8px}.vs-faces img{width:30px;height:30px;border-radius:50%;object-fit:cover;object-position:50% 15%;border:2px solid #fff;margin:0 0 0 -8px;box-shadow:0 2px 6px rgba(40,50,90,.12)}
+  .vs-faces img.lead{width:40px;height:40px;margin-top:-5px}
+  .vs-x{font-weight:900;color:#6c5ce7}.vs-x.big{font-size:22px}
+  .vs-story{text-align:center;margin:12px 0 0;line-height:1.5}
+  .vs-bot{position:relative;display:inline-block;border-radius:50%;overflow:hidden;flex:none;vertical-align:middle}.vs-bot svg,.vs-bot img{position:absolute;inset:0;width:100%;height:100%}.vs-bot img{object-fit:cover;object-position:50% 15%;z-index:1}
+  .vs-tug{position:relative;display:flex;height:14px;border-radius:10px;overflow:visible;margin:14px 6px 4px}
+  .vs-tug i{display:block;height:100%}.vs-tug i.me{background:linear-gradient(90deg,#ffc2cf,#ff8fa6);border-radius:10px 0 0 10px}.vs-tug i.ai{background:linear-gradient(90deg,#a9c4ff,#d3e1ff);border-radius:0 10px 10px 0}
+  .vs-tug b{position:absolute;top:50%;width:24px;height:24px;margin:-12px 0 0 -12px;border-radius:50%;background:#2d2a63;border:3px solid #fff;box-shadow:0 3px 8px rgba(40,50,90,.25);transition:left .6s}
+  .vs-race{width:100%;height:auto;margin-top:10px}
+  .vs-legend{display:flex;gap:14px;align-items:center;font-size:12.5px;margin-top:4px}.vs-legend i{display:inline-block;width:14px;height:4px;border-radius:2px;margin-right:5px;vertical-align:middle}
+  .vs-accts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+  .vs-acct{border-radius:16px;padding:12px;min-width:0}.vs-acct.me{background:#fff1f4}.vs-acct.ai{background:#eef3ff}
+  .vs-acct-hd{display:flex;align-items:center;gap:6px;font-size:14px}.vs-av{width:28px;height:28px;border-radius:50%;object-fit:cover;object-position:50% 15%}
+  .vs-eq{font-size:19px;font-weight:800;margin-top:8px}.vs-eq small{font-size:12px;margin-left:2px;color:var(--muted)}.vs-ret{font-size:14px;font-weight:700}.vs-ret small{font-weight:500}
+  .vs-dl{display:grid;grid-template-columns:auto 1fr;gap:2px 8px;margin:8px 0 0;font-size:12.5px}.vs-dl dt{color:var(--muted)}.vs-dl dd{margin:0;text-align:right}
+  .vs-go{display:block;text-align:center;text-decoration:none;font-size:14px;padding:10px;margin-top:10px}
+  .vs-share{margin-top:12px}
   .vs-tr{cursor:default;grid-template-columns:34px minmax(0,1fr) auto}.vs-side{font-size:12.5px;font-weight:700;text-align:center}
-  a.cta{display:block;text-align:center;text-decoration:none;margin-top:12px}`;
+  .vs-mini{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;font-size:14px}.vs-mini b.num{font-size:18px;margin-left:4px}
+  a.cta{display:block;text-align:center;text-decoration:none}`;
   document.head.appendChild(css);
 
-  window.Versus = { view };
+  window.Versus = { view, summary };
 })();
