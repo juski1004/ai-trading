@@ -32,9 +32,9 @@
   /* ---------- 계산 ---------- */
   function sides(SC) {
     const st = (AI && AI.state) || {}, G = window.Game && Game._state ? Game._state() : null;
-    const px = (sym, fb) => (SC.stocks[sym] ? SC.stocks[sym].price : fb);
+    const so = sym => (window.stockOf ? window.stockOf(sym) : SC.stocks[sym]), px = (sym, fb) => { const s = so(sym); return s ? s.price : fb; };
     // 알파 계좌
-    const aPos = Object.entries(st.positions || {}).map(([sym, p]) => ({ sym, name: SC.stocks[sym]?.name || sym, qty: p.qty, avg: p.avg_price, now: px(sym, p.avg_price) }));
+    const aPos = Object.entries(st.positions || {}).map(([sym, p]) => ({ sym, name: so(sym)?.name || sym, qty: p.qty, avg: p.avg_price, now: px(sym, p.avg_price) }));
     const aStock = aPos.reduce((s, p) => s + p.qty * p.now, 0), aCash = st.cash_krw || 0, aEq = (st.positions || st.cash_krw != null) ? aCash + aStock : CASH0;
     // 내 계좌
     const mPos = G ? Object.entries(G.pos || {}).map(([sym, p]) => ({ sym, name: p.name, qty: p.qty, avg: p.avg, now: px(sym, p.last ?? p.avg) })) : [];
@@ -133,7 +133,7 @@
     <section class="card"><div class="hd"><h2>내 보유 종목</h2><a class="sub" href="#game">거래하기 ›</a></div>${holdings(S.me ? S.me.pos : [], S.me ? "아직 산 종목이 없어요." : "대결을 시작하면 여기에 보여요.")}</section>
     <section class="card"><div class="hd"><h2>알파 보유 종목</h2><span class="sub">현금 ${won(S.ai.cash)}원</span></div>${holdings(S.ai.pos, "지금은 현금으로 기다리고 있어요.")}</section>
     <section class="card"><div class="hd"><h2>알파의 최근 매매</h2><span class="sub">${(st.trades || []).length}회</span></div>
-      ${trades.length ? `<ul class="list">${trades.map(t => { const s = SC.stocks[t.symbol], b = t.side === "BUY"; return `<li><div class="row vs-tr"><span class="${b ? "up" : "down"} vs-side">${b ? "매수" : "매도"}</span>
+      ${trades.length ? `<ul class="list">${trades.map(t => { const s = window.stockOf ? window.stockOf(t.symbol) : SC.stocks[t.symbol], b = t.side === "BUY"; return `<li><div class="row vs-tr"><span class="${b ? "up" : "down"} vs-side">${b ? "매수" : "매도"}</span>
         <span style="min-width:0"><div class="nm">${esc(s ? s.name : t.symbol)}</div><div class="meta">${esc((t.time || "").slice(5, 10).replace("-", "."))} · ${esc(by(t.reason || ""))}</div></span>
         <span class="rt"><div class="px num">${won(t.qty)}주</div><div class="sc num">@${won(t.price)}</div></span></div></li>`; }).join("")}</ul>` : '<p class="empty">아직 매매가 없어요.</p>'}</section>
     <p class="note">알파는 가상 계좌로 움직이는 AI이며, 매매 내역은 참고용이고 투자 권유가 아닙니다. 승패는 내 게임 시작일부터 같은 기간으로 비교해요.</p>`;
