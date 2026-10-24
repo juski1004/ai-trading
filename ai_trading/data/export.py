@@ -268,6 +268,13 @@ def build(out: Path, quick: bool = False, game_dir: Path = Path("game")) -> dict
             ai[name.split(".")[0]] = json.loads(p.read_text(encoding="utf-8"))
     (out / "ai.json").write_text(json.dumps(ai, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
 
+    try:  # 인스타 카드뉴스 (실패해도 사이트 갱신은 계속)
+        from .cards import build as build_cards
+        c = build_cards(out)
+        print(f"카드뉴스 6장 ({c['date']}, 진행 {c['hostName']})")
+    except Exception as e:
+        print(f"[카드뉴스 실패] {type(e).__name__}: {e}")
+
     meta = {"updated": collect.now_kst(), "stocks": len(stocks), "listing": len(listing),
             "keys": {k: bool(os.getenv(k)) for k in ("FRED_API_KEY", "ECOS_API_KEY", "DART_API_KEY", "GEMINI_API_KEY", "GROQ_API_KEY", "XAI_API_KEY")},
             "warnings": collect.WARNINGS[:50]}
