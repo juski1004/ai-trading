@@ -124,10 +124,10 @@
         <div><div class="dprice num">${won(p.price)}</div><div class="meta num ${cls(p.chg)}" style="text-align:right">${pct(p.chg)}</div></div></div>
       ${spark(p)}
       <div class="tiles">
-        <div class="tile"><div class="k">AI 종합 점수</div><div class="v num">${p.score}<small class="sub"> /100</small></div></div>
+        <div class="tile"><div class="k">AI 종합 점수</div><div class="v num">${p.score}<small class="sub">점</small></div></div>
         <div class="tile"><div class="k">리스크</div><div class="v lv-${esc(p.risk)}">${esc(p.risk)}</div></div>
-        <div class="tile"><div class="k">기술 점수</div><div class="v num">${p.tech_score}<small class="sub"> /5</small></div></div>
-        <div class="tile"><div class="k">재무 점수</div><div class="v num">${p.fin_score ?? "-"}<small class="sub"> /5</small></div></div>
+        <div class="tile"><div class="k">기술 점수</div><div class="v num">${p.tech_score}<small class="sub"> / 5</small></div></div>
+        <div class="tile"><div class="k">재무 점수</div><div class="v num">${p.fin_score ?? "-"}<small class="sub"> / 5</small></div></div>
       </div>
     </section>
     ${sec("추천 이유", `<ol class="rp-ol">${p.reasons.map(x => `<li>${esc(x)}</li>`).join("")}</ol>`)}

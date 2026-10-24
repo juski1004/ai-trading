@@ -1,5 +1,6 @@
-/* AI 운용팀의 적극적인 알림 (앱).
-   - AI 대결 중이면: AI 실전 계좌(data/ai.json)가 새로 사고판 내역 + 지금 주식·현금·수익률
+/* AI 분석팀의 적극적인 알림 (앱).
+   - AI 대결 중이면: 알파 계좌(data/ai.json)가 새로 사고판 내역 + 지금 주식·현금·수익률
+   - 화면에 뜨는 알림(토스트)은 하루 2개까지(손절·목표가·오늘의 추천이 우선). 나머지는 홈 'AI 알림' 카드와 종 버튼에만.
    - 내 투자게임 보유 종목: 목표가(+10%)·손절가(−5%)에 다다르면 매도 권유, AI 판단이 '부정'이면 매도 검토 권유
    - 실적 발표가 다가온 종목(data/earnings.json): 증권사 예상으로 미리 판단해 '발표 전 진입' 또는 '피하기' 권유
    - 매수 권유: 오늘의 추천(pick.json) 또는 AI 점수 상위 '긍정' 종목
@@ -14,6 +15,11 @@
   const get = f => fetch("../data/" + f, { cache: "no-cache" }).then(r => (r.ok ? r.json() : null)).catch(() => null);
   const P = a => (window.Team ? Team.person(a) : { id: a.toLowerCase(), name: a, role: "" });
   const DIR = () => (window.Team ? { ...Team.director(), role: "본부장" } : { id: "theo", name: "정서연", role: "본부장" });
+  const RIV = () => (window.Team && Team.rivals ? { ...Team.rivals().dir, role: "알파 팀 본부장" } : { id: "seunghyun", name: "백승현", role: "알파 팀 본부장" });
+  const QUOTA = "aiLab.advq.v1", MAXQ = 2; // 하루에 화면에 띄우는 알림 수
+  const today = () => new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10);
+  const quota = () => { const q = load(QUOTA, {}); return q.d === today() ? q.n : 0; };
+  const useQuota = () => { const q = load(QUOTA, {}); save(QUOTA, { d: today(), n: (q.d === today() ? q.n : 0) + 1 }); };
   const SEEN = "aiLab.seen.v1";
   const jo = (w, a, b) => { const c = String(w).charCodeAt(String(w).length - 1) - 0xac00; return w + (c >= 0 && c < 11172 ? (c % 28 ? a : b) : /[0136789lmnr]$/i.test(w) ? a : b); }; // 받침 따라 이/가
 
@@ -28,13 +34,13 @@
     // 1) AI 대결: AI 실전 계좌 매매 알림 + 잔고
     if (G && AI && AI.state) {
       const st = AI.state, since = G.start || "";
-      (st.trades || []).filter(t => t.time.slice(0, 10) >= since).slice(-4).forEach(t => {
+      (st.trades || []).filter(t => t.time.slice(0, 10) >= since).slice(-2).forEach(t => {
         const buy = t.side === "BUY";
-        add(`ai:${t.time}:${t.symbol}`, DIR(), `AI 운용팀이 <b>${esc(nm(t.symbol))}</b> ${won(t.qty)}주를 ${won(t.price)}원에 ${buy ? "매수" : "매도"}했습니다.${t.realized_krw ? ` 실현 손익 ${won(t.realized_krw)}원입니다.` : ""}`, "#game");
+        add(`ai:${t.time}:${t.symbol}`, RIV(), `알파 팀이 <b>${esc(nm(t.symbol))}</b> ${won(t.qty)}주를 ${won(t.price)}원에 ${buy ? "매수" : "매도"}했습니다.${t.realized_krw ? ` 실현 손익 ${won(t.realized_krw)}원입니다.` : ""}`, "#vs");
       });
       const stock = Object.entries(st.positions || {}).reduce((a, [s, p]) => a + p.qty * (S[s] ? S[s].price : p.avg_price), 0), cash = st.cash_krw || 0;
       const eqh = st.equity_history || [], base = eqh.length ? eqh[0][1] : 10_000_000, r = ((stock + cash) / base - 1) * 100;
-      add(`aibal:${SC.date}`, DIR(), `AI 계좌 현황입니다. 주식 <b>${won(stock)}원</b>, 현금 <b>${won(cash)}원</b>, 수익률 <b class="${r >= 0 ? "up" : "down"}">${pct(r)}</b>입니다.`, "#game");
+      add(`aibal:${SC.date}`, RIV(), `알파 계좌 현황입니다. 주식 <b>${won(stock)}원</b>, 현금 <b>${won(cash)}원</b>, 수익률 <b class="${r >= 0 ? "up" : "down"}">${pct(r)}</b>입니다.`, "#vs");
     }
     // 2) 내 보유 종목: 목표가·손절가·AI 판단
     if (G && G.pos) Object.entries(G.pos).forEach(([s, p]) => {
@@ -61,7 +67,8 @@
     const rank = k => (/^(tp|sl|neg)/.test(k) ? 0 : /^ai/.test(k) ? 1 : /^ea/.test(k) ? 2 : 3);
     ITEMS = out.sort((a, b) => rank(a.key) - rank(b.key));
     const seen = load(SEEN, {});
-    queue = out.filter(x => !seen[x.key]);
+    const left = Math.max(0, MAXQ - quota());
+    queue = out.filter(x => !seen[x.key] && /^(tp|sl|neg|pick)/.test(x.key)).slice(0, left); // 급한 것만, 하루 2개까지
     tick();
     const box = document.getElementById("adv-home"); if (box) box.outerHTML = homeCard();
   }
@@ -72,23 +79,24 @@
     if (document.querySelector(".tm-splash,#tmSheet,#rpToast,.bover")) return;
     const x = queue[0], el = document.createElement("div");
     el.id = "advToast"; el.className = "adv-toast"; el.setAttribute("role", "status");
-    el.innerHTML = `<img src="../img/team/${esc(x.who.id)}.jpg?v=4" alt=""><div class="adv-b"><div class="adv-w"><b>${esc(x.who.name)}</b> ${esc(x.who.role || "")} <em>알림 ${ITEMS.length - queue.length + 1}/${ITEMS.length}</em></div><p>${x.msg}</p>
+    el.innerHTML = `<img src="../img/team/${esc(x.who.id)}.jpg?v=4" alt=""><div class="adv-b"><div class="adv-w"><b>${esc(x.who.name)}</b> ${esc(x.who.role || "")}</div><p>${x.msg}</p>
       <div class="adv-a"><button type="button" data-adv="go">자세히</button><button type="button" data-adv="next">${queue.length > 1 ? "다음" : "닫기"}</button></div></div>`;
     document.body.appendChild(el);
   }
   function done(go) {
     const x = queue.shift(); if (!x) return;
-    const seen = load(SEEN, {}); seen[x.key] = 1; const keys = Object.keys(seen); if (keys.length > 400) keys.slice(0, 200).forEach(k => delete seen[k]); save(SEEN, seen);
+    const seen = load(SEEN, {}); seen[x.key] = 1; useQuota(); const keys = Object.keys(seen); if (keys.length > 400) keys.slice(0, 200).forEach(k => delete seen[k]); save(SEEN, seen);
     document.getElementById("advToast")?.remove();
     if (go) { location.hash = x.go; queue = []; } else setTimeout(tick, 250);
   }
   document.addEventListener("click", e => { const b = e.target.closest("[data-adv]"); if (b) done(b.dataset.adv === "go"); });
   setInterval(() => { if (!ITEMS.length) build(); else tick(); }, 2500);
 
+  const li = x => `<li><a href="${x.go}"><img src="../img/team/${esc(x.who.id)}.jpg?v=4" alt=""><span><b>${esc(x.who.name)}</b> ${x.msg}</span></a></li>`;
   function homeCard() {
     if (!ITEMS.length) return `<div id="adv-home"></div>`;
     return `<section class="card adv-home" id="adv-home"><div class="hd"><h2>AI 알림</h2><span class="sub">참고 의견 · 투자 권유 아님</span></div>
-      <ul class="adv-list">${ITEMS.slice(0, 8).map(x => `<li><a href="${x.go}"><img src="../img/team/${esc(x.who.id)}.jpg?v=4" alt=""><span><b>${esc(x.who.name)}</b> ${x.msg}</span></a></li>`).join("")}</ul></section>`;
+      <ul class="adv-list">${ITEMS.slice(0, 4).map(li).join("")}</ul>${ITEMS.length > 4 ? `<details class="adv-more"><summary>알림 ${ITEMS.length - 4}개 더 보기</summary><ul class="adv-list">${ITEMS.slice(4, 12).map(li).join("")}</ul></details>` : ""}</section>`;
   }
 
   const css = document.createElement("style");
@@ -100,7 +108,8 @@
   .adv-a{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}.adv-a button{border:0;border-radius:12px;padding:8px 14px;font:inherit;font-weight:700;font-size:13px;background:var(--lav-s,#efedff);color:var(--lav-d,#6c5ce7)}
   .adv-a button[data-adv=go]{background:var(--gold-g);color:var(--ink,#2d2a63)}
   .adv-list{list-style:none;margin:0;padding:0}.adv-list a{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line,#eceef6);color:var(--fg,#1d2033);text-decoration:none;font-size:14px;line-height:1.55}
-  .adv-list li:first-child a{border-top:0}.adv-list img{width:36px;height:44px;border-radius:10px;object-fit:cover;object-position:50% 12%;flex:none}`;
+  .adv-list li:first-child a{border-top:0}
+  .adv-more summary{list-style:none;cursor:pointer;text-align:center;padding:10px 0 2px;color:var(--lav-d,#6c5ce7);font-weight:700;font-size:13.5px}.adv-more summary::-webkit-details-marker{display:none}.adv-more[open] summary{display:none}.adv-list img{width:36px;height:44px;border-radius:10px;object-fit:cover;object-position:50% 12%;flex:none}`;
   document.head.appendChild(css);
 
   window.Advise = { homeCard, refresh: build };

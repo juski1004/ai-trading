@@ -1,7 +1,9 @@
 /* 모의투자 게임 (앱 '투자게임' 탭).
    - 가상 1,000만 원, 기간 1주~3개월, 실제 종가(data/scores.json)로 사고팔기
    - 날짜가 바뀐 데이터를 처음 볼 때 자동 손절(-5%)·익절(+10%) 처리 (그날 종가 체결)
-   - 상대: AI 운용팀 실전 계좌(data/ai.json)의 같은 기간 수익률, 코스피 같은 기간 등락
+   - 상대: AI 투자자 '알파'의 계좌(data/ai.json)의 같은 기간 수익률, 코스피 같은 기간 등락
+   - 주문 체결 시점: 화면 데이터가 오늘(KST) 장 마감 종가면 바로 체결, 아니면(장중·주말) '예약 주문'으로 두었다가
+     다음 장 마감 데이터가 들어올 때 그날 종가로 체결한다 (어제 가격으로 오늘 사는 일이 없게)
    - 기록은 이 휴대폰에만 저장(localStorage). 서버로 보내지 않음.
    index.html 이 Game.view(SC, sym) 를 부르고, 화면 안의 버튼은 여기서 직접 처리한다. */
 (() => {
@@ -14,6 +16,8 @@
   const esc = t => String(t).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
   const addDays = (d, n) => { const x = new Date(d + "T00:00:00"); x.setDate(x.getDate() + n); return x.toISOString().slice(0, 10); };
   const daysBetween = (a, b) => Math.round((new Date(b + "T00:00:00") - new Date(a + "T00:00:00")) / 864e5);
+  const todayKST = () => new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10);
+  const live = () => !!SC && SC.date === todayKST(); // 오늘 종가 데이터가 들어와 있으면 바로 체결 가능
 
   const load = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
   const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* 저장이 막힌 브라우저: 이번 접속 동안만 유지 */ } };
@@ -26,6 +30,15 @@
   const equity = g => g.cash + Object.entries(g.pos).reduce((s, [sym, p]) => s + p.qty * (priceOf(sym) ?? p.last), 0);
   const ret = g => (equity(g) / R.cash0 - 1) * 100;
   const kospiRet = g => (SC && SC.market && SC.market.kospi && g.kospi0 ? (SC.market.kospi.v / g.kospi0 - 1) * 100 : null);
+  let kFetch = false;
+  function fillKospi(g) { // 시작일 코스피가 비어 있으면 시세 자료에서 찾아 채움
+    if (!g || g.kospi0 || kFetch) return; kFetch = true;
+    fetch("../data/market.json", { cache: "force-cache" }).then(r => (r.ok ? r.json() : null)).then(m => {
+      if (!m || !m.dates || !m.macro || !m.macro.kospi) return;
+      const i = m.dates.findIndex(d => d >= g.start); if (i < 0) return;
+      g.kospi0 = m.macro.kospi[i]; save(KEY, g); redraw();
+    }).catch(() => {});
+  }
   function aiRet(g) {
     const h = AI && AI.state && AI.state.equity_history;
     if (!h || !h.length) return null;
@@ -43,7 +56,7 @@
       const cost = pos.cost * qty / pos.qty, cash = p * qty * (1 - R.fee - R.tax), pnl = cash - cost;
       g.cash += cash; pos.qty -= qty; pos.cost -= cost; if (!pos.qty) delete g.pos[sym];
       g.trades.push({ d: SC.date, sym, name: s.name, side: "S", qty, p, pnl: Math.round(pnl), why });
-      return `${why !== "직접 주문" ? why + ": " : ""}${s.name} ${won(qty)}주 매도 · 손익 ${pnl >= 0 ? "+" : ""}${won(pnl)}원`;
+      return `${why !== "직접 주문" ? why + ": " : ""}${s.name} ${won(qty)}주 매도 (${won(p)}원) · 손익 ${pnl >= 0 ? "+" : ""}${won(pnl)}원`;
     }
     const maxQ = Math.floor(g.cash / (p * (1 + R.fee)));
     if (qty <= 0) return "수량을 확인해 주세요.";
@@ -52,13 +65,22 @@
     const pos = g.pos[sym] || { qty: 0, cost: 0, avg: 0, name: s.name };
     pos.avg = (pos.avg * pos.qty + p * qty) / (pos.qty + qty); pos.qty += qty; pos.cost += cost; pos.last = p; g.pos[sym] = pos;
     g.trades.push({ d: SC.date, sym, name: s.name, side: "B", qty, p, why });
-    return `${s.name} ${won(qty)}주 매수 · ${won(cost)}원`;
+    return `${why !== "직접 주문" ? why + ": " : ""}${s.name} ${won(qty)}주 매수 (${won(p)}원) · ${won(cost)}원`;
   }
 
   /* 새 거래일 데이터를 처음 볼 때: 자동 손절·익절, 자산 기록, 기간 종료 확인 */
   function catchUp(g) {
     if (!SC || g.done || SC.date <= g.lastDate) return;
     const notes = [];
+    // 예약 주문: 새로 들어온 날의 종가로 체결 (돈·수량이 모자라면 가능한 만큼만)
+    for (const o of g.orders || []) {
+      const s = SC.stocks[o.sym]; if (!s) { notes.push(`${o.name} 예약 주문 취소 (시세 없음)`); continue; }
+      let q = o.qty;
+      if (o.side === "S") q = Math.min(q, g.pos[o.sym] ? g.pos[o.sym].qty : 0);
+      else q = Math.min(q, Math.floor(g.cash / (s.price * (1 + R.fee))));
+      notes.push(q > 0 ? trade(g, o.sym, q, o.side === "S", "예약 주문 체결") : `${o.name} 예약 주문 취소 (${o.side === "S" ? "보유 수량" : "현금"} 부족)`);
+    }
+    g.orders = [];
     if (g.autoExit) for (const [sym, p] of Object.entries(g.pos)) {
       const now = priceOf(sym); if (now == null) continue;
       const chg = (now / p.avg - 1) * 100;
@@ -69,7 +91,7 @@
     g.lastDate = SC.date;
     g.eq.push([SC.date, Math.round(equity(g))]);
     if (SC.date >= g.end) finish(g);
-    if (notes.length) msg = notes.join(" · ");
+    if (notes.length) g.note = { d: SC.date, t: notes.join(" · ") }; // 새 거래일 처리 결과는 그날 동안 화면에 남김
     save(KEY, g);
   }
   function finish(g) {
@@ -86,7 +108,7 @@
     const hist = load(HIST, []);
     return `<section class="card">
       <h2>모의투자 게임</h2>
-      <p class="sub">가상 1,000만 원으로 실제 주가를 따라 투자해 보고, 같은 기간 AI 운용팀·코스피와 수익률을 겨뤄요.</p>
+      <p class="sub">가상 1,000만 원으로 실제 주가를 따라 투자해 보고, 같은 기간 AI 투자자 '알파'·코스피와 수익률을 겨뤄요.</p>
       <div class="g-k">투자 기간</div>
       <div class="chips" role="group" aria-label="투자 기간">${PERIODS.map(([t, d]) => `<button type="button" data-g="period" data-v="${d}" aria-pressed="${d === pickPeriod}">${t}</button>`).join("")}</div>
       <ul class="g-rules">
@@ -105,7 +127,13 @@
     const me = ret(g), ai = aiRet(g), kp = kospiRet(g);
     const box = (k, v, c) => `<div class="mk"><div class="k">${k}</div><div class="v num ${v == null ? "flat" : cls(v)}">${v == null ? "-" : pct(v)}</div>${c ? `<div class="c sub">${c}</div>` : ""}</div>`;
     const lead = ai == null ? "" : Math.abs(me - ai) < 0.005 ? "AI와 동률이에요" : me > ai ? `AI보다 <b class="up">${(me - ai).toFixed(2)}%p</b> 앞서요` : `AI보다 <b class="down">${(ai - me).toFixed(2)}%p</b> 뒤져요`;
-    return `<div class="mkt">${box("나", me, "")}${box("AI 운용팀", ai, "실전 계좌")}${box("코스피", kp, "")}</div>${lead ? `<p class="mood">${lead}</p>` : ""}`;
+    return `<div class="mkt">${box("나", me, "")}${box("알파", ai, "AI 투자자")}${box("코스피", kp, "")}</div>${lead ? `<p class="mood">${lead}</p>` : ""}`;
+  }
+  /* 진행 중 화면용 한 줄 (자세한 비교는 AI 대결 화면에) */
+  function scoreline(g) {
+    const me = ret(g), ai = aiRet(g), kp = kospiRet(g);
+    const lead = ai == null ? "" : Math.abs(me - ai) < 0.005 ? "알파와 동점" : me > ai ? `알파보다 <b class="up">${(me - ai).toFixed(2)}%p</b> 앞서요` : `알파보다 <b class="down">${(ai - me).toFixed(2)}%p</b> 뒤져요`;
+    return `<a class="g-line" href="#vs"><span>${lead || "알파와 비교 준비 중"}</span><span class="sub">알파 ${ai == null ? "-" : pct(ai)} · 코스피 ${kp == null ? "-" : pct(kp)} · 자세히 ›</span></a>`;
   }
 
   function gameView(g) {
@@ -113,7 +141,7 @@
     const pos = Object.entries(g.pos);
     if (g.done) {
       const r = g.result || {};
-      const verdict = r.ai == null ? "" : r.ret > r.ai ? "🏆 AI 운용팀을 이겼어요!" : r.ret < r.ai ? "AI 운용팀이 이겼어요. 다음엔 꼭!" : "AI와 비겼어요.";
+      const verdict = r.ai == null ? "" : r.ret > r.ai ? "🏆 알파를 이겼어요!" : r.ret < r.ai ? "알파가 이겼어요. 다음엔 꼭!" : "알파와 비겼어요.";
       return `<section class="card g-end"><div class="ic" aria-hidden="true">🏁</div><h2>게임 끝 · 성적표</h2><p class="sub">${esc(g.start)} ~ ${esc(g.lastDate)} (${g.days}일)</p>
         <div class="g-big num ${cls(r.ret)}">${pct(r.ret)}</div><p class="mood">${verdict}</p>${scoreboard(g)}
         <div class="tiles"><div class="tile"><div class="k">최종 자산</div><div class="v num">${won(eq)}원</div></div>
@@ -124,10 +152,13 @@
       <div class="hd"><h2>내 게임 계좌</h2><span class="sub">D-${left} · ${esc(g.end.slice(5).replace("-", "."))} 종료</span></div>
       <div class="g-big num">${won(eq)}<small>원</small></div>
       <div class="g-prog"><i style="width:${Math.min(100, passed / g.days * 100)}%"></i></div>
-      <p class="sub">${g.days}일 중 ${passed}일 지남 · 현금 ${won(g.cash)}원</p>
-      ${scoreboard(g)}
+      <p class="sub">${g.days}일 중 ${passed}일 지남 · 현금 ${won(g.cash)}원 · ${pct(ret(g))}</p>
+      ${scoreline(g)}
+      ${g.note && g.note.d === SC.date ? `<p class="g-msg" role="status">${esc(g.note.t)}</p>` : ""}
       ${msg ? `<p class="g-msg" role="status">${esc(msg)}</p>` : ""}
     </section>
+    ${(g.orders || []).length ? `<section class="card"><div class="hd"><h2>예약 주문</h2><span class="sub">다음 장 마감 종가로 체결</span></div><ul class="list">${g.orders.map((o, i) => `<li><div class="row g-hrow"><span class="${o.side === "B" ? "up" : "down"} g-side">${o.side === "B" ? "매수" : "매도"}</span>
+        <span style="min-width:0"><div class="nm">${esc(o.name)}</div><div class="meta">${won(o.qty)}주 · ${esc(o.at.slice(5))} 주문</div></span><span class="rt"><button class="g-cancel" type="button" data-g="cancel" data-v="${i}">취소</button></span></div></li>`).join("")}</ul></section>` : ""}
     <section class="card"><div class="hd"><h2>보유 종목</h2><a class="sub" href="#analysis">+ 종목 사기</a></div>
       ${pos.length ? `<ul class="list">${pos.map(([sym, p]) => { const now = priceOf(sym) ?? p.last, r = (now / p.avg - 1) * 100; return `<li><button class="row" type="button" data-g="open" data-v="${esc(sym)}">
         <span></span><span style="min-width:0"><div class="nm">${esc(p.name)}</div><div class="meta num">${won(p.qty)}주 · 평단 ${won(p.avg)}</div></span>
@@ -156,14 +187,14 @@
     <section class="card">
       <div class="dhead"><div><div class="dname">${esc(s.name)}</div><div class="meta">${esc(s.code)} · AI 점수 ${Math.round((s.score + 1) * 50)}점 · <span class="chip ${s.label}">${s.label}</span></div></div>
         <div><div class="dprice num">${won(s.price)}</div><div class="meta num ${cls(s.chg)}" style="text-align:right">${pct(s.chg)}</div></div></div>
-      <p class="sub">${esc(SC.date)} 종가로 체결돼요 · 참고 목표가 ${won(s.target)} · 손절가 ${won(s.stop)}</p>
+      <p class="sub">${live() ? `${esc(SC.date)} 종가로 바로 체결돼요` : `지금은 장 마감 전이라 <b>다음 장 마감 종가</b>로 체결돼요 (예약 주문)`} · 참고 목표가 ${won(s.target)} · 손절가 ${won(s.stop)}</p>
       ${held ? `<p class="mood">보유 ${won(held.qty)}주 · 평단 ${won(held.avg)} · <span class="${cls(s.price / held.avg - 1)}">${pct((s.price / held.avg - 1) * 100)}</span></p>` : ""}
       <div class="g-side2" role="group" aria-label="주문 종류"><button type="button" data-g="side" data-v="B" aria-pressed="${B}" class="b">사기</button><button type="button" data-g="side" data-v="S" aria-pressed="${!B}" class="s">팔기</button></div>
       <label class="g-k" for="gq">수량 (최대 ${won(maxQ)}주)</label>
       <div class="g-qty"><input id="gq" type="number" inputmode="numeric" min="0" max="${maxQ}" step="1" value="0"><span>주</span></div>
       <div class="chips">${[["10%", 0.1], ["25%", 0.25], ["50%", 0.5], ["최대", 1]].map(([t, f]) => `<button type="button" data-g="frac" data-v="${f}" data-max="${maxQ}">${t}</button>`).join("")}</div>
       <p class="sub" id="gamt">주문 금액 0원 · 현금 ${won(g.cash)}원</p>
-      <button class="cta ${B ? "g-buy" : "g-sell"}" type="button" data-g="order" data-v="${esc(sym)}" ${maxQ ? "" : "disabled"}>${B ? "사기" : "팔기"}</button>
+      <button class="cta ${B ? "g-buy" : "g-sell"}" type="button" data-g="order" data-v="${esc(sym)}" ${maxQ ? "" : "disabled"}>${live() ? (B ? "사기" : "팔기") : (B ? "장 마감 종가로 사기 (예약)" : "장 마감 종가로 팔기 (예약)")}</button>
       ${msg ? `<p class="g-msg" role="status">${esc(msg)}</p>` : ""}
     </section>
     <a class="back" href="#analysis/${encodeURIComponent(sym)}">이 종목 AI 분석 보기 ›</a>`;
@@ -172,7 +203,7 @@
   function view(sc, sym) {
     SC = sc;
     if (!SC) return `<div class="card"><div class="skel"></div><div class="skel" style="width:60%"></div></div>`;
-    if (G) catchUp(G);
+    if (G) { catchUp(G); fillKospi(G); }
     const body = !G ? (sym ? `<div class="card"><h2>먼저 게임을 시작해 주세요</h2><p class="sub">기간을 고르고 시작하면 바로 이 종목을 살 수 있어요.</p></div>` : "") + setupView()
       : sym && !G.done ? orderView(G, sym) : gameView(G);
     const out = `<div id="gameRoot">${sym && G && !G.done ? "" : '<div class="g-top"><a class="back" href="#home">‹ 홈</a><a class="back" href="#vs">AI 대결 보기 ›</a></div>'}${body}<p class="note">모의투자는 가상 돈으로 하는 연습이며 실제 거래가 아닙니다. 하루 한 번 장 마감 가격으로 체결되고, 실제 수익을 보장하지 않습니다.</p></div>`;
@@ -205,9 +236,12 @@
     else if (a === "frac") { const q = document.getElementById("gq"); q.value = Math.floor(+b.dataset.max * +v); q.dispatchEvent(new Event("input", { bubbles: true })); return; }
     else if (a === "open") { location.hash = "game/" + encodeURIComponent(v); return; }
     else if (a === "order") {
-      const q = Math.floor(+document.getElementById("gq").value || 0);
-      msg = trade(G, v, q, side === "S", "직접 주문"); save(KEY, G);
+      const q = Math.floor(+document.getElementById("gq").value || 0), s = SC.stocks[v];
+      if (live() || q <= 0) msg = trade(G, v, q, side === "S", "직접 주문");
+      else { (G.orders = G.orders || []).push({ sym: v, name: s.name, qty: q, side, at: todayKST() }); msg = `${s.name} ${won(q)}주 ${side === "S" ? "매도" : "매수"} 예약 완료 · 다음 장 마감 종가로 체결돼요`; }
+      save(KEY, G);
     }
+    else if (a === "cancel") { (G.orders || []).splice(+v, 1); save(KEY, G); }
     redraw();
   }, true);
   document.addEventListener("change", e => {
@@ -240,6 +274,8 @@
   .g-qty input:focus{outline:none}.g-qty:focus-within{border-color:var(--line2,var(--brand2));box-shadow:0 0 0 4px var(--lav-s,#efedff)}
   .cta.g-buy{background:linear-gradient(135deg,#ffd3db,#ffb4c1);color:#c8243f;box-shadow:0 10px 22px rgba(239,69,101,.16)}.cta.g-sell{background:linear-gradient(135deg,#d6e6ff,#b8d3ff);color:#2459c9;box-shadow:0 10px 22px rgba(61,123,242,.16)}.cta[disabled]{opacity:.4}
   button.cta{border:0;cursor:pointer;width:100%}
+  .g-line{display:flex;flex-direction:column;gap:2px;margin-top:12px;padding:12px 14px;border-radius:14px;background:var(--lav-s,#efedff);text-decoration:none;color:inherit;font-size:14.5px}
+  .g-cancel{border:1px solid var(--line2,#dcd8ff);background:#fff;border-radius:10px;padding:6px 10px;font:inherit;font-size:12.5px;color:var(--muted)}
   .g-quit{display:block;margin:14px auto 0;color:var(--muted);font-size:13.5px;text-decoration:underline}
   .g-end{text-align:center}.g-end .ic{font-size:40px}.g-end .mkt{text-align:left}.g-end .tiles{text-align:left}`;
   document.head.appendChild(css);

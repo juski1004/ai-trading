@@ -22,6 +22,8 @@
   const page = (id, title, sub, body, a, role) => `<section class="dk-page" id="dk-${id}" aria-labelledby="dk-h-${id}">
     <div class="dk-hd"><div><h2 id="dk-h-${id}">${title}</h2><p class="sub">${sub}</p></div>${a ? who(a, role) : ""}</div>${body}</section>`;
   const tone = t => `<span class="dk-tone ${t === "호재" ? "up" : t === "악재" ? "down" : "flat"}">${esc(t || "중립")}</span>`;
+  // 긴 목록: n개만 보이고 나머지는 '더 보기'로 펼침
+  const more = (lis, n) => lis.length <= n ? `<ul class="dk-news">${lis.join("")}</ul>` : `<ul class="dk-news">${lis.slice(0, n).join("")}</ul><details class="dk-more"><summary>더 보기 (${lis.length - n}개)</summary><ul class="dk-news">${lis.slice(n).join("")}</ul></details>`;
   const row = (sym, s, right) => `<li><button class="dk-row" type="button" data-sym="${esc(sym)}"><span class="nm">${esc(s.name)}</span>${right}</button></li>`;
 
   function pages(SC) {
@@ -42,6 +44,11 @@
        <h3>많이 오른 종목</h3><ul class="dk-list">${byChg.slice(0, 4).map(mv).join("")}</ul>
        <h3>많이 내린 종목</h3><ul class="dk-list">${byChg.slice(-4).reverse().map(mv).join("")}</ul>`, "LLOYD", "리스크 점검")]);
 
+    const W0 = (window.getWatch ? window.getWatch() : []).filter(sym => SC.stocks[sym]);
+    out.push(["watch", "관심 종목", page("watch", "관심 종목", "★로 담아 둔 종목",
+      W0.length ? `<ul class="dk-list">${W0.map(sym => { const s = SC.stocks[sym]; return row(sym, s, `<span class="num"><b>${won(s.price)}</b> <i class="${cls(s.chg)}">${pct(s.chg)}</i> · ${pts(s.score)}점</span>`); }).join("")}</ul>`
+        : '<p class="empty">아직 없어요. 종목 화면 이름 옆의 ☆을 누르면 여기 모여요.</p>')]);
+
     const fx = (k, lab, u = "%") => F[k] == null ? "" : `<div class="dk-kv"><span>${lab}</span><b class="num ${typeof F[k] === "number" && u === "%" ? cls(F[k]) : ""}">${typeof F[k] === "number" ? (u === "%" ? pct(F[k]) : F[k].toLocaleString("ko-KR") + u) : esc(F[k])}</b></div>`;
     const K = F["코스피"] || {}, Q = F["코스닥"] || {};
     out.push(["eco", "경제지표", page("eco", "경제지표", "환율·유가·금리·공포지수",
@@ -51,10 +58,10 @@
        ${D.o && D.o.lines ? `<h3>시황 한 줄 ${D.o.tone ? tone(D.o.tone === "긍정" ? "호재" : D.o.tone === "부정" ? "악재" : "중립") : ""}</h3><ul class="dk-bul">${D.o.lines.slice(0, 4).map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}`, "JOY", "시장 흐름")]);
 
     out.push(["news", "뉴스", page("news", "경제 뉴스", "오늘 시장에 영향 준 기사",
-      D.d.eco.length ? `<ul class="dk-news">${D.d.eco.slice(0, 8).map(x => `<li><a href="${esc(x.link)}" target="_blank" rel="noopener">${esc(x.title)}<small>${esc(x.src)} · ${esc((x.date || "").slice(5))}</small></a></li>`).join("")}</ul>` : '<p class="empty">뉴스를 불러오는 중이에요.</p>', "OSCAR", "수급·뉴스")]);
+      D.d.eco.length ? more(D.d.eco.map(x => `<li><a href="${esc(x.link)}" target="_blank" rel="noopener">${esc(x.title)}<small>${esc(x.src)} · ${esc((x.date || "").slice(5))}</small></a></li>`), 5) : '<p class="empty">뉴스를 불러오는 중이에요.</p>', "OSCAR", "수급·뉴스")]);
 
     out.push(["disc", "공시", page("disc", "공시", "최근 이틀 금융감독원 공시",
-      D.d.disc.length ? `<ul class="dk-news">${D.d.disc.slice(0, 10).map(x => `<li><a href="${esc(x.link)}" target="_blank" rel="noopener"><b>${esc(x.name)}</b> ${esc(x.title)}<small>${esc(x.date.slice(5))} · DART</small></a></li>`).join("")}</ul>` : '<p class="empty">새 공시가 없거나 불러오는 중이에요.</p>', "OSCAR", "공시 확인")]);
+      D.d.disc.length ? more(D.d.disc.map(x => `<li><a href="${esc(x.link)}" target="_blank" rel="noopener"><b>${esc(x.name)}</b> ${esc(x.title)}<small>${esc(x.date.slice(5))} · DART</small></a></li>`), 5) : '<p class="empty">새 공시가 없거나 불러오는 중이에요.</p>', "OSCAR", "공시 확인")]);
 
     const mf = F["오늘_시장수급_억원"] || {}, b5 = F["대형주_수급_5일"];
     const fl = (lab, x) => x ? `<div class="dk-flow"><b>${lab}</b><span>외국인 <i class="${cls(x.frg)}">${eok(x.frg)}</i></span><span>기관 <i class="${cls(x.org)}">${eok(x.org)}</i></span><span>개인 <i class="${cls(x.ind)}">${eok(x.ind)}</i></span></div>` : "";
@@ -68,20 +75,20 @@
        <h3>거래량 급증</h3><ul class="dk-list">${hot.map(([sym, s]) => row(sym, s, `<span class="num">평소의 <b>${s.vol_ratio.toFixed(1)}배</b> · <i class="${cls(s.chg)}">${pct(s.chg)}</i></span>`)).join("")}</ul>`, "RAY", "차트·거래량")]);
 
     const P = D.p || {}, top = [...S].sort((a, b) => b[1].score - a[1].score).slice(0, 5);
-    out.push(["pick", "종목 추천", page("pick", "종목 추천", "AI 운용팀이 오늘 고른 종목 (참고용)",
+    out.push(["pick", "종목 추천", page("pick", "종목 추천", "AI 분석팀이 오늘 고른 종목 (참고용)",
       `${P.found ? `<div class="dk-pick"><b>${esc(P.name)}</b><p>${esc(P.reason || "")}</p><a class="pclink" href="#pick">추천 보고서 보기 ▶</a></div>` : `<p class="dk-line">${esc(P.reason || "추천 보고를 준비 중이에요.")}</p>`}
        <h3>AI 점수 상위</h3><ul class="dk-list">${top.map(([sym, s]) => row(sym, s, `<span class="num"><b>${pts(s.score)}점</b> <span class="chip ${s.label}">${s.label}</span></span>`)).join("")}</ul>`, "MILES", "진입 계획")]);
 
     out.push(["ask", "종목 분석", page("ask", "종목 분석", "종목을 입력하면 AI 분석팀이 답해요",
       `<form class="dk-ask" data-ask><input name="q" placeholder="예: 삼성전자, HMM, 005930" value="${esc(asked)}" autocomplete="off" aria-label="분석할 종목"><button type="submit">분석</button></form>
-       <div id="dk-ans">${answer(SC, asked)}</div>`, "THEO", "최종 판단")]);
+       <div id="dk-ans">${answer(SC, asked)}</div>`, "THEO", "종합 판단")]);
 
     out.push(["trade", "거래하기", page("trade", "거래하기", "가상 1,000만 원으로 실제 종가에 사고팔기",
       `<p class="dk-line">관심 종목을 고르고 매수·매도 버튼으로 바로 주문해요. 체결은 그날 실제 종가, 자동 손절 -5% · 익절 +10%.</p>
        <a class="pclink" href="#game">거래 화면 열기 ▶</a>`, "MILES", "주문 도우미")]);
 
     out.push(["vs", "AI 대결", page("vs", "AI 대결", "내 팀 vs 알파 팀, 같은 1,000만 원",
-      `<p class="dk-line">내가 뽑지 않은 본부장·직원들이 AI 투자자 '알파'로 뭉쳤어요. 매일 실제 종가로 수익률을 겨뤄요.</p>${window.Versus ? Versus.summary(SC) : ""}
+      `${window.Versus ? Versus.summary(SC) : ""}
        <a class="pclink" href="#vs">대결 현황 보기 ▶</a>`, "THEO", "심판")]);
     return out;
   }
@@ -106,7 +113,7 @@
     const P = pages(SC);
     return `<div class="dk-tabs" role="tablist">${P.map(([id, t], k) => `<button type="button" data-dk="${id}" ${k ? "" : 'aria-current="true"'}>${t}</button>`).join("")}</div>
       <div class="dk" id="dk">${P.map(p => p[2]).join("")}</div>
-      <div class="dk-nav"><button type="button" data-dkm="-1" aria-label="이전">‹</button><span class="sub">옆으로 밀어서 넘겨 보세요 · 끝에서 처음으로 이어져요</span><button type="button" data-dkm="1" aria-label="다음">›</button></div>`;
+      <p class="sub dk-hint">옆으로 밀어서 넘겨 보세요 · 끝에서 처음으로 이어져요</p>`;
   }
 
   /* 넘기기·탭·종목 질문 */
@@ -172,7 +179,8 @@
   .dk-ask{display:flex;gap:8px}.dk-ask input{flex:1;min-width:0;font:inherit;font-size:16px;padding:12px 14px;border-radius:14px;border:1.5px solid var(--line2,#dcd8ff)}.dk-ask button{flex:none;border:0;border-radius:14px;padding:0 18px;font:inherit;font-weight:800;background:var(--gold-g);color:var(--ink,#2d2a63)}
   .dk-res{margin-top:12px}.dk-res-hd{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.dk-res-hd b{font-size:18px}.dk-res-hd i{font-style:normal}
   .dk-ops li{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--line,#eceef6)}.dk-ops img{width:38px;height:38px;border-radius:50%;object-fit:cover;object-position:50% 15%;flex:none}.dk-ops p{margin:2px 0 0;font-size:13.5px;line-height:1.5}
-  .dk-nav{display:flex;justify-content:space-between;align-items:center;margin-top:6px}.dk-nav button{width:40px;height:40px;border-radius:50%;border:1px solid var(--line2,#dcd8ff);background:#fff;font-size:22px;color:var(--lav-d,#6c5ce7)}
+  .dk-hint{text-align:center;margin:6px 0 0;font-size:12px}
+  .dk-more summary{list-style:none;cursor:pointer;text-align:center;padding:10px;color:var(--lav-d,#6c5ce7);font-weight:700;font-size:13.5px}.dk-more summary::-webkit-details-marker{display:none}.dk-more[open] summary{display:none}
   @media (min-width:900px){.dk{grid-auto-columns:calc((100% - 24px)/3)}.dk-page{scroll-snap-align:none}.dk-page:nth-child(3n+1){scroll-snap-align:start}.dk-tabs{top:62px}}/* PC: 세 장씩 넘어가게 *//* PC: 세 장을 한눈에 */
   @media (min-width:640px) and (max-width:899px){.dk{grid-auto-columns:calc((100% - 12px)/2)}.dk-page{scroll-snap-align:none}.dk-page:nth-child(2n+1){scroll-snap-align:start}}`;
   document.head.appendChild(css);

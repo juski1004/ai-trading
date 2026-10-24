@@ -20,13 +20,13 @@
     { id: "miles", agent: "MILES", name: "민채원", role: "진입 계획", tag: "결단력 있는 플래너", look: "빨간 립, 화려한 귀걸이", mind: "자신감 있고 단호해요", trait: "'어디서 몇 주' 살지 분할 계획을 세워요." },
     { id: "lloyd", agent: "LLOYD", name: "강도윤", role: "리스크 점검", tag: "냉철한 브레이크", look: "높은 포니테일, 터틀넥", mind: "냉정하고 직설적이에요", trait: "변동성과 손절선을 지키고, 위험하면 바로 멈추자고 해요." },
     { id: "nova", agent: "NOVA", name: "한예린", role: "큰 흐름·금리", tag: "10년을 보는 전략가", look: "동그란 안경, 단정한 정장", mind: "학구적이고 신중해요", trait: "10년 주봉과 금리 사이클로 큰 그림을 그려요." },
-    { id: "egen", agent: "RAY", name: "윤하진", role: "차트 분석", tag: "에겐남 · 다정한 분석가", look: "부드러운 웨이브 머리, 크림색 카디건", mind: "다정하고 섬세해요", trait: "놓치기 쉬운 작은 신호까지 조곤조곤 설명해 줘요.", male: true },
-    { id: "teto", agent: "LLOYD", name: "강태오", role: "리스크 점검", tag: "테토남 · 원칙의 수비수", look: "짧은 머리, 강한 턱선, 검은 정장", mind: "직설적이고 추진력 있어요", trait: "손절 원칙은 절대 안 깨요. 버틸 이유가 없으면 바로 정리해요.", male: true },
-    { id: "puppy", agent: "OSCAR", name: "서은찬", role: "수급·뉴스·실적", tag: "강아지상 · 성실한 막내", look: "동그란 눈, 앞머리, 밝은 미소", mind: "밝고 성실하고 에너지 넘쳐요", trait: "공시·뉴스를 제일 먼저 물어와서 신나게 보고해요.", male: true },
+    { id: "egen", agent: "RAY", name: "윤하진", role: "차트 분석", tag: "에겐남 · 다정한 분석가", look: "자연스러운 웨이브 머리, 베이지 재킷에 크림색 니트", mind: "다정하고 섬세해요", trait: "놓치기 쉬운 작은 신호까지 조곤조곤 설명해 줘요.", male: true },
+    { id: "teto", agent: "LLOYD", name: "강태오", role: "리스크 점검", tag: "테토남 · 원칙의 수비수", look: "짧은 머리, 강한 턱선, 네이비 정장에 팔짱", mind: "직설적이고 추진력 있어요", trait: "손절 원칙은 절대 안 깨요. 버틸 이유가 없으면 바로 정리해요.", male: true },
+    { id: "puppy", agent: "OSCAR", name: "서은찬", role: "수급·뉴스·실적", tag: "강아지상 · 성실한 막내", look: "밝은 갈색 머리, 하늘색 셔츠에 네이비 니트, 환한 미소", mind: "밝고 성실하고 에너지 넘쳐요", trait: "공시·뉴스를 제일 먼저 물어와서 신나게 보고해요.", male: true },
   ];
   const DIRS = [
     { id: "theo", name: "정서연", role: "본부장", tag: "따뜻하지만 단호한 리더", look: "단정한 단발, 버건디 정장", mind: "따뜻하지만 결정은 단호해요", trait: "직원 의견을 모아 비중과 현금까지 깔끔하게 정리해 줘요." },
-    { id: "seunghyun", name: "백승현", role: "본부장", tag: "선한 인상의 베테랑", look: "희끗한 머리, 안경, 콧수염", mind: "온화하고 신중해요", trait: "30년 경력답게 서두르지 않는 분할 매수와 원칙을 강조해요.", male: true },
+    { id: "seunghyun", name: "백승현", role: "본부장", tag: "선한 인상의 베테랑", look: "은빛 머리, 금테 안경, 남색 넥타이", mind: "온화하고 신중해요", trait: "30년 경력답게 서두르지 않는 분할 매수와 원칙을 강조해요.", male: true },
   ];
   const DEFAULT = { dir: "theo", staff: ["joy", "oscar", "ray", "miles", "lloyd", "nova"] };
   const NSTAFF = 6; // 함께할 직원 수
@@ -214,7 +214,9 @@
   }
 
   // 내가 고르지 않은 본부장·직원 = AI 대결 상대 '알파' 팀
-  const rivals = () => ({ dir: DIRS.find(d => d.id !== team().dir) || DIRS[1], staff: STAFF.filter(s => !team().staff.includes(s.id)) });
-  window.Team = { name: a => forAgent(a).name, photo: a => forAgent(a).id, person: forAgent, director, members, rivals, reporter, call, meView, open: () => onboard(true) };
+  // AI 대결은 4대4: 내 본부장 + 내 직원 앞 3명  vs  상대 본부장 + 내가 고르지 않은 직원 3명
+  const rivals = () => ({ dir: DIRS.find(d => d.id !== team().dir) || DIRS[1], staff: STAFF.filter(s => !team().staff.includes(s.id)).slice(0, 3) });
+  const squad = () => members().slice(0, 3);
+  window.Team = { name: a => forAgent(a).name, photo: a => forAgent(a).id, person: forAgent, director, members, rivals, squad, reporter, call, meView, open: () => onboard(true) };
   if (!window.TEAM_SKIP) document.addEventListener("DOMContentLoaded", splash);
 })();
