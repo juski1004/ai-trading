@@ -103,23 +103,23 @@ def build(out: Path) -> dict:
     mf = fx["오늘_시장수급_억원"]
     up = sum(1 for s in S.values() if s["chg"] > 0); dn = sum(1 for s in S.values() if s["chg"] < 0)
 
-    # 1. 표지: 오늘 진행자 사진 크게
+    # 1. 표지 (훅): "○○가 알려주는 10월 27일 장마감 현황" + 진행자 사진 크게
     im, d = base(1, None)
-    d.text((70, 200), md, font=F("ExtraBold", 64), fill=INK)
-    d.text((70, 300), "오늘 장 마감", font=F("ExtraBold", 84), fill=INK)
-    d.text((70, 405), "1분 요약", font=F("ExtraBold", 84), fill=LAVD)
-    d.text((72, 530), f"진행 {hname}", font=F("Bold", 40), fill=INK)
-    d.text((72, 585), hrole, font=F("Medium", 32), fill=MUTED)
-    ph = _photo(hid, 390, 520, 36); card(d, (606, 156, 1014, 694), 44); im.paste(ph[0], (615, 165), ph[1])
-    card(d, (70, 740, 1010, 1080))
+    josa = "이" if (ord(hname[-1]) - 0xAC00) % 28 else "가"
+    d.text((70, 170), f"{hname}{josa} 알려주는", font=F("Bold", 54), fill=LAVD)
+    d.text((66, 245), md, font=F("ExtraBold", 120), fill=INK)
+    d.text((66, 385), "장마감 현황", font=F("ExtraBold", 120), fill=INK)
+    ph = _photo(hid, 510, 680, 44); card(d, (494, 546, 1014, 1236), 50); im.paste(ph[0], (499, 551), ph[1])
+    d.rounded_rectangle((520, 1160, 520 + 40 + d.textlength(f"{hrole} 담당", font=F("Bold", 30)), 1214), 27, fill=LAVD)
+    d.text((540, 1187), f"{hrole} 담당", font=F("Bold", 30), fill=WHITE, anchor="lm")
     for i, (lab, x) in enumerate([("코스피", k), ("코스닥", q)]):
-        y = 790 + i * 150
-        d.text((120, y), lab, font=F("Bold", 44), fill=MUTED)
-        d.text((960, y - 6), f"{x['v']:,.2f}", font=F("ExtraBold", 60), fill=INK, anchor="ra")
-        d.text((960, y + 64), pct(x["chg"]), font=F("Bold", 38), fill=col(x["chg"]), anchor="ra")
-    d.text((70, 1115), f"대형주 {len(S)}종목 중", font=F("Medium", 36), fill=MUTED)
-    d.text((70, 1165), f"{up}개 상승 · {dn}개 하락", font=F("ExtraBold", 50), fill=UP if up > dn else DOWN)
-    d.text((W - 70, 1200), "넘겨 보기 →", font=F("Bold", 36), fill=LAVD, anchor="ra")
+        y0 = 560 + i * 230; card(d, (70, y0, 460, y0 + 200), 36)
+        d.text((105, y0 + 30), lab, font=F("Bold", 38), fill=MUTED)
+        d.text((105, y0 + 88), pct(x["chg"]), font=F("ExtraBold", 66), fill=col(x["chg"]))
+    d.text((72, 1035), f"대형주 {len(S)}종목 중", font=F("Medium", 32), fill=MUTED)
+    d.text((72, 1080), f"{up}개 상승", font=F("ExtraBold", 46), fill=UP)
+    d.text((72, 1135), f"{dn}개 하락", font=F("ExtraBold", 46), fill=DOWN)
+    d.text((72, 1210), "넘겨 보기 →", font=F("Bold", 34), fill=LAVD)
     im.save(dst / "1.png")
 
     # 2. 지수 흐름
@@ -201,7 +201,7 @@ def build(out: Path) -> dict:
     d.text((672, 1155), "프로필 링크에서 무료로 ▶", font=F("Bold", 34), fill=WHITE, anchor="mm")
     im.save(dst / "6.png")
 
-    caption = f"""오늘 주식 장마감 요약 {md} | 코스피 {pct(k['chg'])} · 코스닥 {pct(q['chg'])}
+    caption = f"""{hname}{josa} 알려주는 {md} 장마감 현황 | 오늘 주식 장마감 요약 · 코스피 {pct(k['chg'])} · 코스닥 {pct(q['chg'])}
 
 진행: {hname} ({hrole}) · 내일은 {nname}
 
