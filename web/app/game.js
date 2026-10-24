@@ -26,7 +26,8 @@
   fetch("../data/ai.json", { cache: "no-cache" }).then(r => (r.ok ? r.json() : null)).then(d => { AI = d; redraw(); }).catch(() => {});
 
   /* ---------- 계산 ---------- */
-  const priceOf = sym => (SC && SC.stocks[sym] ? SC.stocks[sym].price : null);
+  const stockOf = sym => (SC && SC.stocks[sym]) || (window.__PX && window.__PX.stocks && window.__PX.stocks[sym]) || null; // 분석 종목 → 거래 전용 시세
+  const priceOf = sym => { const s = stockOf(sym); return s ? s.price : null; };
   const equity = g => g.cash + Object.entries(g.pos).reduce((s, [sym, p]) => s + p.qty * (priceOf(sym) ?? p.last), 0);
   const ret = g => (equity(g) / R.cash0 - 1) * 100;
   const kospiRet = g => (SC && SC.market && SC.market.kospi && g.kospi0 ? (SC.market.kospi.v / g.kospi0 - 1) * 100 : null);
@@ -47,8 +48,17 @@
     return (now / base - 1) * 100;
   }
 
+  // 실제 시장처럼: 거래 정지 종목은 체결 안 됨, 상한가(+29.5% 이상)에 매수·하한가에 매도는 체결 안 됨
+  function blocked(s, sell) {
+    if (!s) return "시세가 없는 종목이에요.";
+    if (s.halt || s.vol_ratio === 0) return `${s.name}은(는) 거래 정지 상태라 체결되지 않았어요.`;
+    if (!sell && s.chg >= 29.5) return `${s.name}은(는) 상한가라 살 수 없어요 (파는 사람이 없어요).`;
+    if (sell && s.chg <= -29.5) return `${s.name}은(는) 하한가라 팔 수 없어요 (사는 사람이 없어요).`;
+    return "";
+  }
   function trade(g, sym, qty, sell, why) {
-    const s = SC.stocks[sym], p = s.price;
+    const s = stockOf(sym), bad = blocked(s, sell); if (bad) return (why !== "직접 주문" ? why + ": " : "") + bad;
+    const p = s.price;
     if (sell) {
       const pos = g.pos[sym]; if (!pos) return "보유하지 않은 종목이에요.";
       if (qty <= 0) return "수량을 확인해 주세요.";
@@ -74,7 +84,7 @@
     const notes = [];
     // 예약 주문: 새로 들어온 날의 종가로 체결 (돈·수량이 모자라면 가능한 만큼만)
     for (const o of g.orders || []) {
-      const s = SC.stocks[o.sym]; if (!s) { notes.push(`${o.name} 예약 주문 취소 (시세 없음)`); continue; }
+      const s = stockOf(o.sym); if (!s) { notes.push(`${o.name} 예약 주문 취소 (시세 없음)`); continue; }
       let q = o.qty;
       if (o.side === "S") q = Math.min(q, g.pos[o.sym] ? g.pos[o.sym].qty : 0);
       else q = Math.min(q, Math.floor(g.cash / (s.price * (1 + R.fee))));
@@ -146,7 +156,7 @@
         <div class="g-big num ${cls(r.ret)}">${pct(r.ret)}</div><p class="mood">${verdict}</p>${scoreboard(g)}
         <div class="tiles"><div class="tile"><div class="k">최종 자산</div><div class="v num">${won(eq)}원</div></div>
         <div class="tile"><div class="k">거래 / 승률</div><div class="v num">${r.trades}회 · ${r.win == null ? "-" : Math.round(r.win) + "%"}</div></div></div>
-        <button class="cta" type="button" data-g="new">새 게임 시작</button></section>${tradesView(g)}`;
+        <button class="cta" type="button" data-g="new">새 게임 시작</button></section>${reviewView(g)}${tradesView(g)}`;
     }
     return `<section class="card">
       <div class="hd"><h2>내 게임 계좌</h2><span class="sub">D-${left} · ${esc(g.end.slice(5).replace("-", "."))} 종료</span></div>
@@ -170,6 +180,47 @@
     <button class="g-quit" type="button" data-g="quit">게임 그만두기</button>`;
   }
 
+  /* 게임 끝난 뒤 복기: 잘한 것·아쉬운 것을 본부장이 정리 */
+  function review(g) {
+    const r = g.result || {}, sells = g.trades.filter(t => t.side === "S" && t.pnl != null), buys = g.trades.filter(t => t.side === "B");
+    const best = sells.length ? sells.reduce((a, b) => (b.pnl > a.pnl ? b : a)) : null, worst = sells.length ? sells.reduce((a, b) => (b.pnl < a.pnl ? b : a)) : null;
+    const auto = g.trades.filter(t => /자동/.test(t.why || "")).length;
+    const held = Object.values(g.pos).length, lines = [];
+    if (r.ai != null) lines.push(r.ret > r.ai ? `알파보다 ${(r.ret - r.ai).toFixed(2)}%p 앞서며 이겼어요.` : r.ret < r.ai ? `알파에 ${(r.ai - r.ret).toFixed(2)}%p 뒤졌어요.` : "알파와 비겼어요.");
+    if (r.kospi != null) lines.push(r.ret > r.kospi ? `같은 기간 코스피(${pct(r.kospi)})보다 잘했어요.` : `같은 기간 코스피(${pct(r.kospi)})를 못 따라갔어요.`);
+    if (!g.trades.length) lines.push("한 번도 거래하지 않았어요. 다음엔 한 종목이라도 계획대로 사 보세요.");
+    else {
+      lines.push(`거래 ${g.trades.length}회 중 매도 ${sells.length}회, 승률 ${r.win == null ? "-" : Math.round(r.win) + "%"}.${auto ? ` 자동 손절·익절이 ${auto}번 지켜 줬어요.` : ""}`);
+      if (best) lines.push(`가장 잘한 매매: ${best.name} ${won(best.qty)}주 (+${won(best.pnl)}원).`);
+      if (worst && worst.pnl < 0) lines.push(`가장 아쉬운 매매: ${worst.name} ${won(worst.qty)}주 (${won(worst.pnl)}원). ${worst.why && /손절/.test(worst.why) ? "손절 원칙은 잘 지켰어요." : "손절선을 미리 정해 두면 손실을 줄일 수 있어요."}`);
+      if (buys.length >= 6) lines.push("매수가 잦았어요. 종목 수를 줄이고 분할로 들어가는 편이 수수료와 실수를 줄여요.");
+      if (held) lines.push(`끝날 때 ${held}종목을 들고 있었어요. 기간 안에 정리하는 계획도 세워 보세요.`);
+    }
+    return lines;
+  }
+  function reviewView(g) {
+    const d = window.Team ? Team.director() : { id: "theo", name: "정서연" }, lines = review(g);
+    return `<section class="card"><div class="hd"><h2>본부장 복기</h2><span class="sub">${esc(d.name)} 본부장</span></div>
+      <ul class="g-review">${lines.map(x => `<li>${esc(x)}</li>`).join("")}</ul>
+      <button class="cta" type="button" data-g="share">성적표 이미지로 공유하기</button></section>`;
+  }
+  async function shareResult(g) {
+    const r = g.result || {}, c = document.createElement("canvas"); c.width = 1080; c.height = 1350; const x = c.getContext("2d");
+    const F = (w, s) => `${w} ${s}px Pretendard, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif`;
+    const bg = x.createLinearGradient(0, 0, 1080, 1350); bg.addColorStop(0, "#f4f2ff"); bg.addColorStop(1, "#fff1f4"); x.fillStyle = bg; x.fillRect(0, 0, 1080, 1350);
+    x.textAlign = "center"; x.fillStyle = "#6c5ce7"; x.font = F(800, 44); x.fillText("AI 투자연구소 · 모의투자 성적표", 540, 130);
+    x.fillStyle = "#2d2a63"; x.font = F(700, 40); x.fillText(`${g.start} ~ ${g.lastDate} (${g.days}일)`, 540, 210);
+    x.fillStyle = r.ret >= 0 ? "#e2486b" : "#3d6fe6"; x.font = F(800, 150); x.fillText(pct(r.ret), 540, 420);
+    x.fillStyle = "#2d2a63"; x.font = F(700, 48); x.fillText(r.ai == null ? "" : r.ret > r.ai ? "🏆 알파를 이겼어요" : r.ret < r.ai ? "알파가 이겼어요" : "알파와 비겼어요", 540, 510);
+    const box = (bx, name, v, bgc) => { x.fillStyle = bgc; x.beginPath(); x.roundRect(bx, 580, 300, 190, 32); x.fill(); x.fillStyle = "#2d2a63"; x.font = F(700, 36); x.fillText(name, bx + 150, 640); x.fillStyle = v == null ? "#8a8fa6" : v >= 0 ? "#e2486b" : "#3d6fe6"; x.font = F(800, 58); x.fillText(v == null ? "-" : pct(v), bx + 150, 725); };
+    box(60, "나", r.ret, "#fff1f4"); box(390, "알파", r.ai, "#eef3ff"); box(720, "코스피", r.kospi, "#f1f3f8");
+    x.fillStyle = "#2d2a63"; x.font = F(600, 36); x.textAlign = "left"; review(g).slice(0, 4).forEach((l, i) => x.fillText("· " + (l.length > 34 ? l.slice(0, 33) + "…" : l), 80, 880 + i * 62));
+    x.textAlign = "center"; x.fillStyle = "#6c5ce7"; x.font = F(700, 36); x.fillText("가상 1,000만 원 · 실제 종가 기준 · 참고용", 540, 1200);
+    x.fillStyle = "#8a8fa6"; x.font = F(500, 30); x.fillText("juski1004.github.io/ai-trading/app", 540, 1260);
+    const blob = await new Promise(res => c.toBlob(res, "image/png")), file = new File([blob], "ai-report.png", { type: "image/png" });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file], title: "모의투자 성적표" }); return; } catch (e) { if (e.name === "AbortError") return; } }
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "ai-report.png"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  }
   function tradesView(g) {
     const t = g.trades.slice(-15).reverse();
     return `<section class="card"><div class="hd"><h2>거래 내역</h2><span class="sub">${g.trades.length}회</span></div>
@@ -179,25 +230,27 @@
   }
 
   function orderView(g, sym) {
-    const s = SC.stocks[sym];
-    if (!s) return `<a class="back" href="#game">‹ 내 계좌</a><div class="card"><h2>지금은 거래할 수 없는 종목이에요</h2><p class="sub">AI 분석 대상 종목만 모의투자할 수 있어요.</p></div>`;
+    const s = stockOf(sym);
+    if (!s) return `<a class="back" href="#game">‹ 내 계좌</a><div class="card"><h2>지금은 거래할 수 없는 종목이에요</h2><p class="sub">시가총액 상위 종목만 모의투자할 수 있어요.</p></div>`;
+    const bad = blocked(s, side === "S");
     const held = g.pos[sym], maxB = Math.floor(g.cash / (s.price * (1 + R.fee))), maxS = held ? held.qty : 0, B = side === "B";
     const maxQ = B ? maxB : maxS;
     return `<a class="back" href="#game">‹ 내 계좌</a>
     <section class="card">
-      <div class="dhead"><div><div class="dname">${esc(s.name)}</div><div class="meta">${esc(s.code)} · AI 점수 ${Math.round((s.score + 1) * 50)}점 · <span class="chip ${s.label}">${s.label}</span></div></div>
+      <div class="dhead"><div><div class="dname">${esc(s.name)}</div><div class="meta">${esc(s.code)} · ${s.score == null ? "AI 분석 없음 (거래만 가능)" : `AI 점수 ${Math.round((s.score + 1) * 50)}점 · <span class="chip ${s.label}">${s.label}</span>`}</div></div>
         <div><div class="dprice num">${won(s.price)}</div><div class="meta num ${cls(s.chg)}" style="text-align:right">${pct(s.chg)}</div></div></div>
-      <p class="sub">${live() ? `${esc(SC.date)} 종가로 바로 체결돼요` : `지금은 장 마감 전이라 <b>다음 장 마감 종가</b>로 체결돼요 (예약 주문)`} · 참고 목표가 ${won(s.target)} · 손절가 ${won(s.stop)}</p>
+      <p class="sub">${live() ? `${esc(SC.date)} 종가로 바로 체결돼요` : `지금은 장 마감 전이라 <b>다음 장 마감 종가</b>로 체결돼요 (예약 주문)`}${s.target ? ` · 참고 목표가 ${won(s.target)} · 손절가 ${won(s.stop)}` : ""}</p>
+      ${bad ? `<p class="g-msg down" role="status">${esc(bad)}</p>` : ""}
       ${held ? `<p class="mood">보유 ${won(held.qty)}주 · 평단 ${won(held.avg)} · <span class="${cls(s.price / held.avg - 1)}">${pct((s.price / held.avg - 1) * 100)}</span></p>` : ""}
       <div class="g-side2" role="group" aria-label="주문 종류"><button type="button" data-g="side" data-v="B" aria-pressed="${B}" class="b">사기</button><button type="button" data-g="side" data-v="S" aria-pressed="${!B}" class="s">팔기</button></div>
       <label class="g-k" for="gq">수량 (최대 ${won(maxQ)}주)</label>
       <div class="g-qty"><input id="gq" type="number" inputmode="numeric" min="0" max="${maxQ}" step="1" value="0"><span>주</span></div>
       <div class="chips">${[["10%", 0.1], ["25%", 0.25], ["50%", 0.5], ["최대", 1]].map(([t, f]) => `<button type="button" data-g="frac" data-v="${f}" data-max="${maxQ}">${t}</button>`).join("")}</div>
       <p class="sub" id="gamt">주문 금액 0원 · 현금 ${won(g.cash)}원</p>
-      <button class="cta ${B ? "g-buy" : "g-sell"}" type="button" data-g="order" data-v="${esc(sym)}" ${maxQ ? "" : "disabled"}>${live() ? (B ? "사기" : "팔기") : (B ? "장 마감 종가로 사기 (예약)" : "장 마감 종가로 팔기 (예약)")}</button>
+      <button class="cta ${B ? "g-buy" : "g-sell"}" type="button" data-g="order" data-v="${esc(sym)}" ${maxQ && !bad ? "" : "disabled"}>${live() ? (B ? "사기" : "팔기") : (B ? "장 마감 종가로 사기 (예약)" : "장 마감 종가로 팔기 (예약)")}</button>
       ${msg ? `<p class="g-msg" role="status">${esc(msg)}</p>` : ""}
     </section>
-    <a class="back" href="#analysis/${encodeURIComponent(sym)}">이 종목 AI 분석 보기 ›</a>`;
+    ${s.score == null ? "" : `<a class="back" href="#analysis/${encodeURIComponent(sym)}">이 종목 AI 분석 보기 ›</a>`}`;
   }
 
   function view(sc, sym) {
@@ -236,12 +289,13 @@
     else if (a === "frac") { const q = document.getElementById("gq"); q.value = Math.floor(+b.dataset.max * +v); q.dispatchEvent(new Event("input", { bubbles: true })); return; }
     else if (a === "open") { location.hash = "game/" + encodeURIComponent(v); return; }
     else if (a === "order") {
-      const q = Math.floor(+document.getElementById("gq").value || 0), s = SC.stocks[v];
+      const q = Math.floor(+document.getElementById("gq").value || 0), s = stockOf(v);
       if (live() || q <= 0) msg = trade(G, v, q, side === "S", "직접 주문");
       else { (G.orders = G.orders || []).push({ sym: v, name: s.name, qty: q, side, at: todayKST() }); msg = `${s.name} ${won(q)}주 ${side === "S" ? "매도" : "매수"} 예약 완료 · 다음 장 마감 종가로 체결돼요`; }
       save(KEY, G);
     }
     else if (a === "cancel") { (G.orders || []).splice(+v, 1); save(KEY, G); }
+    else if (a === "share") { shareResult(G); return; }
     redraw();
   }, true);
   document.addEventListener("change", e => {
@@ -249,7 +303,7 @@
   });
   document.addEventListener("input", e => {
     if (e.target.id !== "gq" || !SC) return;
-    const [, arg] = location.hash.slice(1).split("/"), s = SC.stocks[decodeURIComponent(arg || "")];
+    const [, arg] = location.hash.slice(1).split("/"), s = stockOf(decodeURIComponent(arg || ""));
     const el = document.getElementById("gamt"); if (!s || !el) return;
     const q = Math.max(0, Math.floor(+e.target.value || 0));
     el.textContent = `주문 금액 ${won(q * s.price)}원 · 현금 ${won(G.cash)}원`;
@@ -274,6 +328,8 @@
   .g-qty input:focus{outline:none}.g-qty:focus-within{border-color:var(--line2,var(--brand2));box-shadow:0 0 0 4px var(--lav-s,#efedff)}
   .cta.g-buy{background:linear-gradient(135deg,#ffd3db,#ffb4c1);color:#c8243f;box-shadow:0 10px 22px rgba(239,69,101,.16)}.cta.g-sell{background:linear-gradient(135deg,#d6e6ff,#b8d3ff);color:#2459c9;box-shadow:0 10px 22px rgba(61,123,242,.16)}.cta[disabled]{opacity:.4}
   button.cta{border:0;cursor:pointer;width:100%}
+  .g-review{margin:8px 0 0;padding-left:18px;line-height:1.6;font-size:14.5px;display:flex;flex-direction:column;gap:4px}
+  .g-msg.down{background:#eaf1ff;color:#2459c9}
   .g-line{display:flex;flex-direction:column;gap:2px;margin-top:12px;padding:12px 14px;border-radius:14px;background:var(--lav-s,#efedff);text-decoration:none;color:inherit;font-size:14.5px}
   .g-cancel{border:1px solid var(--line2,#dcd8ff);background:#fff;border-radius:10px;padding:6px 10px;font:inherit;font-size:12.5px;color:var(--muted)}
   .g-quit{display:block;margin:14px auto 0;color:var(--muted);font-size:13.5px;text-decoration:underline}

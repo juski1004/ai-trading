@@ -252,14 +252,17 @@ const pct=x=>(x>0?'+':'')+x.toFixed(2)+'%';
 const cls=x=>x>0?'up':x<0?'down':'flat';
 const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
 const pts=s=>Math.round((s+1)/2*100);  // -1~+1 → 0~100점
-let SC=null,META={},ERR=null,SUMM=null,LIST=null,FILTER='전체',Q='',LIMIT=20;
+let SC=null,META={},ERR=null,SUMM=null,LIST=null,FILTER='전체',Q='',LIMIT=20,PX=null;
+/* 분석 종목(SC)에 없으면 거래 전용 시세(PX, 시가총액 상위 약 350종목)에서 찾음 */
+const stockOf=sym=>(SC&&SC.stocks[sym])||(PX&&PX.stocks&&PX.stocks[sym]&&{...PX.stocks[sym],lite:true})||null;
+window.stockOf=stockOf;
 let WATCH=(()=>{try{return JSON.parse(localStorage.getItem('aiLab.watch.v1')||'[]')}catch(e){return[]}})();
 const saveWatch=()=>{try{localStorage.setItem('aiLab.watch.v1',JSON.stringify(WATCH))}catch(e){}};
 window.getWatch=()=>WATCH;
 
 async function load(){
   const get=async f=>{const r=await fetch('../data/'+f,{cache:'no-cache'});if(!r.ok)throw new Error(f+' '+r.status);return r.json()};
-  try{[SC,META]=await Promise.all([get('scores.json'),get('meta.json').catch(()=>({}))]);window.__SC=SC}catch(e){ERR=e}
+  try{[SC,META,PX]=await Promise.all([get('scores.json'),get('meta.json').catch(()=>({})),get('prices.json').catch(()=>null)]);window.__SC=SC;window.__PX=PX}catch(e){ERR=e}
   render();
 }
 
@@ -307,7 +310,9 @@ function analysisList(){
     list=S.filter(([,s])=>s.name.toLowerCase().includes(q)||s.code.startsWith(q)).sort((a,b)=>b[1].score-a[1].score);
     const inU=new Set(S.map(([,s])=>s.code));
     const others=(LIST||[]).filter(([c,n])=>!inU.has(c)&&(n.toLowerCase().includes(q)||c.startsWith(q))).slice(0,8);
-    if(others.length)extra=`<section class="card"><div class="hd"><div><h2>다른 종목</h2><p class="sub">지금은 대형주 ${S.length}종목만 AI 분석을 제공해요</p></div></div><ul class="list">${others.map(([c,n,m])=>`<li><div class="row off"><span></span><span><div class="nm">${esc(n)}</div><div class="meta">${esc(c)} · ${esc(m)}</div></span><span class="rt sc">분석 준비 중</span></div></li>`).join('')}</ul></section>`;
+    if(others.length)extra=`<section class="card"><div class="hd"><div><h2>다른 종목</h2><p class="sub">AI 분석은 대형주 ${S.length}종목, 모의투자는 시가총액 상위 ${PX?PX.n:0}종목까지 돼요</p></div></div><ul class="list">${others.map(([c,n,m])=>{const sym=c+(m==='KOSPI'?'.KS':'.KQ'),p=PX&&PX.stocks&&PX.stocks[sym];
+      return p?`<li><button class="row" type="button" data-sym="${esc(sym)}"><span></span><span style="min-width:0"><div class="nm">${esc(n)}</div><div class="meta num">${esc(c)} · <span class="${cls(p.chg)}">${pct(p.chg)}</span></div></span><span class="rt"><div class="px num">${won(p.price)}</div><div class="sc">${p.halt?'거래 정지':'거래 가능 · 분석 없음'}</div></span></button></li>`
+      :`<li><div class="row off"><span></span><span><div class="nm">${esc(n)}</div><div class="meta">${esc(c)} · ${esc(m)}</div></span><span class="rt sc">시세 없음</span></div></li>`}).join('')}</ul></section>`;
   }
   return `<div class="search" style="margin-top:12px"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16 16l5 5"/></svg>
     <input id="q" type="search" placeholder="종목명 또는 코드 검색" value="${esc(Q)}" autocomplete="off" aria-label="종목 검색"></div>
@@ -325,8 +330,14 @@ function spark(s){
 }
 function analysisDetail(sym){
   lazy();
-  const s=SC.stocks[sym];
-  if(!s)return `<a class="back" href="#analysis">‹ 목록</a><div class="card"><h2>분석 대상이 아닌 종목이에요</h2><p class="sub">지금은 대형주 ${Object.keys(SC.stocks).length}종목만 AI 분석을 제공해요.</p></div>`;
+  const s=SC.stocks[sym],lite=!s&&stockOf(sym);
+  if(lite)return `<a class="back" href="#analysis">‹ 목록</a>
+  <section class="card"><div class="dhead"><div><div class="dname">${esc(lite.name)} <button class="star" type="button" data-watch="${esc(sym)}" aria-pressed="${WATCH.includes(sym)}" aria-label="관심 종목">${WATCH.includes(sym)?'★':'☆'}</button></div><div class="meta">${esc(lite.code)} · ${esc(lite.market)}</div></div>
+      <div><div class="dprice num">${won(lite.price)}</div><div class="meta num ${cls(lite.chg)}" style="text-align:right">${pct(lite.chg)}</div></div></div>
+    <p class="sub" style="margin-top:8px">${esc(PX.date)} 종가 · ${lite.halt?'<b class="down">거래 정지 종목</b>이라 지금은 사고팔 수 없어요.':'모의투자로 사고팔 수 있어요.'}</p></section>
+  <section class="card"><h2>AI 분석은 아직 없어요</h2><p class="sub">AI 분석팀은 대형주 ${Object.keys(SC.stocks).length}종목을 매일 분석해요. 이 종목은 시세만 받아서 모의투자에 쓸 수 있어요.</p></section>
+  ${lite.halt?'':`<a class="cta" href="#game/${encodeURIComponent(sym)}">이 종목으로 모의투자 해 보기</a>`}`;
+  if(!s)return `<a class="back" href="#analysis">‹ 목록</a><div class="card"><h2>시세가 없는 종목이에요</h2><p class="sub">AI 분석은 대형주 ${Object.keys(SC.stocks).length}종목, 모의투자는 시가총액 상위 ${PX?PX.n:0}종목까지 돼요.</p></div>`;
   const P=pts(s.score),rc=s.label==='긍정'?'var(--pos)':s.label==='부정'?'var(--neg)':'var(--neu)',f=s.fin||{},sm=SUMM&&SUMM[sym];
   const tile=(k,v,h)=>`<div class="tile"><div class="k">${k}</div><div class="v num">${v}</div><div class="h">${h}</div></div>`;
   const fx=(v,u,d=1)=>v==null?'-':v.toFixed(d)+u;

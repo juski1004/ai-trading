@@ -253,6 +253,14 @@ def build(out: Path, quick: bool = False, game_dir: Path = Path("game")) -> dict
     except Exception as e:  # 점수 실패로 화면 데이터 전체를 버리지 않게
         print(f"[AI 점수 실패] {type(e).__name__}: {e}")
 
+    # 거래 전용 시세 (코스피·코스닥 시가총액 상위 약 350종목): 모의투자에서 사고팔 수 있는 종목을 넓힘
+    try:
+        from .prices import build as build_prices
+        px = build_prices(out, set(stocks))
+        print(f"거래 시세 {px['n']}종목 ({px['date']})")
+    except Exception as e:
+        print(f"[거래 시세 실패] {type(e).__name__}: {e}")
+
     ai = {}
     for name in ("state.json", "verdicts.json"):
         p = game_dir / name

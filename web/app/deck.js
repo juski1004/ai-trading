@@ -44,9 +44,9 @@
        <h3>많이 오른 종목</h3><ul class="dk-list">${byChg.slice(0, 4).map(mv).join("")}</ul>
        <h3>많이 내린 종목</h3><ul class="dk-list">${byChg.slice(-4).reverse().map(mv).join("")}</ul>`, "LLOYD", "리스크 점검")]);
 
-    const W0 = (window.getWatch ? window.getWatch() : []).filter(sym => SC.stocks[sym]);
+    const so = sym => (window.stockOf ? window.stockOf(sym) : SC.stocks[sym]), W0 = (window.getWatch ? window.getWatch() : []).filter(so);
     out.push(["watch", "관심 종목", page("watch", "관심 종목", "★로 담아 둔 종목",
-      W0.length ? `<ul class="dk-list">${W0.map(sym => { const s = SC.stocks[sym]; return row(sym, s, `<span class="num"><b>${won(s.price)}</b> <i class="${cls(s.chg)}">${pct(s.chg)}</i> · ${pts(s.score)}점</span>`); }).join("")}</ul>`
+      W0.length ? `<ul class="dk-list">${W0.map(sym => { const s = so(sym); return row(sym, s, `<span class="num"><b>${won(s.price)}</b> <i class="${cls(s.chg)}">${pct(s.chg)}</i>${s.score == null ? "" : ` · ${pts(s.score)}점`}</span>`); }).join("")}</ul>`
         : '<p class="empty">아직 없어요. 종목 화면 이름 옆의 ☆을 누르면 여기 모여요.</p>')]);
 
     const fx = (k, lab, u = "%") => F[k] == null ? "" : `<div class="dk-kv"><span>${lab}</span><b class="num ${typeof F[k] === "number" && u === "%" ? cls(F[k]) : ""}">${typeof F[k] === "number" ? (u === "%" ? pct(F[k]) : F[k].toLocaleString("ko-KR") + u) : esc(F[k])}</b></div>`;
