@@ -268,12 +268,12 @@ async function load(){
 }
 
 /* ---------- 홈 ---------- */
-/* 다음 데이터 갱신 시각 (평일 16:20 KST, 예약이 밀리면 17:20에 한 번 더) */
+/* 다음 데이터 갱신 시각 (평일 16:07 시작 → 16:30쯤 반영, 예약이 밀리면 16:47에 한 번 더) */
 function nextRefresh(){
   const now=new Date(Date.now()+9*3600e3),d=now.getUTCDay(),h=now.getUTCHours()*60+now.getUTCMinutes();
-  if(d>=1&&d<=5&&h<16*60+20)return '오늘 16:20';
-  if(d>=1&&d<=4)return '내일 16:20';
-  return '월요일 16:20';
+  if(d>=1&&d<=5&&h<16*60+30)return '오늘 16:30';
+  if(d>=1&&d<=4)return '내일 16:30';
+  return '월요일 16:30';
 }
 function home(){
   if(ERR)return `<div class="card"><h2>데이터를 불러오지 못했어요</h2><p class="sub">잠시 뒤 다시 열어 주세요. (${esc(ERR.message)})</p></div>`;
