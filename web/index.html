@@ -107,6 +107,7 @@ select.sel{background:var(--raise);border:1px solid var(--line2);padding:6px 8px
 .chip[aria-pressed="true"]{background:var(--raise);border-color:var(--accent);color:var(--fg)}
 .spacer{flex:1}
 .chartwrap{position:relative;width:100%;margin-top:6px}
+.cevents{font-size:12.5px;line-height:1.5;color:var(--fg,#1d2433);padding:8px 4px 2px;word-break:keep-all;overflow-wrap:anywhere}.cevents b{display:block;font-size:12px;color:#6b7383;margin-bottom:2px}
 #chart{display:block;width:100%;cursor:crosshair}
 .hint{font-size:11.5px;color:var(--dim);margin-top:6px}
 .settings{background:var(--bg);border:1px solid var(--line2);padding:12px;margin:6px 0 4px}
@@ -427,6 +428,9 @@ html.bembed .bphoto{align-self:stretch}html.bembed .bphoto img{height:100vh;widt
 .flsum{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line);margin-bottom:10px}
 .flsum div{padding:6px 9px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-width:0}
 .flsum .k{font-size:11px;color:var(--muted)}.flsum .v{font-size:14px;font-weight:600;white-space:nowrap}
+@media (max-width:600px){/* 휴대폰: 칸이 차면 줄바꿈, 요약 칸은 2열 */
+  .flsum{grid-template-columns:repeat(2,minmax(0,1fr))!important}.flsum .v{white-space:normal;word-break:keep-all;font-size:13px}
+  .ptab th,.ptab td{white-space:normal;word-break:keep-all;padding:5px 5px}.ptab td.num,.ptab .num{font-size:12px}}
 .estbar{display:flex;height:10px;border-radius:5px;overflow:hidden;margin:6px 0 4px;background:var(--line)}
 .estbar i{display:block;height:100%}
 /* 사용법 안내 */
@@ -551,6 +555,7 @@ html.bembed .bphoto{align-self:stretch}html.bembed .bphoto img{height:100vh;widt
         <div class="sact"><button class="btn sm primary" type="submit">적용</button><button class="btn sm" type="button" id="setDefault">기본값</button><span class="hint">AI 운용팀은 실제 엔진과 같은 고정 설정으로 분석합니다. 이 설정은 내 차트에만 적용됩니다.</span></div>
       </form>
       <div class="chartwrap" id="chartwrap"><canvas id="chart" aria-label="선택 종목 일봉 차트"></canvas></div>
+      <div id="cevents" class="cevents" hidden></div>
       <div class="hint">일봉 · 마우스를 올리면 그날 시세와 지표 값이 나옵니다 · 휠로 확대·축소</div>
     </div>
     <div class="row3">
@@ -1159,13 +1164,15 @@ function niceStep(r){const p=Math.pow(10,Math.floor(Math.log10(r))),m=r/p;return
 let hover=null,LAY=null;
 const SUBN={vol:'거래량',macd:'MACD',rsi:'RSI',sto:'스토캐스틱',cci:'CCI',wr:'윌리엄스 %R',mfi:'MFI',obv:'OBV',adx:'ADX/DMI',atr:'ATR'};
 const FONT='12px "IBM Plex Mono",Consolas,monospace',FONTK='12px "IBM Plex Sans KR",sans-serif';
-function chartH(){return Math.round(Math.min(980,Math.max(560,window.innerHeight-200)))}
+let CF=FONT,NR=false;// 휴대폰처럼 좁은 화면(NR)에서는 글씨를 줄이고 겹치는 표시는 건너뜀
+function chartH(){return Math.round(Math.min(980,Math.max(NR?600:560,window.innerHeight-200)))}
 function drawChart(){
   const cv=$('#chart'),wrap=$('#chartwrap'),dpr=Math.min(2,window.devicePixelRatio||1),w=wrap?.clientWidth;if(!cv||!w||!S)return;// 차트 없는 화면(판단·브리핑만 보이는 화면)에서는 그리지 않음
+  NR=w<520;CF=NR?'10.5px "IBM Plex Mono",Consolas,monospace':FONT;
   const h=chartH();cv.style.height=h+'px';cv.width=w*dpr;cv.height=h*dpr;const g=cv.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,w,h);
   const D=DATA[S.sel],b=D.bars,V=D.view,i=cur(),N=Math.min(S.N,i),from=i-N+1;
-  const pl=6,pr=78,cw=(w-pl-pr)/N,axisH=22,sg=8,ns=S.subs.length,subH=ns?Math.round((h-axisH)*[0,.2,.17,.15][ns]):0,mainH=h-axisH-ns*(subH+sg),top=8;
-  g.font=FONT;g.textBaseline='middle';
+  const pl=6,pr=NR?64:78,cw=(w-pl-pr)/N,axisH=22,sg=8,ns=S.subs.length,subH=ns?Math.round((h-axisH)*(NR?[0,.17,.14,.12]:[0,.2,.17,.15])[ns]):0,mainH=h-axisH-ns*(subH+sg),top=8;
+  g.font=CF;g.textBaseline='middle';
   const X=k=>pl+(k-from)*cw+cw/2,bw=Math.max(1,Math.floor(cw*.66));
   const vis=(arr,fn)=>{for(let k=from;k<=i;k++)if(arr[k]!=null)fn(arr[k])};
   let H=-Infinity,L=Infinity;for(let k=from;k<=i;k++){H=Math.max(H,b[k].h);L=Math.min(L,b[k].l)}let hi=H,lo=L;
@@ -1180,7 +1187,7 @@ function drawChart(){
   const step=niceStep((hi-lo)/7);g.strokeStyle=COL.grid;g.lineWidth=1;g.fillStyle=COL.axis;g.textAlign='left';
   for(let p=Math.ceil(lo/step)*step;p<=hi;p+=step){const y=Math.round(Y(p))+.5;g.beginPath();g.moveTo(pl,y);g.lineTo(w-pr,y);g.stroke();g.fillText(won(p),w-pr+6,y)}
   for(let k=from;k<=i;k++)if((NBARS-1-k)%10===0){const x=Math.round(X(k))+.5;g.beginPath();g.moveTo(x,0);g.lineTo(x,h-axisH);g.stroke()}
-  if(START>=from){const x=Math.round(X(START)-cw/2)+.5;g.strokeStyle=COL.accent;g.setLineDash([2,4]);g.beginPath();g.moveTo(x,0);g.lineTo(x,h-axisH);g.stroke();g.setLineDash([]);g.fillStyle=COL.accent;g.font=FONTK;g.fillText('대결 시작',x+5,mainH-10);g.font=FONT}
+  if(START>=from){const x=Math.round(X(START)-cw/2)+.5;g.strokeStyle=COL.accent;g.setLineDash([2,4]);g.beginPath();g.moveTo(x,0);g.lineTo(x,h-axisH);g.stroke();g.setLineDash([]);if(!NR){g.fillStyle=COL.accent;g.font=FONTK;g.fillText('대결 시작',x+5,mainH-10);g.font=CF}}
   if(S.ov.vp){const nb=28,bins=Array(nb).fill(0);for(let k=from;k<=i;k++){const t=Math.min(nb-1,Math.max(0,Math.floor((b[k].c-lo)/(hi-lo)*nb)));bins[t]+=b[k].v}
     const mx=Math.max(...bins),poc=bins.indexOf(mx),bh=(mainH-top)/nb,maxW=(w-pl-pr)*.18;
     bins.forEach((x,t)=>{const ww=x/mx*maxW,y=Y(lo+(t+1)/nb*(hi-lo));g.fillStyle=t===poc?'rgba(168,120,31,.18)':'rgba(135,146,166,.12)';g.fillRect(w-pr-ww,y+1,ww,bh-2)})}
@@ -1200,39 +1207,45 @@ function drawChart(){
   if(S.ov.fib){[0,.236,.382,.5,.618,.786,1].forEach(f=>{const p=H-(H-L)*f,y=Math.round(Y(p))+.5;g.strokeStyle='rgba(169,139,255,.5)';g.setLineDash([2,3]);g.beginPath();g.moveTo(pl,y);g.lineTo(w-pr,y);g.stroke();g.setLineDash([]);
     g.fillStyle=COL.fib;g.textAlign='left';g.fillText(`${(f*100).toFixed(1)}%  ${won(p)}`,pl+4,y-7)})}
   lines.forEach(l=>{const y=Math.round(Y(l.p))+.5;g.setLineDash([6,4]);g.strokeStyle=l.c;g.beginPath();g.moveTo(pl,y);g.lineTo(w-pr,y);g.stroke();g.setLineDash([]);
-    g.font=FONTK;const tx=`${l.t} ${won(l.p)}`,tw=g.measureText(tx).width+10;g.fillStyle=l.c;g.fillRect(w-pr-tw-24,y-9,tw,18);g.fillStyle=COL.bg;g.textAlign='left';g.fillText(tx,w-pr-tw-19,y);g.font=FONT});
+    g.font=FONTK;const tx=`${l.t} ${won(l.p)}`,tw=g.measureText(tx).width+10;g.fillStyle=l.c;g.fillRect(w-pr-tw-24,y-9,tw,18);g.fillStyle=COL.bg;g.textAlign='left';g.fillText(tx,w-pr-tw-19,y);g.font=CF});
   const mark=(t,mine)=>{const x=X(t.i),bb=b[t.i],buyS=t.side==='B',y=buyS?Y(bb.l)+(mine?12:26):Y(bb.h)-(mine?12:26),col=buyS?COL.up:COL.down;
     g.beginPath();if(buyS){g.moveTo(x,y-7);g.lineTo(x-6,y+5);g.lineTo(x+6,y+5)}else{g.moveTo(x,y+7);g.lineTo(x-6,y-5);g.lineTo(x+6,y-5)}g.closePath();
     if(mine){g.fillStyle=col;g.fill()}else{g.strokeStyle=COL.ai;g.lineWidth=1.6;g.stroke();g.lineWidth=1}
-    g.fillStyle=mine?COL.accent:COL.ai;g.textAlign='center';g.font='600 10px "IBM Plex Sans KR",sans-serif';g.fillText(mine?'나':'AI',x,buyS?y+14:y-14);g.font=FONT};
+    g.fillStyle=mine?COL.accent:COL.ai;g.textAlign='center';g.font='600 10px "IBM Plex Sans KR",sans-serif';g.fillText(mine?'나':'AI',x,buyS?y+14:y-14);g.font=CF};
   S.ai.trades.filter(t=>t.id===S.sel&&t.i>=from).forEach(t=>mark(t,false));S.me.trades.filter(t=>t.id===S.sel&&t.i>=from).forEach(t=>mark(t,true));
   // 이벤트 표시: 실=실적, 공/뉴=종목 소식, 경=경제지표
   g.font='600 10px "IBM Plex Sans KR",sans-serif';g.textAlign='center';
   const evAt={};ALLEV.forEach(e=>{if(e.i>=from&&e.i<=i&&(e.scope==='eco'||e.scope===S.sel))(evAt[e.i]=evAt[e.i]||[]).push(e)});
-  Object.entries(evAt).forEach(([k,list])=>{const x=X(+k);list.slice(0,2).forEach((e,j)=>{const y=mainH-10-j*15,ch=e.tag==='실적'?'실':e.tag==='경제'?'경':e.tag==='공시'?'공':'뉴';
+  let evLast=-99;Object.entries(evAt).sort((a,c)=>a[0]-c[0]).forEach(([k,list])=>{const x=X(+k);if(x-evLast<14)return;evLast=x;list.slice(0,NR?1:2).forEach((e,j)=>{const y=mainH-10-j*15,ch=e.tag==='실적'?'실':e.tag==='경제'?'경':e.tag==='공시'?'공':'뉴';
     g.fillStyle=e.tag==='실적'?COL.accent:e.tag==='경제'?'#3a475c':e.imp>0?COL.up:COL.down;g.fillRect(x-6,y-6,12,13);g.fillStyle=e.tag==='실적'?COL.bg:'#fff';g.fillText(ch,x,y+.5)})});
-  g.font=FONT;
+  g.font=CF;
   const lc=b[i].c,ly=Y(lc);g.fillStyle=lc>=b[i-1].c?COL.up:COL.down;g.fillRect(w-pr+1,ly-10,pr-1,20);g.fillStyle='#fff';g.textAlign='left';g.fillText(won(lc),w-pr+6,ly);
   const hk=hover&&hover.k>=from&&hover.k<=i?hover.k:i;
   S.subs.forEach((t,j)=>drawSub(g,t,mainH+sg+j*(subH+sg),subH,from,i,X,bw,pl,pr,w,hk,D));
-  g.fillStyle=COL.axis;g.textAlign='center';for(let k=from;k<=i;k++){if((NBARS-1-k)%10===0)g.fillText(DATES[k].slice(2).replace(/-/g,'.'),X(k),h-axisH/2)}
+  g.fillStyle=COL.axis;g.textAlign='center';let dLast=-99;for(let k=from;k<=i;k++){if((NBARS-1-k)%10!==0)continue;const tx=NR?DATES[k].slice(5).replace('-','.'):DATES[k].slice(2).replace(/-/g,'.'),tw=g.measureText(tx).width,x=X(k);
+    if(x-tw/2<dLast+8||x+tw/2>w-pr)continue;g.fillText(tx,x,h-axisH/2);dLast=x+tw/2}
   if(hover&&hover.k>=from&&hover.k<=i){const xx=Math.round(X(hover.k))+.5;g.strokeStyle='rgba(20,26,36,.35)';g.setLineDash([3,3]);g.beginPath();g.moveTo(xx,0);g.lineTo(xx,h-axisH);g.stroke();
     if(hover.y>top&&hover.y<mainH){const yy=Math.round(hover.y)+.5;g.beginPath();g.moveTo(pl,yy);g.lineTo(w-pr,yy);g.stroke();g.setLineDash([]);const p=hi-(hover.y-top)/(mainH-top)*(hi-lo);g.fillStyle=COL.fg;g.fillRect(w-pr+1,yy-10,pr-1,20);g.fillStyle=COL.bg;g.textAlign='left';g.fillText(won(rt(p)),w-pr+6,yy)}
     g.setLineDash([])}
   const x=b[hk],chg=(x.c/b[hk-1].c-1)*100,dd=hk-START;
-  const info=`${DATES[hk]}  시 ${won(x.o)}  고 ${won(x.h)}  저 ${won(x.l)}  종 ${won(x.c)}  ${pct(chg)}  거래량 ${vfmt(x.v)}`;
+  const info=NR?`${DATES[hk].slice(5)} 종 ${won(x.c)} ${pct(chg)}`:`${DATES[hk]}  시 ${won(x.o)}  고 ${won(x.h)}  저 ${won(x.l)}  종 ${won(x.c)}  ${pct(chg)}  거래량 ${vfmt(x.v)}`;
   const ovs=[];if(S.ov.ma)S.P.ma.forEach((p,j)=>{if(V.ma[j][hk]!=null)ovs.push([`MA${p} ${won(V.ma[j][hk])}`,COL.ma[j]])});
   if(S.ov.ema)S.P.ema.forEach((p,j)=>ovs.push([`EMA${p} ${won(V.ema[j][hk])}`,COL.ema[j]]));
   if(S.ov.bb&&V.bbU[hk]!=null)ovs.push([`BB ${won(V.bbU[hk])} / ${won(V.bbL[hk])}`,COL.bb]);
   if(S.ov.ich&&V.tenkan[hk]!=null)ovs.push([`전환 ${won(V.tenkan[hk])} 기준 ${won(V.kijun[hk]??0)}`,COL.ten]);
   if(S.ov.sar&&V.sar[hk]!=null)ovs.push([`SAR ${won(V.sar[hk])}`,COL.sar]);
-  g.textAlign='left';const w1=g.measureText(info).width;const w2=ovs.reduce((s,o)=>s+g.measureText(o[0]).width+16,0);
-  const hev=ALLEV.filter(e=>e.i===hk&&(e.scope==='eco'||e.scope===S.sel)).map(e=>`[${e.tag}] ${e.title}`);
-  g.font=FONTK;const w3=hev.reduce((s,t)=>Math.max(s,g.measureText(t).width),0);g.font=FONT;
-  const bh=24+(ovs.length?20:0)+hev.length*18;
-  g.fillStyle='rgba(255,255,255,.94)';g.fillRect(pl+2,top-4,Math.min(w-pl-pr-4,Math.max(w1,w2,w3)+16),bh);
-  g.fillStyle=chg>=0?COL.up:COL.down;g.fillText(info,pl+9,top+8);let ox=pl+9;ovs.forEach(([t,c])=>{g.fillStyle=c;g.fillText(t,ox,top+28);ox+=g.measureText(t).width+16});
-  g.font=FONTK;g.fillStyle=COL.fg;hev.forEach((t,j)=>g.fillText(t,pl+9,top+8+(ovs.length?20:0)+18*(j+1)));g.font=FONT;
+  g.textAlign='left';const boxW=w-pl-pr-4,w1=g.measureText(info).width,gap=NR?10:16;
+  // 지표 값은 상자 폭을 넘으면 다음 줄로
+  const rows=[[]];let rw=0,w2=0;ovs.forEach(o=>{const tw=g.measureText(o[0]).width+gap;if(rw&&rw+tw>boxW-14){rows.push([]);rw=0}rows[rows.length-1].push(o);rw+=tw;w2=Math.max(w2,rw)});
+  const nr=ovs.length?rows.length:0,lh=NR?16:20;
+  // 그날 뉴스 제목: 좁은 화면에서는 차트를 가리므로 빼고 차트 아래 목록(#cevents)에 보여 줌
+  const dayEv=ALLEV.filter(e=>e.i===hk&&(e.scope==='eco'||e.scope===S.sel)),hev=NR?[]:dayEv.map(e=>`[${e.tag}] ${e.title}`);
+  g.font=FONTK;const w3=hev.reduce((s,t)=>Math.max(s,g.measureText(t).width),0);g.font=CF;
+  const bh=(NR?20:24)+nr*lh+hev.length*18;
+  g.fillStyle='rgba(255,255,255,.94)';g.fillRect(pl+2,top-4,Math.min(boxW,Math.max(w1,w2,w3)+16),bh);
+  g.fillStyle=chg>=0?COL.up:COL.down;g.fillText(info,pl+9,top+8);rows.forEach((r,j)=>{let ox=pl+9;r.forEach(([t,c])=>{g.fillStyle=c;g.fillText(t,ox,top+8+lh*(j+1));ox+=g.measureText(t).width+gap})});
+  g.font=FONTK;g.fillStyle=COL.fg;hev.forEach((t,j)=>g.fillText(t,pl+9,top+8+nr*lh+18*(j+1)));g.font=CF;
+  const ce=$('#cevents');if(ce){ce.hidden=!NR||!dayEv.length;ce.innerHTML=NR&&dayEv.length?`<b>${DATES[hk]} 소식</b>`+dayEv.map(e=>`<div>[${esc(e.tag)}] ${esc(e.title)}</div>`).join(''):''}
   LAY={from,i,pl,pr,cw,w};
 }
 function drawSub(g,t,y0,sh,from,i,X,bw,pl,pr,w,hk,D){
@@ -1255,8 +1268,9 @@ function drawSub(g,t,y0,sh,from,i,X,bw,pl,pr,w,hk,D){
   else if(t==='adx'){lo=0;hi=Math.max(50,rng([V.adx,V.pdi,V.mdi])[1]);guide([25]);ln(V.pdi,COL.up,1.1);ln(V.mdi,COL.down,1.1);ln(V.adx,COL.accent,1.7);label=`ADX/DMI ${P.adx}`;vals=[[`ADX ${n(V.adx[hk])}`,COL.accent],[`+DI ${n(V.pdi[hk])}`,COL.up],[`−DI ${n(V.mdi[hk])}`,COL.down]]}
   else if(t==='atr'){[lo,hi]=rng([V.atr]);ln(V.atr,COL.accent);label=`ATR ${P.atr}`;vals=[[`${won(V.atr[hk]??0)} (${n(V.atrPct[hk],2)}%)`,COL.accent]]}
   if(['vol','macd','obv','atr'].includes(t)){g.fillStyle=COL.axis;g.textAlign='left';g.fillText(t==='vol'?vfmt(hi):t==='obv'?vfmt(Math.abs(hi)):won(hi),w-pr+6,y0+10)}
-  g.textAlign='left';let x=pl+8;g.fillStyle=COL.fg;g.font='600 12px "IBM Plex Sans KR",sans-serif';g.fillText(label,x,y0+12);x+=g.measureText(label).width+12;g.font=FONT;
-  vals.forEach(([s,c])=>{g.fillStyle=c;g.fillText(s,x,y0+12);x+=g.measureText(s).width+12});
+  if(NR)label=label.split(' ')[0];
+  g.textAlign='left';let x=pl+8;g.fillStyle=COL.fg;g.font=`600 ${NR?11:12}px "IBM Plex Sans KR",sans-serif`;g.fillText(label,x,y0+12);x+=g.measureText(label).width+(NR?8:12);g.font=CF;
+  for(const [s,c] of vals){const tw=g.measureText(s).width;if(x+tw>w-pr-4)break;g.fillStyle=c;g.fillText(s,x,y0+12);x+=tw+(NR?8:12)}
 }
 function drawCmp(){
   const cv=$('#cmp'),w=cv?.clientWidth;if(!w||!S)return;const h=150,dpr=Math.min(2,window.devicePixelRatio||1);cv.width=w*dpr;cv.height=h*dpr;const g=cv.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);
@@ -1375,11 +1389,19 @@ function tradePlan(id,i){
   const seed=MODE==='ana'?MY.seed:equity(S.me,i),alloc=seed*pctv/100,stop=rt(Math.max(c*.92,Math.min(c*.95,c-2*atr)));
   let p1=c-atr;const useMa=ma20<c&&ma20>c-1.5*atr;if(useMa)p1=ma20;p1=rt(Math.max(p1,stop*1.02));const p2=rt(Math.max(c-2*atr,stop*1.01));
   const buys=[['1차',c,.4,'오늘 종가 근처'],['2차 · 눌림',p1,.3,useMa?'20일선 지지':'1×ATR 아래'],['3차 · 지지',p2,.3,'2×ATR 아래, 손절가 위']].map(([k,p,w,why])=>({k,p:rt(p),w,why,won:alloc*w,qty:Math.floor(alloc*w/rt(p)),sp:pctv*w}));
-  const avg=buys.reduce((a,x)=>a+x.p*x.w,0);let hi20=0;for(let k=i-19;k<=i;k++)hi20=Math.max(hi20,b[k].h);
+  fillShares(buys,alloc,seed);
+  const nq=buys.reduce((a,x)=>a+x.qty,0),avg=nq?buys.reduce((a,x)=>a+x.p*x.qty,0)/nq:buys.reduce((a,x)=>a+x.p*x.w,0);let hi20=0;// 실제로 살 주식 수로 평균가for(let k=i-19;k<=i;k++)hi20=Math.max(hi20,b[k].h);
   const res=hi20>c*1.03&&hi20<c*1.08,t1=rt(res?hi20:avg*1.05),t2c=rt(avg*1.10),t2=tg&&tg>t1*1.02&&tg<avg*1.25?rt(Math.min(t2c,tg)):t2c;
   const sells=[['1차 익절',t1,.3,res?'최근 20일 고점(저항)':'평균가 +5%'],['2차 익절',Math.max(t2,rt(t1*1.03)),.4,t2<t2c?'증권사 목표주가':'평균가 +10%'],['나머지',null,.3,'고점 대비 −2×ATR 또는 20일선 종가 이탈'],['손절',stop,1,'종가 기준 이탈 시 남은 물량 전부']];
   return{conds,n,tot,pct:pctv,grade,seed,alloc,buys,sells,stop,avg,atr,atrP,volOK,fv,fl,p1,ma20,c,mac,ns,upv};
 }
+// 비싼 종목은 배정액을 40·30·30%로 나누면 어느 차수도 1주를 못 사서 전부 0주가 됨 → 남은 돈으로 앞 차수부터 1주씩 채우고,
+// 배정액 전체로도 1주가 안 되면 한 종목 최대 비중(RULES.maxW) 안에서 1차 1주(최소 단위)로 안내
+function fillShares(buys,alloc,seed){
+  if(!(alloc>0))return;let left=alloc-buys.reduce((a,x)=>a+x.qty*x.p,0),more=true;
+  while(more){more=false;for(const x of [...buys.filter(x=>!x.qty),...buys.filter(x=>x.qty)]){if(left>=x.p){x.qty++;left-=x.p;more=true;break}}}
+  if(!buys.some(x=>x.qty)&&buys[0].p<=seed*RULES.maxW){buys[0].qty=1;buys[0].min=true}
+  buys.forEach(x=>{x.sp=seed?x.qty*x.p/seed*100:0})}
 function renderPlan(){
   const id=S.sel,i=cur(),P=tradePlan(id,i),c=P.c;
   $('#planMeta').textContent=`${DATES[i]} 기준 · ${MODE==='ana'?'내일 주문표의 내 투자금':'대결 계좌'} ${won(P.seed)}원 기준 · 참고용`;
@@ -1395,11 +1417,12 @@ function renderPlan(){
     st=`<div class="pstate">내 보유 ${won(h.qty)}주 · 평균가 ${won(h.avg)}원 · <span class="${cls(pr)}">${pct(pr)}</span> → <b>${s[0]}</b>. ${s[1]}</div>`}
   $('#planState').innerHTML=st;
   $('#planBuy').innerHTML=`<caption>분할 매수 (내 돈 ${won(P.seed)}원 중 ${won(P.alloc)}원, ${P.pct}%)</caption><tr><th>구분</th><th>주문</th><th>내 돈 대비</th><th>금액</th><th>근거</th></tr>`+
-    P.buys.map(x=>`<tr><td>${x.k}</td><td>${x.qty?`<b>${won(x.p)}원에 ${won(x.qty)}주 매수</b>`:`<span class="flat">${won(x.p)}원 · 배정 ${won(x.won)}원이 1주 값보다 적어 건너뜀</span>`}</td><td>${x.sp.toFixed(1)}%</td><td>${won(x.qty*x.p)}원</td><td class="w">${x.why}</td></tr>`).join('');
+    P.buys.map(x=>`<tr><td>${x.k}</td><td>${x.qty?`<b>${won(x.p)}원에 ${won(x.qty)}주 매수</b>${x.min?`<br><span class="flat">1주가 배정액보다 비싸 최소 1주</span>`:''}`:`<span class="flat">${won(x.p)}원 · ${P.alloc>0?'앞 차수에 돈을 다 써서 쉼':'지금은 진입 보류'}</span>`}</td><td>${x.sp.toFixed(1)}%</td><td>${won(x.qty*x.p)}원</td><td class="w">${x.why}</td></tr>`).join('');
   const hq=h?h.qty:P.buys.reduce((a,x)=>a+x.qty,0);let left=hq;
   $('#planSell').innerHTML=`<caption>분할 매도 (${h?`내 보유 ${won(hq)}주`:`계획대로 다 사면 ${won(hq)}주`} 기준, 평균가 ${won(h?h.avg:P.avg)}원)</caption><tr><th>구분</th><th>주문</th><th>수익률</th><th>비중</th><th>근거</th></tr>`+
     P.sells.map(([k,p,w,why])=>{const q=w===1?left:k==='나머지'?left:Math.min(left,Math.round(hq*w));if(k!=='손절')left-=q;const all=w===1||k==='나머지';const base=h?h.avg:P.avg;
       if(k==='손절')return `<tr><td>${k}</td><td><b>${won(p)}원 깨지면 그때 남은 물량 전량 매도</b> (최대 ${won(hq)}주)</td><td class="${cls(p/base-1)}">${pct((p/base-1)*100)}</td><td>전량</td><td class="w">${why}</td></tr>`;
+      if(!q&&!all)return `<tr><td>${k}</td><td><span class="flat">${won(p)}원 · 보유 주식이 적어 이 차수는 건너뜀</span></td><td class="${cls(p/base-1)}">${pct((p/base-1)*100)}</td><td>-</td><td class="w">${why}</td></tr>`;
       return `<tr><td>${k}</td><td><b>${p?won(p)+'원에 ':''}${all?`남은 ${won(q)}주 전량`:`${won(q)}주`} 매도</b></td><td class="${p?cls(p/base-1):'flat'}">${p?pct((p/base-1)*100):'-'}</td><td>${all?'전량':Math.round(w*100)+'%'}</td><td class="w">${why}</td></tr>`}).join('');
   $('#planRules').innerHTML=[
     '<b>비중 정하기:</b> 확인 가능한 조건 중 충족 비율이 85% 이상이면 씨드 20%, 70% 이상 15%, 55% 이상 10%, 40% 이상 5%(탐색), 그 아래는 진입 보류. 하루 변동폭(ATR)이 6%를 넘으면 진입하지 않고, 한 종목은 최대 20%.',
@@ -1511,7 +1534,7 @@ function drawPattern(R,id,i){
 function dirLadder(J){
   const P=J.P,buy=BUYCALL.includes(J.call[0]),probe=buy&&!(P.alloc>0),alloc=probe?P.seed*.05:P.alloc;
   if(!buy&&!(P.alloc>0))return `<div>진입: 지금은 사지 않습니다 (매매 계획 조건 ${P.n}/${P.tot} 충족).</div>`;
-  const rows=P.buys.map(b=>{const q=Math.floor(alloc*b.w/b.p);return `<b>${b.k.split(' ')[0]}</b> ${won(b.p)}원 · ${won(q)}주 · ${(q*b.p/P.seed*100).toFixed(1)}% (${won(q*b.p)}원)`});
+  const rows=P.buys.map(b=>{const q=probe?Math.floor(alloc*b.w/b.p):b.qty;return `<b>${b.k.split(' ')[0]}</b> ${won(b.p)}원 · ${won(q)}주 · ${(q*b.p/P.seed*100).toFixed(1)}% (${won(q*b.p)}원)`});
   return `<div>3분할 진입${probe?' <span class="flat">(조건 '+P.n+'/'+P.tot+'라 탐색 비중 5%만)</span>':''}:<br>${rows.join('<br>')}<br>합계 투자금 ${won(P.seed)}원의 ${(alloc/P.seed*100).toFixed(0)}% 안쪽 · 손절 ${won(P.stop)}원 이하 시장가.</div>`;
 }
 function renderJudge(){
