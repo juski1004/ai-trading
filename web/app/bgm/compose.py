@@ -1,7 +1,7 @@
 """메인 화면 BGM '출항' — 90년대 PC 전략 게임(FM 음원) 느낌의 새로 만든 곡.
 
 멜로디·화성 모두 직접 쓴 곡이라 저작권 걱정 없음. numpy로 합성 → WAV → ffmpeg로 MP3.
-실행: python web/app/bgm/compose.py web/app/bgm/main.mp3
+실행: python web/app/bgm/compose.py web/app/bgm/voyage.mp3 (메인 후보에서 빠짐, 보관)
 """
 import subprocess
 import sys
