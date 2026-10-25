@@ -3,7 +3,7 @@
    - 화면이 바뀌면 곡을 부드럽게 바꾸고, 본부장 브리핑(음성)이 열리면 잠깐 멈췄다가 닫으면 다시 재생.
    - 앱이 백그라운드로 가면 멈춤. 곡은 모두 직접 작곡·합성한 것 (bgm/*.py). */
 (() => {
-  const KEY = "aiLab.bgm.v1", VOL = 0.25, V = "?v=2"; // V: 곡을 바꾸면 올려서 옛 파일 캐시를 피함
+  const KEY = "aiLab.bgm.v1", VOL = 0.6, /* 곡 자체가 작게(-24 LUFS) 만들어져 있어 0.25면 PC 스피커에서 거의 안 들림 */ V = "?v=2"; // V: 곡을 바꾸면 올려서 옛 파일 캐시를 피함
   const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } };
   const save = v => { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) {} };
   let on = !!load().on, cur = null, src = "", held = false;
@@ -46,7 +46,8 @@
   addEventListener("message", e => { if (e.origin === location.origin && (e.data || {}).type === "briefClose") { held = false; play(); } });
   document.addEventListener("click", e => { if (held && e.target.classList && e.target.classList.contains("bover")) { held = false; setTimeout(play, 50); } });
   // 휴대폰 브라우저는 사용자가 한 번 눌러야 소리를 낼 수 있음 → 켜 둔 상태면 첫 터치 때 시작
-  const kick = () => { play(); removeEventListener("pointerdown", kick); };
-  if (on) addEventListener("pointerdown", kick);
+  // PC는 키보드만 눌러도 시작. 재생이 실제로 시작될 때까지 계속 기다림
+  const kick = () => { if (!on) return; play(); setTimeout(() => { if (cur && !cur.paused) { removeEventListener("pointerdown", kick); removeEventListener("keydown", kick); } }, 400); };
+  addEventListener("pointerdown", kick); addEventListener("keydown", kick);
   window.Bgm = { play, stop, isOn: () => on };
 })();
