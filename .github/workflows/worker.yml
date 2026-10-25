@@ -30,7 +30,7 @@ jobs:
         with:
           node-version: "22"
       - name: 암호화 테스트
-        run: node --test worker/test/push.test.mjs
+        run: node --test worker/test/*.test.mjs
       - name: 계정·KV·주소 준비
         id: prep
         run: |
