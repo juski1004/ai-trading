@@ -195,10 +195,10 @@ def build(out: Path) -> dict:
     ph = _photo(hid, 240, 320, 28); im.paste(ph[0], (100, 875), ph[1])
     d.text((370, 880), f"오늘 진행은 {hname}", font=F("ExtraBold", 44), fill=INK)
     d.text((370, 940), f"내일은 {nname} 차례예요", font=F("Medium", 34), fill=MUTED)
-    d.text((370, 1010), "AI 직원 6명의 종목 분석 +", font=F("Medium", 32), fill=INK)
-    d.text((370, 1052), "가상 1,000만 원 모의투자", font=F("Medium", 32), fill=INK)
+    d.text((370, 1010), "AI 직원 6명이 평일 매일", font=F("Medium", 32), fill=INK)
+    d.text((370, 1052), "장마감을 정리해 드려요", font=F("Medium", 32), fill=INK)
     d.rounded_rectangle((370, 1120, 975, 1190), 34, fill=LAVD)
-    d.text((672, 1155), "프로필 링크에서 무료로 ▶", font=F("Bold", 34), fill=WHITE, anchor="mm")
+    d.text((672, 1155), "팔로우하고 내일도 받아보기", font=F("Bold", 34), fill=WHITE, anchor="mm")
     im.save(dst / "6.png")
 
     caption = f"""{hname}{josa} 알려주는 {md} 장마감 현황 | 오늘 주식 장마감 요약 · 코스피 {pct(k['chg'])} · 코스닥 {pct(q['chg'])}
@@ -212,7 +212,7 @@ def build(out: Path) -> dict:
 🔺 많이 오른: {', '.join(s['name'] + ' ' + pct(s['chg']) for _, s in ranked[:3])}
 🔻 많이 내린: {', '.join(s['name'] + ' ' + pct(s['chg']) for _, s in ranked[-3:][::-1])}
 
-👉 AI 직원 6명의 종목 분석 + 가상 1,000만 원 모의투자는 프로필 링크에서 (무료)
+👉 팔로우하면 평일 17시 50분, 장마감 요약을 매일 받아볼 수 있어요
 💬 내일 오를 것 같은 종목을 댓글로 남겨 주세요
 
 ※ 공개 시세로 만든 참고 자료이며 투자 권유가 아닙니다. 투자 판단과 책임은 본인에게 있습니다.
