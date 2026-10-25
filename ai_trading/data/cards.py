@@ -1,8 +1,8 @@
-"""인스타 '오늘의 장 마감' 카드뉴스 (세로 1080x1350, 6장) + 캡션.
+"""인스타 '오늘의 장 마감' 카드뉴스 (세로 1080x1350, 5장) + 캡션.
 
 - 진행자: 직원 6명이 하루씩 돌아가며 맡는다 (본부장은 나오지 않음). 거래일 기준으로 다음 사람.
 - 숫자는 모두 scores/outlook(facts)/why 데이터에서 그대로 가져온다. AI가 쓴 문장은 숫자를 틀릴 수 있어 쓰지 않는다.
-- 결과: <out>/cards/1.png … 6.png, caption.txt, cards.json (사이트에 함께 올라가 공개 주소가 생김)
+- 결과: <out>/cards/1.png … 5.png, caption.txt, cards.json (사이트에 함께 올라가 공개 주소가 생김)
 """
 from __future__ import annotations
 
@@ -69,6 +69,7 @@ def _photo(hid: str, w: int, h: int, r: int) -> tuple[Image.Image, Image.Image]:
 
 def build(out: Path) -> dict:
     out = Path(out); dst = out / "cards"; dst.mkdir(parents=True, exist_ok=True)
+    for old in dst.glob("*.png"): old.unlink()  # 장 수가 바뀌어도 옛 장이 남지 않게
     sc = json.loads((out / "scores.json").read_text(encoding="utf-8"))
     o = json.loads((out / "outlook.json").read_text(encoding="utf-8"))
     whyp = out / "why.json"; why = json.loads(whyp.read_text(encoding="utf-8")) if whyp.exists() else {}
@@ -80,13 +81,15 @@ def build(out: Path) -> dict:
     eok = lambda x: f"{'+' if x > 0 else ''}{x:,.0f}억"
     avatar = _photo(hid, 96, 96, 48)
 
+    N = 5  # 2026-10-25: 6장 → 5장 (지수 흐름 장을 빼고 표지·체크 포인트에 나눠 담음)
+
     def base(n, title, sub=None):
         im = Image.new("RGB", (W, H), (248, 247, 255)); d = ImageDraw.Draw(im)
         for y in range(H):  # 은은한 라벤더→하늘 배경
             t = y / H; d.line([(0, y), (W, y)], fill=(int(246 - 6 * t), int(244 + 2 * t), 255))
         d.rounded_rectangle((60, 60, 330, 120), 30, fill=LAV); d.text((195, 90), "AI 투자연구소", font=F("Bold", 32), fill=LAVD, anchor="mm")
-        d.text((W - 60, 90), f"{n}/6", font=F("Bold", 32), fill=MUTED, anchor="rm")
-        if n not in (1, 6):  # 오늘 진행자 얼굴 (작게)
+        d.text((W - 60, 90), f"{n}/{N}", font=F("Bold", 32), fill=MUTED, anchor="rm")
+        if n not in (1, N):  # 오늘 진행자 얼굴 (작게)
             d.ellipse((W - 222, 40, W - 118, 144), fill=WHITE); im.paste(avatar[0], (W - 218, 44), avatar[1])
             d.text((W - 170, 160), hname, font=F("Bold", 24), fill=LAVD, anchor="mt")
         if title: d.text((70, 190), title, font=F("ExtraBold", 72), fill=INK)
@@ -122,23 +125,7 @@ def build(out: Path) -> dict:
     d.text((72, 1210), "넘겨 보기 →", font=F("Bold", 34), fill=LAVD)
     im.save(dst / "1.png")
 
-    # 2. 지수 흐름
-    im, d = base(2, "지수 흐름", "하루·1주·1달 변화")
-    for i, lab in enumerate(("코스피", "코스닥")):
-        v = fx[lab]; y0 = 380 + i * 330; card(d, (70, y0, 1010, y0 + 290))
-        d.text((120, y0 + 40), lab, font=F("ExtraBold", 50), fill=INK)
-        for j, (p, key) in enumerate([("하루", "1일"), ("1주", "5일"), ("1달", "20일")]):
-            x = 150 + j * 300
-            d.text((x, y0 + 140), p, font=F("Medium", 36), fill=MUTED)
-            d.text((x, y0 + 190), pct(v[key]), font=F("ExtraBold", 52), fill=col(v[key]))
-    y0 = 1050; card(d, (70, y0, 1010, y0 + 170), fill=LAV)
-    d.text((120, y0 + 30), "원/달러", font=F("Bold", 36), fill=MUTED)
-    d.text((120, y0 + 85), f"{sc['market']['usdkrw']['v']:,.0f}원", font=F("ExtraBold", 48), fill=INK)
-    d.text((560, y0 + 30), "공포지수 VIX", font=F("Bold", 36), fill=MUTED)
-    d.text((560, y0 + 85), f"{fx['VIX']}", font=F("ExtraBold", 48), fill=INK)
-    im.save(dst / "2.png")
-
-    # 3·4. 많이 오른 / 내린 종목
+    # 2·3. 많이 오른 / 내린 종목
     def movers(n, title, items):
         im, d = base(n, title, "이유는 그날 뉴스·공시에서 찾았어요")
         f30 = F("Medium", 30)
@@ -158,11 +145,11 @@ def build(out: Path) -> dict:
             d.text((210, y0 + 112), ls[0] + ("…" if len(ls) > 1 else ""), font=f30, fill=INK)
         return im
 
-    movers(3, "많이 오른 종목", ranked[:4]).save(dst / "3.png")
-    movers(4, "많이 내린 종목", ranked[-4:][::-1]).save(dst / "4.png")
+    movers(2, "많이 오른 종목", ranked[:4]).save(dst / "2.png")
+    movers(3, "많이 내린 종목", ranked[-4:][::-1]).save(dst / "3.png")
 
-    # 5. 수급
-    im, d = base(5, "누가 사고 팔았나", "순매수 (억 원) · 빨강=샀다 파랑=팔았다")
+    # 4. 수급
+    im, d = base(4, "누가 사고 팔았나", "순매수 (억 원) · 빨강=샀다 파랑=팔았다")
     for i, (lab, key) in enumerate([("코스피", "KOSPI"), ("코스닥", "KOSDAQ")]):
         v = mf[key]; y0 = 360 + i * 400; card(d, (70, y0, 1010, y0 + 370))
         d.text((110, y0 + 34), lab, font=F("ExtraBold", 48), fill=INK)
@@ -177,18 +164,19 @@ def build(out: Path) -> dict:
     b5 = fx.get("대형주_수급_5일") or {}
     if b5:
         d.text((80, 1188), f"대형주 최근 5일: 외국인 {eok(b5['frg'])} · 기관 {eok(b5['org'])}", font=F("Bold", 34), fill=INK)
-    im.save(dst / "5.png")
+    im.save(dst / "4.png")
 
-    # 6. 내일 체크 포인트 + 진행자 인사 + 앱 안내
-    im, d = base(6, "내일 체크 포인트")
+    # 5. 내일 체크 포인트 + 진행자 인사 + 앱 안내
+    im, d = base(5, "내일 체크 포인트")
     ma = fx.get("대형주_20일선_위_비율") or {}
     pts = [f"외국인이 계속 파는지 (오늘 코스피 {eok(mf['KOSPI']['frg'])})" if mf["KOSPI"]["frg"] < 0
            else f"외국인 매수가 이어지는지 (오늘 코스피 {eok(mf['KOSPI']['frg'])})",
            f"국제유가 (한 달 {pct(fx['WTI_20일%'])})",
-           f"미국 10년 금리 {fx['미국10년물']}% · VIX {fx['VIX']}"]
-    if ma: pts.append(f"20일선 위 대형주 {ma['20일선_위']}/{ma['전체']}종목")
+           f"미국 10년 금리 {fx['미국10년물']}% · VIX {fx['VIX']}",
+           f"원/달러 {sc['market']['usdkrw']['v']:,.0f}원 · 코스피 1주 {pct(fx['코스피']['5일'])}"]
+    if ma and len(pts) < 5: pts.append(f"20일선 위 대형주 {ma['20일선_위']}/{ma['전체']}종목")
     for i, t in enumerate(pts):
-        y = 330 + i * 120
+        y = 320 + i * 98
         d.ellipse((80, y + 10, 116, y + 46), fill=LAVD); d.text((98, y + 28), str(i + 1), font=F("Bold", 26), fill=WHITE, anchor="mm")
         d.text((140, y + 2), t, font=F("Bold", 40), fill=INK)
     card(d, (70, 830, 1010, 1240))
@@ -199,7 +187,7 @@ def build(out: Path) -> dict:
     d.text((370, 1052), "장마감을 정리해 드려요", font=F("Medium", 32), fill=INK)
     d.rounded_rectangle((370, 1120, 975, 1190), 34, fill=LAVD)
     d.text((672, 1155), "팔로우하고 내일도 받아보기", font=F("Bold", 34), fill=WHITE, anchor="mm")
-    im.save(dst / "6.png")
+    im.save(dst / "5.png")
 
     caption = f"""{hname}{josa} 알려주는 {md} 장마감 현황 | 오늘 주식 장마감 요약 · 코스피 {pct(k['chg'])} · 코스닥 {pct(q['chg'])}
 
@@ -213,14 +201,14 @@ def build(out: Path) -> dict:
 🔻 많이 내린: {', '.join(s['name'] + ' ' + pct(s['chg']) for _, s in ranked[-3:][::-1])}
 
 👉 팔로우하면 평일 17시 50분, 장마감 요약을 매일 받아볼 수 있어요
-💬 내일 오를 것 같은 종목을 댓글로 남겨 주세요
+💬 댓글에 '연구소' 남기면 AI 직원들이 일하는 곳을 DM으로 보내 드려요 (팔로워 선공개)
 
 ※ 공개 시세로 만든 참고 자료이며 투자 권유가 아닙니다. 투자 판단과 책임은 본인에게 있습니다.
 
 #주식 #코스피 #코스닥 #장마감 #주식공부 #모의투자 #재테크 #AI투자"""
     (dst / "caption.txt").write_text(caption, encoding="utf-8")
     info = {"date": date, "host": hid, "hostName": hname, "next": nname,
-            "images": [f"cards/{i}.png" for i in range(1, 7)], "caption": caption}
+            "images": [f"cards/{i}.png" for i in range(1, N + 1)], "caption": caption}
     (dst / "cards.json").write_text(json.dumps(info, ensure_ascii=False), encoding="utf-8")
     return info
 

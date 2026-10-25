@@ -114,7 +114,7 @@
     ["tourBox", "tourSpot", "tourDim"].forEach(id => document.getElementById(id)?.remove());
     document.body.classList.remove("tour-on");
     const T = load(); T.offered = true;
-    if (finished && !T.done) { T.done = true; if (window.Daily && Daily.earn) Daily.earn(100, "튜토리얼 완료"); }
+    if (finished && !T.done) { T.done = true; if (window.Daily && Daily.earn) Daily.earn(100, "튜토리얼 완료"); window.dispatchEvent(new CustomEvent("aiLab:tourDone")); }
     save(T); i = -1;
     restore(); // 연습으로 넣은 게임 시작·주문 되돌리기
   }
@@ -136,9 +136,12 @@
   /* 처음 팀을 고른 뒤 한 번 권하기 */
   function offer() {
     const T = load(); if (T.offered || T.done || document.getElementById("tourAsk")) return;
+    const sns = window.Metrics && Metrics.social(); // 인스타(카드·릴스·DM 링크)로 들어온 사람에겐 선공개 환영 인사
     document.body.insertAdjacentHTML("beforeend", `<div id="tourAsk" class="tour-ask" role="dialog" aria-modal="true"><div class="tour-box2">
-      <div class="tour-step">처음이시죠?</div><h3>1분 튜토리얼 해 볼까요?</h3>
-      <p>화면 보는 법부터 종목 분석, <b>가상 돈으로 직접 주문</b>까지 같이 해 봐요. 끝까지 하면 <b>+100P</b>.</p>
+      ${sns ? `<div class="tour-step">팔로워 선공개</div><h3>인스타에서 오셨군요, 반가워요!</h3>
+      <p>장마감 카드뉴스를 만드는 AI 직원들이 일하는 곳이에요. 먼저 <b>1분 튜토리얼</b>로 둘러봐요.</p><p style="margin-top:6px">` : `<div class="tour-step">처음이시죠?</div><h3>1분 튜토리얼 해 볼까요?</h3>
+      <p>`}
+      화면 보는 법부터 종목 분석, <b>가상 돈으로 직접 주문</b>까지 같이 해 봐요. 끝까지 하면 <b>+100P</b>.</p>
       <button type="button" class="cta" data-tour="start">시작하기</button><button type="button" class="cta sub2" data-tour="later">나중에 (사용법 버튼에서)</button></div></div>`);
   }
 

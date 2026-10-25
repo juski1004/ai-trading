@@ -2,6 +2,7 @@
    - 웹 푸시: 앱이 닫혀 있어도 평일 18:00 '본부장 브리핑', 18:10 '알파의 선택' 알림 (데이터가 오늘 것일 때만, 하루 한 번)
    - 랭킹: 월간 시즌 리그 (동의한 사람만). 리그 2개: 새내기(완주한 게임 3판 미만) · 일반. 지난 시즌 순위도 돌려줘서 앱이 배지·보상을 준다
    - 친구 초대: 초대 코드별 가입 수 (새 기기 하나는 한 번만)
+   - 사용 집계: 날짜별 숫자만 (오늘 연 기기 수, 새 기기, 홈 화면 설치, 튜토리얼 완료, 첫 주문, 3·7일째 재방문, 들어온 경로). 개인 정보·기기 id 저장 없음
    저장소는 KV 하나(바인딩 이름 KV). VAPID 열쇠는 처음 쓸 때 만들어 KV에 둔다. 외부 비밀값 없음. */
 import { makeVapid, sendPush } from "./push.js";
 
@@ -60,6 +61,18 @@ async function rankList(env, season, league) {
   } while (cursor);
   out.sort((a, b) => b.ret - a.ret);
   await env.KV.put(cacheKey, JSON.stringify({ at: Date.now(), list: out }), { expirationTtl: 120 * 86400 });
+  return out;
+}
+
+/* ---------- 사용 집계 (하루 한 키: st:날짜 → {이벤트: 수}) ---------- */
+const EVENTS = ["open", "new", "install", "tour", "trade", "d3", "d7", "push"];
+const SOURCES = ["insta", "reel", "dm", "card", "invite", "archive", "direct"];
+async function stats(env, days) {
+  const out = [], t = Date.now() + 9 * 3600e3;
+  for (let i = 0; i < days; i++) {
+    const d = new Date(t - i * 86400e3).toISOString().slice(0, 10);
+    out.push({ date: d, ...((await env.KV.get("st:" + d, "json")) || {}) });
+  }
   return out;
 }
 
@@ -146,6 +159,24 @@ export default {
         const code = url.searchParams.get("code") || "";
         if (!/^[a-z0-9]{6,10}$/.test(code)) return json(req, { error: "bad code" }, 400);
         return json(req, { count: +((await env.KV.get("invc:" + code)) || 0) });
+      }
+      /* ---------- 사용 집계 ---------- */
+      if (p === "/hit" && req.method === "POST") {
+        const b = await req.json().catch(() => ({}));
+        const evs = (Array.isArray(b.ev) ? b.ev : [b.ev]).filter(e => EVENTS.includes(e)).slice(0, 8);
+        if (!evs.length) return json(req, { error: "bad event" }, 400);
+        const src = SOURCES.includes(b.src) ? b.src : "direct";
+        const k = "st:" + todayKST(), cur = (await env.KV.get(k, "json")) || {};
+        for (const ev of new Set(evs)) {
+          cur[ev] = (cur[ev] || 0) + 1;
+          if (ev === "new" || ev === "open") cur[`${ev}.${src}`] = (cur[`${ev}.${src}`] || 0) + 1;
+        }
+        await env.KV.put(k, JSON.stringify(cur), { expirationTtl: 400 * 86400 }); // 한 번에 묶어 써서 KV 쓰기 1회
+        return json(req, { ok: true });
+      }
+      if (p === "/stats") {
+        const days = Math.max(1, Math.min(60, +url.searchParams.get("days") || 14));
+        return json(req, { days: await stats(env, days) });
       }
       if (p === "/run" && url.searchParams.get("cron")) { // 수동 점검용: 오늘 이미 보냈으면 다시 안 보냄
         return json(req, await scheduled(url.searchParams.get("cron"), env));

@@ -34,6 +34,7 @@
       const reg = await navigator.serviceWorker.ready, { key } = await api("/vapid");
       const sub = (await reg.pushManager.getSubscription()) || (await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: unb64u(key) }));
       await api("/subscribe", { sub: sub.toJSON() });
+      window.dispatchEvent(new CustomEvent("aiLab:pushOn"));
       await api("/test", { endpoint: sub.endpoint }).catch(() => {});
       msg = "알림을 켰어요. 확인용 알림을 하나 보냈어요.";
     } catch (e) { msg = "알림을 켜지 못했어요: " + e.message; }
