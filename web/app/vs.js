@@ -11,7 +11,7 @@
   const pct = x => { const t = Math.abs(x) < 0.005 ? "0.00" : x.toFixed(2); return (x >= 0.005 ? "+" : "") + t + "%"; };
   const sgn = n => (n >= 0 ? "+" : "−") + won(Math.abs(n));
   const cls = x => (x >= 0.005 ? "up" : x <= -0.005 ? "down" : "flat");
-  const CASH0 = 10_000_000, START0 = 5_000_000; // 예전 게임 시작금 · 지금 게임 시작금 (알파 팀도 같은 돈)
+  const CASH0 = 10_000_000, START0 = 10_000_000; // 예전 게임 시작금 · 지금 게임 시작금 (알파 팀도 같은 돈)
   const face = id => `../img/team/${id}.jpg?v=4`;
 
   let AI = null, tried = false;
@@ -64,7 +64,7 @@
   function summary(SC) {
     load(); if (!AI || !SC) return "";
     const S = sides(SC);
-    if (!S.me) return `<div class="vs-mini"><span class="sub">대결을 시작하면 다음 거래일부터 알파 팀도 같은 500만 원으로 시작해요</span></div>`;
+    if (!S.me) return `<div class="vs-mini"><span class="sub">대결을 시작하면 다음 거래일부터 알파 팀도 나와 같은 돈으로 시작해요</span></div>`;
     const lead = S.me.ret - S.ai.same;
     return `<div class="vs-mini"><span>나 <b class="num ${cls(S.me.ret)}">${pct(S.me.ret)}</b></span><b class="vs-x">VS</b><span>알파 <b class="num ${cls(S.ai.same)}">${pct(S.ai.same)}</b></span></div>
       ${tug(lead)}<p class="sub" style="margin:6px 0 0">${Math.abs(lead) < 0.005 ? "팽팽한 동점" : lead > 0 ? `내가 ${lead.toFixed(2)}%p 앞서요` : `알파가 ${(-lead).toFixed(2)}%p 앞서요`}</p>`;
@@ -94,7 +94,7 @@
       <text x="${pl}" y="${H - 6}" font-size="10" fill="#8a8fa6">${esc(pts[0].d.slice(5).replace("-", "."))}</text><text x="${W - pr}" y="${H - 6}" font-size="10" fill="#8a8fa6" text-anchor="end">${esc(pts[pts.length - 1].d.slice(5).replace("-", "."))}</text></svg>`;
   }
 
-  const acct = (A, title, who) => !A ? `<div class="vs-acct me"><div class="vs-acct-hd">${who}<b>${title}</b></div><p class="sub">아직 대결을 시작하지 않았어요.</p><a class="cta vs-go" href="#game">500만 원으로 시작</a></div>` :
+  const acct = (A, title, who) => !A ? `<div class="vs-acct me"><div class="vs-acct-hd">${who}<b>${title}</b></div><p class="sub">아직 대결을 시작하지 않았어요.</p><a class="cta vs-go" href="#game">대결 시작하기</a></div>` :
     `<div class="vs-acct ${title === "알파 팀" ? "ai" : "me"}"><div class="vs-acct-hd">${who}<b>${title}</b></div>
       <div class="vs-eq num">${won(A.eq)}<small>원</small></div><div class="num ${cls(A.ret)} vs-ret">${pct(A.ret)} <small>(${sgn(A.pnl)}원)</small></div>
       <dl class="vs-dl"><dt>현금</dt><dd class="num">${won(A.cash)}</dd><dt>주식</dt><dd class="num">${won(A.stock)}</dd><dt>종목 수</dt><dd class="num">${A.pos.length}개</dd></dl></div>`;

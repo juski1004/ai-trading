@@ -1,6 +1,6 @@
 /* 모의투자 게임 (앱 '투자게임' 탭).
-   - 가상 500만 원으로 시작, 연구소 포인트 100P마다 +100만 원 추가(한 게임 최대 +1,500만 원). 수익률은 넣은 돈 전체 대비.
-     (예전에 1,000만 원으로 시작한 게임은 그대로 1,000만 원 기준)
+   - 시작금: 기본 1,000만 원, 연구소 포인트로 해제하면 5,000만 원·1억 원 (daily.js UNLOCK). 수익률은 넣은 돈 전체 대비.
+     (예전 게임의 500만 원 시작·포인트로 추가한 돈은 그대로 인정)
    - 기간 1주~3개월, 실제 종가(data/scores.json)로 사고팔기
    - 날짜가 바뀐 데이터를 처음 볼 때 자동 손절(-5%)·익절(+10%) 처리 (그날 종가 체결)
    - 상대: '알파 팀' = 내 게임 시작일 다음 날부터 나와 같은 돈(현금)으로, AI 투자자 '알파'(data/ai.json)의 매매를
@@ -11,7 +11,8 @@
    index.html 이 Game.view(SC, sym) 를 부르고, 화면 안의 버튼은 여기서 직접 처리한다. */
 (() => {
   const KEY = "aiLab.game.v1", HIST = "aiLab.games.v1";
-  const R = { cash0: 5_000_000, topup: 1_000_000, topupCost: 100, maxAdd: 15_000_000, fee: 0.00015, tax: 0.0018, stop: -5, take: 10 };
+  const CAPS = [[10_000_000, null], [50_000_000, "cap50"], [100_000_000, "cap100"]]; // 시작금 · 열어야 할 것
+  const R = { cash0: 10_000_000, topup: 1_000_000, topupCost: 100, maxAdd: 15_000_000, fee: 0.00015, tax: 0.0018, stop: -5, take: 10 };
   const OLD0 = 10_000_000, ALPHA0 = 10_000_000; // 예전 게임 시작금 · 알파 계좌 시작금
   const base0 = g => g.cash0 || OLD0;                 // 시작금
   const base = g => base0(g) + (g.added || 0);        // 넣은 돈 전체 (시작금 + 포인트로 추가한 돈)
@@ -29,7 +30,9 @@
   const load = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
   const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* 저장이 막힌 브라우저: 이번 접속 동안만 유지 */ } };
 
-  let SC = null, AI = null, G = load(KEY, null), side = "B", pickPeriod = 30, msg = "";
+  let SC = null, AI = null, G = load(KEY, null), side = "B", pickPeriod = 30, pickCap = R.cash0, msg = "";
+  const capName = v => (v >= 100_000_000 ? (v / 100_000_000).toLocaleString("ko-KR") + "억" : man(v)); // 1억 → "1억", 5천만 → "5,000만"
+  const capOpen = k => !k || !!(window.Daily && Daily.unlocked && Daily.unlocked(k));
   fetch("../data/ai.json", { cache: "no-cache" }).then(r => (r.ok ? r.json() : null)).then(d => { AI = d; redraw(); }).catch(() => {});
 
   /* ---------- 계산 ---------- */
@@ -163,17 +166,20 @@
     const hist = load(HIST, []);
     return `<section class="card">
       <h2>하루 5분, 퇴근길 종가 스윙 게임</h2>
-      <p class="sub"><b>바쁜 직장인을 위한 스윙 매매</b>예요. 가상 <b>500만 원</b>으로 <b>실제 거래소 종가</b>를 따라 투자하고, 같은 기간 AI 팀 '알파'·코스피와 수익률을 겨뤄요. 저녁 6시 브리핑 듣고 주문만 넣으면 끝 — 며칠~몇 주 들고 가는 스윙이라 하루 한 번이면 충분하고, 장중 등락에 휘둘리지 않아요.</p>
+      <p class="sub"><b>바쁜 직장인을 위한 스윙 매매</b>예요. 가상 <b>1,000만 원</b>(포인트로 5,000만·1억 원)으로 <b>실제 거래소 종가</b>를 따라 투자하고, 같은 기간 AI 팀 '알파'·코스피와 수익률을 겨뤄요. 저녁 6시 브리핑 듣고 주문만 넣으면 끝 — 며칠~몇 주 들고 가는 스윙이라 하루 한 번이면 충분하고, 장중 등락에 휘둘리지 않아요.</p>
       ${alphaLine()}
+      <div class="g-k">시작금</div>
+      <div class="chips" role="group" aria-label="시작금">${CAPS.map(([v, k]) => { const open = capOpen(k), cost = k && window.Daily && Daily.UNLOCK ? Daily.UNLOCK[k][0] : 0;
+        return `<button type="button" data-g="cap" data-v="${v}" data-k="${k || ""}" aria-pressed="${open && v === pickCap}">${open ? "" : "🔒 "}${capName(v)} 원${open ? "" : ` · ${cost.toLocaleString("ko-KR")}P`}</button>`; }).join("")}</div>
       <div class="g-k">투자 기간</div>
       <div class="chips" role="group" aria-label="투자 기간">${PERIODS.map(([t, d]) => `<button type="button" data-g="period" data-v="${d}" aria-pressed="${d === pickPeriod}">${t}</button>`).join("")}</div>
       <ul class="g-rules">
         <li>매일 장 마감 가격(실제 종가)으로 사고팔아요. 장중에 낸 주문은 그날 종가, 장 마감 뒤 주문은 다음 거래일 종가로 체결돼요. 수수료 0.015%, 팔 때 세금 0.18%를 반영해요.</li>
         <li>자동 손절 −5% · 익절 +10%를 켜 둘 수 있어요.</li>
-        <li>투자금은 연구소 포인트 100P마다 100만 원씩 늘릴 수 있어요(최대 2,000만 원). 수익률은 넣은 돈 전체 대비라 공정해요.</li>
+        <li>시작금은 기본 1,000만 원이고, 연구소 포인트로 <b>5,000만 원(800P)</b>·<b>1억 원(+1,200P)</b>을 한 번 열면 계속 쓸 수 있어요. 알파 팀도 같은 돈으로 시작하고 수익률로 겨뤄요.</li>
         <li>기록은 이 휴대폰에만 저장돼요. 주문마다 +5P, 완주하면 +50P.</li>
       </ul>
-      <button class="cta" type="button" data-g="start">500만 원으로 시작하기</button>
+      <button class="cta" type="button" data-g="start">${capName(pickCap)} 원으로 시작하기</button>
     </section>
     ${hist.length ? `<section class="card"><div class="hd"><h2>지난 게임</h2></div><ul class="list">${hist.map(h => `<li><div class="row g-hrow"><span></span>
       <span><div class="nm">${esc(h.start.slice(5))} ~ ${esc(h.end.slice(5))} · ${h.days}일</div><div class="meta">AI ${h.ai == null ? "-" : pct(h.ai)} · 코스피 ${h.kospi == null ? "-" : pct(h.kospi)}</div></span>
@@ -209,8 +215,8 @@
       <div class="hd"><h2>내 게임 계좌</h2><span class="sub">D-${left} · ${esc(g.end.slice(5).replace("-", "."))} 종료</span></div>
       <div class="g-big num">${won(eq)}<small>원</small></div>
       <div class="g-prog"><i style="width:${Math.min(100, passed / g.days * 100)}%"></i></div>
-      <p class="sub">${g.days}일 중 ${passed}일 지남 · 현금 ${won(g.cash)}원 · 넣은 돈 ${man(base(g))} 원 · ${pct(ret(g))}</p>
-      ${g.cash0 ? `<div class="g-topup"><span><span>투자금 추가 <b>${man(g.added || 0)}</b> / ${man(R.maxAdd)} 원</span><small>${R.topupCost}P → +${man(R.topup)} 원 · 지금 ${window.Daily ? Daily.pts() : 0}P</small></span><button type="button" data-g="topup" ${(g.added || 0) >= R.maxAdd ? "disabled" : ""}>+${man(R.topup)}</button></div>` : ""}
+      <p class="sub">${g.days}일 중 ${passed}일 지남 · 현금 ${won(g.cash)}원 · 넣은 돈 ${capName(base(g))} 원 · ${pct(ret(g))}</p>
+      ${g.cash0 && g.added ? `<div class="g-topup"><span><span>투자금 추가 <b>${man(g.added || 0)}</b> / ${man(R.maxAdd)} 원</span><small>${R.topupCost}P → +${man(R.topup)} 원 · 지금 ${window.Daily ? Daily.pts() : 0}P</small></span><button type="button" data-g="topup" ${(g.added || 0) >= R.maxAdd ? "disabled" : ""}>+${man(R.topup)}</button></div>` : ""}
       ${scoreline(g)}
       ${g.note && g.note.d === SC.date ? `<p class="g-msg" role="status">${esc(g.note.t)}</p>` : ""}
       ${msg ? `<p class="g-msg" role="status">${esc(msg)}</p>` : ""}
@@ -283,7 +289,7 @@
     const box = (bx, name, v, bgc) => { x.fillStyle = bgc; x.beginPath(); x.roundRect(bx, 580, 300, 190, 32); x.fill(); x.fillStyle = "#2d2a63"; x.font = F(700, 36); x.fillText(name, bx + 150, 640); x.fillStyle = v == null ? "#8a8fa6" : v >= 0 ? "#e2486b" : "#3d6fe6"; x.font = F(800, 58); x.fillText(v == null ? "-" : pct(v), bx + 150, 725); };
     box(60, "나", r.ret, "#fff1f4"); box(390, "알파", r.ai, "#eef3ff"); box(720, "코스피", r.kospi, "#f1f3f8");
     x.fillStyle = "#2d2a63"; x.font = F(600, 36); x.textAlign = "left"; review(g).slice(0, 4).forEach((l, i) => x.fillText("· " + (l.length > 34 ? l.slice(0, 33) + "…" : l), 80, 880 + i * 62));
-    x.textAlign = "center"; x.fillStyle = "#6c5ce7"; x.font = F(700, 36); x.fillText(`가상 ${man(base(g))} 원 · 실제 종가 기준 · 참고용`, 540, 1200);
+    x.textAlign = "center"; x.fillStyle = "#6c5ce7"; x.font = F(700, 36); x.fillText(`가상 ${capName(base(g))} 원 · 실제 종가 기준 · 참고용`, 540, 1200);
     x.fillStyle = "#8a8fa6"; x.font = F(500, 30); x.fillText("juski1004.github.io/ai-trading/app", 540, 1260);
     const blob = await new Promise(res => c.toBlob(res, "image/png")), file = new File([blob], "ai-report.png", { type: "image/png" });
     if (navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file], title: "모의투자 성적표" }); return; } catch (e) { if (e.name === "AbortError") return; } }
@@ -345,10 +351,12 @@
     e.stopPropagation();
     const a = b.dataset.g, v = b.dataset.v;
     if (a === "period") pickPeriod = +v;
+    else if (a === "cap") { const k = b.dataset.k; if (capOpen(k) || (window.Daily && Daily.unlock(k))) pickCap = +v; }
     else if (a === "new") { G = null; save(KEY, null); }  // 끝난 게임 → 기간 고르는 화면으로
     else if (a === "start") {
-      G = { start: SC.date, end: addDays(SC.date, pickPeriod), days: pickPeriod, lastDate: SC.date, cash: R.cash0, cash0: R.cash0, added: 0, pos: {}, trades: [],
-        eq: [[SC.date, R.cash0, R.cash0]], kospi0: SC.market && SC.market.kospi ? SC.market.kospi.v : null, autoExit: true, done: false };
+      const c0 = CAPS.some(([v, k]) => v === pickCap && capOpen(k)) ? pickCap : R.cash0;
+      G = { start: SC.date, end: addDays(SC.date, pickPeriod), days: pickPeriod, lastDate: SC.date, cash: c0, cash0: c0, added: 0, pos: {}, trades: [],
+        eq: [[SC.date, c0, c0]], kospi0: SC.market && SC.market.kospi ? SC.market.kospi.v : null, autoExit: true, done: false };
       save(KEY, G);
     } else if (a === "topup") {
       if ((G.added || 0) + R.topup > R.maxAdd) { msg = `한 게임에 추가할 수 있는 돈은 ${man(R.maxAdd)} 원까지예요.`; }
