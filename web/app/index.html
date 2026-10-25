@@ -234,7 +234,8 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var
    <li>데이터는 <b>평일 장 마감 후 하루 한 번</b> 바뀌어요. 휴대폰 크롬 메뉴 → <b>홈 화면에 추가</b>하면 앱처럼 쓸 수 있어요.</li>
   </ol>
   <p class="note">점수와 목표가는 공개된 시세·지표로 계산한 참고 정보이며 투자 권유가 아니에요. 위쪽 <b>사용법</b> 버튼으로 이 안내를 다시 볼 수 있어요. <a href="terms.html">이용약관·개인정보처리방침</a></p>
-  <button class="go" type="button" id="gdOk">알겠어요</button>
+  <button class="go" type="button" id="gdTour">▶ 1분 튜토리얼 (화면 보는 법부터 주문까지)</button>
+  <button class="go" type="button" id="gdOk" style="margin-top:8px;background:#f1f0fb;color:#6c5ce7">알겠어요</button>
  </div>
 </div>
 <nav aria-label="메뉴"><div class="in">
@@ -253,6 +254,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var
 <script src="push.js"></script>
 <script src="bgm.js"></script>
 <script src="daily.js"></script>
+<script src="tour.js"></script>
 <script>
 (()=>{
 const $=s=>document.querySelector(s);
@@ -433,7 +435,7 @@ $('#view').addEventListener('input',e=>{if(e.target.id==='q'){Q=e.target.value;r
 const gd=$('#guide');
 const openG=()=>{gd.hidden=false;$('#gdOk').focus()};
 const closeG=()=>{gd.hidden=true;try{localStorage.setItem('appGuideSeen','1')}catch(e){}};
-$('#helpBtn').onclick=openG;$('#gdOk').onclick=closeG;
+$('#helpBtn').onclick=openG;$('#gdOk').onclick=closeG;$('#gdTour').onclick=()=>{closeG();window.Tour&&Tour.start()};
 gd.addEventListener('click',e=>{if(e.target===gd)closeG()});
 addEventListener('keydown',e=>{if(e.key==='Escape'&&!gd.hidden)closeG()});
 try{if(!localStorage.getItem('appGuideSeen')&&localStorage.getItem('aiLab.team.v1'))openG()}catch(e){}

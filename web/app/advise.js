@@ -79,7 +79,7 @@
   function tick() {
     if (document.getElementById("advToast") || !queue.length) return;
     if ((location.hash.slice(1) || "home").split("/")[0] !== "home") return; // 홈에서만 띄움 (다른 화면을 가리지 않게)
-    if (document.querySelector(".tm-splash,#tmSheet,#rpToast,.bover")) return;
+    if (document.querySelector(".tm-splash,#tmSheet,#rpToast,.bover,.tour-on,#tourAsk")) return;
     const x = queue[0], el = document.createElement("div");
     el.id = "advToast"; el.className = "adv-toast"; el.setAttribute("role", "status");
     el.innerHTML = `<img src="../img/team/${esc(x.who.id)}.jpg?v=4" alt=""><div class="adv-b"><div class="adv-w"><b>${esc(x.who.name)}</b> ${esc(x.who.role || "")}</div><p>${x.msg}</p>
