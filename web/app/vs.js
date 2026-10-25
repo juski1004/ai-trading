@@ -142,19 +142,25 @@
   }
 
   /* ---------- 전체 랭킹 (push.js 가 서버와 통신) ---------- */
-  let RB = null;
+  let RB = null, RL = null; // 랭킹 보드 캐시 · 보고 있는 리그
   function rankCard(S) {
     if (!window.Push) return "";
     const sent = S.me && window.Push.rankOn() ? Push.report({ date: window.__SC.date, ret: S.me.ret, ai: S.ai.same, start: S.start, days: S.G.days, done: !!S.G.done }) : Promise.resolve();
-    if (!RB) sent.then(() => Push.getBoard()).then(b => { RB = b; const el = document.getElementById("vsRank"); if (el) el.outerHTML = rankCard(S); });
-    const b = RB, on = window.Push.rankOn();
-    const rows = b && b.top ? b.top.map((r, i) => `<li class="${r.me ? "me" : ""}"><span class="rk num">${i + 1}</span><span class="nk">${esc(r.nick)}${r.done ? "" : ' <small class="sub">진행 중</small>'}</span><span class="num ${cls(r.ret)}">${pct(r.ret)}</span></li>`).join("") : "";
-    return `<section class="card" id="vsRank"><div class="hd"><h2>전체 랭킹</h2><span class="sub">${b && b.total != null ? `${b.total}명 참여 · 최근 3주` : ""}</span></div>
+    const lg = RL || Push.league();
+    if (!RB) sent.then(() => Push.getBoard(lg)).then(b => { RB = b; const el = document.getElementById("vsRank"); if (el) el.outerHTML = rankCard(S); });
+    const b = RB, on = window.Push.rankOn(), mon = b && b.season ? +b.season.slice(5) : new Date(Date.now() + 9 * 3600e3).getUTCMonth() + 1;
+    const medal = i => (i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1);
+    const rows = b && b.top ? b.top.map((r, i) => `<li class="${r.me ? "me" : ""}"><span class="rk num">${medal(i)}</span><span class="nk">${esc(r.nick)}${r.done ? "" : ' <small class="sub">진행 중</small>'}</span><span class="num ${cls(r.ret)}">${pct(r.ret)}</span></li>`).join("") : "";
+    const tabs = ["rookie", "pro"].map(l => `<button type="button" data-lg="${l}" aria-pressed="${l === lg}">${Push.LNAME[l]}${l === Push.league() ? " · 내 리그" : ""}</button>`).join("");
+    return `<section class="card" id="vsRank"><div class="hd"><h2>${mon}월 시즌 랭킹</h2><span class="sub">${b && b.total != null ? `${b.total}명 참여` : ""}</span></div>
+      <div class="chips vs-lg" role="group" aria-label="리그">${tabs}</div>
+      <p class="sub" style="margin:6px 0 8px">매달 1일 새 시즌 · 완주한 게임 3판부터 일반 리그 · 지난 시즌 상위권은 배지와 포인트</p>
       ${!b ? '<p class="sub">불러오는 중…</p>' : b.error ? '<p class="sub">랭킹 서버를 준비 중이에요.</p>' : rows ? `<ol class="vs-rank">${rows}</ol>` : '<p class="empty">아직 참여한 사람이 없어요. 첫 번째가 되어 보세요!</p>'}
       ${b && b.me && b.me.rank > 20 ? `<p class="mood">내 순위 <b>${b.me.rank}위</b> · ${pct(b.me.ret)}</p>` : ""}
       ${on ? "" : `<p class="sub" style="margin-top:8px">${S.me ? "" : "대결을 시작한 뒤 "}<a href="#me">내 정보</a>에서 '랭킹 참여'를 켜면 내 수익률도 올라가요.</p>`}</section>`;
   }
   window.addEventListener("rankchange", () => { RB = null; });
+  document.addEventListener("click", e => { const t = e.target.closest("[data-lg]"); if (!t) return; RL = t.dataset.lg; RB = null; window.dispatchEvent(new HashChangeEvent("hashchange")); });
 
   /* ---------- 결과 공유 이미지 (인스타 세로 1080×1350) ---------- */
   async function share() {
@@ -209,6 +215,7 @@
   .vs-go{display:block;text-align:center;text-decoration:none;font-size:14px;padding:10px;margin-top:10px}
   .vs-share{margin-top:12px}
   .vs-tr{cursor:default;grid-template-columns:34px minmax(0,1fr) auto}.vs-side{font-size:12.5px;font-weight:700;text-align:center}
+.vs-lg{margin-top:4px}.vs-lg button{font-size:12.5px}
 .vs-rank{list-style:none;margin:6px 0 0;padding:0}.vs-rank li{display:grid;grid-template-columns:30px 1fr auto;gap:8px;align-items:center;padding:9px 4px;border-top:1px solid var(--line,#eceef6);font-size:14.5px}
   .vs-rank li:first-child{border-top:0}.vs-rank li.me{background:#f4f2ff;border-radius:12px}.vs-rank .rk{font-weight:800;color:#6c5ce7;text-align:center}.vs-rank .nk{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .vs-mini{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;font-size:14px}.vs-mini b.num{font-size:18px;margin-left:4px}

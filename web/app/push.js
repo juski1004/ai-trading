@@ -1,7 +1,8 @@
 /* 앱이 닫혀 있어도 오는 알림(웹 푸시) 켜기·끄기 + 랭킹 서버와 통신.
    서버 주소는 web/app/server.json (Cloudflare 배포 작업이 자동으로 씀). 없으면 '준비 중'으로 보인다.
    - 알림: 평일 18:00 본부장 브리핑, 18:10 알파의 선택. 아이폰은 '홈 화면에 추가'한 앱에서만 된다(iOS 16.4+).
-   - 랭킹: 동의한 사람만, 호칭과 수익률만 보낸다. 기기마다 무작위 번호(id)로 구분. */
+   - 랭킹: 동의한 사람만, 호칭과 수익률만 보낸다. 기기마다 무작위 번호(id)로 구분.
+     월간 시즌 리그: 새내기(완주한 게임 3판 미만) · 일반. 지난 시즌 성적이 오면 Daily.seasonReward 로 배지·포인트. */
 (() => {
   const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
   const load = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
@@ -62,23 +63,30 @@
       <p class="sub" style="margin:0 0 10px">앱을 닫아도 본부장 브리핑과 알파의 선택(게임)을 알려 드려요.</p>${body}
       ${msg ? `<p class="g-msg" role="status">${esc(msg)}</p>` : ""}
       <div class="hd" style="margin-top:16px"><h2>랭킹 참여</h2></div>
-      <label class="g-auto"><input type="checkbox" data-rank ${R.on ? "checked" : ""}> 내 호칭과 모의투자 수익률을 전체 랭킹에 올리기</label>
+      <label class="g-auto"><input type="checkbox" data-rank ${R.on ? "checked" : ""}> 내 호칭과 모의투자 수익률을 월간 시즌 랭킹에 올리기</label>
+      <p class="sub" style="margin:4px 0 0">매달 1일 새 시즌. 지난 시즌 1위 +500P · 3위 안 +300P · 상위 10% +200P · 참여 +50P와 시즌 배지.</p>
       <p class="sub" style="margin:4px 0 0">이름·연락처는 보내지 않아요. 언제든 끌 수 있어요.</p></section>`;
   }
 
   /* ---------- 랭킹 ---------- */
   const rid = () => { const R = load(RANK, {}); if (!R.id) { R.id = [...crypto.getRandomValues(new Uint8Array(12))].map(b => b.toString(36).padStart(2, "0")).join("").slice(0, 20); save(RANK, R); } return R.id; };
+  const league = () => (load("aiLab.games.v1", []).length >= 3 ? "pro" : "rookie"); // 완주한 게임 3판부터 일반 리그
+  const LNAME = { rookie: "새내기 리그", pro: "일반 리그" };
   function report(rec) { // 하루 한 번만 보냄 (서버 쓰기 한도 아끼기)
     const R = load(RANK, {}); if (!R.on) return Promise.resolve();
-    const key = rec.date + ":" + rec.ret.toFixed(2); if (R.last === key) return Promise.resolve();
+    const key = rec.date + ":" + rec.ret.toFixed(2) + ":" + league(); if (R.last === key) return Promise.resolve();
     board = null;
-    return api("/rank", { id: rid(), nick: window.Team ? Team.call() : "익명", ret: rec.ret, ai: rec.ai, start: rec.start, days: rec.days, done: rec.done })
+    return api("/rank", { id: rid(), nick: window.Team ? Team.call() : "익명", ret: rec.ret, ai: rec.ai, start: rec.start, days: rec.days, done: rec.done, league: league() })
       .then(() => { const R2 = load(RANK, {}); R2.last = key; save(RANK, R2); }).catch(() => {});
   }
-  let board = null, boardAt = 0;
-  async function getBoard() {
-    if (board && Date.now() - boardAt < 60e3) return board;
-    try { board = await api("/rank?id=" + encodeURIComponent(load(RANK, {}).id || "")); boardAt = Date.now(); } catch (e) { board = { error: e.message }; }
+  let board = null, boardAt = 0, boardL = "";
+  async function getBoard(lg) {
+    lg = lg || league();
+    if (board && boardL === lg && Date.now() - boardAt < 60e3) return board;
+    try {
+      board = await api(`/rank?league=${lg}&id=` + encodeURIComponent(load(RANK, {}).id || "")); boardAt = Date.now(); boardL = lg;
+      if (board.last && window.Daily && Daily.seasonReward) Daily.seasonReward(board.last); // 지난 시즌 배지·보상 (한 번만)
+    } catch (e) { board = { error: e.message }; }
     return board;
   }
 
@@ -91,5 +99,5 @@
     board = null; window.dispatchEvent(new Event("rankchange"));
   });
 
-  window.Push = { card: () => { setTimeout(refresh, 0); return card(); }, report, getBoard, rankOn: () => !!load(RANK, {}).on };
+  window.Push = { card: () => { setTimeout(refresh, 0); return card(); }, report, getBoard, league, LNAME, rankOn: () => !!load(RANK, {}).on, id: () => load(RANK, {}).id || "" };
 })();
