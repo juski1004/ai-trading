@@ -1,7 +1,7 @@
 """실적 발표가 다가온 종목과 '호재 전 진입' 판단 (앱 알림용 earnings.json).
 
 발표일은 PC 화면 nextEarn 과 같은 방식: 아직 발표 안 한 분기의 공시일, 없으면 마지막 발표 분기 끝 + 3개월 + 30일.
-증권사 예상(이번 분기 EPS 평균·전년 대비 증가율)과 최근 5일 주가로 미리 판단한다. 참고용이며 투자 권유가 아니다.
+증권사 예상(이번 분기 EPS 평균·전년 대비 증가율)과 최근 5일 주가를 정리한다. 데이터 요약이며 매매를 권하는 문장은 쓰지 않는다.
 """
 from __future__ import annotations
 
@@ -38,15 +38,15 @@ def build_earnings(stocks: dict, fin: dict, today: str, within_days: int = 14) -
         c = st["c"]
         r5 = (c[-1] / c[-6] - 1) * 100 if len(c) >= 6 and c[-6] else 0.0
         if g is None:
-            view, tone = "증권사 예상치가 없어 발표를 확인한 뒤 판단하시길 권합니다.", "중립"
+            view, tone = "증권사 예상치가 없어요. 발표 결과가 나오면 다시 정리해요.", "중립"
         elif g >= 0.2 and r5 < 5:
-            view, tone = f"예상 EPS가 전년보다 {g * 100:+.0f}% 늘 것으로 보여 발표 전 분할 진입을 권합니다.", "호재"
+            view, tone = f"증권사들은 EPS가 전년보다 {g * 100:+.0f}% 늘 것으로 예상해요. 최근 5일 주가는 {r5:+.1f}%예요.", "호재"
         elif g >= 0.2:
-            view, tone = f"예상 EPS {g * 100:+.0f}%로 좋지만 최근 5일 {r5:+.1f}% 올라 기대가 이미 반영됐을 수 있습니다. 추격 매수보다 눌림을 기다리시길 권합니다.", "중립"
+            view, tone = f"예상 EPS {g * 100:+.0f}%로 좋지만 최근 5일 {r5:+.1f}% 올라 기대가 이미 주가에 반영됐을 수 있어요.", "중립"
         elif g < 0:
-            view, tone = f"예상 EPS가 전년보다 {g * 100:+.0f}% 줄 것으로 보여 발표 전 신규 매수는 피하시길 권합니다.", "악재"
+            view, tone = f"증권사들은 EPS가 전년보다 {g * 100:+.0f}% 줄 것으로 예상해요. 발표 때 실망 매물이 나올 수 있어요.", "악재"
         else:
-            view, tone = f"예상 EPS {g * 100:+.0f}%로 무난합니다. 발표 결과를 확인한 뒤 판단하시길 권합니다.", "중립"
+            view, tone = f"예상 EPS {g * 100:+.0f}%로 무난한 수준이에요. 최근 5일 주가는 {r5:+.1f}%예요.", "중립"
         out.append({"sym": s, "name": st["name"], "date": nd, "guess": guess, "days": days, "eps": round(eps["avg"]) if eps and eps.get("avg") else None,
                     "growth": round(g * 100, 1) if g is not None else None, "r5": round(r5, 2), "tone": tone, "view": view})
     out.sort(key=lambda x: x["days"])

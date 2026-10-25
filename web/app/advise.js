@@ -58,11 +58,12 @@
       const held = new Set(Object.keys((G && G.pos) || {}));
       const list = [...EA.items].sort((a, b) => (held.has(b.sym) - held.has(a.sym)) || ((b.tone === "호재") - (a.tone === "호재")) || Math.abs(b.growth || 0) - Math.abs(a.growth || 0)).slice(0, 3);
       list.forEach(e => add(`ea:${e.sym}:${e.date}`, P("OSCAR"),
-        `<b>${esc(e.name)}</b> ${+e.date.slice(5, 7)}월 ${+e.date.slice(8)}일${e.guess ? "경" : ""} 실적 발표 예정입니다(${e.days}일 뒤). ${e.eps ? `증권사 예상 EPS ${won(e.eps)}원. ` : ""}${esc(e.view)}`, "#analysis/" + encodeURIComponent(e.sym)));
+        `<b>${esc(e.name)}</b> ${+e.date.slice(5, 7)}월 ${+e.date.slice(8)}일${e.guess ? "경" : ""} 실적 발표 예정이에요(${e.days}일 뒤). 증권사 예상과 최근 주가 반응은 홈 '실적 발표' 리포트에서 볼 수 있어요.`, "#analysis/" + encodeURIComponent(e.sym)));
     }
     // 4) 알파의 선택 (게임 상대의 행동 · 데이터 요약)
-    if (PK && PK.found && PK.date === SC.date) add(`pick:${PK.date}`, P("MILES"), `알파 팀이 오늘 게임 계좌에 <b>${esc(PK.name)}</b>을(를) 담았어요. 알파의 기준: 진입 ${won(PK.plan.entry)}원 · 손절 ${won(PK.plan.stop)}원 · 목표 ${won(PK.plan.target)}원.`, "#pick");
-    else Object.entries(S).filter(([, x]) => x.label === "긍정").sort((a, b) => b[1].score - a[1].score).slice(0, 2).forEach(([s, x]) =>
+    const open = !window.Report || Report.isOpen();
+    if (PK && PK.found && PK.date === SC.date && open) add(`pick:${PK.date}`, P("MILES"), `알파 팀이 오늘 게임 계좌에 <b>${esc(PK.name)}</b>을(를) 담았어요. 알파의 기준: 진입 ${won(PK.plan.entry)}원 · 손절 ${won(PK.plan.stop)}원 · 목표 ${won(PK.plan.target)}원.`, "#pick");
+    else if (!(PK && PK.found && PK.date === SC.date)) Object.entries(S).filter(([, x]) => x.label === "긍정").sort((a, b) => b[1].score - a[1].score).slice(0, 2).forEach(([s, x]) =>
       add(`buy:${s}:${SC.date}`, P("MILES"), `<b>${esc(x.name)}</b> AI 점수 ${Math.round((x.score + 1) * 50)}점으로 '긍정'이에요. 알파가 눈여겨보는 종목이에요(알파 기준 손절선 ${won(x.stop)}원).`, "#analysis/" + encodeURIComponent(s)));
 
     const rank = k => (/^(tp|sl|neg)/.test(k) ? 0 : /^ai/.test(k) ? 1 : /^ea/.test(k) ? 2 : 3);
