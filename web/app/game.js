@@ -177,7 +177,7 @@
       <div class="g-big num">${won(eq)}<small>원</small></div>
       <div class="g-prog"><i style="width:${Math.min(100, passed / g.days * 100)}%"></i></div>
       <p class="sub">${g.days}일 중 ${passed}일 지남 · 현금 ${won(g.cash)}원 · 넣은 돈 ${man(base(g))} 원 · ${pct(ret(g))}</p>
-      ${g.cash0 ? `<div class="g-topup"><span>투자금 추가 <b>${man(g.added || 0)}</b> / ${man(R.maxAdd)} 원<small>${R.topupCost}P → +${man(R.topup)} 원 · 지금 ${window.Daily ? Daily.pts() : 0}P</small></span><button type="button" data-g="topup" ${(g.added || 0) >= R.maxAdd ? "disabled" : ""}>+${man(R.topup)}</button></div>` : ""}
+      ${g.cash0 ? `<div class="g-topup"><span><span>투자금 추가 <b>${man(g.added || 0)}</b> / ${man(R.maxAdd)} 원</span><small>${R.topupCost}P → +${man(R.topup)} 원 · 지금 ${window.Daily ? Daily.pts() : 0}P</small></span><button type="button" data-g="topup" ${(g.added || 0) >= R.maxAdd ? "disabled" : ""}>+${man(R.topup)}</button></div>` : ""}
       ${scoreline(g)}
       ${g.note && g.note.d === SC.date ? `<p class="g-msg" role="status">${esc(g.note.t)}</p>` : ""}
       ${msg ? `<p class="g-msg" role="status">${esc(msg)}</p>` : ""}
