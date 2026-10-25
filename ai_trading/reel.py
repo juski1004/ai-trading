@@ -23,7 +23,7 @@ from pathlib import Path
 
 
 from ai_trading import motion as M
-from ai_trading.data.cards import host_of
+from ai_trading.data.cards import host_of, theme_of
 
 FPS = M.FPS
 
@@ -60,12 +60,12 @@ def live(t: dict, sc: dict, facts: dict) -> str:
         if k.startswith("fin."):
             f = k[4:]; v = s and (s.get("fin") or {}).get(f)
             return "" if v is None else f"{s['name']} {t['name']} {num(v)}{UNIT.get(f, '')} ({d})"
-        if k == "VIX": return f"{d} VIX {facts['VIX']}"
-        if k == "미국10년물": return f"{d} 미국 10년 금리 {facts['미국10년물']}%"
-        if k == "usdkrw": return f"{d} 원/달러 {num(sc['market']['usdkrw']['v'], 1)}원"
+        if k == "VIX": return f"VIX {facts['VIX']} ({d})"
+        if k == "미국10년물": return f"미국 10년 금리 {facts['미국10년물']}% ({d})"
+        if k == "usdkrw": return f"원/달러 {num(sc['market']['usdkrw']['v'], 1)}원 ({d})"
         if k == "WTI_20일%": return f"WTI 최근 한 달 {sgn(facts['WTI_20일%'])}% ({d})"
         if k == "frg":
-            m = facts["오늘_시장수급_억원"]["KOSPI"]; return f"{d} 외국인 코스피 {sgn(m['frg'])}억 · 기관 {sgn(m['org'])}억"
+            m = facts["오늘_시장수급_억원"]["KOSPI"]; return f"외국인 코스피 {sgn(m['frg'])}억 · 기관 {sgn(m['org'])}억 ({d})"
         if k == "ma20":
             m = next(x for x in s["tech"] if x[0] == "20일 이동평균")
             return f"{s['name']} 종가 {num(s['price'], 0)}원 · 20일선 {num(m[1], 0)}원 ({'위' if s['price'] >= m[1] else '아래'})"
@@ -87,7 +87,7 @@ def shoot(web: Path, kind: str, sym: str, tmp: Path, term: str = "") -> list[Pat
     """앱 화면을 휴대폰 크기(390폭)로 길게 찍는다. 처음 안내·동의 창은 미리 끝낸 상태로."""
     from playwright.sync_api import sync_playwright
     srv, port = _serve(web)
-    seed = {"aiLab.consent.v1": "2026-10-25", "aiLab.team.v1": json.dumps({"dir": "theo", "staff": ["joy", "oscar", "ray", "miles", "lloyd", "nova"]}),
+    seed = {"aiLab.consent.v1": "2026-10-25", "aiLab.team.v1": json.dumps({"dir": "theo", "staff": ["joy", "egen", "oscar", "teto", "ray", "puppy"]}),
             "aiLab.call.v1": json.dumps("투자자님"), "aiLab.tour.v1": json.dumps({"done": True, "offered": True}), "appGuideSeen": "1",
             "aiLab.chart.v1": json.dumps({"ov": ["ma"], "sub": "none"}), "aiLab.m.v1": json.dumps({"first": "2000-01-01", "sent": {"open": "9999"}})}
     out = []
@@ -158,6 +158,7 @@ def build(web: Path, kind: str | None = None) -> dict | None:
     if kind == "app": kind = APP_KINDS[_week(d) % len(APP_KINDS)]
     sym = EX if EX in sc["stocks"] else next(iter(sc["stocks"]))
     host = host_of(date); hname = host[1]
+    M.set_theme(theme_of(date))  # 카드뉴스와 같은 그 주의 색
     josa = "이" if (ord(hname[-1]) - 0xAC00) % 28 else "가"
     G = json.loads((web / "app" / "glossary.json").read_text(encoding="utf-8")); TT = {t["id"]: t for t in G["terms"]}
     term = TT[os.environ.get("REEL_TERM") or WORD_ORDER[_week(d) % len(WORD_ORDER)]] if kind == "word" else None  # REEL_TERM: 시험용

@@ -26,6 +26,16 @@ MUTED = (112, 116, 128)
 BLUE = (38, 99, 235)
 MARK = (255, 224, 102)
 WHITE = (255, 255, 255)
+GRID = (236, 235, 230)
+WAVE = (212, 222, 245)
+
+
+def set_theme(th: dict):
+    """그 주의 색 (cards.theme_of 와 같은 것): 바탕·모눈·포인트 색. 장식 선은 포인트 색을 바탕에 옅게 섞음."""
+    global BG, GRID, BLUE, WAVE
+    BG, GRID, BLUE = tuple(th["paper"]), tuple(th["grid"]), tuple(th["acc"])
+    WAVE = tuple(int(p * 0.78 + a * 0.22) for p, a in zip(BG, BLUE))
+    _paper.cache_clear(); text.cache_clear()
 
 
 # ---------- 시간 곡선 ----------
@@ -108,8 +118,8 @@ def put_left(fr, layer, x, cy, **k):
 def _paper() -> Image.Image:
     im = Image.new("RGBA", (W, H), BG + (255,))
     d = ImageDraw.Draw(im)
-    for x in range(0, W, 60): d.line([(x, 0), (x, H)], fill=(236, 235, 230, 255), width=1)  # 아주 옅은 모눈 (차트 종이 느낌)
-    for y in range(0, H, 60): d.line([(0, y), (W, y)], fill=(236, 235, 230, 255), width=1)
+    for x in range(0, W, 60): d.line([(x, 0), (x, H)], fill=GRID + (255,), width=1)  # 아주 옅은 모눈 (차트 종이 느낌)
+    for y in range(0, H, 60): d.line([(0, y), (W, y)], fill=GRID + (255,), width=1)
     return im
 
 
@@ -118,7 +128,7 @@ def base(f: int, brand=True) -> Image.Image:
     d = ImageDraw.Draw(fr)
     # 천천히 흐르는 얇은 차트 선 (장식)
     pts = [(x, 1560 + 50 * math.sin(x / 140 + f / 22) + 26 * math.sin(x / 57 - f / 15)) for x in range(-20, W + 40, 20)]
-    d.line(pts, fill=(212, 222, 245, 255), width=5)
+    d.line(pts, fill=WAVE + (255,), width=5)
     if brand:
         d.rounded_rectangle((60, 70, 72, 82), 3, fill=BLUE)
         d.text((86, 76), "AI 투자연구소", font=font("Bold", 30), fill=INK, anchor="lm")
@@ -200,8 +210,11 @@ def lines_scene(R: Reel, label: str, body: str, sec: float, big: str = "", highl
 def number_scene(R: Reel, label: str, value: str, sec: float, foot: str = "공개 자료 · 참고용"):
     """오늘 실제 숫자: 숫자 부분이 0부터 올라가며 세지고 크게 튀어나옴."""
     lab = pill(label, 36, WHITE, INK)
-    m = re.search(r"[-+]?\d[\d,]*\.?\d*", value)
-    head, num_s, tail = (value[:m.start()], m.group(0), value[m.end():]) if m else (value, "", "")
+    paren = re.search(r"\s*\([^)]*\)\s*$", value)          # 끝의 (날짜)는 숫자로 세지 않고 아래 작은 글씨로
+    core, note = (value[:paren.start()], paren.group(0).strip()) if paren else (value, "")
+    m = re.search(r"[-+]?\d[\d,]*\.?\d*", core)
+    head, num_s, tail = (core[:m.start()], m.group(0), core[m.end():]) if m else (core, "", "")
+    tail = (tail.strip() + " " + note).strip()
     target = float(num_s.replace(",", "")) if num_s else 0
     dec = len(num_s.split(".")[1]) if "." in num_s else 0
     H1 = [text(s, 64, "Bold", MUTED) for s in wrapw(head.strip(), font("Bold", 64), W - 150)] if head.strip() else []

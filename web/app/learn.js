@@ -21,11 +21,11 @@
     const s = SC.stocks && SC.stocks[EX], f = (O && O.facts) || {}, d = SC.date.slice(5).replace("-", ".");
     try {
       if (t.live.startsWith("fin.")) { const k = t.live.slice(4), v = s && s.fin && s.fin[k]; return v == null ? "" : `${s.name} ${t.name} ${num(v)}${UNIT[k] || ""} (${d})`; }
-      if (t.live === "VIX" && f.VIX != null) return `${d} VIX ${f.VIX}`;
-      if (t.live === "미국10년물" && f["미국10년물"] != null) return `${d} 미국 10년 금리 ${f["미국10년물"]}%`;
-      if (t.live === "usdkrw" && SC.market.usdkrw) return `${d} 원/달러 ${num(SC.market.usdkrw.v, 1)}원`;
+      if (t.live === "VIX" && f.VIX != null) return `VIX ${f.VIX} (${d})`;
+      if (t.live === "미국10년물" && f["미국10년물"] != null) return `미국 10년 금리 ${f["미국10년물"]}% (${d})`;
+      if (t.live === "usdkrw" && SC.market.usdkrw) return `원/달러 ${num(SC.market.usdkrw.v, 1)}원 (${d})`;
       if (t.live === "WTI_20일%" && f["WTI_20일%"] != null) return `WTI 최근 한 달 ${sgn(f["WTI_20일%"])}% (${d})`;
-      if (t.live === "frg") { const m = f["오늘_시장수급_억원"]; if (m) return `${d} 외국인 코스피 ${sgn(m.KOSPI.frg)}억 · 기관 ${sgn(m.KOSPI.org)}억`; }
+      if (t.live === "frg") { const m = f["오늘_시장수급_억원"]; if (m) return `외국인 코스피 ${sgn(m.KOSPI.frg)}억 · 기관 ${sgn(m.KOSPI.org)}억 (${d})`; }
       if (t.live === "ma20" && s) { const m = (s.tech || []).find(x => x[0] === "20일 이동평균"); if (m) return `${s.name} 종가 ${num(s.price, 0)}원 · 20일선 ${num(m[1], 0)}원 (${s.price >= m[1] ? "위" : "아래"})`; }
     } catch (e) {}
     return "";
