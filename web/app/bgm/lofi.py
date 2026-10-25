@@ -93,11 +93,9 @@ def render(passes=3):
                         put(epiano(hz(nm), d * BEAT * 1.1, 1.0), t, 0.14, pan=0.15)
                     t += d * BEAT
     out = mix[:L]
-    # 따뜻하게: 고음 살짝 깎기 + 아주 옅은 레코드판 잡음
+    # 따뜻하게: 고음 살짝 깎기 (레코드판 잡음은 거슬린다고 해서 뺌)
     k = np.ones(4) / 4
     out = np.stack([np.convolve(out[:, c], k, "same") for c in (0, 1)], 1)
-    crackle = (rng.random(L) < 0.0006) * rng.standard_normal(L) * 0.25 + rng.standard_normal(L) * 0.004
-    out += crackle[:, None]
     wet = out.copy()
     for dly, g in ((0.043, .3), (0.067, .24), (0.097, .18), (0.149, .12)):
         n = int(dly * SR); wet[n:, 0] += out[:-n, 1] * g; wet[n:, 1] += out[:-n, 0] * g
