@@ -39,20 +39,21 @@
     // 내 계좌
     const mPos = G ? Object.entries(G.pos || {}).map(([sym, p]) => ({ sym, name: p.name, qty: p.qty, avg: p.avg, now: px(sym, p.last ?? p.avg) })) : [];
     const mStock = mPos.reduce((s, p) => s + p.qty * p.now, 0), mEq = G ? G.cash + mStock : null;
+    const mB0 = G ? (G.cash0 || CASH0) : CASH0, mBase = G ? mB0 + (G.added || 0) : CASH0; // 내 넣은 돈 (포인트로 추가한 돈 포함)
     // 같은 기간 비교: 내 시작일 시점의 알파 자산을 기준으로
     const eh = (st.equity_history || []).map(([t, e]) => [t.slice(0, 10), e]);
     const at = d => { let v = null; for (const [t, e] of eh) if (t <= d) v = e; return v; };
     const start = G ? G.start : st.start_date;
     const aBase = G ? (at(G.start) ?? (eh.length && eh[0][0] > G.start ? CASH0 : CASH0)) : CASH0;
-    const aRetSame = (aEq / aBase - 1) * 100, mRet = mEq == null ? null : (mEq / CASH0 - 1) * 100;
+    const aRetSame = (aEq / aBase - 1) * 100, mRet = mEq == null ? null : (mEq / mBase - 1) * 100;
     // 경주 그래프 자료 (날짜별 수익률)
     const days = [...new Set([...(G ? G.eq.map(x => x[0]) : []), ...eh.map(x => x[0]), SC.date])].filter(d => !start || d >= start).sort();
-    const mAt = d => { if (!G) return null; let v = null; for (const [t, e] of G.eq) if (t <= d) v = e; return v == null ? null : (v / CASH0 - 1) * 100; };
+    const mAt = d => { if (!G) return null; let v = null; let b = mB0; for (const [t, e, eb] of G.eq) if (t <= d) { v = e; b = eb || mB0; } return v == null ? null : (v / b - 1) * 100; };
     const series = days.map(d => ({ d, a: ((d === SC.date ? aEq : at(d) ?? aBase) / aBase - 1) * 100, m: d === SC.date && mRet != null ? mRet : mAt(d) }));
     // 일별 승부
     let mw = 0, aw = 0;
     for (let i = 1; i < series.length; i++) { const p = series[i - 1], c = series[i]; if (p.m == null || c.m == null) continue; const dm = c.m - p.m, da = c.a - p.a; if (Math.abs(dm - da) < 0.005) continue; dm > da ? mw++ : aw++; }
-    return { st, G, start, me: G && { eq: mEq, cash: G.cash, stock: mStock, pnl: mEq - CASH0, ret: mRet, pos: mPos },
+    return { st, G, start, me: G && { eq: mEq, cash: G.cash, stock: mStock, pnl: mEq - mBase, base: mBase, ret: mRet, pos: mPos },
       ai: { eq: aEq, cash: aCash, stock: aStock, pnl: aEq - CASH0, ret: (aEq / CASH0 - 1) * 100, same: aRetSame, pos: aPos }, series, mw, aw };
   }
 
@@ -90,7 +91,7 @@
       <text x="${pl}" y="${H - 6}" font-size="10" fill="#8a8fa6">${esc(pts[0].d.slice(5).replace("-", "."))}</text><text x="${W - pr}" y="${H - 6}" font-size="10" fill="#8a8fa6" text-anchor="end">${esc(pts[pts.length - 1].d.slice(5).replace("-", "."))}</text></svg>`;
   }
 
-  const acct = (A, title, who) => !A ? `<div class="vs-acct me"><div class="vs-acct-hd">${who}<b>${title}</b></div><p class="sub">아직 대결을 시작하지 않았어요.</p><a class="cta vs-go" href="#game">1,000만 원으로 시작</a></div>` :
+  const acct = (A, title, who) => !A ? `<div class="vs-acct me"><div class="vs-acct-hd">${who}<b>${title}</b></div><p class="sub">아직 대결을 시작하지 않았어요.</p><a class="cta vs-go" href="#game">500만 원으로 시작</a></div>` :
     `<div class="vs-acct ${title === "알파 팀" ? "ai" : "me"}"><div class="vs-acct-hd">${who}<b>${title}</b></div>
       <div class="vs-eq num">${won(A.eq)}<small>원</small></div><div class="num ${cls(A.ret)} vs-ret">${pct(A.ret)} <small>(${sgn(A.pnl)}원)</small></div>
       <dl class="vs-dl"><dt>현금</dt><dd class="num">${won(A.cash)}</dd><dt>주식</dt><dd class="num">${won(A.stock)}</dd><dt>종목 수</dt><dd class="num">${A.pos.length}개</dd></dl></div>`;
@@ -175,7 +176,7 @@
     g.fillStyle = "#ff8fa6"; g.beginPath(); g.roundRect(120, 900, x, 40, 20); g.fill();
     g.fillStyle = "#2d2a63"; g.beginPath(); g.arc(120 + x, 920, 30, 0, 7); g.fill();
     g.fillStyle = "#6b7088"; g.font = F(600, 36); g.fillText(`${S.start ? S.start.slice(5).replace("-", ".") : ""} ~ ${SC.date.slice(5).replace("-", ".")} · 하루 승부 ${S.mw}승 ${S.aw}패`, 540, 1040);
-    g.fillStyle = "#6c5ce7"; g.font = F(700, 38); g.fillText("가상 1,000만 원 모의투자 · 실제 종가 기준", 540, 1160);
+    g.fillStyle = "#6c5ce7"; g.font = F(700, 38); g.fillText("가상 투자금 모의투자 · 실제 종가 · 수익률(%) 비교", 540, 1160);
     g.fillStyle = "#8a8fa6"; g.font = F(500, 30); g.fillText("juski1004.github.io/ai-trading/app · 참고용, 투자 권유 아님", 540, 1250);
     const blob = await new Promise(r => c.toBlob(r, "image/png"));
     const file = new File([blob], "ai-battle.png", { type: "image/png" });

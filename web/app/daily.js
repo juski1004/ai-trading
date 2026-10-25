@@ -1,5 +1,5 @@
 /* 매일 올 이유: 출석(연속 기록) → 연구소 포인트 → 깊은 정보 열람.
-   - 포인트는 게임 돈(가상 1,000만 원)과 완전히 별개. 수익률 비교에 영향 없음.
+   - 포인트는 게임 돈과 별개지만, 100P로 게임 투자금 +100만 원을 살 수 있다(수익률은 넣은 돈 전체 대비라 비교에 유리해지지 않음).
    - 받는 법: 출석 +20 (연속 n일째면 +10×n 추가, 하루 최대 +100) · 모의투자 주문 +5 (하루 2번까지) · 게임 끝 +50, 알파에 이기면 +100 더
    - 쓰는 법(그날 하루 열람): 알파의 선택 미리 보기 30 · 알파 보고서 전체 20 · 실적 발표 전 리포트 20 · 매집 포착 상세 20 · 내 종목 데이터 복기 30
    - 원칙(법): 포인트는 절대 돈으로 팔지 않는다(유료 패스에 끼워 주지도 않음). 돈이 오가면 '대가를 받는 투자 정보'가 되어 유사투자자문업 신고 대상.
@@ -46,6 +46,14 @@
     save(D); window.dispatchEvent(new CustomEvent("aiLab:pts", { detail: { n: -cost, why: name, pts: D.pts } }));
     return true;
   }
+  /* 열람권이 아닌 일회성 사용 (게임 투자금 추가 등) */
+  function spend(cost, why, ask) {
+    if (D.pts < cost) { alert(`포인트가 ${cost - D.pts}P 모자라요 (지금 ${D.pts}P). 출석하고 모의투자를 하면 쌓여요.`); return false; }
+    if (ask && !confirm(ask)) return false;
+    D.pts -= cost; D.log.unshift({ d: today(), n: -cost, why }); D.log = D.log.slice(0, 30); save(D);
+    window.dispatchEvent(new CustomEvent("aiLab:pts", { detail: { n: -cost, why, pts: D.pts } }));
+    return true;
+  }
   /* 잠긴 정보 자리: 열었으면 html, 아니면 잠금 상자 */
   function gate(key, html, teaser) {
     if (has(key)) return html;
@@ -81,7 +89,7 @@
       <p class="sub">매일 출석 +20P(연속이면 더), 모의투자 주문 +5P, 게임 완주 +50P, 알파에 이기면 +100P. 게임 돈과는 별개예요.</p>
       <p class="sub" style="margin-top:4px">지금 <b>${D.streak}일 연속</b> 출석 중${D.log[0] ? ` · 최근: ${esc(D.log[0].why)} ${D.log[0].n > 0 ? "+" : ""}${D.log[0].n}P` : ""}</p>
       <div class="hd" style="margin-top:14px"><h2>포인트로 여는 정보</h2><span class="sub">그날 하루</span></div>
-      <ul class="pt-list">${items}</ul>
+      <ul class="pt-list">${items}<li><span><b>게임 투자금 +100만 원</b><small>투자게임 화면에서 · 한 게임 최대 +1,500만 원</small></span><em>100P</em></li></ul>
       <p class="sub" style="margin-top:6px">포인트는 돈으로 사거나 팔 수 없어요. 알파가 무엇을 골랐는지(종목명)는 누구나 무료로 볼 수 있어요.</p></section>`;
   }
   document.addEventListener("click", e => {
@@ -109,5 +117,5 @@
 `;
   document.head.appendChild(css);
 
-  window.Daily = { pts: () => D.pts, streak: () => D.streak, has, buy, gate, today, homeStrip, meCard };
+  window.Daily = { pts: () => D.pts, streak: () => D.streak, has, buy, spend, gate, today, homeStrip, meCard };
 })();
