@@ -183,8 +183,28 @@
         : `<p class="empty">아직 산 종목이 없어요. <a href="#analysis">분석 탭</a>에서 종목을 골라 "모의투자 해 보기"를 눌러 보세요.</p>`}
       <label class="g-auto"><input type="checkbox" data-g="auto" ${g.autoExit ? "checked" : ""}> 자동 손절 −5% · 익절 +10%</label>
     </section>
+    ${pos.length ? holdReview(g, pos) : ""}
     ${tradesView(g)}
     <button class="g-quit" type="button" data-g="quit">게임 그만두기</button>`;
+  }
+
+  /* 내 종목 데이터 복기 (연구소 포인트로 그날 열람): 보유 종목별 오늘 움직임·이유·AI 판단·알파 보유 여부. 매매 권유 문장은 쓰지 않는다 */
+  function holdReview(g, pos) {
+    const ap = (AI && AI.state && AI.state.positions) || {};
+    const items = pos.map(([sym, p]) => {
+      const s = SC.stocks[sym], now = priceOf(sym) ?? p.last, r = (now / p.avg - 1) * 100;
+      if (!s) return `<li><b>${esc(p.name)}</b> <span class="num ${cls(r)}">${pct(r)}</span><p class="sub">AI 분석 대상(대형주) 밖이라 시세만 있어요.</p></li>`;
+      const ops = [...(s.opinions || [])].sort((a, b) => Math.abs(b.score) - Math.abs(a.score)).slice(0, 2);
+      const news = (s.news || [])[0];
+      return `<li><div class="g-rv-h"><b>${esc(s.name)}</b><span class="num">내 수익 <b class="${cls(r)}">${pct(r)}</b> · 오늘 <b class="${cls(s.chg)}">${pct(s.chg)}</b></span></div>
+        <p>AI ${Math.round((s.score + 1) * 50)}점 <span class="chip ${s.label}">${s.label}</span> · 리스크 ${esc(s.risk.level)}${ap[sym] ? " · <b>알파도 들고 있어요</b>" : ""}</p>
+        ${ops.map(o => `<p class="sub">· ${esc(window.Team ? Team.name(o.agent) : o.agent)}: ${esc(o.summary)}</p>`).join("")}
+        <p class="sub">· 최근 소식: ${news ? esc(news.title) : "뚜렷한 개별 소식은 없었어요"}</p></li>`;
+    }).join("");
+    const body = `<ul class="g-rv">${items}</ul>`;
+    return `<section class="card"><div class="hd"><h2>내 종목 데이터 복기</h2><span class="sub">${esc(SC.date)} 종가</span></div>
+      ${window.Daily ? Daily.gate("review:" + SC.date, body, body) : body}
+      <p class="note" style="margin-top:8px">데이터 요약이며 매매를 권하지 않아요.</p></section>`;
   }
 
   /* 게임 끝난 뒤 복기: 잘한 것·아쉬운 것을 본부장이 정리 */
@@ -322,6 +342,8 @@
   css.textContent = `
   .g-top{display:flex;justify-content:space-between}
   .g-k{font-size:13px;color:var(--muted);margin:14px 0 6px;display:block}
+  .g-rv{list-style:none;margin:0;padding:0}.g-rv li{padding:10px 0;border-top:1px solid var(--line)}.g-rv li:first-child{border-top:0}.g-rv p{margin:4px 0 0;font-size:13.5px;line-height:1.55}
+  .g-rv-h{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:14px}
   .g-alpha{margin:10px 0 0;padding:10px 14px;border-radius:14px;background:var(--lav-s,#efedff);font-size:14px}
   .g-rules{margin:14px 0 0;padding-left:18px;font-size:13.5px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
   .g-big{font-family:var(--f-disp,inherit);font-size:34px;font-weight:600;letter-spacing:-.5px;margin-top:4px}.g-big small{font-size:16px;margin-left:3px;color:var(--muted)}

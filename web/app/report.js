@@ -24,6 +24,13 @@
   }
   const BRIEF_AT = 18 * 60, PICK_AT = 18 * 60 + 10;
   const ready = () => { const t = kst(); return DATE && DATE === t.date ? t : null; };  // 오늘 장 마감 데이터가 있을 때만
+  const G = (key, html, tease) => (window.Daily ? Daily.gate(key, html, tease) : html);
+  /* 알파의 선택이 공개됐나: 지난 날짜면 공개, 오늘 것이면 18:10 이후 (포인트로 '미리 보기'를 열면 바로) */
+  function isOpen() {
+    if (!PICK) return false; const t = kst();
+    if (PICK.date !== t.date) return true;
+    return t.min >= PICK_AT || !!(window.Daily && Daily.has("early:" + PICK.date));
+  }
 
   /* ---------- 알림 (메신저 말풍선) ---------- */
   let shown = null;
@@ -91,7 +98,7 @@
     DATE = sc && sc.date; setTimeout(check, 400);
     const t = ready();
     if (!PICK || !t || PICK.date !== DATE) return "";
-    if (t.min < PICK_AT) return `<section class="card rp-home"><div class="rp-hrow"><img src="${img(D().id)}" alt=""><div><h2>알파의 선택</h2><p class="sub">18:10에 알파 팀이 오늘 게임 계좌에 담은 종목을 보고해요.</p></div></div></section>`;
+    if (!isOpen()) return `<section class="card rp-home"><div class="rp-hrow"><img src="${img(D().id)}" alt=""><div><h2>알파의 선택</h2><p class="sub">18:10에 알파 팀이 오늘 게임 계좌에 담은 종목을 보고해요.</p></div></div>${PICK.found ? G("early:" + PICK.date, "") : ""}</section>`;
     if (!PICK.found) return `<section class="card rp-home"><div class="rp-hrow"><img src="${img(D().id)}" alt=""><div><h2>오늘 알파는 쉬어 갑니다</h2><p class="sub">${esc(PICK.reason)}</p></div></div></section>`;
     return `<section class="card rp-home"><a class="rp-hrow" href="#pick"><img src="${img(who(PICK.date).id)}" alt=""><div><h2>알파의 선택 · ${esc(PICK.name)}</h2>
       <p class="sub">${esc(who(PICK.date).name)} 보고 · ${esc(D().name)} 본부장 최종 의견 포함 · AI 점수 ${PICK.score}점</p></div><span class="rp-go">보기</span></a></section>`;
@@ -113,6 +120,7 @@
     DATE = sc && sc.date;
     if (!PICK) return `<div class="card"><div class="skel"></div><div class="skel" style="width:60%"></div></div>`;
     if (!PICK.found) return `<a class="back" href="#home">‹ 홈</a><section class="card rp-home"><div class="rp-hrow"><img src="${img(D().id)}" alt=""><div><h2>오늘 알파는 쉬어 갑니다</h2><p class="sub">${esc(PICK.reason)}</p></div></div></section>`;
+    if (!isOpen()) return `<a class="back" href="#home">‹ 홈</a><section class="card rp-home"><div class="rp-hrow"><img src="${img(D().id)}" alt=""><div><h2>알파의 선택은 18:10에 공개돼요</h2><p class="sub">알파 팀이 오늘 게임 계좌에 담은 종목을 정리하고 있어요.</p></div></div>${G("early:" + PICK.date, "")}</section>`;
     const p = PICK, r = who(p.date), d = { ...p.director, ...D() }, pl = p.plan;
     const sec = (t, body) => `<section class="card"><div class="hd"><h2>${t}</h2></div>${body}</section>`;
     const ul = a => `<ul class="rp-ul">${a.map(x => `<li>${esc(x)}</li>`).join("")}</ul>`;
@@ -130,7 +138,7 @@
         <div class="tile"><div class="k">재무 점수</div><div class="v num">${p.fin_score ?? "-"}<small class="sub"> / 5</small></div></div>
       </div>
     </section>
-    ${sec("알파가 고른 이유", `<ol class="rp-ol">${p.reasons.map(x => `<li>${esc(x)}</li>`).join("")}</ol>`)}
+    ${G("report:" + p.date, `${sec("알파가 고른 이유", `<ol class="rp-ol">${p.reasons.map(x => `<li>${esc(x)}</li>`).join("")}</ol>`)}
     ${sec("알파의 매매 기준 (게임 계좌)", `<div class="kv rp-plan">
         <div><div class="k">1차 진입</div><div class="v num">${won(pl.entry)}</div></div>
         <div><div class="k">추가 매수 (−3%)</div><div class="v num">${won(pl.add)}</div></div>
@@ -147,10 +155,10 @@
     <section class="card rp-dir">
       <div class="rp-from"><img src="${img(d.id)}" alt="본부장 사진"><div><b>${esc(d.name)} ${esc(d.role)}</b><div class="sub">최종 의견 ${d.source === "AI" ? "· AI 작성" : ""}</div></div></div>
       <p class="rp-quote">${esc(d.opinion)}</p>
-    </section>
+    </section>`, sec("알파가 고른 이유", `<ol class="rp-ol">${p.reasons.slice(0, 3).map(x => `<li>${esc(x)}</li>`).join("")}</ol>`))}
     <a class="cta" href="#game/${encodeURIComponent(p.sym)}">이 종목으로 모의투자 해 보기</a>
     <a class="cta sub2" href="#analysis/${encodeURIComponent(p.sym)}">종목 분석 자세히 보기</a>
-    <p class="note">추천 종목 보고는 공개 시세·재무·뉴스·증권사 전망을 AI가 정리한 참고 정보이며 투자 권유가 아닙니다. 매일 장 마감 뒤 조건을 모두 통과한 종목이 있을 때만 1종목을 보고합니다. 투자 판단과 결과의 책임은 본인에게 있습니다.</p>`;
+    <p class="note">알파의 선택은 AI 상대 팀이 모의투자 게임 계좌에서 한 행동과, 공개 시세·재무·뉴스·증권사 전망을 정리한 참고 정보이며 투자 권유가 아닙니다. 매일 장 마감 뒤 조건을 모두 통과한 종목이 있을 때만 1종목을 담습니다. 투자 판단과 결과의 책임은 본인에게 있습니다.</p>`;
   }
 
   /* 모양 */
@@ -206,5 +214,5 @@
     top.insertBefore(b, help);
   });
 
-  window.Report = { view, homeCard, _check: check };
+  window.Report = { isOpen, view, homeCard, _check: check };
 })();

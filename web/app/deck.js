@@ -13,8 +13,8 @@
 
   let D = null, asked = "";
   const get = f => fetch("../data/" + f, { cache: "no-cache" }).then(r => (r.ok ? r.json() : null)).catch(() => null);
-  Promise.all([get("outlook.json"), get("why.json"), get("pick.json"), get("deck.json")]).then(([o, w, p, d]) => {
-    D = { o, w, p, d: d || { eco: [], disc: [] } };
+  Promise.all([get("outlook.json"), get("why.json"), get("pick.json"), get("deck.json"), get("earnings.json")]).then(([o, w, p, d, e]) => {
+    D = { o, w, p, e, d: d || { eco: [], disc: [] } };
     if (!location.hash || location.hash === "#home") window.dispatchEvent(new HashChangeEvent("hashchange"));
   });
 
@@ -70,13 +70,24 @@
 
     const acc = S.filter(([, s]) => (s.vol_ratio || 0) >= 1.5 && Math.abs(s.chg) < 2).sort((a, b) => b[1].vol_ratio - a[1].vol_ratio).slice(0, 6);
     const hot = S.filter(([, s]) => s.vol_ratio).sort((a, b) => b[1].vol_ratio - a[1].vol_ratio).slice(0, 4);
+    const accList = `<ul class="dk-list">${acc.map(([sym, s]) => row(sym, s, `<span class="num">평소의 <b>${s.vol_ratio.toFixed(1)}배</b> · <i class="${cls(s.chg)}">${pct(s.chg)}</i></span>`)).join("")}</ul>`;
+    const G = (key, html, tease) => (window.Daily ? Daily.gate(key, html, tease) : html);
     out.push(["acc", "매집 포착", page("acc", "매집 포착", "주가는 조용한데 거래가 몰린 종목",
-      `${acc.length ? `<ul class="dk-list">${acc.map(([sym, s]) => row(sym, s, `<span class="num">평소의 <b>${s.vol_ratio.toFixed(1)}배</b> · <i class="${cls(s.chg)}">${pct(s.chg)}</i></span>`)).join("")}</ul>` : '<p class="empty">오늘은 조용히 사 모은 흔적이 뚜렷한 종목이 없어요.</p>'}
+      `${acc.length ? `<p class="dk-line">오늘 <b>${acc.length}종목</b>에서 주가는 조용한데 거래가 평소보다 크게 몰렸어요.</p>${G("acc:" + SC.date, accList, accList)}` : '<p class="empty">오늘은 조용히 사 모은 흔적이 뚜렷한 종목이 없어요.</p>'}
        <h3>거래량 급증</h3><ul class="dk-list">${hot.map(([sym, s]) => row(sym, s, `<span class="num">평소의 <b>${s.vol_ratio.toFixed(1)}배</b> · <i class="${cls(s.chg)}">${pct(s.chg)}</i></span>`)).join("")}</ul>`, "RAY", "차트·거래량")]);
+
+    const E = (D.e && D.e.items) || [];
+    if (E.length) {
+      const ea = E.slice(0, 6).map(e => `<li><button class="dk-row tall" type="button" data-sym="${esc(e.sym)}"><span class="nm">${esc(e.name)} <small class="sub">${+e.date.slice(5, 7)}/${+e.date.slice(8)}${e.guess ? " 경" : ""} · ${e.days}일 뒤</small></span>
+        <span class="dk-why">${tone(e.tone)} ${e.eps ? `예상 EPS ${won(e.eps)}원${e.growth != null ? ` (전년 대비 ${e.growth > 0 ? "+" : ""}${Math.round(e.growth)}%)` : ""} · ` : ""}최근 5일 <i class="${cls(e.r5)}">${pct(e.r5)}</i></span></button></li>`).join("");
+      out.push(["earn", "실적 발표", page("earn", "실적 발표 전 리포트", "2주 안에 실적을 발표하는 종목",
+        `<ul class="dk-bul">${E.slice(0, 6).map(e => `<li><b>${esc(e.name)}</b> ${+e.date.slice(5, 7)}월 ${+e.date.slice(8)}일${e.guess ? "경" : ""}</li>`).join("")}</ul>
+         <h3>증권사 예상과 최근 주가</h3>${G("earn:" + SC.date, `<ul class="dk-list">${ea}</ul>`, `<ul class="dk-list">${ea}</ul>`)}`, "OSCAR", "실적 확인")]);
+    }
 
     const P = D.p || {}, top = [...S].sort((a, b) => b[1].score - a[1].score).slice(0, 5);
     out.push(["pick", "알파의 선택", page("pick", "알파의 선택", "알파 팀이 오늘 게임 계좌에 담은 종목 (게임·참고용)",
-      `${P.found ? `<div class="dk-pick"><b>${esc(P.name)}</b><p>${esc(P.reason || "")}</p><a class="pclink" href="#pick">알파의 보고서 보기 ▶</a></div>` : `<p class="dk-line">${esc(P.reason || "알파의 선택 보고를 준비 중이에요.")}</p>`}
+      `${P.found && window.Report && !Report.isOpen() ? `<div class="dk-pick"><b>18:10에 공개돼요</b><p>알파 팀이 오늘 게임 계좌에 담은 종목을 정리하고 있어요.</p>${G("early:" + P.date, "")}</div>` : P.found ? `<div class="dk-pick"><b>${esc(P.name)}</b><p>${esc(P.reason || "")}</p><a class="pclink" href="#pick">알파의 보고서 보기 ▶</a></div>` : `<p class="dk-line">${esc(P.reason || "알파의 선택 보고를 준비 중이에요.")}</p>`}
        <h3>AI 점수 상위</h3><ul class="dk-list">${top.map(([sym, s]) => row(sym, s, `<span class="num"><b>${pts(s.score)}점</b> <span class="chip ${s.label}">${s.label}</span></span>`)).join("")}</ul>`, "MILES", "진입 계획")]);
 
     out.push(["ask", "종목 분석", page("ask", "종목 분석", "종목을 입력하면 AI 분석팀이 답해요",

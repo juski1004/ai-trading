@@ -66,7 +66,6 @@
     return o;
   }
   function closeSheet() { document.getElementById("tmSheet")?.remove(); }
-  function lockMsg(id) { const p = person(id); alert(`${p ? p.name : id}은(는) 연구소 포인트 ${Daily.cost(id)}P로 해금할 수 있어요 (지금 ${Daily.pts()}P). 매일 출석하고 모의투자를 하면 포인트가 쌓여요. 해금은 '내 정보'에서.`); }
   const CONSENT = "aiLab.consent.v1";
   function onboard(force) {
     let ok = null; try { ok = localStorage.getItem(CONSENT); } catch (e) {}
@@ -96,8 +95,7 @@
       <button class="cta" type="button" data-tm="name">${edit ? "저장" : "다음"}</button>`);
     setTimeout(() => document.getElementById("tmName")?.focus(), 50);
   }
-  const locked = id => !!(window.Daily && !Daily.own(id));
-  const card = (p, on, kind) => `<button type="button" class="tm-card${on ? " on" : ""}${kind !== "x" && locked(p.id) ? " lock" : ""}" data-${kind}="${p.id}" data-cost="${window.Daily ? Daily.cost(p.id) : 0}" aria-pressed="${on}">
+  const card = (p, on, kind) => `<button type="button" class="tm-card${on ? " on" : ""}" data-${kind}="${p.id}" aria-pressed="${on}">
       <img src="${img(p.id)}" alt="${esc(p.name)} 사진" loading="lazy">
       <span class="tm-info"><b>${esc(p.name)}</b> <span class="tm-role">${esc(p.role)}</span>
         <span class="tm-tag">${esc(p.tag)}</span>
@@ -130,11 +128,10 @@
 
   document.addEventListener("click", e => {
     const sug = e.target.closest("[data-sug]"); if (sug) { const i = document.getElementById("tmName"); if (i) i.value = sug.dataset.sug; return; }
-    const dc = e.target.closest("[data-dir]"); if (dc) { if (locked(dc.dataset.dir)) return lockMsg(dc.dataset.dir); pickDir = dc.dataset.dir; chooseDir(); return; }
+    const dc = e.target.closest("[data-dir]"); if (dc) { pickDir = dc.dataset.dir; chooseDir(); return; }
     const sc = e.target.closest("[data-st]");
     if (sc) {
       const id = sc.dataset.st, i = pickStaff.indexOf(id);
-      if (i < 0 && locked(id)) return lockMsg(id);
       if (i >= 0) pickStaff.splice(i, 1); else if (pickStaff.length < NSTAFF) pickStaff.push(id);
       const y = document.getElementById("tmSheet")?.scrollTop || 0; chooseStaff(); const o = document.getElementById("tmSheet"); if (o) o.scrollTop = y;
       return;
