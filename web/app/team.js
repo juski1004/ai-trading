@@ -28,6 +28,8 @@
     { id: "theo", name: "정서연", role: "본부장", tag: "따뜻하지만 단호한 리더", look: "단정한 단발, 버건디 정장", mind: "따뜻하지만 결정은 단호해요", trait: "직원 의견을 모아 비중과 현금까지 깔끔하게 정리해 줘요." },
     { id: "seunghyun", name: "백승현", role: "본부장", tag: "선한 인상의 베테랑", look: "은빛 머리, 금테 안경, 남색 넥타이", mind: "온화하고 신중해요", trait: "30년 경력답게 서두르지 않는 분할 매수와 원칙을 강조해요.", male: true },
   ];
+  /* 고르기 화면에 보이는 순서: 여·남·여·남… (남자가 모자라면 뒤는 여자) */
+  const SHOW = ["joy", "egen", "oscar", "teto", "ray", "puppy", "miles", "lloyd", "nova"];
   const DEFAULT = { dir: "theo", staff: ["joy", "oscar", "ray", "miles", "lloyd", "nova"] };
   const NSTAFF = 6; // 함께할 직원 수
   let T = load(KEY, null), CALL = load(NAME, null);
@@ -102,19 +104,17 @@
         <span class="tm-line"><i>외모</i>${esc(p.look)}</span><span class="tm-line"><i>성격</i>${esc(p.mind)}</span><span class="tm-line"><i>특징</i>${esc(p.trait)}</span></span>
       <span class="tm-check" aria-hidden="true"></span></button>`;
   function chooseDir() {
-    pickDir = pickDir || team().dir;
     sheet(`<div class="tm-step">1 / 2</div><h2>${esc(call())}, 담당 매니저를 골라주세요</h2>
       <p class="sub">먼저 모든 보고를 최종 정리해 드릴 <b>본부장</b>을 골라요.</p>
       <div class="tm-list">${DIRS.map(d => card(d, d.id === pickDir, "dir")).join("")}</div>
-      <button class="cta" type="button" data-tm="dirok">다음: 직원 ${NSTAFF}명 고르기</button>`);
+      <button class="cta" type="button" data-tm="dirok" ${pickDir ? "" : "disabled"}>${pickDir ? `다음: 직원 ${NSTAFF}명 고르기` : "본부장을 골라주세요"}</button>`);
   }
   function chooseStaff() {
-    if (!pickStaff.length) pickStaff = [...team().staff];
     const n = pickStaff.length;
     sheet(`<div class="tm-step">2 / 2</div><h2>함께할 직원 ${NSTAFF}명을 골라주세요</h2>
       <p class="sub">고른 직원이 맡은 분야를 분석해서 보고해요. 같은 분야를 두 명 골라도 되고, 비는 분야는 본부장이 직접 봐요.</p>
       <div class="tm-count"><b>${n}</b> / ${NSTAFF}명 선택</div>
-      <div class="tm-list">${STAFF.map(s => card(s, pickStaff.includes(s.id), "st")).join("")}</div>
+      <div class="tm-list">${SHOW.map(person).filter(Boolean).map(s => card(s, pickStaff.includes(s.id), "st")).join("")}</div>
       <button class="cta" type="button" data-tm="stok" ${n === NSTAFF ? "" : "disabled"}>${n === NSTAFF ? "이 팀으로 시작" : `${NSTAFF - n}명 더 골라주세요`}</button>
       <button class="cta sub2" type="button" data-tm="back">‹ 본부장 다시 고르기</button>`);
   }
@@ -144,11 +144,11 @@
       if (!v) { document.getElementById("tmName")?.focus(); return; }
       CALL = v; save(NAME, v);
       if (T) { closeSheet(); refresh(); } else chooseDir();
-    } else if (a === "dirok") chooseStaff();
+    } else if (a === "dirok" && pickDir) chooseStaff();
     else if (a === "back") chooseDir();
     else if (a === "stok" && pickStaff.length === NSTAFF) { T = { dir: pickDir, staff: [...pickStaff] }; save(KEY, T); welcome(); }
     else if (a === "done") { closeSheet(); refresh(); after(); }
-    else if (a === "swap") { pickDir = team().dir; pickStaff = [...team().staff]; chooseDir(); }
+    else if (a === "swap") { pickDir = null; pickStaff = []; chooseDir(); }
     else if (a === "rename") askName(true);
     else if (a === "resetrec") {
       if (!confirm("모의투자와 AI 대결 기록을 모두 지울까요? 되돌릴 수 없어요.")) return;
