@@ -66,3 +66,15 @@ test("친구 초대: 기기 하나는 한 번만, 자기 코드는 못 씀, 30�
   assert.equal((await call(env, "/invite?code=abc123")).body.count, 30);
   assert.equal((await call(env, "/invite", { code: "abc123", id: "newuser99" })).status, 409);
 });
+
+test("사용 집계: 날짜별 숫자만, 경로별 새 기기 수", async () => {
+  const env = { KV: memKV() };
+  assert.equal((await call(env, "/hit", { ev: ["open", "new"], src: "insta" })).status, 200);
+  await call(env, "/hit", { ev: ["open", "new"], src: "zzz" });
+  await call(env, "/hit", { ev: "trade" });
+  assert.equal((await call(env, "/hit", { ev: "hack" })).status, 400);
+  const s = (await call(env, "/stats?days=2")).body.days;
+  assert.equal(s.length, 2);
+  assert.equal(s[0].open, 2); assert.equal(s[0].new, 2); assert.equal(s[0]["new.insta"], 1); assert.equal(s[0]["new.direct"], 1); assert.equal(s[0].trade, 1);
+  assert.equal(s[1].open, undefined);
+});
