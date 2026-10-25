@@ -111,20 +111,27 @@
       trades: g.trades.length, win: sells.length ? sells.filter(t => t.pnl > 0).length / sells.length * 100 : null };
     const hist = load(HIST, []); hist.unshift(rec); save(HIST, hist.slice(0, 20));
     g.result = rec;
+    window.dispatchEvent(new CustomEvent("aiLab:gameEnd", { detail: rec }));
   }
 
   /* ---------- 화면 ---------- */
+  function alphaLine() { // 시작 화면: 알파 팀의 지금 성적 (겨룰 상대가 누군지)
+    const st = AI && AI.state, eh = (st && st.equity_history) || []; if (eh.length < 2) return "";
+    const r = (eh[eh.length - 1][1] / eh[0][1] - 1) * 100, d = Math.max(1, Math.round((new Date(eh[eh.length - 1][0]) - new Date(eh[0][0])) / 864e5));
+    return `<p class="g-alpha">상대 '알파' 팀은 지금 <b class="${cls(r)}">${pct(r)}</b> (${d}일째) · 이기면 연구소 포인트 +100P</p>`;
+  }
   function setupView() {
     const hist = load(HIST, []);
     return `<section class="card">
-      <h2>모의투자 게임</h2>
-      <p class="sub">가상 1,000만 원으로 실제 주가를 따라 투자해 보고, 같은 기간 AI 투자자 '알파'·코스피와 수익률을 겨뤄요.</p>
+      <h2>하루 5분, 퇴근길 투자 게임</h2>
+      <p class="sub">가상 1,000만 원으로 실제 종가를 따라 투자하고, 같은 기간 AI 팀 '알파'·코스피와 수익률을 겨뤄요. 장중엔 볼 게 없어요 — 저녁 6시 브리핑 듣고, 내일 종가에 체결될 주문만 넣으면 끝.</p>
+      ${alphaLine()}
       <div class="g-k">투자 기간</div>
       <div class="chips" role="group" aria-label="투자 기간">${PERIODS.map(([t, d]) => `<button type="button" data-g="period" data-v="${d}" aria-pressed="${d === pickPeriod}">${t}</button>`).join("")}</div>
       <ul class="g-rules">
         <li>매일 장 마감 가격(종가)으로 사고팔아요. 수수료 0.015%, 팔 때 세금 0.18%를 반영해요.</li>
         <li>자동 손절 −5% · 익절 +10%를 켜 둘 수 있어요.</li>
-        <li>기록은 이 휴대폰에만 저장돼요.</li>
+        <li>기록은 이 휴대폰에만 저장돼요. 주문마다 +5P, 완주하면 +50P.</li>
       </ul>
       <button class="cta" type="button" data-g="start">1,000만 원으로 시작하기</button>
     </section>
@@ -290,6 +297,7 @@
     else if (a === "open") { location.hash = "game/" + encodeURIComponent(v); return; }
     else if (a === "order") {
       const q = Math.floor(+document.getElementById("gq").value || 0), s = stockOf(v);
+      if (q > 0) window.dispatchEvent(new CustomEvent("aiLab:trade"));
       if (live() || q <= 0) msg = trade(G, v, q, side === "S", "직접 주문");
       else { (G.orders = G.orders || []).push({ sym: v, name: s.name, qty: q, side, at: todayKST() }); msg = `${s.name} ${won(q)}주 ${side === "S" ? "매도" : "매수"} 예약 완료 · 다음 장 마감 종가로 체결돼요`; }
       save(KEY, G);
@@ -314,6 +322,7 @@
   css.textContent = `
   .g-top{display:flex;justify-content:space-between}
   .g-k{font-size:13px;color:var(--muted);margin:14px 0 6px;display:block}
+  .g-alpha{margin:10px 0 0;padding:10px 14px;border-radius:14px;background:var(--lav-s,#efedff);font-size:14px}
   .g-rules{margin:14px 0 0;padding-left:18px;font-size:13.5px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
   .g-big{font-family:var(--f-disp,inherit);font-size:34px;font-weight:600;letter-spacing:-.5px;margin-top:4px}.g-big small{font-size:16px;margin-left:3px;color:var(--muted)}
   .g-prog{height:6px;border-radius:6px;background:var(--soft);margin:8px 0 4px;overflow:hidden}.g-prog i{display:block;height:100%;background:var(--gold-g,var(--brand2));}

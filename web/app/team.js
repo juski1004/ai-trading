@@ -66,9 +66,26 @@
     return o;
   }
   function closeSheet() { document.getElementById("tmSheet")?.remove(); }
+  function lockMsg(id) { const p = person(id); alert(`${p ? p.name : id}은(는) 연구소 포인트 ${Daily.cost(id)}P로 해금할 수 있어요 (지금 ${Daily.pts()}P). 매일 출석하고 모의투자를 하면 포인트가 쌓여요. 해금은 '내 정보'에서.`); }
+  const CONSENT = "aiLab.consent.v1";
   function onboard(force) {
+    let ok = null; try { ok = localStorage.getItem(CONSENT); } catch (e) {}
+    if (!ok) return consent();
     if (!CALL) return askName();
     if (!T || force) return chooseDir();
+  }
+  /* 처음 한 번: 투자 위험 고지·약관 동의 (만 14세 이상) */
+  function consent() {
+    sheet(`<div class="tm-step">시작하기 전에</div>
+      <h2>꼭 알아 두세요</h2>
+      <ul class="tm-consent">
+        <li>이 앱은 <b>가상 돈으로 하는 모의투자 게임</b>과 공개 데이터 요약이에요. 진짜 돈은 쓰지 않고, 증권 거래를 중개하지 않아요.</li>
+        <li>AI 점수·목표가·'알파의 선택'은 참고 정보이거나 <b>게임 상대의 행동</b>이에요. <b>투자 권유·자문이 아니에요.</b></li>
+        <li>시세는 15~20분 이상 늦고 하루 한 번 갱신돼요. AI 문장은 틀릴 수 있어요.</li>
+        <li>실제 투자 판단과 결과(원금 손실 포함)의 책임은 본인에게 있어요.</li>
+      </ul>
+      <label class="tm-agree"><input type="checkbox" id="tmAgree"><span>만 14세 이상이고, 위 내용과 <a href="${BASE}app/terms.html" target="_blank" rel="noopener">이용약관·개인정보처리방침</a>에 동의해요</span></label>
+      <button class="cta" type="button" data-tm="agree" disabled>동의하고 시작</button>`);
   }
   function askName(edit) {
     sheet(`<div class="tm-step">${edit ? "호칭 바꾸기" : "처음 오셨네요"}</div>
@@ -79,7 +96,8 @@
       <button class="cta" type="button" data-tm="name">${edit ? "저장" : "다음"}</button>`);
     setTimeout(() => document.getElementById("tmName")?.focus(), 50);
   }
-  const card = (p, on, kind) => `<button type="button" class="tm-card${on ? " on" : ""}" data-${kind}="${p.id}" aria-pressed="${on}">
+  const locked = id => !!(window.Daily && !Daily.own(id));
+  const card = (p, on, kind) => `<button type="button" class="tm-card${on ? " on" : ""}${kind !== "x" && locked(p.id) ? " lock" : ""}" data-${kind}="${p.id}" data-cost="${window.Daily ? Daily.cost(p.id) : 0}" aria-pressed="${on}">
       <img src="${img(p.id)}" alt="${esc(p.name)} 사진" loading="lazy">
       <span class="tm-info"><b>${esc(p.name)}</b> <span class="tm-role">${esc(p.role)}</span>
         <span class="tm-tag">${esc(p.tag)}</span>
@@ -105,23 +123,25 @@
   function welcome() {
     const d = director(), ms = members();
     sheet(`<div class="tm-welcome"><img src="${img(d.id)}" alt=""><p class="tm-bubble"><b>${esc(d.name)} ${esc(d.role)}</b><br>${esc(call())}, 반갑습니다. 오늘부터 제가 담당합니다.
-      ${ms.map(m => esc(m.name)).join(", ")} 직원과 함께 매일 장 마감 뒤 6시에 브리핑을, 6시 10분에 추천 종목 보고를 가져오겠습니다.</p>
+      ${ms.map(m => esc(m.name)).join(", ")} 직원과 함께 매일 장 마감 뒤 6시에 브리핑을, 6시 10분에 알파 팀이 고른 종목 보고를 가져오겠습니다.</p>
       <div class="tm-faces">${ms.map(m => `<img src="${img(m.id)}" alt="${esc(m.name)}" title="${esc(m.name)}">`).join("")}</div></div>
       <button class="cta" type="button" data-tm="done">시작하기</button>`);
   }
 
   document.addEventListener("click", e => {
     const sug = e.target.closest("[data-sug]"); if (sug) { const i = document.getElementById("tmName"); if (i) i.value = sug.dataset.sug; return; }
-    const dc = e.target.closest("[data-dir]"); if (dc) { pickDir = dc.dataset.dir; chooseDir(); return; }
+    const dc = e.target.closest("[data-dir]"); if (dc) { if (locked(dc.dataset.dir)) return lockMsg(dc.dataset.dir); pickDir = dc.dataset.dir; chooseDir(); return; }
     const sc = e.target.closest("[data-st]");
     if (sc) {
       const id = sc.dataset.st, i = pickStaff.indexOf(id);
+      if (i < 0 && locked(id)) return lockMsg(id);
       if (i >= 0) pickStaff.splice(i, 1); else if (pickStaff.length < NSTAFF) pickStaff.push(id);
       const y = document.getElementById("tmSheet")?.scrollTop || 0; chooseStaff(); const o = document.getElementById("tmSheet"); if (o) o.scrollTop = y;
       return;
     }
     const b = e.target.closest("[data-tm]"); if (!b) return;
     const a = b.dataset.tm;
+    if (a === "agree") { try { localStorage.setItem(CONSENT, new Date().toISOString().slice(0, 10)); } catch (e) {} closeSheet(); onboard(); return; }
     if (a === "name") {
       const v = (document.getElementById("tmName")?.value || "").trim().slice(0, 12);
       if (!v) { document.getElementById("tmName")?.focus(); return; }
@@ -143,6 +163,7 @@
       location.hash = ""; location.reload();
     }
   });
+  document.addEventListener("change", e => { if (e.target.id === "tmAgree") { const b = document.querySelector('[data-tm="agree"]'); if (b) b.disabled = !e.target.checked; } });
   document.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.id === "tmName") document.querySelector('[data-tm="name"]')?.click(); });
   const refresh = () => window.onTeamChange ? window.onTeamChange() : window.dispatchEvent(new HashChangeEvent("hashchange"));
   /* 팀까지 고른 뒤: 처음이면 사용법 안내, 그다음 알림 확인 */
@@ -200,6 +221,8 @@
   .tm-welcome{text-align:center}.tm-welcome>img{width:110px;height:140px;object-fit:cover;object-position:50% 12%;border-radius:22px;box-shadow:0 12px 30px rgba(40,50,90,.18)}
   .tm-bubble{text-align:left;margin:16px 0 0;padding:14px 16px;border-radius:20px;background:linear-gradient(135deg,#f6f4ff,#f0f7ff);font-size:15px;line-height:1.7}
   .tm-faces{display:flex;justify-content:center;margin-top:14px}.tm-faces img{width:46px;height:46px;border-radius:50%;object-fit:cover;object-position:50% 15%;border:3px solid #fff;margin-left:-10px;box-shadow:0 4px 10px rgba(40,50,90,.15)}
+  .tm-consent{margin:10px 0 0;padding-left:18px;font-size:14px;line-height:1.6}.tm-consent li{margin-bottom:6px}
+  .tm-agree{display:flex;gap:8px;align-items:flex-start;margin-top:14px;font-size:13.5px;line-height:1.5}.tm-agree input{margin-top:3px;width:18px;height:18px}
   .tm-hi{display:flex;justify-content:space-between;align-items:center;gap:10px}.tm-hi h2{font-size:22px}
   .tm-sm{margin-top:0!important;padding:8px 14px!important;font-size:13px!important}
   @media (prefers-reduced-motion:reduce){.tm-title,.tm-burst,.tm-box{animation:none}}`;
@@ -217,6 +240,6 @@
   // AI 대결은 4대4: 내 본부장 + 내 직원 앞 3명  vs  상대 본부장 + 내가 고르지 않은 직원 3명
   const rivals = () => ({ dir: DIRS.find(d => d.id !== team().dir) || DIRS[1], staff: STAFF.filter(s => !team().staff.includes(s.id)).slice(0, 3) });
   const squad = () => members().slice(0, 3);
-  window.Team = { name: a => forAgent(a).name, photo: a => forAgent(a).id, person: forAgent, director, members, rivals, squad, reporter, call, meView, open: () => onboard(true) };
+  window.Team = { personById: person, name: a => forAgent(a).name, photo: a => forAgent(a).id, person: forAgent, director, members, rivals, squad, reporter, call, meView, open: () => onboard(true) };
   if (!window.TEAM_SKIP) document.addEventListener("DOMContentLoaded", splash);
 })();

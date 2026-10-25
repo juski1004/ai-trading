@@ -1,7 +1,7 @@
-/* 본부장 브리핑 알림 + 오늘의 추천 종목 보고 (앱).
+/* 본부장 브리핑 알림 + 알파의 선택(오늘 알파 팀이 게임 계좌에 담은 종목) 보고 (앱).
    - 18:00(한국 시간) 이후, 오늘 장 마감 데이터가 있으면: "정서연 본부장이 브리핑을 가져왔습니다" 메신저 알림 (깜빡임·소리·진동)
      → 누르면 PC 화면의 브리핑(?view=brief)을 전체 화면으로 연다.
-   - 18:10 이후, data/pick.json 에 추천이 있으면: 보고한 직원 이름으로 알림 → 누르면 #pick 보고서 화면.
+   - 18:10 이후, data/pick.json 에 선택이 있으면: 보고한 직원 이름으로 알림 → 누르면 #pick 보고서 화면.
    - 이미 본 알림은 날짜별로 이 휴대폰에 기억(localStorage).
    index.html 은 Report.view(SC)·Report.homeCard(SC) 를 부르고, 나머지는 여기서 처리한다. */
 (() => {
@@ -67,7 +67,7 @@
     }
     if (PICK && PICK.found && PICK.date === DATE && t.min >= PICK_AT && get("rp.pick") !== DATE) {
       const r = who(PICK.date);
-      toast("pick", r.name, r.role, r.id, `${esc(call())}${call() ? ", " : ""}${esc(D().name)} 본부장님 확인을 거친 <b>오늘의 추천 종목</b> 보고입니다 — <b>${esc(PICK.name)}</b>`);
+      toast("pick", r.name, r.role, r.id, `${esc(call())}${call() ? ", " : ""}${esc(D().name)} 본부장님 확인을 거친 <b>알파의 선택</b> 보고입니다 — 오늘 알파 팀은 <b>${esc(PICK.name)}</b>을(를) 담았어요`);
     }
   }
   function openBriefOverlay() {
@@ -82,7 +82,7 @@
     if (kind === "brief") { set("rp.brief", DATE); openBriefOverlay(); }
     else { set("rp.pick", DATE); location.hash = "pick"; }
   });
-  // 브리핑을 닫으면 이어서 추천 보고 알림
+  // 브리핑을 닫으면 이어서 알파의 선택 보고 알림
   addEventListener("message", e => { if (e.origin === location.origin && (e.data || {}).type === "briefClose") setTimeout(check, 700); });
   setInterval(check, 30000);
 
@@ -91,9 +91,9 @@
     DATE = sc && sc.date; setTimeout(check, 400);
     const t = ready();
     if (!PICK || !t || PICK.date !== DATE) return "";
-    if (t.min < PICK_AT) return `<section class="card rp-home"><div class="rp-hrow"><img src="${img(D().id)}" alt=""><div><h2>오늘의 추천 종목</h2><p class="sub">18:10에 본부장 확인을 거쳐 보고가 올라와요.</p></div></div></section>`;
-    if (!PICK.found) return `<section class="card rp-home"><div class="rp-hrow"><img src="${img(D().id)}" alt=""><div><h2>오늘은 추천을 쉬어 갑니다</h2><p class="sub">${esc(PICK.reason)}</p></div></div></section>`;
-    return `<section class="card rp-home"><a class="rp-hrow" href="#pick"><img src="${img(who(PICK.date).id)}" alt=""><div><h2>오늘의 추천 · ${esc(PICK.name)}</h2>
+    if (t.min < PICK_AT) return `<section class="card rp-home"><div class="rp-hrow"><img src="${img(D().id)}" alt=""><div><h2>알파의 선택</h2><p class="sub">18:10에 알파 팀이 오늘 게임 계좌에 담은 종목을 보고해요.</p></div></div></section>`;
+    if (!PICK.found) return `<section class="card rp-home"><div class="rp-hrow"><img src="${img(D().id)}" alt=""><div><h2>오늘 알파는 쉬어 갑니다</h2><p class="sub">${esc(PICK.reason)}</p></div></div></section>`;
+    return `<section class="card rp-home"><a class="rp-hrow" href="#pick"><img src="${img(who(PICK.date).id)}" alt=""><div><h2>알파의 선택 · ${esc(PICK.name)}</h2>
       <p class="sub">${esc(who(PICK.date).name)} 보고 · ${esc(D().name)} 본부장 최종 의견 포함 · AI 점수 ${PICK.score}점</p></div><span class="rp-go">보기</span></a></section>`;
   }
 
@@ -112,14 +112,14 @@
   function view(sc) {
     DATE = sc && sc.date;
     if (!PICK) return `<div class="card"><div class="skel"></div><div class="skel" style="width:60%"></div></div>`;
-    if (!PICK.found) return `<a class="back" href="#home">‹ 홈</a><section class="card rp-home"><div class="rp-hrow"><img src="${img(D().id)}" alt=""><div><h2>오늘은 추천을 쉬어 갑니다</h2><p class="sub">${esc(PICK.reason)}</p></div></div></section>`;
+    if (!PICK.found) return `<a class="back" href="#home">‹ 홈</a><section class="card rp-home"><div class="rp-hrow"><img src="${img(D().id)}" alt=""><div><h2>오늘 알파는 쉬어 갑니다</h2><p class="sub">${esc(PICK.reason)}</p></div></div></section>`;
     const p = PICK, r = who(p.date), d = { ...p.director, ...D() }, pl = p.plan;
     const sec = (t, body) => `<section class="card"><div class="hd"><h2>${t}</h2></div>${body}</section>`;
     const ul = a => `<ul class="rp-ul">${a.map(x => `<li>${esc(x)}</li>`).join("")}</ul>`;
     const news = p.news || {};
     return `<a class="back" href="#home">‹ 홈</a>
     <section class="card rp-head">
-      <div class="rp-from"><img src="${img(r.id)}" alt="${esc(r.name)} 사진"><div><b>${esc(r.name)}</b> <span class="sub">${esc(r.role)}</span><div class="sub">${esc(p.date)} 장 마감 · 추천 종목 보고서</div></div><span class="rp-badge">보고</span></div>
+      <div class="rp-from"><img src="${img(r.id)}" alt="${esc(r.name)} 사진"><div><b>${esc(r.name)}</b> <span class="sub">${esc(r.role)}</span><div class="sub">${esc(p.date)} 장 마감 · 알파의 선택 보고서 (게임)</div></div><span class="rp-badge">보고</span></div>
       <div class="dhead" style="margin-top:14px"><div><div class="dname">${esc(p.name)}</div><div class="meta">${esc(p.code)} · ${esc(p.market)}</div></div>
         <div><div class="dprice num">${won(p.price)}</div><div class="meta num ${cls(p.chg)}" style="text-align:right">${pct(p.chg)}</div></div></div>
       ${spark(p)}
@@ -130,8 +130,8 @@
         <div class="tile"><div class="k">재무 점수</div><div class="v num">${p.fin_score ?? "-"}<small class="sub"> / 5</small></div></div>
       </div>
     </section>
-    ${sec("추천 이유", `<ol class="rp-ol">${p.reasons.map(x => `<li>${esc(x)}</li>`).join("")}</ol>`)}
-    ${sec("매매 계획 (참고)", `<div class="kv rp-plan">
+    ${sec("알파가 고른 이유", `<ol class="rp-ol">${p.reasons.map(x => `<li>${esc(x)}</li>`).join("")}</ol>`)}
+    ${sec("알파의 매매 기준 (게임 계좌)", `<div class="kv rp-plan">
         <div><div class="k">1차 진입</div><div class="v num">${won(pl.entry)}</div></div>
         <div><div class="k">추가 매수 (−3%)</div><div class="v num">${won(pl.add)}</div></div>
         <div><div class="k">손절 (−5%)</div><div class="v num down">${won(pl.stop)}</div></div>
@@ -201,7 +201,7 @@
       if (t && t.min >= BRIEF_AT && get("rp.brief") !== DATE) return check();
       if (PICK && PICK.found && t && t.min >= PICK_AT) { location.hash = "pick"; return; }
       if (t && t.min >= BRIEF_AT) { openBriefOverlay(); return; }
-      alert("오늘 알림은 장 마감 뒤 18:00(브리핑)과 18:10(추천 종목)에 와요.");
+      alert("오늘 알림은 장 마감 뒤 18:00(브리핑)과 18:10(알파의 선택)에 와요.");
     };
     top.insertBefore(b, help);
   });
