@@ -1,4 +1,4 @@
-/* 홈 '오늘의 리포트': 마감 현황 · 경제지표 · 뉴스 · 공시 · 수급 · 매집 포착 · 종목 추천 · 종목 분석 · 거래하기 · AI 대결 을
+/* 홈 '오늘의 리포트': 마감 현황 · 경제지표 · 뉴스 · 공시 · 수급 · 매집 포착 · 알파의 선택 · 종목 분석 · 거래하기 · AI 대결 을
    옆으로 쭉쭉 넘겨 보는 전문 리포트. 휴대폰은 한 장씩 밀어 넘기고, PC(넓은 화면)는 여러 장을 한눈에 본다.
    index.html 이 Deck.view(SC) 를 부르고, 데이터(outlook·why·pick·deck.json)는 여기서 한 번만 받는다. */
 (() => {
@@ -75,8 +75,8 @@
        <h3>거래량 급증</h3><ul class="dk-list">${hot.map(([sym, s]) => row(sym, s, `<span class="num">평소의 <b>${s.vol_ratio.toFixed(1)}배</b> · <i class="${cls(s.chg)}">${pct(s.chg)}</i></span>`)).join("")}</ul>`, "RAY", "차트·거래량")]);
 
     const P = D.p || {}, top = [...S].sort((a, b) => b[1].score - a[1].score).slice(0, 5);
-    out.push(["pick", "종목 추천", page("pick", "종목 추천", "AI 분석팀이 오늘 고른 종목 (참고용)",
-      `${P.found ? `<div class="dk-pick"><b>${esc(P.name)}</b><p>${esc(P.reason || "")}</p><a class="pclink" href="#pick">추천 보고서 보기 ▶</a></div>` : `<p class="dk-line">${esc(P.reason || "추천 보고를 준비 중이에요.")}</p>`}
+    out.push(["pick", "알파의 선택", page("pick", "알파의 선택", "알파 팀이 오늘 게임 계좌에 담은 종목 (게임·참고용)",
+      `${P.found ? `<div class="dk-pick"><b>${esc(P.name)}</b><p>${esc(P.reason || "")}</p><a class="pclink" href="#pick">알파의 보고서 보기 ▶</a></div>` : `<p class="dk-line">${esc(P.reason || "알파의 선택 보고를 준비 중이에요.")}</p>`}
        <h3>AI 점수 상위</h3><ul class="dk-list">${top.map(([sym, s]) => row(sym, s, `<span class="num"><b>${pts(s.score)}점</b> <span class="chip ${s.label}">${s.label}</span></span>`)).join("")}</ul>`, "MILES", "진입 계획")]);
 
     out.push(["ask", "종목 분석", page("ask", "종목 분석", "종목을 입력하면 AI 분석팀이 답해요",

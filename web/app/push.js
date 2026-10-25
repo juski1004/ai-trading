@@ -1,6 +1,6 @@
 /* 앱이 닫혀 있어도 오는 알림(웹 푸시) 켜기·끄기 + 랭킹 서버와 통신.
    서버 주소는 web/app/server.json (Cloudflare 배포 작업이 자동으로 씀). 없으면 '준비 중'으로 보인다.
-   - 알림: 평일 18:00 본부장 브리핑, 18:10 오늘의 추천. 아이폰은 '홈 화면에 추가'한 앱에서만 된다(iOS 16.4+).
+   - 알림: 평일 18:00 본부장 브리핑, 18:10 알파의 선택. 아이폰은 '홈 화면에 추가'한 앱에서만 된다(iOS 16.4+).
    - 랭킹: 동의한 사람만, 호칭과 수익률만 보낸다. 기기마다 무작위 번호(id)로 구분. */
 (() => {
   const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -59,7 +59,7 @@
       on: '<p class="sub">✅ 켜져 있어요.</p><button class="cta sub2" type="button" data-push="off">알림 끄기</button>',
     }[state];
     return `<section class="card" id="pushCard"><div class="hd"><h2>앱 밖 알림</h2><span class="sub">평일 18:00 · 18:10</span></div>
-      <p class="sub" style="margin:0 0 10px">앱을 닫아도 본부장 브리핑과 오늘의 추천 종목을 알려 드려요.</p>${body}
+      <p class="sub" style="margin:0 0 10px">앱을 닫아도 본부장 브리핑과 알파의 선택(게임)을 알려 드려요.</p>${body}
       ${msg ? `<p class="g-msg" role="status">${esc(msg)}</p>` : ""}
       <div class="hd" style="margin-top:16px"><h2>랭킹 참여</h2></div>
       <label class="g-auto"><input type="checkbox" data-rank ${R.on ? "checked" : ""}> 내 호칭과 모의투자 수익률을 전체 랭킹에 올리기</label>
