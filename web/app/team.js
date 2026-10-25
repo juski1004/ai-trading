@@ -10,7 +10,7 @@
   const img = f => `${BASE}img/team/${f}.jpg?v=4`;
   const KEY = "aiLab.team.v1", NAME = "aiLab.call.v1";
   const load = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
-  const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+  const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} try { navigator.storage?.persist?.(); } catch (e) {} }; // 저장 공간을 '지우지 말 것'으로 요청
 
   /* agent = 분석에서 맡는 자리 (JOY 시장 · OSCAR 수급·뉴스 · RAY 차트 · MILES 진입 · LLOYD 리스크 · NOVA 큰 흐름) */
   const STAFF = [
