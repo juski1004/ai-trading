@@ -166,7 +166,10 @@
   /* 팀까지 고른 뒤: 처음이면 사용법 안내, 그다음 알림 확인 */
   function after() {
     let seen = null; try { seen = localStorage.getItem("appGuideSeen"); } catch (e) {}
-    if (!seen) setTimeout(() => document.getElementById("helpBtn")?.click(), 300);
+    if (!seen) { // 처음이면 사용법 창 대신 1분 튜토리얼을 권함
+      try { localStorage.setItem("appGuideSeen", "1"); } catch (e) {}
+      setTimeout(() => (window.Tour ? Tour.offer() : document.getElementById("helpBtn")?.click()), 300);
+    }
     setTimeout(() => window.Report && Report._check(), 900);
   }
 

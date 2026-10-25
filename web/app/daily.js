@@ -177,5 +177,5 @@
 `;
   document.head.appendChild(css);
 
-  window.Daily = { pts: () => D.pts, streak: () => D.streak, has, buy, spend, gate, today, homeStrip, meCard, seasonReward, badges: () => D.badges || [], code: myCode };
+  window.Daily = { earn: (n, why) => { add(n, why); flash(`${why} +${n}P`); }, pts: () => D.pts, streak: () => D.streak, has, buy, spend, gate, today, homeStrip, meCard, seasonReward, badges: () => D.badges || [], code: myCode };
 })();

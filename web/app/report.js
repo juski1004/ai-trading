@@ -61,7 +61,7 @@
     ding();
     const bell = document.getElementById("rpBell"); if (bell) bell.classList.add("on");
   }
-  const busy = () => document.querySelector(".tm-splash,#tmSheet");  // 시작 연출·팀 고르기 중엔 기다림
+  const busy = () => document.querySelector(".tm-splash,#tmSheet,.tour-on,#tourAsk");  // 시작 연출·팀 고르기 중엔 기다림
   const D = () => (window.Team ? Team.director() : { id: "theo", name: "정서연", role: "본부장" });
   const who = date => (window.Team ? Team.reporter(date) : (PICK && PICK.reporter && { id: PICK.reporter.img, name: PICK.reporter.name, role: PICK.reporter.role }));
   const call = () => (window.Team ? Team.call() : "");
