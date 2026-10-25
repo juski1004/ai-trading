@@ -16,7 +16,9 @@ from PIL import Image, ImageDraw, ImageFont
 FONT = Path(__file__).parent / "fonts"
 TEAM_IMG = Path(__file__).resolve().parents[2] / "web" / "img" / "team"
 W, H = 1080, 1350
-INK, MUTED, LAV, LAVD, UP, DOWN = (45, 42, 99), (107, 112, 136), (239, 237, 255), (108, 92, 231), (226, 72, 107), (61, 111, 230)
+# 2026-10-25 사용자: 보라 배경 빼고 릴스와 같은 디자인 (밝은 모눈 종이 + 검정 글씨 + 파랑 포인트 + 노란 형광펜)
+INK, MUTED, LAV, LAVD, UP, DOWN = (20, 22, 30), (112, 116, 128), (234, 233, 228), (38, 99, 235), (226, 72, 107), (61, 111, 230)
+PAPER, GRID, MARK, LINE = (246, 245, 241), (236, 235, 230), (255, 224, 102), (226, 224, 218)
 WHITE = (255, 255, 255)
 
 # 진행 순서 (앱 team.js 의 기본 직원 6명과 같은 순서)
@@ -84,10 +86,10 @@ def build(out: Path) -> dict:
     N = 5  # 2026-10-25: 6장 → 5장 (지수 흐름 장을 빼고 표지·체크 포인트에 나눠 담음)
 
     def base(n, title, sub=None):
-        im = Image.new("RGB", (W, H), (248, 247, 255)); d = ImageDraw.Draw(im)
-        for y in range(H):  # 은은한 라벤더→하늘 배경
-            t = y / H; d.line([(0, y), (W, y)], fill=(int(246 - 6 * t), int(244 + 2 * t), 255))
-        d.rounded_rectangle((60, 60, 330, 120), 30, fill=LAV); d.text((195, 90), "AI 투자연구소", font=F("Bold", 32), fill=LAVD, anchor="mm")
+        im = Image.new("RGB", (W, H), PAPER); d = ImageDraw.Draw(im)
+        for x in range(0, W, 60): d.line([(x, 0), (x, H)], fill=GRID)  # 아주 옅은 모눈 (차트 종이 느낌)
+        for y in range(0, H, 60): d.line([(0, y), (W, y)], fill=GRID)
+        d.rounded_rectangle((64, 80, 80, 96), 4, fill=LAVD); d.text((96, 88), "AI 투자연구소", font=F("Bold", 34), fill=INK, anchor="lm")
         d.text((W - 60, 90), f"{n}/{N}", font=F("Bold", 32), fill=MUTED, anchor="rm")
         if n not in (1, N):  # 오늘 진행자 얼굴 (작게)
             d.ellipse((W - 222, 40, W - 118, 144), fill=WHITE); im.paste(avatar[0], (W - 218, 44), avatar[1])
@@ -98,7 +100,7 @@ def build(out: Path) -> dict:
         return im, d
 
     def card(d, box, r=40, fill=WHITE):
-        d.rounded_rectangle(box, r, fill=fill, outline=(226, 223, 248), width=2)
+        d.rounded_rectangle(box, r, fill=fill, outline=LINE, width=2)
 
     k, q = sc["market"]["kospi"], sc["market"]["kosdaq"]
     S = sc["stocks"]; ranked = sorted(S.items(), key=lambda x: -x[1]["chg"])
@@ -111,6 +113,7 @@ def build(out: Path) -> dict:
     josa = "이" if (ord(hname[-1]) - 0xAC00) % 28 else "가"
     d.text((70, 170), f"{hname}{josa} 알려주는", font=F("Bold", 54), fill=LAVD)
     d.text((66, 245), md, font=F("ExtraBold", 120), fill=INK)
+    d.rounded_rectangle((70, 440, 70 + d.textlength("장마감 현황", font=F("ExtraBold", 120)), 500), 10, fill=MARK)  # 형광펜
     d.text((66, 385), "장마감 현황", font=F("ExtraBold", 120), fill=INK)
     ph = _photo(hid, 510, 680, 44); card(d, (494, 546, 1014, 1236), 50); im.paste(ph[0], (499, 551), ph[1])
     d.rounded_rectangle((520, 1160, 520 + 40 + d.textlength(f"{hrole} 담당", font=F("Bold", 30)), 1214), 27, fill=LAVD)
@@ -138,7 +141,7 @@ def build(out: Path) -> dict:
                 line, tag = w["title"].rstrip(".…") + f" ({w.get('src', '')})", "뉴스"
             line = _clean(line or "뚜렷한 개별 소식은 없었어요")
             tc = {"호재": UP, "악재": DOWN, "뉴스": LAVD}.get(tag, MUTED)
-            bg = {"호재": (255, 236, 241), "악재": (232, 240, 255), "뉴스": (243, 240, 255)}.get(tag, (240, 241, 246))
+            bg = {"호재": (255, 236, 241), "악재": (232, 240, 255), "뉴스": (232, 240, 255)}.get(tag, (240, 241, 246))
             d.rounded_rectangle((110, y0 + 108, 190, y0 + 150), 12, fill=bg)
             d.text((150, y0 + 129), tag, font=F("Bold", 26), fill=tc, anchor="mm")
             ls = _wrap(d, line, f30, 760)
