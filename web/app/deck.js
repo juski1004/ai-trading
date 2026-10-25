@@ -94,7 +94,7 @@
       `<form class="dk-ask" data-ask><input name="q" placeholder="예: 삼성전자, HMM, 005930" value="${esc(asked)}" autocomplete="off" aria-label="분석할 종목"><button type="submit">분석</button></form>
        <div id="dk-ans">${answer(SC, asked)}</div>`, "THEO", "종합 판단")]);
 
-    out.push(["trade", "거래하기", page("trade", "거래하기", "가상 500만 원으로 시작, 실제 종가에 사고팔기",
+    out.push(["trade", "거래하기", page("trade", "거래하기", "가상 1,000만 원으로 시작, 실제 종가에 사고팔기",
       `<p class="dk-line">관심 종목을 고르고 매수·매도 버튼으로 바로 주문해요. 체결은 그날 실제 종가, 자동 손절 -5% · 익절 +10%.</p>
        <a class="pclink" href="#game">거래 화면 열기 ▶</a>`, "MILES", "주문 도우미")]);
 
