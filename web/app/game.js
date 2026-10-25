@@ -124,7 +124,7 @@
     const hist = load(HIST, []);
     return `<section class="card">
       <h2>하루 5분, 퇴근길 종가 스윙 게임</h2>
-      <p class="sub">장중에 실시간 매매가 어려운 <b>직장인을 위한 스윙 매매 연습</b>이에요. 가상 1,000만 원으로 <b>실제 거래소 종가</b>를 따라 투자하고, 같은 기간 AI 팀 '알파'·코스피와 수익률을 겨뤄요. 장중엔 볼 게 없어요 — 저녁 6시 브리핑 듣고, 종가에 체결될 주문만 넣으면 끝. 며칠~몇 주 들고 가는 스윙이라 하루에 한 번이면 충분해요.</p>
+      <p class="sub"><b>바쁜 직장인을 위한 스윙 매매</b>예요. 가상 1,000만 원으로 <b>실제 거래소 종가</b>를 따라 투자하고, 같은 기간 AI 팀 '알파'·코스피와 수익률을 겨뤄요. 저녁 6시 브리핑 듣고 주문만 넣으면 끝 — 며칠~몇 주 들고 가는 스윙이라 하루 한 번이면 충분하고, 장중 등락에 휘둘리지 않아요.</p>
       ${alphaLine()}
       <div class="g-k">투자 기간</div>
       <div class="chips" role="group" aria-label="투자 기간">${PERIODS.map(([t, d]) => `<button type="button" data-g="period" data-v="${d}" aria-pressed="${d === pickPeriod}">${t}</button>`).join("")}</div>
