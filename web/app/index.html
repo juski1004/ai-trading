@@ -252,6 +252,8 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var
 <script src="advise.js"></script>
 <script src="vs.js"></script>
 <script src="push.js"></script>
+<script src="vendor/lightweight-charts.js"></script>
+<script src="chart.js"></script>
 <script src="bgm.js"></script>
 <script src="daily.js"></script>
 <script src="tour.js"></script>
@@ -359,8 +361,9 @@ function analysisDetail(sym){
   <section class="card">
     <div class="dhead"><div><div class="dname">${esc(s.name)} <button class="star" type="button" data-watch="${esc(sym)}" aria-pressed="${WATCH.includes(sym)}" aria-label="관심 종목">${WATCH.includes(sym)?'★':'☆'}</button></div><div class="meta">${esc(s.code)} · ${esc(s.market)}</div></div>
       <div><div class="dprice num">${won(s.price)}</div><div class="meta num ${cls(s.chg)}" style="text-align:right">${pct(s.chg)}</div></div></div>
-    ${spark(s)}<p class="sub" style="margin-top:2px">최근 6개월 · ${esc(SC.date)} 종가 기준</p>
+    <p class="sub" style="margin-top:6px">${esc(SC.date)} 종가 기준</p>
   </section>
+  ${window.AppChart?AppChart.html(sym):spark(s)}
   <section class="card">
     <div class="big"><div class="ring" style="--p:${P};--rc:${rc}"><b class="num">${P}<small>점</small></b></div>
       <div><h2>AI 종합 점수 <span class="chip ${s.label}">${s.label}</span></h2><p class="sub">100점 만점, 50점이 중간이에요. 차트·거래량·시장 흐름·진입 자리를 합쳤어요.</p></div></div>
@@ -374,7 +377,7 @@ function analysisDetail(sym){
       ${tile('뉴스',`${s.news.length?s.news.length+'건':'없음'}`,s.news[0]?esc(s.news[0].date.slice(5))+' 최신':'최근 소식')}
     </div>
   </section>
-  <section class="card"><details class="judge" data-src="../?view=chart&sym=${encodeURIComponent(sym)}"><summary><div><h2>차트 보기</h2><p class="sub">일봉 캔들 · 이동평균·볼린저·일목 등 가격 지표 · 거래량·MACD·RSI 등 보조지표</p></div></summary></details></section>
+  <section class="card"><details class="judge" data-src="../?view=chart&sym=${encodeURIComponent(sym)}"><summary><div><h2>보조지표 자세히</h2><p class="sub">볼린저·일목·MACD·RSI 등 18종 (PC 화면, 넓은 화면에서 보기 좋아요)</p></div></summary></details></section>
   <section class="card"><details class="judge" data-src="../?view=judge&sym=${encodeURIComponent(sym)}"><summary><div><h2>AI 종합 판단 · 매매 계획</h2><p class="sub">전문가 의견, 유사 차트 확률, 이벤트 전략, 매집 흔적, 분할 매수·매도 계획</p></div></summary></details></section>
   <section class="card"><div class="hd"><h2>최근 소식</h2>${sm?'<span class="chip 중립">AI 요약</span>':''}</div>
     ${sm&&sm.lines?`<ul class="ai-sum">${sm.lines.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><p class="sub" style="margin-top:6px">최근 7일 뉴스·공시 ${sm.n}건을 AI가 요약 · 느낌: <b class="${sm.tone==='호재'?'up':sm.tone==='악재'?'down':'flat'}">${esc(sm.tone)}</b></p>`:''}
@@ -421,6 +424,7 @@ function render(){
   const typing=document.activeElement&&document.activeElement.id==='q',pos=typing?document.activeElement.selectionStart:0;
   $('#view').innerHTML=t==='home'?home():t==='analysis'?analysis(arg&&decodeURIComponent(arg)):t==='game'?game(arg):t==='pick'?(window.Report&&SC?Report.view(SC):home()):t==='vs'?(window.Versus?Versus.view(SC):home()):me();
   if(typing){const q=$('#q');if(q){q.focus();q.setSelectionRange(pos,pos)}}
+  if(t==='analysis'&&arg&&window.AppChart&&document.getElementById('acBox'))AppChart.mount(decodeURIComponent(arg));
   $('#asof').textContent=SC?`${SC.date.slice(5).replace('-','.')} 기준`:'';
 }
 $('#view').addEventListener('click',e=>{
