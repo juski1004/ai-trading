@@ -21,25 +21,46 @@ INK, MUTED, LAV, LAVD, UP, DOWN = (20, 22, 30), (112, 116, 128), (234, 233, 228)
 PAPER, GRID, MARK, LINE = (246, 245, 241), (236, 235, 230), (255, 224, 102), (226, 224, 218)
 WHITE = (255, 255, 255)
 
-# 진행 순서 (앱 team.js 의 기본 직원 6명과 같은 순서)
+# 진행자: 직원 9명 + 본부장 2명 = 11명이 한 주씩 돌아가며 (여·남 번갈아). 2026-10-25 사용자 지시
 HOSTS = [
     ("joy", "윤시아", "시장 흐름"),
+    ("egen", "윤하진", "차트 분석"),
     ("oscar", "서하린", "수급·뉴스"),
+    ("teto", "강태오", "리스크 점검"),
     ("ray", "차유나", "차트 분석"),
+    ("puppy", "서은찬", "수급·뉴스·실적"),
     ("miles", "민채원", "진입 계획"),
-    ("lloyd", "강도윤", "리스크 점검"),
+    ("seunghyun", "백승현", "본부장"),
     ("nova", "한예린", "큰 흐름·금리"),
+    ("theo", "정서연", "본부장"),
+    ("lloyd", "강도윤", "리스크 점검"),
 ]
-EPOCH = dt.date(2026, 10, 26)  # 월요일, 윤시아부터
+EPOCH = dt.date(2026, 10, 26)  # 월요일, 이 주는 윤시아부터
+
+# 배경 색: 한 주마다 바뀜 (보라는 쓰지 않음). paper=바탕, grid=모눈, acc=포인트 색, line=카드 테두리
+THEMES = [
+    {"name": "미색", "paper": (246, 245, 241), "grid": (236, 235, 230), "acc": (38, 99, 235), "line": (226, 224, 218)},
+    {"name": "민트", "paper": (238, 246, 242), "grid": (226, 238, 232), "acc": (13, 128, 102), "line": (214, 230, 222)},
+    {"name": "하늘", "paper": (237, 243, 250), "grid": (225, 233, 243), "acc": (28, 78, 186), "line": (212, 223, 238)},
+    {"name": "살구", "paper": (251, 242, 235), "grid": (243, 230, 220), "acc": (194, 94, 28), "line": (236, 220, 206)},
+    {"name": "레몬", "paper": (250, 248, 230), "grid": (240, 237, 214), "acc": (36, 112, 72), "line": (232, 228, 200)},
+    {"name": "회색", "paper": (242, 243, 245), "grid": (231, 232, 236), "acc": (20, 22, 30), "line": (220, 222, 228)},
+]
+
+
+def week_of(date: str) -> int:
+    """EPOCH 주를 0으로 한 주 번호 (월~일이 같은 주)."""
+    d = dt.date.fromisoformat(date)
+    return (d - EPOCH).days // 7
 
 
 def host_of(date: str, k: int = 0) -> tuple[str, str, str]:
-    """그날(평일 기준) 진행자. k=1 이면 다음 거래일 진행자."""
-    d = dt.date.fromisoformat(date)
-    lo, hi = sorted((EPOCH, d))
-    n = sum(1 for i in range((hi - lo).days) if (lo + dt.timedelta(i)).weekday() < 5)
-    n = n if d >= EPOCH else -n
-    return HOSTS[(n + k) % len(HOSTS)]
+    """그 주의 진행자. k=1 이면 다음 주 진행자."""
+    return HOSTS[(week_of(date) + k) % len(HOSTS)]
+
+
+def theme_of(date: str) -> dict:
+    return THEMES[week_of(date) % len(THEMES)]
 
 
 def _font(w: str, s: int):
@@ -70,6 +91,7 @@ def _photo(hid: str, w: int, h: int, r: int) -> tuple[Image.Image, Image.Image]:
 
 
 def build(out: Path) -> dict:
+    global PAPER, GRID, LAVD, LINE
     out = Path(out); dst = out / "cards"; dst.mkdir(parents=True, exist_ok=True)
     for old in dst.glob("*.png"): old.unlink()  # 장 수가 바뀌어도 옛 장이 남지 않게
     sc = json.loads((out / "scores.json").read_text(encoding="utf-8"))
@@ -77,6 +99,7 @@ def build(out: Path) -> dict:
     whyp = out / "why.json"; why = json.loads(whyp.read_text(encoding="utf-8")) if whyp.exists() else {}
     fx = o["facts"]; date = sc["date"]; md = f"{int(date[5:7])}월 {int(date[8:])}일"
     hid, hname, hrole = host_of(date); _, nname, _ = host_of(date, 1)
+    th = theme_of(date); PAPER, GRID, LAVD, LINE = th["paper"], th["grid"], th["acc"], th["line"]  # 이번 주 색
     F = _font
     pct = lambda x: f"{'+' if x > 0 else ''}{x:.2f}%"
     col = lambda x: UP if x > 0 else DOWN if x < 0 else MUTED
@@ -116,8 +139,9 @@ def build(out: Path) -> dict:
     d.rounded_rectangle((70, 440, 70 + d.textlength("장마감 현황", font=F("ExtraBold", 120)), 500), 10, fill=MARK)  # 형광펜
     d.text((66, 385), "장마감 현황", font=F("ExtraBold", 120), fill=INK)
     ph = _photo(hid, 510, 680, 44); card(d, (494, 546, 1014, 1236), 50); im.paste(ph[0], (499, 551), ph[1])
-    d.rounded_rectangle((520, 1160, 520 + 40 + d.textlength(f"{hrole} 담당", font=F("Bold", 30)), 1214), 27, fill=LAVD)
-    d.text((540, 1187), f"{hrole} 담당", font=F("Bold", 30), fill=WHITE, anchor="lm")
+    badge = hrole if hrole == "본부장" else f"{hrole} 담당"
+    d.rounded_rectangle((520, 1160, 520 + 40 + d.textlength(badge, font=F("Bold", 30)), 1214), 27, fill=LAVD)
+    d.text((540, 1187), badge, font=F("Bold", 30), fill=WHITE, anchor="lm")
     for i, (lab, x) in enumerate([("코스피", k), ("코스닥", q)]):
         y0 = 560 + i * 230; card(d, (70, y0, 460, y0 + 200), 36)
         d.text((105, y0 + 30), lab, font=F("Bold", 38), fill=MUTED)
@@ -184,17 +208,17 @@ def build(out: Path) -> dict:
         d.text((140, y + 2), t, font=F("Bold", 40), fill=INK)
     card(d, (70, 830, 1010, 1240))
     ph = _photo(hid, 240, 320, 28); im.paste(ph[0], (100, 875), ph[1])
-    d.text((370, 880), f"오늘 진행은 {hname}", font=F("ExtraBold", 44), fill=INK)
-    d.text((370, 940), f"내일은 {nname} 차례예요", font=F("Medium", 34), fill=MUTED)
-    d.text((370, 1010), "AI 직원 6명이 평일 매일", font=F("Medium", 32), fill=INK)
-    d.text((370, 1052), "장마감을 정리해 드려요", font=F("Medium", 32), fill=INK)
+    d.text((370, 880), f"이번 주 진행은 {hname}", font=F("ExtraBold", 44), fill=INK)
+    d.text((370, 940), f"다음 주는 {nname} 차례예요", font=F("Medium", 34), fill=MUTED)
+    d.text((370, 1010), "AI 직원 11명이 한 주씩", font=F("Medium", 32), fill=INK)
+    d.text((370, 1052), "평일 장마감을 정리해 드려요", font=F("Medium", 32), fill=INK)
     d.rounded_rectangle((370, 1120, 975, 1190), 34, fill=LAVD)
     d.text((672, 1155), "팔로우하고 내일도 받아보기", font=F("Bold", 34), fill=WHITE, anchor="mm")
     im.save(dst / "5.png")
 
     caption = f"""{hname}{josa} 알려주는 {md} 장마감 현황 | 오늘 주식 장마감 요약 · 코스피 {pct(k['chg'])} · 코스닥 {pct(q['chg'])}
 
-진행: {hname} ({hrole}) · 내일은 {nname}
+이번 주 진행: {hname} ({hrole}) · 다음 주는 {nname}
 
 코스피 {k['v']:,.2f} ({pct(k['chg'])}) · 코스닥 {q['v']:,.2f} ({pct(q['chg'])})
 대형주 {len(S)}종목 중 {up}개 상승 · {dn}개 하락
