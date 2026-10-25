@@ -3,7 +3,8 @@
      (예전에 1,000만 원으로 시작한 게임은 그대로 1,000만 원 기준)
    - 기간 1주~3개월, 실제 종가(data/scores.json)로 사고팔기
    - 날짜가 바뀐 데이터를 처음 볼 때 자동 손절(-5%)·익절(+10%) 처리 (그날 종가 체결)
-   - 상대: AI 투자자 '알파'의 계좌(data/ai.json)의 같은 기간 수익률, 코스피 같은 기간 등락
+   - 상대: '알파 팀' = 내 게임 시작일 다음 날부터 나와 같은 돈(현금)으로, AI 투자자 '알파'(data/ai.json)의 매매를
+     같은 비중으로 따라 하는 계좌 (alphaClone). 시작 전 알파가 사 둔 종목·매매는 들어가지 않는다. 코스피 같은 기간 등락도 비교
    - 주문 체결 시점: 화면 데이터가 오늘(KST) 장 마감 종가면 바로 체결, 아니면(장중·주말) '예약 주문'으로 두었다가
      다음 장 마감 데이터가 들어올 때 그날 종가로 체결한다 (어제 가격으로 오늘 사는 일이 없게)
    - 기록은 이 휴대폰에만 저장(localStorage). 서버로 보내지 않음.
@@ -46,12 +47,46 @@
       g.kospi0 = m.macro.kospi[i]; save(KEY, g); redraw();
     }).catch(() => {});
   }
+  /* 알파 팀 계좌: 시작일(g.start) 다음 날부터 내 넣은 돈과 같은 현금으로 시작해, 알파의 매매를 같은 비중으로 따라 함.
+     - 사기: 알파가 그때 자산의 몇 %를 샀는지 → 알파 팀도 자기 자산의 같은 %만큼 (현금 안에서, 1주 단위)
+     - 팔기: 알파가 그 종목의 몇 %를 팔았는지 → 같은 %만큼. 시작 전에 알파가 사 둔 종목을 파는 매매는 건너뜀
+     upto: 이 날짜(포함)까지의 매매만 · px(sym, fallback): 평가 가격. 돌려줌 {cash, pos, trades, eq, base, ret} */
+  function alphaClone(st, g, upto, px) {
+    if (!st || !g) return null;
+    const b = base(g), eh = (st.equity_history || []).map(([t, e]) => [t.slice(0, 10), e]);
+    const aEqAt = d => { let v = null; for (const [t, e] of eh) if (t <= d) v = e; return v ?? ALPHA0; };
+    const aq = {}, pos = {}, trades = []; let cash = b;
+    const all = (st.trades || []).slice().sort((x, y) => String(x.time).localeCompare(String(y.time)));
+    for (const t of all) {
+      const d = String(t.time || "").slice(0, 10), sym = t.symbol, before = aq[sym] || 0;
+      aq[sym] = t.side === "BUY" ? before + t.qty : Math.max(0, before - t.qty); // 알파 원 계좌 수량 (비중 계산용)
+      if (!(d > g.start) || (upto && d > upto)) continue;
+      const price = t.price, name = (stockOf(sym) || {}).name || sym;
+      if (t.side === "BUY") {
+        const myEq = cash + Object.entries(pos).reduce((s, [k, p]) => s + p.qty * px(k, p.avg), 0);
+        const w = Math.min(1, (t.amount_krw || t.qty * price) / aEqAt(d));
+        let q = Math.floor(myEq * w / (price * (1 + R.fee)));
+        q = Math.min(q, Math.floor(cash / (price * (1 + R.fee))));
+        if (q <= 0) continue;
+        const p = pos[sym] || { qty: 0, avg: 0, name };
+        p.avg = (p.avg * p.qty + price * q) / (p.qty + q); p.qty += q; pos[sym] = p;
+        cash -= price * q * (1 + R.fee); trades.push({ ...t, qty: q });
+      } else {
+        const p = pos[sym]; if (!p || !before) continue;
+        const frac = Math.min(1, t.qty / before), q = frac > 0.999 ? p.qty : Math.min(p.qty, Math.round(p.qty * frac));
+        if (q <= 0) continue;
+        cash += price * q * (1 - R.fee - R.tax); p.qty -= q; if (!p.qty) delete pos[sym];
+        trades.push({ ...t, qty: q });
+      }
+    }
+    const eq = cash + Object.entries(pos).reduce((s, [k, p]) => s + p.qty * px(k, p.avg), 0);
+    return { cash, pos, trades, eq, base: b, ret: (eq / b - 1) * 100 };
+  }
+  const nowPx = (sym, fb) => { const s = stockOf(sym); return s ? s.price : fb; };
   function aiRet(g) {
-    const h = AI && AI.state && AI.state.equity_history;
-    if (!h || !h.length) return null;
-    const at = d => { let v = null; for (const [t, e] of h) if (t.slice(0, 10) <= d) v = e; return v; };
-    const b0 = at(g.start) ?? ALPHA0, now = at(g.lastDate) ?? h[h.length - 1][1];
-    return (now / b0 - 1) * 100;
+    if (!AI || !AI.state) return null;
+    const c = alphaClone(AI.state, g, g.lastDate, nowPx);
+    return c ? c.ret : null;
   }
 
   // 실제 시장처럼: 거래 정지 종목은 체결 안 됨, 상한가(+29.5% 이상)에 매수·하한가에 매도는 체결 안 됨
@@ -121,10 +156,8 @@
   }
 
   /* ---------- 화면 ---------- */
-  function alphaLine() { // 시작 화면: 알파 팀의 지금 성적 (겨룰 상대가 누군지)
-    const st = AI && AI.state, eh = (st && st.equity_history) || []; if (eh.length < 2) return "";
-    const r = (eh[eh.length - 1][1] / eh[0][1] - 1) * 100, d = Math.max(1, Math.round((new Date(eh[eh.length - 1][0]) - new Date(eh[0][0])) / 864e5));
-    return `<p class="g-alpha">상대 '알파' 팀은 지금 <b class="${cls(r)}">${pct(r)}</b> (${d}일째) · 이기면 연구소 포인트 +100P</p>`;
+  function alphaLine() { // 시작 화면: 겨룰 상대 안내
+    return `<p class="g-alpha">상대 '알파' 팀도 <b>내가 시작한 다음 거래일부터</b> 나와 <b>같은 돈(현금)</b>으로 매매를 시작해요 · 이기면 연구소 포인트 +100P</p>`;
   }
   function setupView() {
     const hist = load(HIST, []);
@@ -384,5 +417,5 @@
 
   /* 저장된 게임을 다시 읽어 화면을 새로 그림 (튜토리얼이 연습 주문을 되돌린 뒤 사용) */
   const reload = () => { G = load(KEY, null); msg = ""; redraw(); };
-  window.Game = { view, reload, _state: () => G, base: g => base(g || G), base0: g => base0(g || G) };
+  window.Game = { view, reload, alphaClone, nowPx, _state: () => G, base: g => base(g || G), base0: g => base0(g || G) };
 })();

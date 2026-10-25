@@ -1,6 +1,7 @@
 /* 'AI 대결' 화면 (#vs): 내 팀 vs 알파 팀.
    - 내 팀: 내가 고른 본부장 + 직원 (= 내 모의투자 계좌, game.js)
-   - 알파 팀: 내가 고르지 않은 본부장·직원이 운용하는 AI 투자자 '알파'의 실전 계좌 (data/ai.json, 하루 한 번 실제 종가 매매)
+   - 알파 팀: 내가 고르지 않은 본부장·직원. 내 게임 시작일 다음 날부터 나와 같은 돈(현금)으로 시작해
+     AI 투자자 '알파'(data/ai.json)의 매매를 같은 비중으로 따라 하는 계좌 (Game.alphaClone). 시작 전 매매·보유는 없음
    - 총자산·현금·주식 평가액·손익·수익률, 줄다리기 막대와 수익률 경주 그래프로 누가 이기고 있는지 보여 준다.
    - 승패는 같은 기간(내 게임 시작일부터)으로 비교한다. 결과를 인스타 등에 올릴 공유 이미지로 만들 수 있다.
    index.html 이 Versus.view(SC) 를, deck.js 가 Versus.summary(SC) 를 부른다. */
@@ -10,7 +11,7 @@
   const pct = x => { const t = Math.abs(x) < 0.005 ? "0.00" : x.toFixed(2); return (x >= 0.005 ? "+" : "") + t + "%"; };
   const sgn = n => (n >= 0 ? "+" : "−") + won(Math.abs(n));
   const cls = x => (x >= 0.005 ? "up" : x <= -0.005 ? "down" : "flat");
-  const CASH0 = 10_000_000;
+  const CASH0 = 10_000_000, START0 = 5_000_000; // 예전 게임 시작금 · 지금 게임 시작금 (알파 팀도 같은 돈)
   const face = id => `../img/team/${id}.jpg?v=4`;
 
   let AI = null, tried = false;
@@ -33,35 +34,37 @@
   function sides(SC) {
     const st = (AI && AI.state) || {}, G = window.Game && Game._state ? Game._state() : null;
     const so = sym => (window.stockOf ? window.stockOf(sym) : SC.stocks[sym]), px = (sym, fb) => { const s = so(sym); return s ? s.price : fb; };
-    // 알파 계좌
-    const aPos = Object.entries(st.positions || {}).map(([sym, p]) => ({ sym, name: so(sym)?.name || sym, qty: p.qty, avg: p.avg_price, now: px(sym, p.avg_price) }));
-    const aStock = aPos.reduce((s, p) => s + p.qty * p.now, 0), aCash = st.cash_krw || 0, aEq = (st.positions || st.cash_krw != null) ? aCash + aStock : CASH0;
+    const start = G ? G.start : null;
     // 내 계좌
     const mPos = G ? Object.entries(G.pos || {}).map(([sym, p]) => ({ sym, name: p.name, qty: p.qty, avg: p.avg, now: px(sym, p.last ?? p.avg) })) : [];
     const mStock = mPos.reduce((s, p) => s + p.qty * p.now, 0), mEq = G ? G.cash + mStock : null;
-    const mB0 = G ? (G.cash0 || CASH0) : CASH0, mBase = G ? mB0 + (G.added || 0) : CASH0; // 내 넣은 돈 (포인트로 추가한 돈 포함)
-    // 같은 기간 비교: 내 시작일 시점의 알파 자산을 기준으로
-    const eh = (st.equity_history || []).map(([t, e]) => [t.slice(0, 10), e]);
-    const at = d => { let v = null; for (const [t, e] of eh) if (t <= d) v = e; return v; };
-    const start = G ? G.start : st.start_date;
-    const aBase = G ? (at(G.start) ?? (eh.length && eh[0][0] > G.start ? CASH0 : CASH0)) : CASH0;
-    const aRetSame = (aEq / aBase - 1) * 100, mRet = mEq == null ? null : (mEq / mBase - 1) * 100;
-    // 경주 그래프 자료 (날짜별 수익률)
-    const days = [...new Set([...(G ? G.eq.map(x => x[0]) : []), ...eh.map(x => x[0]), SC.date])].filter(d => !start || d >= start).sort();
-    const mAt = d => { if (!G) return null; let v = null; let b = mB0; for (const [t, e, eb] of G.eq) if (t <= d) { v = e; b = eb || mB0; } return v == null ? null : (v / b - 1) * 100; };
-    const series = days.map(d => ({ d, a: ((d === SC.date ? aEq : at(d) ?? aBase) / aBase - 1) * 100, m: d === SC.date && mRet != null ? mRet : mAt(d) }));
+    const mB0 = G ? (G.cash0 || CASH0) : CASH0, mBase = G ? mB0 + (G.added || 0) : START0; // 내 넣은 돈 (포인트로 추가한 돈 포함)
+    const mRet = mEq == null ? null : (mEq / mBase - 1) * 100;
+    // 알파 팀 계좌: 내 시작일 다음 날부터 같은 돈으로 (시작 전이면 현금 그대로 대기)
+    const C = G && window.Game && Game.alphaClone ? Game.alphaClone(st, G, SC.date, px) : null;
+    const aPos = C ? Object.entries(C.pos).map(([sym, p]) => ({ sym, name: so(sym)?.name || p.name || sym, qty: p.qty, avg: p.avg, now: px(sym, p.avg) })) : [];
+    const aBase = C ? C.base : mBase, aEq = C ? C.eq : aBase, aCash = C ? C.cash : aBase, aStock = aEq - aCash, aRet = (aEq / aBase - 1) * 100;
+    // 경주 그래프 자료 (날짜별 수익률). 지난 날짜의 종목 가격은 종목별 최근 120거래일 종가(closes)에서 읽음
+    const days = G ? [...new Set([...(G.eq || []).map(x => x[0]), SC.date])].filter(d => d >= start).sort() : [];
+    const mAt = d => { if (!G) return null; let v = null; let b = mB0; for (const [t, e, eb] of (G.eq || [])) if (t <= d) { v = e; b = eb || mB0; } return v == null ? null : (v / b - 1) * 100; };
+    const aAt = (d, back) => {
+      if (!C) return null;
+      const pxd = (sym, fb) => { const s = so(sym), c = s && s.closes; return c && c.length > back ? c[c.length - 1 - back] : px(sym, fb); };
+      const c = Game.alphaClone(st, G, d, pxd); return c ? c.ret : null;
+    };
+    const series = days.map((d, i) => ({ d, a: d === SC.date ? aRet : aAt(d, days.length - 1 - i), m: d === SC.date && mRet != null ? mRet : mAt(d) }));
     // 일별 승부
     let mw = 0, aw = 0;
-    for (let i = 1; i < series.length; i++) { const p = series[i - 1], c = series[i]; if (p.m == null || c.m == null) continue; const dm = c.m - p.m, da = c.a - p.a; if (Math.abs(dm - da) < 0.005) continue; dm > da ? mw++ : aw++; }
+    for (let i = 1; i < series.length; i++) { const p = series[i - 1], c = series[i]; if (p.m == null || c.m == null || p.a == null || c.a == null) continue; const dm = c.m - p.m, da = c.a - p.a; if (Math.abs(dm - da) < 0.005) continue; dm > da ? mw++ : aw++; }
     return { st, G, start, me: G && { eq: mEq, cash: G.cash, stock: mStock, pnl: mEq - mBase, base: mBase, ret: mRet, pos: mPos },
-      ai: { eq: aEq, cash: aCash, stock: aStock, pnl: aEq - CASH0, ret: (aEq / CASH0 - 1) * 100, same: aRetSame, pos: aPos }, series, mw, aw };
+      ai: { eq: aEq, cash: aCash, stock: aStock, pnl: aEq - aBase, base: aBase, ret: aRet, same: aRet, pos: aPos, trades: C ? C.trades : [] }, series, mw, aw };
   }
 
   /* 홈 카드용 한 줄 요약 */
   function summary(SC) {
     load(); if (!AI || !SC) return "";
     const S = sides(SC);
-    if (!S.me) return `<div class="vs-mini"><span>알파 <b class="num ${cls(S.ai.ret)}">${pct(S.ai.ret)}</b></span><span class="sub">나는 아직 시작 전</span></div>`;
+    if (!S.me) return `<div class="vs-mini"><span class="sub">대결을 시작하면 다음 거래일부터 알파 팀도 같은 500만 원으로 시작해요</span></div>`;
     const lead = S.me.ret - S.ai.same;
     return `<div class="vs-mini"><span>나 <b class="num ${cls(S.me.ret)}">${pct(S.me.ret)}</b></span><b class="vs-x">VS</b><span>알파 <b class="num ${cls(S.ai.same)}">${pct(S.ai.same)}</b></span></div>
       ${tug(lead)}<p class="sub" style="margin:6px 0 0">${Math.abs(lead) < 0.005 ? "팽팽한 동점" : lead > 0 ? `내가 ${lead.toFixed(2)}%p 앞서요` : `알파가 ${(-lead).toFixed(2)}%p 앞서요`}</p>`;
@@ -110,7 +113,7 @@
     const lead = S.me ? S.me.ret - S.ai.same : null;
     const verdict = lead == null ? "대결을 시작하면 같은 날부터 수익률을 겨뤄요" : Math.abs(lead) < 0.005 ? "팽팽한 동점이에요" : lead > 0 ? `🏆 내 팀이 <b class="up">${lead.toFixed(2)}%p</b> 앞서요` : `알파 팀이 <b class="down">${(-lead).toFixed(2)}%p</b> 앞서요`;
     const faces = (d, ms) => `<span class="vs-faces"><img class="lead" src="${face(d.id)}" alt="${esc(d.name)}" title="${esc(d.name)} 본부장">${ms.map(m => `<img src="${face(m.id)}" alt="${esc(m.name)}" title="${esc(m.name)}">`).join("")}</span>`;
-    const st = S.st, trades = (st.trades || []).slice(-8).reverse();
+    const trades = S.ai.trades.slice(-8).reverse();
     const by = r => r.replace(/^THEO/, `${rv.dir.name} 본부장`).replace(/\(규칙\)/, "").trim();
 
     return `${back}
@@ -133,12 +136,12 @@
     </section>
     ${rankCard(S)}
     <section class="card"><div class="hd"><h2>내 보유 종목</h2><a class="sub" href="#game">거래하기 ›</a></div>${holdings(S.me ? S.me.pos : [], S.me ? "아직 산 종목이 없어요." : "대결을 시작하면 여기에 보여요.")}</section>
-    <section class="card"><div class="hd"><h2>알파 보유 종목</h2><span class="sub">현금 ${won(S.ai.cash)}원</span></div>${holdings(S.ai.pos, "지금은 현금으로 기다리고 있어요.")}</section>
-    <section class="card"><div class="hd"><h2>알파의 최근 매매</h2><span class="sub">${(st.trades || []).length}회</span></div>
+    <section class="card"><div class="hd"><h2>알파 보유 종목</h2><span class="sub">현금 ${won(S.ai.cash)}원</span></div>${holdings(S.ai.pos, S.me ? "지금은 현금으로 기다리고 있어요." : "대결을 시작하면 다음 거래일부터 사기 시작해요.")}</section>
+    <section class="card"><div class="hd"><h2>알파의 최근 매매</h2><span class="sub">${S.ai.trades.length}회</span></div>
       ${trades.length ? `<ul class="list">${trades.map(t => { const s = window.stockOf ? window.stockOf(t.symbol) : SC.stocks[t.symbol], b = t.side === "BUY"; return `<li><div class="row vs-tr"><span class="${b ? "up" : "down"} vs-side">${b ? "매수" : "매도"}</span>
         <span style="min-width:0"><div class="nm">${esc(s ? s.name : t.symbol)}</div><div class="meta">${esc((t.time || "").slice(5, 10).replace("-", "."))} · ${esc(by(t.reason || ""))}</div></span>
-        <span class="rt"><div class="px num">${won(t.qty)}주</div><div class="sc num">@${won(t.price)}</div></span></div></li>`; }).join("")}</ul>` : '<p class="empty">아직 매매가 없어요.</p>'}</section>
-    <p class="note">알파는 가상 계좌로 움직이는 AI이며, 매매 내역은 참고용이고 투자 권유가 아닙니다. 승패는 내 게임 시작일부터 같은 기간으로 비교해요.</p>`;
+        <span class="rt"><div class="px num">${won(t.qty)}주</div><div class="sc num">@${won(t.price)}</div></span></div></li>`; }).join("")}</ul>` : `<p class="empty">${S.me ? "아직 매매가 없어요. 내 시작일 다음 거래일부터 사고팔아요." : "대결을 시작하면 여기에 보여요."}</p>`}</section>
+    <p class="note">알파는 가상 계좌로 움직이는 AI이며, 매매 내역은 참고용이고 투자 권유가 아닙니다. 알파 팀은 내 시작일 다음 거래일부터 나와 같은 돈으로, AI 알파의 매매를 같은 비중으로 따라 해요.</p>`;
   }
 
   /* ---------- 전체 랭킹 (push.js 가 서버와 통신) ---------- */
