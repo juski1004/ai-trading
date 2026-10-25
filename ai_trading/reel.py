@@ -21,13 +21,11 @@ import threading
 from functools import partial
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFilter
 
-from ai_trading.data.cards import FONT, _photo, _wrap, host_of
+from ai_trading import motion as M
+from ai_trading.data.cards import host_of
 
-W, H, FPS = 1080, 1920, 30
-INK, LAVD, WHITE = (45, 42, 99), (108, 92, 231), (255, 255, 255)
-F = lambda w, s: __import__("PIL.ImageFont", fromlist=["x"]).truetype(str(FONT / f"Pretendard-{w}.otf"), s)
+FPS = M.FPS
 
 # 요일별 이야기 (화=1, 목=3, 금=4)
 KINDS = {
@@ -131,128 +129,23 @@ def shoot(web: Path, kind: str, sym: str, tmp: Path, term: str = "") -> list[Pat
     return out
 
 
-def _bg() -> Image.Image:
-    im = Image.new("RGB", (W, H)); d = ImageDraw.Draw(im)
-    for y in range(H):
-        t = y / H; d.line([(0, y), (W, y)], fill=(int(108 - 40 * t), int(92 - 50 * t), int(231 - 90 * t)))
-    return im
+def make_app(R: "M.Reel", shots: list[Path], kind: str, host, md: str):
+    """앱 소개: 훅(2.4초) → 앱 화면 3개(각 3.4초, 좌우 번갈아 날아옴) → 마무리(2.4초)."""
+    K = KINDS[kind]
+    M.hook(R, K["hook"], host, "AI 투자연구소")
+    for i, ((_, cap), shot) in enumerate(zip(K["shots"], shots)):
+        M.phone_scene(R, shot, cap, 3.4, side=1 if i % 2 == 0 else -1)
+    M.end_scene(R, md=md, sec=2.4)
 
 
-def _text_center(d, y, lines, size, fill=WHITE, w="ExtraBold", gap=1.22):
-    f = F(w, size)
-    for i, t in enumerate(lines):
-        d.text((W // 2, y + i * int(size * gap)), t, font=f, fill=fill, anchor="mt")
-
-
-def _hook(lines: list[str], host: tuple[str, str, str], tag: str = "AI 투자연구소") -> Image.Image:
-    hid, hname, hrole = host
-    im = _bg(); d = ImageDraw.Draw(im)
-    ph = _photo(hid, 560, 700, 60); im.paste(ph[0], ((W - 560) // 2, 860), ph[1])
-    tw = d.textlength(tag, font=F("Bold", 44)) / 2 + 50
-    d.rounded_rectangle((W // 2 - tw, 150, W // 2 + tw, 230), 40, fill=WHITE)
-    d.text((W // 2, 190), tag, font=F("Bold", 44), fill=LAVD, anchor="mm")
-    size = 118 if max(len(x) for x in lines) <= 8 else 100
-    _text_center(d, 300, lines, size)
-    d.rounded_rectangle((W // 2 - 250, 1600, W // 2 + 250, 1690), 45, fill=WHITE)
-    d.text((W // 2, 1645), f"{hname} · {hrole} 담당", font=F("Bold", 42), fill=INK, anchor="mm")
-    return im
-
-
-def _phone(shot: Path, cap: str, sec: float) -> list[Image.Image]:
-    """앱 화면을 휴대폰 틀 안에서 위→아래로 천천히."""
-    s = Image.open(shot).convert("RGB")
-    pw = 820; s = s.resize((pw, int(s.height * pw / s.width)))
-    ph_h = 1380; top1 = max(0, min(s.height - ph_h, 520))
-    base = _bg(); bd = ImageDraw.Draw(base)
-    _text_center(bd, 120, [cap], 64)
-    x0, y0 = (W - pw) // 2, 330
-    shadow = Image.new("RGBA", (pw + 80, ph_h + 80), (0, 0, 0, 0)); sd = ImageDraw.Draw(shadow)
-    sd.rounded_rectangle((40, 50, pw + 40, ph_h + 40), 60, fill=(20, 10, 60, 120)); shadow = shadow.filter(ImageFilter.GaussianBlur(24))
-    base.paste(shadow, (x0 - 40, y0 - 40), shadow)
-    mask = Image.new("L", (pw, ph_h), 0); ImageDraw.Draw(mask).rounded_rectangle((0, 0, pw, ph_h), 54, fill=255)
-    out, n = [], int(sec * FPS)
-    for k in range(n):
-        t = k / max(1, n - 1); e = t * t * (3 - 2 * t)
-        top = int(top1 * max(0, (e - 0.15) / 0.85))
-        fr = base.copy(); fr.paste(s.crop((0, top, pw, top + ph_h)), (x0, y0), mask); out.append(fr)
-    return out
-
-
-def _wrapw(d, text: str, font, width: int) -> list[str]:
-    """띄어쓰기 단위 줄바꿈 (숫자·단어가 중간에 잘리지 않게). 한 단어가 너무 길면 글자 단위."""
-    lines, cur = [], ""
-    for w in text.split(" "):
-        t = (cur + " " + w).strip()
-        if d.textlength(t, font=font) <= width: cur = t; continue
-        if cur: lines.append(cur)
-        cur = w
-        if d.textlength(w, font=font) > width:
-            parts = _wrap(d, w, font, width); lines += parts[:-1]; cur = parts[-1]
-    return lines + ([cur] if cur else [])
-
-
-def _panel(title: str, text: str, foot: str = "", color=INK) -> Image.Image:
-    """글 장면: 위에 작은 제목, 가운데 흰 카드에 큰 글씨(카드를 꽉 채우도록 글자 크기 자동, 세로 가운데)."""
-    im = _bg(); d = ImageDraw.Draw(im)
-    _text_center(d, 200, [title], 64, w="ExtraBold", fill=WHITE)
-    box = (70, 360, W - 70, 1520); bw = box[2] - box[0] - 140; bh = box[3] - box[1] - 140
-    d.rounded_rectangle(box, 60, fill=WHITE)
-    for size in range(104, 50, -4):
-        f = F("ExtraBold", size); ls = _wrapw(d, text, f, bw); lh = int(size * 1.42)
-        if len(ls) * lh <= bh: break
-    y = box[1] + (box[3] - box[1] - len(ls) * lh) // 2
-    for ln in ls:
-        d.text((W // 2, y), ln, font=f, fill=color, anchor="mt"); y += lh
-    if foot: _text_center(d, 1600, [foot], 40, w="Medium", fill=(235, 232, 255))
-    return im
-
-
-def _end(md: str, lines=("남기면 DM으로", "바로 보내 드려요"), sub=("실제 거래소 종가 그대로", "가상 돈으로 하는 연습용 게임")) -> Image.Image:
-    im = _bg(); d = ImageDraw.Draw(im)
-    _text_center(d, 330, ["댓글에", "'연구소'"], 120)
-    _text_center(d, 640, list(lines), 78, w="Bold")
-    d.rounded_rectangle((W // 2 - 300, 940, W // 2 + 300, 1040), 50, fill=WHITE)
-    d.text((W // 2, 990), "팔로워 선공개", font=F("ExtraBold", 50), fill=LAVD, anchor="mm")
-    _text_center(d, 1180, list(sub), 46, w="Medium", fill=(235, 232, 255))
-    _text_center(d, 1780, [f"{md} 장 마감 기준 · 투자 권유 아님"], 34, w="Medium", fill=(210, 205, 245))
-    return im
-
-
-def frames_app(shots: list[Path], kind: str, host, md: str) -> tuple[list, Image.Image]:
-    """앱 소개: 훅(2.5초) → 앱 화면 3개(각 3.4초) → 마무리(2.3초)."""
-    K = KINDS[kind]; hook = _hook(K["hook"], host)
-    seq = [hook] * int(2.5 * FPS)
-    for (_, cap), shot in zip(K["shots"], shots): seq += _phone(shot, cap, 3.4)
-    seq += [_end(md)] * int(2.3 * FPS)
-    return seq, hook
-
-
-def frames_word(shots: list[Path], t: dict, lv: str, n_terms: int, host, md: str) -> tuple[list, Image.Image]:
-    """용어: 질문(2.2초) → 한 줄 뜻(3.2) → 읽는 법(3.2) → 오늘 숫자(2.0, 있으면) → 앱 용어 사전(2.4) → 마무리(2.0)."""
-    hook = _hook([t["q"]] if len(t["q"]) <= 9 else _split(t["q"]), host, tag="30초 주식 용어")
-    seq = [hook] * int(2.2 * FPS)
-    seq += [_panel(f"{t['name']} = {t['full']}", t["one"])] * int(3.2 * FPS)
-    seq += [_panel("읽는 법", t["how"])] * int((3.2 if lv else 4.2) * FPS)
-    if lv: seq += [_panel("오늘 실제 숫자로 보면", lv, "공개 자료 · 참고용", color=LAVD)] * int(2.0 * FPS)
-    seq += _phone(shots[0], f"앱 용어 사전 {n_terms}개, 오늘 숫자와 함께", 2.4)
-    seq += [_end(md, ("남기면 용어 사전과", "모의투자 게임을 보내 드려요"), ("PER부터 RSI까지 오늘 숫자로", "가상 돈으로 하는 연습용 게임"))] * int(2.0 * FPS)
-    return seq, hook
-
-
-def _split(q: str) -> list[str]:  # 긴 질문을 두 줄로 (띄어쓰기 기준)
-    w = q.split(" "); best = min(range(1, len(w)), key=lambda i: abs(len(" ".join(w[:i])) - len(" ".join(w[i:])))) if len(w) > 1 else 1
-    return [" ".join(w[:best]), " ".join(w[best:])] if len(w) > 1 else [q]
-
-
-def _write(seq: list, cover: Image.Image, tmp: Path) -> Path:
-    fd = tmp / "f"; fd.mkdir(exist_ok=True); last = None
-    for i, im in enumerate(seq):  # 같은 장면은 파일을 복사해 시간 절약
-        p = fd / f"{i:04d}.jpg"
-        if im is last: shutil.copyfile(fd / f"{i - 1:04d}.jpg", p)
-        else: im.save(p, quality=90)
-        last = im
-    cover.save(tmp / "cover.jpg", quality=90)
-    return fd
+def make_word(R: "M.Reel", shots: list[Path], t: dict, lv: str, n_terms: int, host, md: str):
+    """용어: 질문(2.2) → 한 줄 뜻(3.2) → 읽는 법(3.2) → 오늘 숫자(2.0) → 앱 사전(2.4) → 마무리(2.0)."""
+    M.hook(R, M.split_q(t["q"]), host, "30초 주식 용어", sec=2.2)
+    M.lines_scene(R, t["full"], t["one"], 3.2, big=t["name"] if len(t["name"]) <= 6 else "", avatar=host[0])
+    M.lines_scene(R, "읽는 법", t["how"], 3.2 if lv else 4.2)
+    if lv: M.number_scene(R, "오늘 실제 숫자로 보면", lv, 2.0)
+    M.phone_scene(R, shots[0], f"앱 용어 사전 {n_terms}개, 오늘 숫자와 함께", 2.4, side=0)
+    M.end_scene(R, ("남기면 용어 사전과", "모의투자 게임을 보내 드려요"), ("PER부터 RSI까지 오늘 숫자로", "가상 돈으로 하는 연습용 게임"), md=md, sec=2.0)
 
 
 def build(web: Path, kind: str | None = None) -> dict | None:
@@ -272,12 +165,13 @@ def build(web: Path, kind: str | None = None) -> dict | None:
     with tempfile.TemporaryDirectory() as tdir:
         tmp = Path(tdir)
         shots = shoot(web, kind, sym, tmp, term["id"] if term else "")
+        fd = tmp / "f"; R = M.Reel(fd)
         if term:
             lv = live(term, sc, facts)
-            seq, cover = frames_word(shots, term, lv, len(G["terms"]), host, md)
+            make_word(R, shots, term, lv, len(G["terms"]), host, md)
         else:
-            seq, cover = frames_app(shots, kind, host, md)
-        fd = _write(seq, cover, tmp)
+            make_app(R, shots, kind, host, md)
+        R.cover.save(tmp / "cover.jpg", quality=90)
         music = web / "app" / "bgm" / "main.mp3"
         cmd = ["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS), "-i", str(fd / "%04d.jpg")]
         if music.exists(): cmd += ["-i", str(music), "-filter_complex", "[1:a]volume=1.6,afade=t=in:d=0.8,afade=t=out:st=14:d=1[a]", "-map", "0:v", "-map", "[a]"]
