@@ -3,12 +3,28 @@
    - 예시 종목은 시가총액 1위 삼성전자 (추천이 아니라 예시). 사고팔라고 권하지 않는다.
    - '직접 눌러 보세요' 단계는 그 버튼을 누르면 다음으로 넘어감. 대상이 화면에 없으면(이미 게임 중 등) 그 단계는 건너뜀.
    - 처음 팀을 고른 뒤 한 번 권하고, '사용법' 창에서 다시 볼 수 있다. 끝까지 하면 연구소 포인트 +100P (한 번만).
+   - 튜토리얼에서 넣은 게임 시작·주문은 연습이라, 끝내거나 그만두면 시작 전 상태로 되돌린다
+     (시작할 때 게임 기록을 aiLab.tour.snap.v1 에 떠 두었다가 복원. 중간에 앱을 닫아도 다음에 열면 복원)
    - 저장: aiLab.tour.v1 {done, offered} */
 (() => {
   const KEY = "aiLab.tour.v1", EX = "005930.KS";
   const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } };
   const save = v => { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) {} };
   const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  /* 연습 주문 되돌리기용: 튜토리얼 시작 전 게임 기록 */
+  const SNAP = "aiLab.tour.snap.v1", GKEYS = ["aiLab.game.v1", "aiLab.games.v1"];
+  function snap() {
+    try { const o = {}; GKEYS.forEach(k => { o[k] = localStorage.getItem(k); }); localStorage.setItem(SNAP, JSON.stringify(o)); } catch (e) {}
+  }
+  function restore() {
+    try {
+      const raw = localStorage.getItem(SNAP); if (!raw) return;
+      const o = JSON.parse(raw);
+      GKEYS.forEach(k => { if (o[k] == null) localStorage.removeItem(k); else localStorage.setItem(k, o[k]); });
+      localStorage.removeItem(SNAP);
+    } catch (e) {}
+    if (window.Game && Game.reload) Game.reload();
+  }
   const go = h => { if (location.hash !== "#" + h) location.hash = h; };
 
   // [화면, 비출 곳, 제목, 설명, 방식('next'|'click'), 들어가기 전 할 일]
@@ -29,11 +45,11 @@
     ["game/" + EX, '[data-g="start"]', "게임 시작", "기간을 고르고 <b>500만 원으로 시작하기</b>를 눌러 보세요. 같은 기간 AI 팀 '알파'·코스피와 수익률을 겨뤄요.", "click"],
     ["game/" + EX, ".g-side2", "사기 · 팔기", "사기/팔기를 고르는 곳이에요. 지금은 <b>사기</b>예요.", "next"],
     ["game/" + EX, '[data-g="frac"][data-v="0.1"]', "수량 정하기", "직접 숫자를 넣거나 10%·25%·50%·최대 버튼을 써요. <b>10%</b>를 눌러 보세요. 한 종목에 몰빵하지 않는 게 스윙의 기본이에요.", "click"],
-    ["game/" + EX, '[data-g="order"]', "주문 넣기", "이제 주문 버튼을 눌러 보세요. 장 마감 뒤 데이터가 들어온 날엔 <b>그날 종가로 바로 체결</b>, 그 전엔 <b>다음 장 마감 종가로 예약</b>돼요.", "click"],
-    ["game/" + EX, ".g-msg", "주문 완료!", "이렇게 하루 한 번, 종가로 사고파는 게 이 앱의 스윙 매매예요. 장중에 시세를 볼 필요가 없어요.", "next", () => go("game")],
+    ["game/" + EX, '[data-g="order"]', "주문 넣기", "이제 주문 버튼을 눌러 보세요. 장 마감 뒤 데이터가 들어온 날엔 <b>그날 종가로 바로 체결</b>, 그 전엔 <b>다음 장 마감 종가로 예약</b>돼요. 튜토리얼 주문은 <b>연습이라 끝나면 지워져요</b>.", "click"],
+    ["game/" + EX, ".g-msg", "주문 완료!", "이렇게 하루 한 번, 종가로 사고파는 게 이 앱의 스윙 매매예요. 장중에 시세를 볼 필요가 없어요. (방금 주문은 튜토리얼이 끝나면 자동으로 지워져요)", "next", () => go("game")],
     ["game", ".g-auto", "자동 손절·익절", "켜 두면 −5%·+10%에 닿은 날 종가로 알아서 정리돼요. 원칙을 지키는 연습이에요.", "next"],
     ["game", ".g-line", "알파와 비교", "같은 기간 AI 팀 알파·코스피보다 잘하고 있는지 보여 줘요. 누르면 AI 대결 화면으로 가요. 게임을 완주하고 알파를 이기면 포인트를 더 받아요.", "next"],
-    ["game", null, "튜토리얼 끝!", "수고하셨어요. 연구소 포인트 <b>+100P</b>를 드렸어요. 위쪽 <b>사용법</b> 버튼에서 언제든 다시 볼 수 있어요.", "next"],
+    ["game", null, "튜토리얼 끝!", "수고하셨어요. 연구소 포인트 <b>+100P</b>를 드렸어요. 연습으로 넣은 게임·주문은 지웠으니, 이제 <b>투자게임</b> 탭에서 진짜로 시작해 보세요. 위쪽 <b>사용법</b> 버튼에서 언제든 다시 볼 수 있어요.", "next"],
   ];
 
   let i = -1, waitT = null, clickOff = null;
@@ -100,8 +116,10 @@
     const T = load(); T.offered = true;
     if (finished && !T.done) { T.done = true; if (window.Daily && Daily.earn) Daily.earn(100, "튜토리얼 완료"); }
     save(T); i = -1;
+    restore(); // 연습으로 넣은 게임 시작·주문 되돌리기
   }
-  function start() { i = 0; show(); }
+  function start() { snap(); i = 0; show(); }
+  restore(); // 튜토리얼 중간에 앱을 닫았다면 다음에 열 때 되돌림
 
   document.addEventListener("click", e => {
     const b = e.target.closest("[data-tour]"); if (!b) return;
