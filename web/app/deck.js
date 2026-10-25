@@ -122,43 +122,46 @@
   function view(SC) {
     if (!D) return `<div class="card"><div class="skel" style="width:40%"></div><div class="skel"></div><div class="skel" style="width:70%"></div></div>`;
     const P = pages(SC);
-    return `<div class="dk-tabs" role="tablist">${P.map(([id, t], k) => `<button type="button" data-dk="${id}" ${k ? "" : 'aria-current="true"'}>${t}</button>`).join("")}</div>
-      <div class="dk" id="dk">${P.map(p => p[2]).join("")}</div>
+    // 끝없이 이어지게: [마지막 장 복사본] 1 2 … N [첫 장 복사본]. 복사본에 닿으면 소리 없이 진짜 장으로 옮김
+    const ghost = h => h.replace(/ id="[^"]*"/g, "").replace('<section class="dk-page"', '<section class="dk-page dk-ghost" aria-hidden="true" inert');
+    setTimeout(() => go(cur, false), 0);
+    return `<div class="dk-tabs" role="tablist">${P.map(([id, t], k) => `<button type="button" data-dk="${k}" ${k === cur ? 'aria-current="true"' : ""}>${t}</button>`).join("")}</div>
+      <div class="dk" id="dk">${ghost(P[P.length - 1][2])}${P.map(p => p[2]).join("")}${ghost(P[0][2])}</div>
       <p class="sub dk-hint">옆으로 밀어서 넘겨 보세요 · 끝에서 처음으로 이어져요</p>`;
   }
 
-  /* 넘기기·탭·종목 질문 */
-  document.addEventListener("click", e => {
-    const t = e.target.closest("[data-dk]"); if (t) { document.getElementById("dk-" + t.dataset.dk)?.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" }); return; }
-    const m = e.target.closest("[data-dkm]"); if (m) step(+m.dataset.dkm); // 보이는 장 수만큼(PC 3장, 휴대폰 1장) 넘김, 끝에서는 처음으로
-  });
-  // 끝에서 다음 → 처음, 처음에서 이전 → 끝 (화살표와 손가락 밀기 모두)
-  function step(dir) {
+  /* 넘기기·탭 (한 번에 한 장, PC도 같음). cur = 지금 보는 장(0부터) */
+  let cur = 0, settle = null;
+  const pagesOf = dk => dk.querySelectorAll(".dk-page");
+  function go(k, smooth = true) { // k: 진짜 장 번호(0..N-1), -1·N 은 복사본
     const dk = document.getElementById("dk"); if (!dk) return;
-    const max = dk.scrollWidth - dk.clientWidth, x = dk.scrollLeft;
-    if (dir > 0 && x >= max - 4) dk.scrollTo({ left: 0, behavior: "smooth" });
-    else if (dir < 0 && x <= 4) dk.scrollTo({ left: max, behavior: "smooth" });
-    else dk.scrollBy({ left: dir * (dk.clientWidth - 20), behavior: "smooth" });
+    const P = pagesOf(dk), el = P[k + 1]; if (!el) return;
+    dk.scrollTo({ left: el.offsetLeft - P[0].offsetLeft, behavior: smooth ? "smooth" : "instant" });
   }
-  let tx = null, tl = 0;
-  document.addEventListener("touchstart", e => { const dk = e.target.closest && e.target.closest("#dk"); if (dk) { tx = e.touches[0].clientX; tl = dk.scrollLeft; } }, { passive: true });
-  document.addEventListener("touchend", e => {
-    if (tx == null) return; const dk = document.getElementById("dk"), dx = e.changedTouches[0].clientX - tx; tx = null;
-    if (!dk || Math.abs(dx) < 50) return;
-    const max = dk.scrollWidth - dk.clientWidth;
-    if (dx > 0 && tl <= 4) step(-1);            // 첫 장에서 오른쪽으로 밀면 마지막 장
-    else if (dx < 0 && tl >= max - 4) step(1);  // 마지막 장에서 왼쪽으로 밀면 첫 장
-  }, { passive: true });
+  function mark() {
+    const dk = document.getElementById("dk"); if (!dk) return;
+    const P = pagesOf(dk), n = P.length - 2, w = P[1].offsetLeft - P[0].offsetLeft || 1;
+    const i = Math.round(dk.scrollLeft / w) - 1;               // -1 또는 n 이면 복사본 위
+    const real = ((i % n) + n) % n;
+    if (i < 0 || i >= n) { cur = real; go(real, false); }      // 복사본 → 같은 모양의 진짜 장으로 순간 이동
+    else cur = real;
+    document.querySelectorAll(".dk-tabs button").forEach((b, j) => (j === cur ? b.setAttribute("aria-current", "true") : b.removeAttribute("aria-current")));
+    document.querySelector(".dk-tabs button[aria-current]")?.scrollIntoView({ inline: "nearest", block: "nearest" });
+  }
+  document.addEventListener("click", e => {
+    const t = e.target.closest("[data-dk]"); if (t) { cur = +t.dataset.dk; go(cur); return; }
+    const m = e.target.closest("[data-dkm]"); if (m) go(cur + +m.dataset.dkm); // 화살표: 끝 다음은 복사본(=첫 장)으로 이어짐
+  });
+  document.addEventListener("scroll", e => {
+    if (!e.target || e.target.id !== "dk") return;
+    clearTimeout(settle); settle = setTimeout(mark, 110);       // 넘김이 멈추면 탭 표시·복사본 정리
+  }, true);
+  addEventListener("resize", () => go(cur, false));
   document.addEventListener("submit", e => {
     if (!e.target.matches("[data-ask]")) return; e.preventDefault();
     asked = e.target.q.value; const box = document.getElementById("dk-ans"), SC = window.__SC;
     if (box && SC) box.innerHTML = answer(SC, asked);
   });
-  document.addEventListener("scroll", e => {
-    const dk = e.target; if (!dk || dk.id !== "dk") return;
-    const w = dk.querySelector(".dk-page")?.offsetWidth || 1, k = Math.round(dk.scrollLeft / w);
-    document.querySelectorAll(".dk-tabs button").forEach((b, i) => (i === k ? b.setAttribute("aria-current", "true") : b.removeAttribute("aria-current")));
-  }, true);
 
   const css = document.createElement("style");
   css.textContent = `
@@ -192,8 +195,8 @@
   .dk-ops li{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--line,#eceef6)}.dk-ops img{width:38px;height:38px;border-radius:50%;object-fit:cover;object-position:50% 15%;flex:none}.dk-ops p{margin:2px 0 0;font-size:13.5px;line-height:1.5}
   .dk-hint{text-align:center;margin:6px 0 0;font-size:12px}
   .dk-more summary{list-style:none;cursor:pointer;text-align:center;padding:10px;color:var(--lav-d,#6c5ce7);font-weight:700;font-size:13.5px}.dk-more summary::-webkit-details-marker{display:none}.dk-more[open] summary{display:none}
-  @media (min-width:900px){.dk{grid-auto-columns:calc((100% - 24px)/3)}.dk-page{scroll-snap-align:none}.dk-page:nth-child(3n+1){scroll-snap-align:start}.dk-tabs{top:62px}}/* PC: 세 장씩 넘어가게 *//* PC: 세 장을 한눈에 */
-  @media (min-width:640px) and (max-width:899px){.dk{grid-auto-columns:calc((100% - 12px)/2)}.dk-page{scroll-snap-align:none}.dk-page:nth-child(2n+1){scroll-snap-align:start}}`;
+  @media (min-width:900px){.dk-tabs{top:62px}}/* PC도 한 장씩: 탭을 누르면 그 장으로 (세 장을 한꺼번에 보이면 앞 두 탭이 안 움직이는 문제) */
+  .dk-ghost{pointer-events:none}`;
   document.head.appendChild(css);
 
   window.Deck = { view };
