@@ -1,7 +1,7 @@
 {
   "name": "AI 투자연구소",
   "short_name": "AI투자연구소",
-  "description": "AI 종목분석과 모의투자 게임",
+  "description": "직장인을 위한 종가 스윙 모의투자 게임 + AI 종목분석",
   "lang": "ko",
   "start_url": "./",
   "scope": "./",
