@@ -382,5 +382,7 @@
   .g-end{text-align:center}.g-end .ic{font-size:40px}.g-end .mkt{text-align:left}.g-end .tiles{text-align:left}`;
   document.head.appendChild(css);
 
-  window.Game = { view, _state: () => G, base: g => base(g || G), base0: g => base0(g || G) };
+  /* 저장된 게임을 다시 읽어 화면을 새로 그림 (튜토리얼이 연습 주문을 되돌린 뒤 사용) */
+  const reload = () => { G = load(KEY, null); msg = ""; redraw(); };
+  window.Game = { view, reload, _state: () => G, base: g => base(g || G), base0: g => base0(g || G) };
 })();
