@@ -231,6 +231,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var
    <li>종목 화면에서 <b>AI 종합 점수(100점)</b>, 참고 <b>목표가·손절가</b>, 재무·기술 점수, 리스크, <b>뉴스 AI 요약</b>, AI 분석팀 6명 의견을 확인해요.</li>
    <li>AI와 수익률 대결은 <b>투자게임</b> 탭에서 실제 날짜·실제 종가로 해요. PC에서도 같은 화면이에요.</li>
    <li><b>저녁 6시</b>에는 담당 본부장이 오늘 브리핑을, <b>6시 10분</b>에는 AI 상대 팀 '알파'가 오늘 게임 계좌에 담은 종목 1개를 메신저처럼 알려 드려요. (앱을 열어 둔 상태에서 울려요. 위쪽 종 버튼으로 다시 볼 수 있어요.)</li>
+   <li>PER·VIX·CPI 같은 말이 낯설면 홈의 <b>오늘의 용어</b> 카드나 <a href="#learn" onclick="closeG()">주식 용어 사전</a>에서 오늘 실제 숫자와 함께 봐요.</li>
    <li>데이터는 <b>평일 장 마감 후 하루 한 번</b> 바뀌어요. 휴대폰 크롬 메뉴 → <b>홈 화면에 추가</b>하면 앱처럼 쓸 수 있어요.</li>
   </ol>
   <p class="note">점수와 목표가는 공개된 시세·지표로 계산한 참고 정보이며 투자 권유가 아니에요. 위쪽 <b>사용법</b> 버튼으로 이 안내를 다시 볼 수 있어요. <a href="terms.html">이용약관·개인정보처리방침</a></p>
@@ -257,6 +258,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var
 <script src="chart.js"></script>
 <script src="bgm.js"></script>
 <script src="daily.js"></script>
+<script src="learn.js"></script>
 <script src="tour.js"></script>
 <script>
 (()=>{
@@ -297,6 +299,7 @@ function home(){
   ${window.Report?Report.homeCard(SC):''}
   <section class="card bcard"><img src="../img/team/${window.Team?Team.director().id:'theo'}.jpg?v=4" alt="본부장 사진"><div><h2>오늘의 본부장 브리핑</h2><p class="sub">${window.Team?Team.director().name:'정서연'} 본부장이 시장·수급·상승/하락 종목·거래량·펀더멘탈을 8장으로 짚어 드려요.</p><button class="pclink" type="button" id="openBrief">브리핑 보기 ▶</button></div></section>
   ${window.Advise?Advise.homeCard():''}
+  ${window.Learn?Learn.homeCard():''}
   ${window.Deck?Deck.view(SC):''}
   <a class="pclink arc-link" href="../archive/">📚 지난 장마감 요약 모아 보기</a>
   <p class="note">AI 점수는 공개된 시세와 지표로 계산한 참고 정보이며 투자 권유가 아닙니다. 시세는 15~20분 이상 늦을 수 있고, 투자 판단과 결과의 책임은 본인에게 있습니다.</p>`;
@@ -409,21 +412,22 @@ function analysis(sym){
   return sym?analysisDetail(sym):analysisList();
 }
 const game=sym=>window.Game&&SC?Game.view(SC,sym&&decodeURIComponent(sym)):soon('🎮','모의투자 게임','가상 1,000만 원으로 AI 투자자 알파와 수익률을 겨루는 게임은 지금 PC 화면에서 할 수 있어요. 휴대폰용은 곧 열려요.<br><a class="pclink" href="../?full=1" target="_blank" rel="noopener">PC 대결 화면 열기 ↗</a>');
-const me=()=>window.Team?Team.meView()+(window.Daily?Daily.meCard():'')+(window.Push?Push.card():'')+'<p class="note"><a href="terms.html">이용약관 · 개인정보처리방침</a></p>':soon('👤','내 정보','게임 기록과 지난 성적표가 여기에 모여요.<br><br><span class="sub">휴대폰 홈 화면에 추가하면 앱처럼 쓸 수 있어요.<br>아이폰: 공유 → 홈 화면에 추가 · 안드로이드: 메뉴 → 홈 화면에 추가</span>');
+const me=()=>window.Team?Team.meView()+(window.Daily?Daily.meCard():'')+(window.Push?Push.card():'')+'<p class="note"><a href="#learn">📘 주식 용어 사전</a> · <a href="terms.html">이용약관 · 개인정보처리방침</a></p>':soon('👤','내 정보','게임 기록과 지난 성적표가 여기에 모여요.<br><br><span class="sub">휴대폰 홈 화면에 추가하면 앱처럼 쓸 수 있어요.<br>아이폰: 공유 → 홈 화면에 추가 · 안드로이드: 메뉴 → 홈 화면에 추가</span>');
 
 /* ---------- 화면 전환 ---------- */
 function route(){
   const [tab,arg]=(location.hash.slice(1)||'home').split('/');
-  const t=['home','analysis','game','me','pick','vs'].includes(tab)?tab:'home';
-  document.querySelectorAll('nav a').forEach(a=>a.dataset.tab===(t==='vs'?'game':t)?a.setAttribute('aria-current','page'):a.removeAttribute('aria-current'));
+  const t=['home','analysis','game','me','pick','vs','learn'].includes(tab)?tab:'home';
+  document.querySelectorAll('nav a').forEach(a=>a.dataset.tab===(t==='vs'?'game':t==='learn'?'home':t)?a.setAttribute('aria-current','page'):a.removeAttribute('aria-current'));
   render();window.scrollTo(0,0);
 }
 function render(){
   const [tab,arg]=(location.hash.slice(1)||'home').split('/');
-  const t=['home','analysis','game','me','pick','vs'].includes(tab)?tab:'home';
+  const t=['home','analysis','game','me','pick','vs','learn'].includes(tab)?tab:'home';
   const typing=document.activeElement&&document.activeElement.id==='q',pos=typing?document.activeElement.selectionStart:0;
-  $('#view').innerHTML=t==='home'?home():t==='analysis'?analysis(arg&&decodeURIComponent(arg)):t==='game'?game(arg):t==='pick'?(window.Report&&SC?Report.view(SC):home()):t==='vs'?(window.Versus?Versus.view(SC):home()):me();
+  $('#view').innerHTML=t==='home'?home():t==='analysis'?analysis(arg&&decodeURIComponent(arg)):t==='game'?game(arg):t==='pick'?(window.Report&&SC?Report.view(SC):home()):t==='vs'?(window.Versus?Versus.view(SC):home()):t==='learn'?(window.Learn?Learn.view(arg):home()):me();
   if(typing){const q=$('#q');if(q){q.focus();q.setSelectionRange(pos,pos)}}
+  if(t==='learn'&&window.Learn)Learn.mount(arg);
   if(t==='analysis'&&arg&&window.AppChart&&document.getElementById('acBox'))AppChart.mount(decodeURIComponent(arg));
   $('#asof').textContent=SC?`${SC.date.slice(5).replace('-','.')} 기준`:'';
 }
