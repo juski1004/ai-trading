@@ -56,8 +56,12 @@ jobs:
             # 화면 파일만 바뀐 경우: 지금 사이트에 있는 데이터(data/)를 그대로 가져와 화면만 새로 올림
             git fetch -q --depth 1 origin site
             git archive origin/site data | tar -x -C web
+            git archive origin/site archive 2>/dev/null | tar -x -C web || echo "아카이브 없음"
           elif [ "$CMD" = "data" ]; then
             python -m ai_trading.data.export --out web/data
+            # 장마감 요약 아카이브: 사이트에 쌓인 지난 글을 꺼내 오고 오늘 글을 더함 (실패해도 사이트 갱신은 계속)
+            (git fetch -q --depth 1 origin site && git archive origin/site archive | tar -x -C web) 2>/dev/null || echo "지난 아카이브 없음 (처음)"
+            python -m ai_trading.data.archive web || echo "[아카이브 실패]"
           elif [ "$CMD" = "cycle" ] && [ ! -f game/state.json ]; then
             echo "진행 중인 게임이 없어 건너뜀"
           else

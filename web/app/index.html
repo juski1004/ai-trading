@@ -53,6 +53,7 @@ a{color:var(--lav-d)}
 /* 사용법 */
 .helpb{white-space:nowrap;flex:none;font-size:12.5px;font-weight:600;color:var(--lav-d);border:1px solid var(--line2);border-radius:20px;padding:5px 12px;background:#fff}
 .top .asof+.bgmb{margin-left:4px}
+.arc-link{display:block;text-align:center;margin:14px auto 0}
 .bgmb{flex:none;width:32px;height:32px;border-radius:50%;border:1px solid var(--line2);background:#fff;font-size:15px;line-height:1;padding:0;cursor:pointer}
 .bgmb[aria-pressed="true"]{background:var(--lav-s);border-color:var(--lav-d)}
 @media (max-width:440px){.bgmb{margin-left:auto}}
@@ -292,6 +293,7 @@ function home(){
   <section class="card bcard"><img src="../img/team/${window.Team?Team.director().id:'theo'}.jpg?v=4" alt="본부장 사진"><div><h2>오늘의 본부장 브리핑</h2><p class="sub">${window.Team?Team.director().name:'정서연'} 본부장이 시장·수급·상승/하락 종목·거래량·펀더멘탈을 8장으로 짚어 드려요.</p><button class="pclink" type="button" id="openBrief">브리핑 보기 ▶</button></div></section>
   ${window.Advise?Advise.homeCard():''}
   ${window.Deck?Deck.view(SC):''}
+  <a class="pclink arc-link" href="../archive/">📚 지난 장마감 요약 모아 보기</a>
   <p class="note">AI 점수는 공개된 시세와 지표로 계산한 참고 정보이며 투자 권유가 아닙니다. 시세는 15~20분 이상 늦을 수 있고, 투자 판단과 결과의 책임은 본인에게 있습니다.</p>`;
 }
 
