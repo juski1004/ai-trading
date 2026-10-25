@@ -1,13 +1,13 @@
 /* 배경음악: 머리글 🔊 버튼으로 켜고 끔 (처음엔 꺼짐, 켜면 기억).
-   - 메인: bgm/main.mp3 '장 마감 카페' (로파이 재즈) · AI 대결 화면(#vs): bgm/battle.mp3 '개장'
+   - 메인: bgm/main.mp3 '저녁 정리' · AI 대결 화면(#vs): bgm/battle.mp3 '조용한 승부' (둘 다 드럼 없는 잔잔한 곡, bgm/calm.py)
    - 화면이 바뀌면 곡을 부드럽게 바꾸고, 본부장 브리핑(음성)이 열리면 잠깐 멈췄다가 닫으면 다시 재생.
    - 앱이 백그라운드로 가면 멈춤. 곡은 모두 직접 작곡·합성한 것 (bgm/*.py). */
 (() => {
-  const KEY = "aiLab.bgm.v1", VOL = 0.35;
+  const KEY = "aiLab.bgm.v1", VOL = 0.25, V = "?v=2"; // V: 곡을 바꾸면 올려서 옛 파일 캐시를 피함
   const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } };
   const save = v => { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) {} };
   let on = !!load().on, cur = null, src = "", held = false;
-  const want = () => ((location.hash.slice(1) || "home").split("/")[0] === "vs" ? "bgm/battle.mp3" : "bgm/main.mp3");
+  const want = () => ((location.hash.slice(1) || "home").split("/")[0] === "vs" ? "bgm/battle.mp3" : "bgm/main.mp3") + V;
 
   function fade(a, to, ms, done) { // 같은 곡에 겹친 페이드는 마지막 것만 살림
     clearInterval(a._fade);
