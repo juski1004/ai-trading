@@ -78,3 +78,16 @@ test("사용 집계: 날짜별 숫자만, 경로별 새 기기 수", async () =>
   assert.equal(s[0].open, 2); assert.equal(s[0].new, 2); assert.equal(s[0]["new.insta"], 1); assert.equal(s[0]["new.direct"], 1); assert.equal(s[0].trade, 1);
   assert.equal(s[1].open, undefined);
 });
+
+test("기록 백업: 코드로 저장하고 되살린다 (하이픈·대문자 무시)", async () => {
+  const env = { KV: memKV() };
+  const data = JSON.stringify({ "aiLab.team.v1": "{\"dir\":\"theo\"}" });
+  assert.equal((await call(env, "/backup", { code: "ab12-cd34-ef56", data })).status, 200);
+  const r = await call(env, "/backup?code=AB12CD34EF56");
+  assert.equal(r.status, 200);
+  assert.equal(r.body.data, data);
+  assert.equal((await call(env, "/backup?code=zzzzzzzzzzzz")).status, 404);
+  assert.equal((await call(env, "/backup", { code: "short", data })).status, 400);
+  assert.equal((await call(env, "/backup", { code: "ab12cd34ef56", data: "not json" })).status, 400);
+  assert.ok(![...env.KV.m.keys()].some(k => k.includes("ab12cd34ef56"))); // 코드 그대로는 저장 안 함
+});
