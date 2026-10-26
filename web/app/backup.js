@@ -45,12 +45,18 @@
     try { const r = await fetch(u + "/backup?code=" + code, { cache: "no-store" }); if (r.status === 404) { alert("이 코드로 저장된 기록이 없어요."); return; } rec = await r.json(); } catch (e) {}
     if (!rec || !rec.data) { alert("서버에 연결하지 못했어요. 잠시 뒤 다시 해 주세요."); return; }
     const when = new Date(rec.at).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" });
-    if (!confirm(`${when}에 백업한 기록으로 바꿀까요?\n지금 이 기기의 기록은 이 백업으로 덮어써져요.`)) return;
     let o; try { o = JSON.parse(rec.data); } catch (e) { alert("백업을 읽지 못했어요."); return; }
+    const J = k => { try { return JSON.parse(o[k]); } catch (e) { return null; } };
+    const g = J("aiLab.game.v1"), pts = J("aiLab.pts.v1"), tm = J("aiLab.team.v1");
+    const what = [tm ? "담당 팀 ✓" : "담당 팀 없음",
+      g ? `모의투자 게임 ✓ (보유 ${Object.keys(g.pos || {}).length}종목 · 거래 ${(g.trades || []).length}회 · 미체결 ${(g.orders || []).length}건)` : "모의투자 게임 없음",
+      J("aiLab.tour.v1")?.done ? "튜토리얼 완료 ✓" : "튜토리얼 기록 없음",
+      pts && typeof pts.pts === "number" ? `포인트 ${pts.pts}P` : ""].filter(Boolean).join("\n· ");
+    if (!confirm(`${when}에 백업한 기록이에요.\n· ${what}\n\n이 기록으로 바꿀까요? 지금 이 화면의 기록은 덮어써져요.`)) return;
     try { const ks = []; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (mine(k)) ks.push(k); } ks.forEach(k => localStorage.removeItem(k)); localStorage.removeItem(SNAP); } catch (e) {}
     Object.entries(o).forEach(([k, v]) => { if (mine(k) && typeof v === "string") ls.set(k, v); });
     setMeta({ code, h: hash(dump()), at: Date.now() });
-    alert("기록을 되살렸어요."); location.hash = ""; location.reload();
+    alert("기록을 되살렸어요. 앞으로 이 브라우저(프로필)에서 계속 쓰시면 돼요."); location.hash = ""; location.reload();
   }
   function ask() { const v = prompt("복구 코드 12자리를 넣어 주세요 (예: abcd-efgh-jkmn)"); if (v) restore(v); }
 
