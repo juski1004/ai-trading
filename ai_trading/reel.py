@@ -149,11 +149,14 @@ def make_word(R: "M.Reel", shots: list[Path], t: dict, lv: str, n_terms: int, ho
     M.end_scene(R, ("남기면 용어 사전과", "모의투자 게임을 보내 드려요"), ("PER부터 RSI까지 오늘 숫자로", "가상 돈으로 하는 연습용 게임"), md=md, sec=2.0)
 
 
-def build(web: Path, kind: str | None = None) -> dict | None:
+def build(web: Path, kind: str | None = None, at: str | None = None, out: Path | None = None) -> dict | None:
+    """at: 미리 만들 때 올릴 날짜(그 주 진행자·색·종류). 화면은 지금 데이터라 영상 끝 '장 마감 기준' 날짜는 빼고 만든다.
+    out: 결과 폴더(기본 web/data/reel)."""
     web = Path(web); data = web / "data"
     sc = json.loads((data / "scores.json").read_text(encoding="utf-8"))
     op = data / "outlook.json"; facts = json.loads(op.read_text(encoding="utf-8")).get("facts", {}) if op.exists() else {}
-    date = sc["date"]; d = dt.date.fromisoformat(date); md = f"{d.month}월 {d.day}일"
+    date = at or sc["date"]; d = dt.date.fromisoformat(date); md = f"{d.month}월 {d.day}일"
+    end_md = "" if at else md
     kind = kind or BY_WEEKDAY.get(d.weekday())
     if not kind: return None
     if kind == "app": kind = APP_KINDS[_week(d) % len(APP_KINDS)]  # 금요일: 주마다 돌아가며
@@ -163,16 +166,16 @@ def build(web: Path, kind: str | None = None) -> dict | None:
     josa = "이" if (ord(hname[-1]) - 0xAC00) % 28 else "가"
     G = json.loads((web / "app" / "glossary.json").read_text(encoding="utf-8")); TT = {t["id"]: t for t in G["terms"]}
     term = TT[os.environ.get("REEL_TERM") or WORD_ORDER[(_week(d) * 2 + (1 if d.weekday() == 3 else 0)) % len(WORD_ORDER)]] if kind == "word" else None  # REEL_TERM: 시험용
-    out = data / "reel"; out.mkdir(parents=True, exist_ok=True)
+    out = Path(out) if out else data / "reel"; out.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory() as tdir:
         tmp = Path(tdir)
         shots = shoot(web, kind, sym, tmp, term["id"] if term else "")
         fd = tmp / "f"; R = M.Reel(fd)
         if term:
             lv = live(term, sc, facts)
-            make_word(R, shots, term, lv, len(G["terms"]), host, md)
+            make_word(R, shots, term, lv, len(G["terms"]), host, end_md)
         else:
-            make_app(R, shots, kind, host, md)
+            make_app(R, shots, kind, host, end_md)
         R.cover.save(tmp / "cover.jpg", quality=90)
         music = web / "app" / "bgm" / "main.mp3"
         cmd = ["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS), "-i", str(fd / "%04d.jpg")]
