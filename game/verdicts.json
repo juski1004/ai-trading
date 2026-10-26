@@ -1,496 +1,23 @@
 {
- "time": "2026-10-23T14:26+09:00",
+ "time": "2026-10-26T14:24+09:00",
  "verdicts": [
   {
    "symbol": "005930.KS",
    "action": "HOLD",
-   "score": -0.412,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.213,
-     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -0.8%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 35"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -14.0%), 최대 1주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 6.2%)",
-     "보유 종목 5개 꽉 참"
-    ]
-   },
-   "plan": {
-    "entry": 212750.0,
-    "stop": 202112.5,
-    "target": 234025.0,
-    "qty": 1
-   }
-  },
-  {
-   "symbol": "000660.KS",
-   "action": "HOLD",
-   "score": -0.366,
+   "score": -0.418,
    "qty": 0,
    "source": "AI",
-   "reason": "현재 종목을 보유하고 있지 않아 매도가 불가능하며, LLOYD의 리스크 점검 거절 및 매수 가능 수량 부재로 인해 관망을 유지합니다.",
+   "reason": "LLOYD가 변동성 과다로 거절했고 팀 의견이 전반적으로 부정적이어서 매수 금지이며, 현재 보유하지 않아 SELL도 불가능합니다.",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
     },
     {
      "agent": "OSCAR",
-     "score": 0.018,
-     "summary": "평범한 거래량 (평소 대비 0.8배), 하루 +2.7% · 호재 뉴스: [속보]수급공백 올까…SK하이닉스, 40조원 규모 자사주 매입 완료"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 32"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -19.3%), 최대 0주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 7.4%)",
-     "보유 종목 5개 꽉 참",
-     "살 수 있는 수량 없음 (비중 한도·현금)"
-    ]
-   },
-   "plan": {
-    "entry": 1256000.0,
-    "stop": 1193200.0,
-    "target": 1381600.0,
-    "qty": 0
-   }
-  },
-  {
-   "symbol": "373220.KS",
-   "action": "HOLD",
-   "score": -0.167,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.388,
-     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -1.7% · 호재 뉴스: [단독] LG엔솔의 아픈 손가락 폴란드 공장 4분기 흑자 눈앞"
-    },
-    {
-     "agent": "RAY",
-     "score": 0.1,
-     "summary": "단기 상승추세, MACD 음, RSI 49"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -1.1%), 최대 0주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 5.9%)",
-     "보유 종목 5개 꽉 참",
-     "살 수 있는 수량 없음 (비중 한도·현금)"
-    ]
-   },
-   "plan": {
-    "entry": 383500.0,
-    "stop": 364325.0,
-    "target": 421850.0,
-    "qty": 0
-   }
-  },
-  {
-   "symbol": "207940.KS",
-   "action": "HOLD",
-   "score": 0.27,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 1.0,
-     "summary": "평범한 거래량 (평소 대비 1.2배), 하루 +8.1% · 호재 뉴스: 삼성바이오로직스, 3분기 매출 1.49조…연간 성장률 20%로 상향"
-    },
-    {
-     "agent": "RAY",
-     "score": 0.7,
-     "summary": "단기 상승추세, MACD 양, RSI 59"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.5,
-     "summary": "많이 오른 자리, 추격 매수 위험 (20일선 대비 +10.3%), 최대 0주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 5.1%)",
-     "보유 종목 5개 꽉 참",
-     "살 수 있는 수량 없음 (비중 한도·현금)"
-    ]
-   },
-   "plan": {
-    "entry": 1471000.0,
-    "stop": 1397450.0,
-    "target": 1618100.0,
-    "qty": 0
-   }
-  },
-  {
-   "symbol": "005380.KS",
-   "action": "HOLD",
-   "score": -0.462,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.988,
-     "summary": "평범한 거래량 (평소 대비 0.7배), 하루 -2.7%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.4,
-     "summary": "단기 하락추세, MACD 음, RSI 29"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -10.6%), 최대 0주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 5.3%)",
-     "보유 종목 5개 꽉 참",
-     "살 수 있는 수량 없음 (비중 한도·현금)"
-    ]
-   },
-   "plan": {
-    "entry": 293500.0,
-    "stop": 278825.0,
-    "target": 322850.0,
-    "qty": 0
-   }
-  },
-  {
-   "symbol": "000270.KS",
-   "action": "HOLD",
-   "score": -0.263,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.514,
-     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -1.8%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.1,
-     "summary": "단기 하락추세, MACD 양, RSI 37"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -4.3%), 최대 2주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "보유 종목 5개 꽉 참"
-    ]
-   },
-   "plan": {
-    "entry": 106800.0,
-    "stop": 101460.0,
-    "target": 117480.0,
-    "qty": 2
-   }
-  },
-  {
-   "symbol": "068270.KS",
-   "action": "HOLD",
-   "score": 0.282,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.309,
-     "summary": "평범한 거래량 (평소 대비 0.7배), 하루 +0.1% · 호재 뉴스: [속보]\"시간 없어, 빨리 타\" 셀트리온 주가 급등에 난리난 '이재용 밈"
-    },
-    {
-     "agent": "RAY",
-     "score": 0.7,
-     "summary": "단기 상승추세, MACD 양, RSI 63"
-    },
-    {
-     "agent": "MILES",
-     "score": 0.1,
-     "summary": "다소 올라온 자리 (20일선 대비 +5.1%), 최대 0주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "살 수 있는 수량 없음 (비중 한도·현금)"
-    ]
-   },
-   "plan": {
-    "entry": 194400.0,
-    "stop": 184680.0,
-    "target": 213840.0,
-    "qty": 0
-   }
-  },
-  {
-   "symbol": "035420.KS",
-   "action": "HOLD",
-   "score": -0.455,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.426,
-     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -1.8% · 악재 뉴스: 뉴욕증시, AI 거품 우려와 유가 급등에 일제히 하락"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 32"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -6.6%), 최대 1주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "보유 종목 5개 꽉 참"
-    ]
-   },
-   "plan": {
-    "entry": 173200.0,
-    "stop": 164540.0,
-    "target": 190520.0,
-    "qty": 1
-   }
-  },
-  {
-   "symbol": "105560.KS",
-   "action": "HOLD",
-   "score": -0.541,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.854,
-     "summary": "평범한 거래량 (평소 대비 0.8배), 하루 -4.0%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 31"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -7.8%), 최대 1주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "보유 종목 5개 꽉 참"
-    ]
-   },
-   "plan": {
-    "entry": 151800.0,
-    "stop": 144210.0,
-    "target": 166980.0,
-    "qty": 1
-   }
-  },
-  {
-   "symbol": "055550.KS",
-   "action": "HOLD",
-   "score": -0.465,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -1.0,
-     "summary": "평범한 거래량 (평소 대비 0.7배), 하루 -3.2%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.4,
-     "summary": "단기 하락추세, MACD 음, RSI 21"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -12.7%), 최대 2주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "보유 종목 5개 꽉 참"
-    ]
-   },
-   "plan": {
-    "entry": 87400.0,
-    "stop": 83030.0,
-    "target": 96140.0,
-    "qty": 2
-   }
-  },
-  {
-   "symbol": "005490.KS",
-   "action": "HOLD",
-   "score": -0.57,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -1.0,
-     "summary": "평범한 거래량 (평소 대비 0.7배), 하루 -4.0%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 34"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -9.7%), 최대 0주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 5.1%)",
-     "보유 종목 5개 꽉 참",
-     "살 수 있는 수량 없음 (비중 한도·현금)"
-    ]
-   },
-   "plan": {
-    "entry": 274500.0,
-    "stop": 260775.0,
-    "target": 301950.0,
-    "qty": 0
-   }
-  },
-  {
-   "symbol": "028260.KS",
-   "action": "HOLD",
-   "score": -0.364,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.029,
-     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -0.5%"
+     "score": -0.229,
+     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -0.2%"
     },
     {
      "agent": "RAY",
@@ -500,7 +27,7 @@
     {
      "agent": "MILES",
      "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -9.5%), 최대 0주"
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -12.0%), 최대 0주"
     }
    ],
    "risk": {
@@ -512,39 +39,127 @@
     ]
    },
    "plan": {
-    "entry": 287000.0,
-    "stop": 272650.0,
-    "target": 315700.0,
+    "entry": 215000.0,
+    "stop": 204250.0,
+    "target": 236500.0,
     "qty": 0
    }
   },
   {
-   "symbol": "012330.KS",
+   "symbol": "000660.KS",
    "action": "HOLD",
-   "score": -0.36,
+   "score": -0.287,
    "qty": 0,
-   "source": "규칙",
-   "reason": "",
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며 현재 보유하지 않아 매수 금지, 매도도 불가하므로 보류합니다.",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
     },
     {
      "agent": "OSCAR",
-     "score": -1.0,
-     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -2.5%"
+     "score": 0.428,
+     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 +1.9% · 호재 뉴스: [오늘의 삼전닉스] SK하이닉스 추가 16조 주주환원 기대감, 급등 신호"
     },
     {
      "agent": "RAY",
-     "score": -0.1,
-     "summary": "단기 하락추세, MACD 양, RSI 32"
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 35"
     },
     {
      "agent": "MILES",
      "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -8.8%), 최대 0주"
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -15.0%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 7.3%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 1301000.0,
+    "stop": 1235950.0,
+    "target": 1431100.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "373220.KS",
+   "action": "HOLD",
+   "score": -0.292,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며, 팀 의견이 전반적으로 부정적이므로 매수는 불가하고 보류합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 +0.2%"
+    },
+    {
+     "agent": "RAY",
+     "score": 0.1,
+     "summary": "단기 상승추세, MACD 음, RSI 49"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -1.5%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 6.0%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 383750.0,
+    "stop": 364562.5,
+    "target": 422125.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "207940.KS",
+   "action": "HOLD",
+   "score": 0.269,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며 현재 보유하지 않아 매수 불가, 따라서 보류합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": 0.257,
+     "summary": "평범한 거래량 (평소 대비 0.3배), 하루 -1.2%"
+    },
+    {
+     "agent": "RAY",
+     "score": 0.7,
+     "summary": "단기 상승추세, MACD 양, RSI 57"
+    },
+    {
+     "agent": "MILES",
+     "score": 0.1,
+     "summary": "다소 올라온 자리 (20일선 대비 +8.4%), 최대 0주"
     }
    ],
    "risk": {
@@ -556,72 +171,329 @@
     ]
    },
    "plan": {
-    "entry": 328500.0,
-    "stop": 312075.0,
-    "target": 361350.0,
+    "entry": 1449000.0,
+    "stop": 1376550.0,
+    "target": 1593900.0,
     "qty": 0
    }
   },
   {
-   "symbol": "051910.KS",
+   "symbol": "005380.KS",
    "action": "HOLD",
-   "score": -0.499,
+   "score": -0.467,
    "qty": 0,
-   "source": "규칙",
-   "reason": "",
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며 팀 의견이 전반적으로 부정적이어서 매수 금지, 현재 보유하지 않아 SELL도 불가합니다.",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
     },
     {
      "agent": "OSCAR",
-     "score": -0.648,
-     "summary": "평범한 거래량 (평소 대비 0.7배), 하루 -3.8% · 악재 뉴스: 반짝 이익 끝⋯ 롯데케미칼·LG화학 3분기 수천억대 적자 예고"
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -2.4%"
     },
     {
      "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 38"
+     "score": -0.4,
+     "summary": "단기 하락추세, MACD 음, RSI 28"
     },
     {
      "agent": "MILES",
      "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -11.6%), 최대 1주"
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -11.1%), 최대 0주"
     }
    ],
    "risk": {
     "approved": false,
     "reasons": [
-     "변동성 과다 (하루 평균 8.0%)",
-     "보유 종목 5개 꽉 참"
+     "변동성 과다 (하루 평균 5.6%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
     ]
    },
    "plan": {
-    "entry": 229000.0,
-    "stop": 217550.0,
-    "target": 251900.0,
-    "qty": 1
+    "entry": 288500.0,
+    "stop": 274075.0,
+    "target": 317350.0,
+    "qty": 0
    }
   },
   {
-   "symbol": "006400.KS",
+   "symbol": "000270.KS",
    "action": "HOLD",
-   "score": -0.57,
+   "score": -0.362,
    "qty": 0,
-   "source": "규칙",
-   "reason": "",
+   "source": "AI",
+   "reason": "LLOYD가 거절했으며 팀 의견이 전반적으로 부정적이므로 보류합니다.",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
     },
     {
      "agent": "OSCAR",
      "score": -1.0,
-     "summary": "평범한 거래량 (평소 대비 1.0배), 하루 -5.0%"
+     "summary": "평범한 거래량 (평소 대비 0.3배), 하루 -0.9%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.1,
+     "summary": "단기 하락추세, MACD 양, RSI 36"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -4.5%), 최대 1주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 105900.0,
+    "stop": 100605.0,
+    "target": 116490.0,
+    "qty": 1
+   }
+  },
+  {
+   "symbol": "068270.KS",
+   "action": "HOLD",
+   "score": 0.19,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 매수를 거절했고 팀 의견이 혼재해 규칙 기반 판단이 HOLD이므로 현재 보유 상태를 유지합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.639,
+     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -2.0%"
+    },
+    {
+     "agent": "RAY",
+     "score": 0.7,
+     "summary": "단기 상승추세, MACD 양, RSI 56"
+    },
+    {
+     "agent": "MILES",
+     "score": 0.5,
+     "summary": "20일선 근처, 진입 적기 (20일선 대비 +2.7%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 190600.0,
+    "stop": 181070.0,
+    "target": 209660.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "035420.KS",
+   "action": "HOLD",
+   "score": -0.499,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 매수를 거절했고 팀 의견이 전반적으로 부정적이며, 현재 보유하지 않아 SELL도 불가하므로 HOLD합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.635,
+     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 +0.7% · 악재 뉴스: 중동 확전 우려에 미국 증시 또 하락, 이번 주 주목할 이슈는?"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 35"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -5.1%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 174800.0,
+    "stop": 166060.0,
+    "target": 192280.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "105560.KS",
+   "action": "HOLD",
+   "score": -0.467,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 매수를 거절했고 팀 의견이 전반적으로 부정적이며 현재 보유하지 않아 BUY가 불가하므로 HOLD합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.7배), 하루 -3.2%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.4,
+     "summary": "단기 하락추세, MACD 음, RSI 28"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -9.3%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 148050.0,
+    "stop": 140647.5,
+    "target": 162855.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "055550.KS",
+   "action": "HOLD",
+   "score": -0.467,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 거절했으며 보유 중이 아니므로 BUY와 SELL이 불가능합니다. 따라서 HOLD합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -2.7%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.4,
+     "summary": "단기 하락추세, MACD 음, RSI 20"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -13.3%), 최대 1주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 85700.0,
+    "stop": 81415.0,
+    "target": 94270.0,
+    "qty": 1
+   }
+  },
+  {
+   "symbol": "005490.KS",
+   "action": "HOLD",
+   "score": -0.572,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며 현재 보유하지 않아 매수할 수 없으므로 HOLD합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -1.5%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 33"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -10.0%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 5.2%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 271500.0,
+    "stop": 257925.0,
+    "target": 298650.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "028260.KS",
+   "action": "HOLD",
+   "score": -0.27,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며 현재 보유하고 있지 않아 매수 금지, 매도도 불가하므로 HOLD합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": 0.512,
+     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 +2.6% · 호재 뉴스: 삼성물산, 반포푸르지오 리모델링 수주…1천250억원 규모(종합)"
     },
     {
      "agent": "RAY",
@@ -631,7 +503,139 @@
     {
      "agent": "MILES",
      "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -10.3%), 최대 0주"
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -5.7%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 6.2%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 295500.0,
+    "stop": 280725.0,
+    "target": 325050.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "012330.KS",
+   "action": "HOLD",
+   "score": -0.362,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며 현재 보유하고 있지 않아 BUY와 SELL이 불가능합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 +0.2%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.1,
+     "summary": "단기 하락추세, MACD 양, RSI 32"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -8.1%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 5.2%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 329000.0,
+    "stop": 312550.0,
+    "target": 361900.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "051910.KS",
+   "action": "HOLD",
+   "score": -0.572,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며, 팀 의견이 전반적으로 부정적이고 현재 보유하지 않아 BUY가 불가능하므로 HOLD합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -0.7%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 37"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -11.7%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 8.0%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 227500.0,
+    "stop": 216125.0,
+    "target": 250250.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "006400.KS",
+   "action": "HOLD",
+   "score": -0.412,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며 매수 가능 수량이 없어 BUY가 불가능하고, 현재 보유하지 않아 SELL도 할 수 없으므로 HOLD합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.2,
+     "summary": "평범한 거래량 (평소 대비 0.7배), 하루 +0.6% · 호재 뉴스: 삼성SDI, 미국 에너지 기업에 각형 ESS 배터리 공급 계약 체결"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 42"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -8.7%), 최대 0주"
     }
    ],
    "risk": {
@@ -643,29 +647,29 @@
     ]
    },
    "plan": {
-    "entry": 486500.0,
-    "stop": 462175.0,
-    "target": 535150.0,
+    "entry": 493500.0,
+    "stop": 468825.0,
+    "target": 542850.0,
     "qty": 0
    }
   },
   {
    "symbol": "035720.KS",
    "action": "HOLD",
-   "score": -0.465,
+   "score": -0.467,
    "qty": 0,
-   "source": "규칙",
-   "reason": "",
+   "source": "AI",
+   "reason": "LLOYD가 거절했으며 팀 의견이 전반적으로 부정적이므로 보류합니다.",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
     },
     {
      "agent": "OSCAR",
      "score": -1.0,
-     "summary": "평범한 거래량 (평소 대비 0.7배), 하루 -1.6%"
+     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -0.8%"
     },
     {
      "agent": "RAY",
@@ -675,7 +679,7 @@
     {
      "agent": "MILES",
      "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -7.8%), 최대 8주"
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -7.6%), 최대 4주"
     }
    ],
    "risk": {
@@ -685,162 +689,34 @@
     ]
    },
    "plan": {
-    "entry": 29850.0,
-    "stop": 28357.5,
-    "target": 32835.0,
-    "qty": 8
+    "entry": 29700.0,
+    "stop": 28215.0,
+    "target": 32670.0,
+    "qty": 4
    }
   },
   {
    "symbol": "086790.KS",
    "action": "HOLD",
-   "score": -0.465,
+   "score": -0.387,
    "qty": 0,
-   "source": "규칙",
-   "reason": "",
+   "source": "AI",
+   "reason": "LLOYD가 거절했으며 현재 보유하고 있지 않아 BUY와 SELL이 불가능합니다.",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
     },
     {
      "agent": "OSCAR",
-     "score": -1.0,
-     "summary": "평범한 거래량 (평소 대비 0.9배), 하루 -5.0%"
+     "score": -0.6,
+     "summary": "평범한 거래량 (평소 대비 0.7배), 하루 -2.8% · 중립 뉴스: 실적 발표: 하나금융지주, 2026년 3분기 순이익 안정세에도 주가 3%"
     },
     {
      "agent": "RAY",
      "score": -0.4,
-     "summary": "단기 하락추세, MACD 음, RSI 25"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -9.8%), 최대 2주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "보유 종목 5개 꽉 참"
-    ]
-   },
-   "plan": {
-    "entry": 113900.0,
-    "stop": 108205.0,
-    "target": 125290.0,
-    "qty": 2
-   }
-  },
-  {
-   "symbol": "032830.KS",
-   "action": "HOLD",
-   "score": -0.239,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.657,
-     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 +1.4% · 호재 뉴스: 웅진프리드라이프, 삼성생명과 업무협약…'건강케어서비스' 출시"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 39"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -7.7%), 최대 1주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 5.9%)",
-     "보유 종목 5개 꽉 참"
-    ]
-   },
-   "plan": {
-    "entry": 245000.0,
-    "stop": 232750.0,
-    "target": 269500.0,
-    "qty": 1
-   }
-  },
-  {
-   "symbol": "000810.KS",
-   "action": "HOLD",
-   "score": -0.279,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.455,
-     "summary": "평범한 거래량 (평소 대비 0.7배), 하루 -1.0%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 43"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -2.7%), 최대 0주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "보유 종목 5개 꽉 참",
-     "살 수 있는 수량 없음 (비중 한도·현금)"
-    ]
-   },
-   "plan": {
-    "entry": 602000.0,
-    "stop": 571900.0,
-    "target": 662200.0,
-    "qty": 0
-   }
-  },
-  {
-   "symbol": "096770.KS",
-   "action": "HOLD",
-   "score": -0.57,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -1.0,
-     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -3.2%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 44"
+     "summary": "단기 하락추세, MACD 음, RSI 24"
     },
     {
      "agent": "MILES",
@@ -851,78 +727,380 @@
    "risk": {
     "approved": false,
     "reasons": [
-     "변동성 과다 (하루 평균 8.4%)",
      "보유 종목 5개 꽉 참"
     ]
    },
    "plan": {
-    "entry": 137200.0,
-    "stop": 130340.0,
-    "target": 150920.0,
+    "entry": 113100.0,
+    "stop": 107445.0,
+    "target": 124410.0,
     "qty": 1
    }
   },
   {
-   "symbol": "034730.KS",
+   "symbol": "032830.KS",
    "action": "HOLD",
-   "score": -0.307,
+   "score": -0.318,
    "qty": 0,
-   "source": "규칙",
-   "reason": "",
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며 팀 의견이 전반적으로 부정적이므로 매수 금지, 현재 보유하지 않아 SELL도 불가해 보류합니다.",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
     },
     {
      "agent": "OSCAR",
-     "score": 0.314,
-     "summary": "평범한 거래량 (평소 대비 0.8배), 하루 -1.3% · 호재 뉴스: \"SK하닉 주주에 큰 선물 나오나\"…자사주 매입 끝, 반등은 언제쯤? -"
+     "score": 0.273,
+     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 +1.4%"
     },
     {
      "agent": "RAY",
      "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 38"
+     "summary": "단기 하락추세, MACD 음, RSI 41"
     },
     {
      "agent": "MILES",
      "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -13.7%), 최대 0주"
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -5.7%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 6.0%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 248500.0,
+    "stop": 236075.0,
+    "target": 273350.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "000810.KS",
+   "action": "HOLD",
+   "score": -0.438,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 매수를 거절했고 현재 보유하지 않아 BUY가 불가능하며, 팀 의견이 전반적으로 부정적이므로 HOLD합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.329,
+     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -1.2%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 41"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -3.4%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 595000.0,
+    "stop": 565250.0,
+    "target": 654500.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "096770.KS",
+   "action": "HOLD",
+   "score": -0.572,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며 팀 평균 점수가 부정적이므로 매수 금지이고, 현재 보유하지 않아 매도도 불가합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 +0.2%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 45"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -8.9%), 최대 1주"
     }
    ],
    "risk": {
     "approved": false,
     "reasons": [
      "변동성 과다 (하루 평균 7.8%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 138400.0,
+    "stop": 131480.0,
+    "target": 152240.0,
+    "qty": 1
+   }
+  },
+  {
+   "symbol": "034730.KS",
+   "action": "HOLD",
+   "score": -0.25,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며 현재 보유하지 않아 매수 금지이므로 보류합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": 0.612,
+     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 +1.9% · 호재 뉴스: [오늘의 삼전닉스] SK하이닉스 추가 16조 주주환원 기대감, 급등 신호"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 41"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -9.2%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 7.5%)",
      "보유 종목 5개 꽉 참",
      "살 수 있는 수량 없음 (비중 한도·현금)"
     ]
    },
    "plan": {
-    "entry": 455500.0,
-    "stop": 432725.0,
-    "target": 501050.0,
+    "entry": 474500.0,
+    "stop": 450775.0,
+    "target": 521950.0,
     "qty": 0
    }
   },
   {
    "symbol": "066570.KS",
    "action": "HOLD",
-   "score": -0.57,
+   "score": -0.572,
    "qty": 0,
-   "source": "규칙",
-   "reason": "",
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며 팀원 의견이 전반적으로 부정적이어서 매수 금지, 보유하지 않아 매도도 불가하므로 보류합니다.",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
     },
     {
      "agent": "OSCAR",
      "score": -1.0,
-     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -2.2%"
+     "summary": "평범한 거래량 (평소 대비 0.3배), 하루 +0.7%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 31"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -16.1%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 7.1%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 158200.0,
+    "stop": 150290.0,
+    "target": 174020.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "015760.KS",
+   "action": "HOLD",
+   "score": -0.248,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 거절했으며 팀 의견이 전반적으로 부정적이므로 BUY가 불가하고 현재 보유하지 않아 SELL도 할 수 없어 HOLD합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.43,
+     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -1.0%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.1,
+     "summary": "단기 하락추세, MACD 양, RSI 37"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -3.3%), 최대 5주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 28350.0,
+    "stop": 26932.5,
+    "target": 31185.0,
+    "qty": 5
+   }
+  },
+  {
+   "symbol": "033780.KS",
+   "action": "HOLD",
+   "score": 0.245,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 매수를 거절했고 보유하지 않아 BUY가 불가능하므로 HOLD합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.363,
+     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -0.3%"
+    },
+    {
+     "agent": "RAY",
+     "score": 0.7,
+     "summary": "단기 상승추세, MACD 양, RSI 62"
+    },
+    {
+     "agent": "MILES",
+     "score": 0.5,
+     "summary": "20일선 근처, 진입 적기 (20일선 대비 +3.1%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 188900.0,
+    "stop": 179455.0,
+    "target": 207790.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "329180.KS",
+   "action": "HOLD",
+   "score": -0.467,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD의 변동성 과다 거절 및 보유 없음으로 BUY가 금지되고 SELL도 불가하므로 HOLD합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.8배), 하루 -4.4%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.4,
+     "summary": "단기 하락추세, MACD 음, RSI 17"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -22.3%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 6.4%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 291500.0,
+    "stop": 276925.0,
+    "target": 320650.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "012450.KS",
+   "action": "HOLD",
+   "score": -0.572,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD이 변동성 과다로 거절했으며 팀 의견이 전반적으로 부정적이므로 매수는 불가하고 보유도 없으니 보류합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -4.4%"
     },
     {
      "agent": "RAY",
@@ -932,265 +1110,268 @@
     {
      "agent": "MILES",
      "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -18.3%), 최대 1주"
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -16.8%), 최대 0주"
     }
    ],
    "risk": {
     "approved": false,
     "reasons": [
-     "변동성 과다 (하루 평균 7.3%)",
-     "보유 종목 5개 꽉 참"
-    ]
-   },
-   "plan": {
-    "entry": 156400.0,
-    "stop": 148580.0,
-    "target": 172040.0,
-    "qty": 1
-   }
-  },
-  {
-   "symbol": "015760.KS",
-   "action": "HOLD",
-   "score": -0.142,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.087,
-     "summary": "평범한 거래량 (평소 대비 0.9배), 하루 -0.2%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.1,
-     "summary": "단기 하락추세, MACD 양, RSI 40"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -2.4%), 최대 8주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "보유 종목 5개 꽉 참"
-    ]
-   },
-   "plan": {
-    "entry": 28750.0,
-    "stop": 27312.5,
-    "target": 31625.0,
-    "qty": 8
-   }
-  },
-  {
-   "symbol": "033780.KS",
-   "action": "HOLD",
-   "score": 0.335,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.076,
-     "summary": "평범한 거래량 (평소 대비 0.9배), 하루 -2.4% · 호재 뉴스: KT&G, 해외 생산기지 확충 마무리…3분기 최대 실적 전망"
-    },
-    {
-     "agent": "RAY",
-     "score": 0.7,
-     "summary": "단기 상승추세, MACD 양, RSI 63"
-    },
-    {
-     "agent": "MILES",
-     "score": 0.5,
-     "summary": "20일선 근처, 진입 적기 (20일선 대비 +3.6%), 최대 1주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "보유 종목 5개 꽉 참"
-    ]
-   },
-   "plan": {
-    "entry": 189200.0,
-    "stop": 179740.0,
-    "target": 208120.0,
-    "qty": 1
-   }
-  },
-  {
-   "symbol": "329180.KS",
-   "action": "HOLD",
-   "score": -0.465,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -1.0,
-     "summary": "평범한 거래량 (평소 대비 0.9배), 하루 -1.1%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.4,
-     "summary": "단기 하락추세, MACD 음, RSI 19"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -20.3%), 최대 0주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 6.1%)",
+     "변동성 과다 (하루 평균 8.1%)",
      "보유 종목 5개 꽉 참",
      "살 수 있는 수량 없음 (비중 한도·현금)"
     ]
    },
    "plan": {
-    "entry": 305500.0,
-    "stop": 290225.0,
-    "target": 336050.0,
-    "qty": 0
-   }
-  },
-  {
-   "symbol": "012450.KS",
-   "action": "HOLD",
-   "score": -0.57,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -1.0,
-     "summary": "평범한 거래량 (평소 대비 0.7배), 하루 -2.2%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 33"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -14.3%), 최대 0주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 7.7%)",
-     "보유 종목 5개 꽉 참",
-     "살 수 있는 수량 없음 (비중 한도·현금)"
-    ]
-   },
-   "plan": {
-    "entry": 793000.0,
-    "stop": 753350.0,
-    "target": 872300.0,
+    "entry": 757000.0,
+    "stop": 719150.0,
+    "target": 832700.0,
     "qty": 0
    }
   },
   {
    "symbol": "034020.KS",
    "action": "HOLD",
-   "score": -0.465,
+   "score": -0.467,
    "qty": 0,
-   "source": "규칙",
-   "reason": "",
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했고 팀 의견이 전반적으로 부정적이어서 매수 금지이며 현재 보유하지 않아 매도도 불가합니다.",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
     },
     {
      "agent": "OSCAR",
      "score": -1.0,
-     "summary": "평범한 거래량 (평소 대비 0.8배), 하루 -3.6%"
+     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -2.4%"
     },
     {
      "agent": "RAY",
      "score": -0.4,
-     "summary": "단기 하락추세, MACD 음, RSI 26"
+     "summary": "단기 하락추세, MACD 음, RSI 25"
     },
     {
      "agent": "MILES",
      "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -19.1%), 최대 4주"
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -19.4%), 최대 2주"
     }
    ],
    "risk": {
     "approved": false,
     "reasons": [
-     "변동성 과다 (하루 평균 6.6%)",
+     "변동성 과다 (하루 평균 6.8%)",
      "보유 종목 5개 꽉 참"
     ]
    },
    "plan": {
-    "entry": 59400.0,
-    "stop": 56430.0,
-    "target": 65340.0,
-    "qty": 4
+    "entry": 58000.0,
+    "stop": 55100.0,
+    "target": 63800.0,
+    "qty": 2
    }
   },
   {
    "symbol": "009150.KS",
    "action": "HOLD",
-   "score": -0.451,
+   "score": -0.469,
    "qty": 0,
-   "source": "규칙",
-   "reason": "",
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며 현재 보유하고 있지 않아 BUY가 금지되고 SELL도 불가능하므로 HOLD합니다.",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
     },
     {
      "agent": "OSCAR",
-     "score": -0.408,
-     "summary": "평범한 거래량 (평소 대비 0.9배), 하루 -3.5% · 호재 뉴스: 삼성전기, 메모리 기판 3605억 수주… 장기계약 누적 4.3조"
+     "score": -0.484,
+     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 +1.2%"
     },
     {
      "agent": "RAY",
      "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 32"
+     "summary": "단기 하락추세, MACD 음, RSI 34"
     },
     {
      "agent": "MILES",
      "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -20.6%), 최대 0주"
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -17.3%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 8.7%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 1136000.0,
+    "stop": 1079200.0,
+    "target": 1249600.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "010140.KS",
+   "action": "HOLD",
+   "score": -0.397,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며 팀 의견이 전반적으로 부정적이므로 매수 금지, 보유하지 않아 매도 불가합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.648,
+     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -2.4% · 악재 뉴스: [삼성중공업의 LNG 승부 ①] 적자 늪 벗어나 이익률 10%…LNG선의"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.4,
+     "summary": "단기 하락추세, MACD 음, RSI 29"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -11.9%), 최대 8주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 5.1%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 16430.0,
+    "stop": 15608.5,
+    "target": 18073.0,
+    "qty": 8
+   }
+  },
+  {
+   "symbol": "042660.KS",
+   "action": "HOLD",
+   "score": -0.467,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며, 팀 의견이 전반적으로 부정적이므로 보류합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.2배), 하루 -3.3%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.4,
+     "summary": "단기 하락추세, MACD 음, RSI 18"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -22.3%), 최대 2주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 6.9%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 53450.0,
+    "stop": 50777.5,
+    "target": 58795.0,
+    "qty": 2
+   }
+  },
+  {
+   "symbol": "010130.KS",
+   "action": "HOLD",
+   "score": -0.406,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며, 팀 의견이 전반적으로 부정적이어서 보류합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.696,
+     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 +0.0% · 악재 뉴스: 주주대표소송 승소한 고려아연 \"기업가치 훼손·자본시장 교란 그만\"(종합)"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.4,
+     "summary": "단기 하락추세, MACD 음, RSI 25"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -14.7%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 5.4%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 854000.0,
+    "stop": 811300.0,
+    "target": 939400.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "003670.KS",
+   "action": "HOLD",
+   "score": -0.572,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며, 보유하지 않아 BUY가 불가하고 SELL도 불가능합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -1.2%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 40"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -11.7%), 최대 0주"
     }
    ],
    "risk": {
@@ -1202,119 +1383,34 @@
     ]
    },
    "plan": {
-    "entry": 1105000.0,
-    "stop": 1049750.0,
-    "target": 1215500.0,
+    "entry": 158800.0,
+    "stop": 150860.0,
+    "target": 174680.0,
     "qty": 0
    }
   },
   {
-   "symbol": "010140.KS",
+   "symbol": "009540.KS",
    "action": "HOLD",
-   "score": -0.57,
+   "score": -0.467,
    "qty": 0,
-   "source": "규칙",
-   "reason": "",
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했고, 팀 의견이 전반적으로 부정적이어서 매수 불가이며 보유하지 않아 매도도 할 수 없습니다.",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
     },
     {
      "agent": "OSCAR",
      "score": -1.0,
-     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -2.7%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 32"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -10.6%), 최대 15주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "보유 종목 5개 꽉 참"
-    ]
-   },
-   "plan": {
-    "entry": 16860.0,
-    "stop": 16017.0,
-    "target": 18546.0,
-    "qty": 15
-   }
-  },
-  {
-   "symbol": "042660.KS",
-   "action": "HOLD",
-   "score": -0.465,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -1.0,
-     "summary": "평범한 거래량 (평소 대비 0.3배), 하루 -4.0%"
+     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -2.4%"
     },
     {
      "agent": "RAY",
      "score": -0.4,
-     "summary": "단기 하락추세, MACD 음, RSI 19"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -21.7%), 최대 4주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 6.6%)",
-     "보유 종목 5개 꽉 참"
-    ]
-   },
-   "plan": {
-    "entry": 54900.0,
-    "stop": 52155.0,
-    "target": 60390.0,
-    "qty": 4
-   }
-  },
-  {
-   "symbol": "010130.KS",
-   "action": "HOLD",
-   "score": -0.465,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -1.0,
-     "summary": "평범한 거래량 (평소 대비 1.1배), 하루 -4.5% · 악재 뉴스: 고려아연 최윤범, 영풍 제기 8370억 손배소송 1심 승소…법원 청구 전"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.4,
-     "summary": "단기 하락추세, MACD 음, RSI 25"
+     "summary": "단기 하락추세, MACD 음, RSI 23"
     },
     {
      "agent": "MILES",
@@ -1325,78 +1421,77 @@
    "risk": {
     "approved": false,
     "reasons": [
-     "변동성 과다 (하루 평균 5.3%)",
+     "변동성 과다 (하루 평균 6.1%)",
      "보유 종목 5개 꽉 참",
      "살 수 있는 수량 없음 (비중 한도·현금)"
     ]
    },
    "plan": {
-    "entry": 851000.0,
-    "stop": 808450.0,
-    "target": 936100.0,
+    "entry": 242000.0,
+    "stop": 229900.0,
+    "target": 266200.0,
     "qty": 0
    }
   },
   {
-   "symbol": "003670.KS",
+   "symbol": "003550.KS",
    "action": "HOLD",
-   "score": -0.57,
+   "score": -0.547,
    "qty": 0,
-   "source": "규칙",
-   "reason": "",
+   "source": "AI",
+   "reason": "LLOYD가 거절했으며 팀 의견이 전반적으로 부정적이므로 BUY가 불가하고 현재 보유하지 않아 SELL도 할 수 없어 HOLD합니다.",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
     },
     {
      "agent": "OSCAR",
-     "score": -1.0,
-     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -3.4%"
+     "score": -0.872,
+     "summary": "평범한 거래량 (평소 대비 0.9배), 하루 +0.6%"
     },
     {
      "agent": "RAY",
      "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 41"
+     "summary": "단기 하락추세, MACD 음, RSI 35"
     },
     {
      "agent": "MILES",
      "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -11.1%), 최대 1주"
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -6.9%), 최대 1주"
     }
    ],
    "risk": {
     "approved": false,
     "reasons": [
-     "변동성 과다 (하루 평균 8.9%)",
      "보유 종목 5개 꽉 참"
     ]
    },
    "plan": {
-    "entry": 161100.0,
-    "stop": 153045.0,
-    "target": 177210.0,
+    "entry": 99600.0,
+    "stop": 94620.0,
+    "target": 109560.0,
     "qty": 1
    }
   },
   {
-   "symbol": "009540.KS",
+   "symbol": "017670.KS",
    "action": "HOLD",
-   "score": -0.366,
+   "score": -0.467,
    "qty": 0,
-   "source": "규칙",
-   "reason": "",
+   "source": "AI",
+   "reason": "LLOYD가 거절했으며 현재 보유하고 있지 않아 매수 금지, 매도도 불가하므로 보류합니다.",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
     },
     {
      "agent": "OSCAR",
-     "score": -0.504,
-     "summary": "평범한 거래량 (평소 대비 0.8배), 하루 -2.4% · 호재 뉴스: HD한국조선해양, 1.9조원 규모 친환경 컨테이너선 8척 수주"
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 1.0배), 하루 -2.4%"
     },
     {
      "agent": "RAY",
@@ -1406,50 +1501,7 @@
     {
      "agent": "MILES",
      "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -16.1%), 최대 1주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 6.0%)",
-     "보유 종목 5개 꽉 참"
-    ]
-   },
-   "plan": {
-    "entry": 246000.0,
-    "stop": 233700.0,
-    "target": 270600.0,
-    "qty": 1
-   }
-  },
-  {
-   "symbol": "003550.KS",
-   "action": "HOLD",
-   "score": -0.512,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.711,
-     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -2.1%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 33"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -8.4%), 최대 2주"
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -11.2%), 최대 2주"
     }
    ],
    "risk": {
@@ -1459,29 +1511,71 @@
     ]
    },
    "plan": {
-    "entry": 98800.0,
-    "stop": 93860.0,
-    "target": 108680.0,
+    "entry": 72700.0,
+    "stop": 69065.0,
+    "target": 79970.0,
     "qty": 2
    }
   },
   {
-   "symbol": "017670.KS",
+   "symbol": "030200.KS",
    "action": "HOLD",
-   "score": -0.452,
+   "score": -0.467,
    "qty": 0,
-   "source": "규칙",
-   "reason": "",
+   "source": "AI",
+   "reason": "LLOYD가 거절했으며 팀 의견이 전반적으로 부정적이므로 BUY가 불가하고 현재 보유하지 않아 SELL도 할 수 없어 HOLD합니다.",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
     },
     {
      "agent": "OSCAR",
-     "score": -0.935,
-     "summary": "평범한 거래량 (평소 대비 0.7배), 하루 -2.9%"
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.9배), 하루 -2.0%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.4,
+     "summary": "단기 하락추세, MACD 음, RSI 21"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -9.2%), 최대 3주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 45850.0,
+    "stop": 43557.5,
+    "target": 50435.0,
+    "qty": 3
+   }
+  },
+  {
+   "symbol": "316140.KS",
+   "action": "HOLD",
+   "score": -0.467,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 거절했으며 팀 의견이 전반적으로 부정적이어서 매수 불가, 보유하지 않아 매도도 불가하므로 보류합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.3배), 하루 -2.7%"
     },
     {
      "agent": "RAY",
@@ -1491,7 +1585,7 @@
     {
      "agent": "MILES",
      "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -10.4%), 최대 3주"
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -10.2%), 최대 5주"
     }
    ],
    "risk": {
@@ -1501,239 +1595,29 @@
     ]
    },
    "plan": {
-    "entry": 74000.0,
-    "stop": 70300.0,
-    "target": 81400.0,
-    "qty": 3
-   }
-  },
-  {
-   "symbol": "030200.KS",
-   "action": "HOLD",
-   "score": -0.465,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -1.0,
-     "summary": "평범한 거래량 (평소 대비 0.8배), 하루 -1.6%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.4,
-     "summary": "단기 하락추세, MACD 음, RSI 24"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -8.0%), 최대 5주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "보유 종목 5개 꽉 참"
-    ]
-   },
-   "plan": {
-    "entry": 46800.0,
-    "stop": 44460.0,
-    "target": 51480.0,
+    "entry": 29300.0,
+    "stop": 27835.0,
+    "target": 32230.0,
     "qty": 5
-   }
-  },
-  {
-   "symbol": "316140.KS",
-   "action": "HOLD",
-   "score": -0.43,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.824,
-     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -4.6%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.4,
-     "summary": "단기 하락추세, MACD 음, RSI 28"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -9.5%), 최대 8주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "보유 종목 5개 꽉 참"
-    ]
-   },
-   "plan": {
-    "entry": 29800.0,
-    "stop": 28310.0,
-    "target": 32780.0,
-    "qty": 8
    }
   },
   {
    "symbol": "138040.KS",
    "action": "HOLD",
-   "score": -0.144,
+   "score": -0.515,
    "qty": 0,
-   "source": "규칙",
-   "reason": "",
+   "source": "AI",
+   "reason": "LLOYD가 거절했으며 현재 보유하지 않아 BUY가 불가능하고, 팀 의견이 전반적으로 부정적이므로 보류합니다.",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
     },
     {
      "agent": "OSCAR",
-     "score": -0.27,
-     "summary": "평범한 거래량 (평소 대비 0.8배), 하루 -2.2%"
-    },
-    {
-     "agent": "RAY",
-     "score": 0.1,
-     "summary": "단기 상승추세, MACD 음, RSI 48"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -1.5%), 최대 2주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "보유 종목 5개 꽉 참"
-    ]
-   },
-   "plan": {
-    "entry": 127700.0,
-    "stop": 121315.0,
-    "target": 140470.0,
-    "qty": 2
-   }
-  },
-  {
-   "symbol": "323410.KS",
-   "action": "HOLD",
-   "score": 0.05,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.352,
-     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -0.6%"
-    },
-    {
-     "agent": "RAY",
-     "score": 0.7,
-     "summary": "단기 상승추세, MACD 양, RSI 42"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -0.7%), 최대 12주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "보유 종목 5개 꽉 참"
-    ]
-   },
-   "plan": {
-    "entry": 19920.0,
-    "stop": 18924.0,
-    "target": 21912.0,
-    "qty": 12
-   }
-  },
-  {
-   "symbol": "259960.KS",
-   "action": "HOLD",
-   "score": -0.308,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.738,
-     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -3.3%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.1,
-     "summary": "단기 하락추세, MACD 양, RSI 35"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -5.1%), 최대 1주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "보유 종목 5개 꽉 참"
-    ]
-   },
-   "plan": {
-    "entry": 185500.0,
-    "stop": 176225.0,
-    "target": 204050.0,
-    "qty": 1
-   }
-  },
-  {
-   "symbol": "036570.KS",
-   "action": "HOLD",
-   "score": -0.41,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.201,
-     "summary": "평범한 거래량 (평소 대비 0.3배), 하루 -3.3%"
+     "score": -0.712,
+     "summary": "평범한 거래량 (평소 대비 0.8배), 하루 -1.9%"
     },
     {
      "agent": "RAY",
@@ -1743,50 +1627,49 @@
     {
      "agent": "MILES",
      "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -5.4%), 최대 1주"
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -3.2%), 최대 1주"
     }
    ],
    "risk": {
     "approved": false,
     "reasons": [
-     "변동성 과다 (하루 평균 6.0%)",
      "보유 종목 5개 꽉 참"
     ]
    },
    "plan": {
-    "entry": 204500.0,
-    "stop": 194275.0,
-    "target": 224950.0,
+    "entry": 125400.0,
+    "stop": 119130.0,
+    "target": 137940.0,
     "qty": 1
    }
   },
   {
-   "symbol": "086280.KS",
+   "symbol": "323410.KS",
    "action": "HOLD",
-   "score": -0.57,
+   "score": -0.322,
    "qty": 0,
-   "source": "규칙",
-   "reason": "",
+   "source": "AI",
+   "reason": "LLOYD가 거절했으며 팀 의견이 전반적으로 부정적이므로 매수 금지, 현재 보유하지 않아 매도도 불가합니다.",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
     },
     {
      "agent": "OSCAR",
-     "score": -1.0,
-     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -2.1%"
+     "score": -0.801,
+     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -1.9%"
     },
     {
      "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 35"
+     "score": -0.1,
+     "summary": "단기 하락추세, MACD 양, RSI 38"
     },
     {
      "agent": "MILES",
      "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -7.9%), 최대 1주"
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -2.1%), 최대 7주"
     }
    ],
    "risk": {
@@ -1796,159 +1679,29 @@
     ]
    },
    "plan": {
-    "entry": 174400.0,
-    "stop": 165680.0,
-    "target": 191840.0,
-    "qty": 1
+    "entry": 19610.0,
+    "stop": 18629.5,
+    "target": 21571.0,
+    "qty": 7
    }
   },
   {
-   "symbol": "042700.KS",
+   "symbol": "259960.KS",
    "action": "HOLD",
-   "score": -0.57,
+   "score": -0.572,
    "qty": 0,
-   "source": "규칙",
-   "reason": "",
+   "source": "AI",
+   "reason": "LLOYD가 매수를 거절했고 팀 의견이 전반적으로 부정적이어서 보류합니다.",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
     },
     {
      "agent": "OSCAR",
      "score": -1.0,
-     "summary": "평범한 거래량 (평소 대비 0.8배), 하루 -1.4%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 35"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -19.2%), 최대 1주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 8.8%)",
-     "보유 종목 5개 꽉 참"
-    ]
-   },
-   "plan": {
-    "entry": 188600.0,
-    "stop": 179170.0,
-    "target": 207460.0,
-    "qty": 1
-   }
-  },
-  {
-   "symbol": "079550.KS",
-   "action": "HOLD",
-   "score": -0.465,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -1.0,
-     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -2.5% · 악재 뉴스: \"24조6000억 일감 어쩌라고\"…이틀 새 12% 급락에 '비명' [종목"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.4,
-     "summary": "단기 하락추세, MACD 음, RSI 30"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -23.8%), 최대 0주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 10.0%)",
-     "보유 종목 5개 꽉 참",
-     "살 수 있는 수량 없음 (비중 한도·현금)"
-    ]
-   },
-   "plan": {
-    "entry": 471000.0,
-    "stop": 447450.0,
-    "target": 518100.0,
-    "qty": 0
-   }
-  },
-  {
-   "symbol": "064350.KS",
-   "action": "HOLD",
-   "score": -0.414,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.744,
-     "summary": "평범한 거래량 (평소 대비 0.8배), 하루 -2.3% · 악재 뉴스: 현대로템, 3분기 영업익 '어닝쇼크'… 장 초반 10%대 ↓ - 머니투데"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.4,
-     "summary": "단기 하락추세, MACD 음, RSI 26"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -18.8%), 최대 3주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 7.5%)",
-     "보유 종목 5개 꽉 참"
-    ]
-   },
-   "plan": {
-    "entry": 83500.0,
-    "stop": 79325.0,
-    "target": 91850.0,
-    "qty": 3
-   }
-  },
-  {
-   "symbol": "047810.KS",
-   "action": "HOLD",
-   "score": -0.554,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.923,
-     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -3.3%"
+     "summary": "평범한 거래량 (평소 대비 0.3배), 하루 -1.3%"
     },
     {
      "agent": "RAY",
@@ -1958,40 +1711,84 @@
     {
      "agent": "MILES",
      "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -13.6%), 최대 2주"
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -5.9%), 최대 0주"
     }
    ],
    "risk": {
     "approved": false,
     "reasons": [
-     "변동성 과다 (하루 평균 6.1%)",
-     "보유 종목 5개 꽉 참"
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
     ]
    },
    "plan": {
-    "entry": 102400.0,
-    "stop": 97280.0,
-    "target": 112640.0,
-    "qty": 2
+    "entry": 183100.0,
+    "stop": 173945.0,
+    "target": 201410.0,
+    "qty": 0
    }
   },
   {
-   "symbol": "010950.KS",
+   "symbol": "036570.KS",
    "action": "HOLD",
-   "score": -0.57,
+   "score": -0.572,
    "qty": 0,
-   "source": "규칙",
-   "reason": "",
+   "source": "AI",
+   "reason": "LLOYD의 변동성 과다 거절 및 현재 보유하지 않아 BUY와 SELL이 불가합니다.",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
     },
     {
      "agent": "OSCAR",
      "score": -1.0,
-     "summary": "평범한 거래량 (평소 대비 1.1배), 하루 -6.1%"
+     "summary": "평범한 거래량 (평소 대비 0.2배), 하루 -1.7%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 42"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -6.4%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 5.8%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 201500.0,
+    "stop": 191425.0,
+    "target": 221650.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "086280.KS",
+   "action": "HOLD",
+   "score": -0.572,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 거절했으며 팀 의견이 전반적으로 부정적이고 현재 보유하고 있지 않으므로 BUY가 불가하고 SELL도 불가능해 HOLD합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -0.2%"
     },
     {
      "agent": "RAY",
@@ -2001,261 +1798,94 @@
     {
      "agent": "MILES",
      "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -15.9%), 최대 1주"
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -6.6%), 최대 0주"
     }
    ],
    "risk": {
     "approved": false,
     "reasons": [
-     "변동성 과다 (하루 평균 8.1%)",
-     "보유 종목 5개 꽉 참"
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
     ]
    },
    "plan": {
-    "entry": 131300.0,
-    "stop": 124735.0,
-    "target": 144430.0,
-    "qty": 1
+    "entry": 175600.0,
+    "stop": 166820.0,
+    "target": 193160.0,
+    "qty": 0
    }
   },
   {
-   "symbol": "003490.KS",
+   "symbol": "042700.KS",
    "action": "HOLD",
-   "score": -0.458,
+   "score": -0.572,
    "qty": 0,
-   "source": "규칙",
-   "reason": "",
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했고 팀 의견이 전반적으로 부정적이어서 매수 금지이며, 현재 보유하지 않아 매도도 불가하므로 HOLD합니다.",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
     },
     {
      "agent": "OSCAR",
-     "score": -0.443,
-     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -3.0%"
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -2.4%"
     },
     {
      "agent": "RAY",
      "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 34"
+     "summary": "단기 하락추세, MACD 음, RSI 35"
     },
     {
      "agent": "MILES",
      "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -13.5%), 최대 10주"
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -19.2%), 최대 0주"
     }
    ],
    "risk": {
     "approved": false,
     "reasons": [
-     "보유 종목 5개 꽉 참"
+     "변동성 과다 (하루 평균 8.6%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
     ]
    },
    "plan": {
-    "entry": 25650.0,
-    "stop": 24367.5,
-    "target": 28215.0,
-    "qty": 10
+    "entry": 186500.0,
+    "stop": 177175.0,
+    "target": 205150.0,
+    "qty": 0
    }
   },
   {
-   "symbol": "011200.KS",
+   "symbol": "079550.KS",
    "action": "HOLD",
-   "score": 0.328,
+   "score": -0.421,
    "qty": 0,
-   "source": "규칙",
-   "reason": "",
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며, 팀 의견이 전반적으로 부정적이므로 매수 불가하고 보유하지 않아 매도도 할 수 없어 HOLD합니다.",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
     },
     {
      "agent": "OSCAR",
-     "score": 0.038,
-     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 +0.0% · 호재 뉴스: HD현대, HMM 컨테이너선 8척 수주…1.9조원규모"
+     "score": -0.768,
+     "summary": "거래량 급증 + 하락 (평소 대비 1.8배), 하루 -8.8% · 악재 뉴스: [특징주] '방산업체 지정 취소' 가능성…LIG디펜스앤에어로스페이스 8%"
     },
     {
      "agent": "RAY",
-     "score": 0.7,
-     "summary": "단기 상승추세, MACD 양, RSI 55"
-    },
-    {
-     "agent": "MILES",
-     "score": 0.5,
-     "summary": "20일선 근처, 진입 적기 (20일선 대비 +2.6%), 최대 11주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "보유 종목 5개 꽉 참"
-    ]
-   },
-   "plan": {
-    "entry": 22650.0,
-    "stop": 21517.5,
-    "target": 24915.0,
-    "qty": 11
-   }
-  },
-  {
-   "symbol": "090430.KS",
-   "action": "HOLD",
-   "score": -0.48,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.552,
-     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -2.8% · 호재 뉴스: 마몽드, '크리미 틴트 컬러 밤' 출시 10주년 맞아 새롭게 선보여"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 39"
+     "score": -0.4,
+     "summary": "단기 하락추세, MACD 음, RSI 27"
     },
     {
      "agent": "MILES",
      "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -4.8%), 최대 1주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "보유 종목 5개 꽉 참"
-    ]
-   },
-   "plan": {
-    "entry": 129800.0,
-    "stop": 123310.0,
-    "target": 142780.0,
-    "qty": 1
-   }
-  },
-  {
-   "symbol": "352820.KS",
-   "action": "HOLD",
-   "score": 0.216,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.019,
-     "summary": "평범한 거래량 (평소 대비 0.8배), 하루 -0.3%"
-    },
-    {
-     "agent": "RAY",
-     "score": 0.7,
-     "summary": "단기 상승추세, MACD 양, RSI 55"
-    },
-    {
-     "agent": "MILES",
-     "score": 0.1,
-     "summary": "다소 올라온 자리 (20일선 대비 +6.2%), 최대 1주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 5.7%)",
-     "보유 종목 5개 꽉 참"
-    ]
-   },
-   "plan": {
-    "entry": 176600.0,
-    "stop": 167770.0,
-    "target": 194260.0,
-    "qty": 1
-   }
-  },
-  {
-   "symbol": "018260.KS",
-   "action": "HOLD",
-   "score": 0.2,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.8,
-     "summary": "거래량 급증 + 상승 (평소 대비 1.9배), 하루 +3.6%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.1,
-     "summary": "단기 하락추세, MACD 양, RSI 53"
-    },
-    {
-     "agent": "MILES",
-     "score": 0.5,
-     "summary": "20일선 근처, 진입 적기 (20일선 대비 +2.6%), 최대 1주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "보유 종목 5개 꽉 참"
-    ]
-   },
-   "plan": {
-    "entry": 214500.0,
-    "stop": 203775.0,
-    "target": 235950.0,
-    "qty": 1
-   }
-  },
-  {
-   "symbol": "011070.KS",
-   "action": "HOLD",
-   "score": -0.461,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.456,
-     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -4.6% · 호재 뉴스: AI 기판 수주戰 뛰어든 삼성전기·LG이노텍, 베트남서 대량 생산 불붙였"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 31"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -24.3%), 최대 0주"
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -28.4%), 최대 0주"
     }
    ],
    "risk": {
@@ -2267,158 +1897,200 @@
     ]
    },
    "plan": {
-    "entry": 377000.0,
-    "stop": 358150.0,
-    "target": 414700.0,
+    "entry": 433500.0,
+    "stop": 411825.0,
+    "target": 476850.0,
     "qty": 0
    }
   },
   {
-   "symbol": "000720.KS",
+   "symbol": "064350.KS",
    "action": "HOLD",
-   "score": -0.387,
+   "score": -0.467,
    "qty": 0,
-   "source": "규칙",
-   "reason": "",
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며 팀 의견이 전반적으로 부정적이므로 매수 불가, 보유하지 않아 매도도 불가합니다.",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.085,
-     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -1.0% · 호재 뉴스: 현대건설, 목동10단지 재건축 시공사 선정…정비사업 수주 12조 돌파 |"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 32"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -13.1%), 최대 2주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 6.0%)",
-     "보유 종목 5개 꽉 참"
-    ]
-   },
-   "plan": {
-    "entry": 92100.0,
-    "stop": 87495.0,
-    "target": 101310.0,
-    "qty": 2
-   }
-  },
-  {
-   "symbol": "000100.KS",
-   "action": "HOLD",
-   "score": 0.27,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 1.0,
-     "summary": "평범한 거래량 (평소 대비 1.1배), 하루 +1.7%"
-    },
-    {
-     "agent": "RAY",
-     "score": 0.7,
-     "summary": "단기 상승추세, MACD 양, RSI 64"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.5,
-     "summary": "많이 오른 자리, 추격 매수 위험 (20일선 대비 +10.4%), 최대 0주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "살 수 있는 수량 없음 (비중 한도·현금)"
-    ]
-   },
-   "plan": {
-    "entry": 85400.0,
-    "stop": 81130.0,
-    "target": 93940.0,
-    "qty": 0
-   }
-  },
-  {
-   "symbol": "128940.KS",
-   "action": "HOLD",
-   "score": -0.465,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
     },
     {
      "agent": "OSCAR",
      "score": -1.0,
-     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -2.6%"
+     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -3.6%"
     },
     {
      "agent": "RAY",
      "score": -0.4,
-     "summary": "단기 하락추세, MACD 음, RSI 29"
+     "summary": "단기 하락추세, MACD 음, RSI 24"
     },
     {
      "agent": "MILES",
      "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -20.4%), 최대 0주"
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -21.0%), 최대 1주"
     }
    ],
    "risk": {
     "approved": false,
     "reasons": [
-     "변동성 과다 (하루 평균 8.1%)",
-     "보유 종목 5개 꽉 참",
-     "살 수 있는 수량 없음 (비중 한도·현금)"
+     "변동성 과다 (하루 평균 7.9%)",
+     "보유 종목 5개 꽉 참"
     ]
    },
    "plan": {
-    "entry": 361000.0,
-    "stop": 342950.0,
-    "target": 397100.0,
-    "qty": 0
+    "entry": 79700.0,
+    "stop": 75715.0,
+    "target": 87670.0,
+    "qty": 1
    }
   },
   {
-   "symbol": "326030.KS",
+   "symbol": "047810.KS",
    "action": "HOLD",
-   "score": 0.48,
+   "score": -0.572,
    "qty": 0,
-   "source": "규칙",
-   "reason": "",
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며 현재 보유하지 않아 매수 금지, 매도 불가이므로 보류합니다.",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
     },
     {
      "agent": "OSCAR",
-     "score": 0.8,
-     "summary": "거래량 급증 + 상승 (평소 대비 1.6배), 하루 +3.1%"
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.9배), 하루 -3.0%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 30"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -15.3%), 최대 1주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 6.2%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 99100.0,
+    "stop": 94145.0,
+    "target": 109010.0,
+    "qty": 1
+   }
+  },
+  {
+   "symbol": "010950.KS",
+   "action": "HOLD",
+   "score": -0.572,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며, 팀 의견이 전반적으로 부정적이어서 보류합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -3.5%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 34"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -17.6%), 최대 1주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 7.8%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 127700.0,
+    "stop": 121315.0,
+    "target": 140470.0,
+    "qty": 1
+   }
+  },
+  {
+   "symbol": "003490.KS",
+   "action": "HOLD",
+   "score": -0.572,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 거절했으며 현재 보유하지 않아 매수 금지, 확신이 부족해 보류합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -1.9%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 33"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -13.8%), 최대 5주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 25300.0,
+    "stop": 24035.0,
+    "target": 27830.0,
+    "qty": 5
+   }
+  },
+  {
+   "symbol": "011200.KS",
+   "action": "HOLD",
+   "score": 0.118,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 거절했으며 현재 보유하지 않아 BUY 금지, SELL도 불가하므로 HOLD합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.3배), 하루 -0.9%"
     },
     {
      "agent": "RAY",
@@ -2428,91 +2100,7 @@
     {
      "agent": "MILES",
      "score": 0.5,
-     "summary": "20일선 근처, 진입 적기 (20일선 대비 +3.8%), 최대 0주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "살 수 있는 수량 없음 (비중 한도·현금)"
-    ]
-   },
-   "plan": {
-    "entry": 77250.0,
-    "stop": 73387.5,
-    "target": 84975.0,
-    "qty": 0
-   }
-  },
-  {
-   "symbol": "271560.KS",
-   "action": "BUY",
-   "score": 0.412,
-   "qty": 1,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.461,
-     "summary": "평범한 거래량 (평소 대비 0.7배), 하루 -1.0%"
-    },
-    {
-     "agent": "RAY",
-     "score": 0.7,
-     "summary": "단기 상승추세, MACD 양, RSI 49"
-    },
-    {
-     "agent": "MILES",
-     "score": 0.5,
-     "summary": "20일선 근처, 진입 적기 (20일선 대비 +2.7%), 최대 1주"
-    }
-   ],
-   "risk": {
-    "approved": true,
-    "reasons": [
-     "변동성 2.9%, 이상 없음"
-    ]
-   },
-   "plan": {
-    "entry": 111500.0,
-    "stop": 105925.0,
-    "target": 122650.0,
-    "qty": 1
-   }
-  },
-  {
-   "symbol": "097950.KS",
-   "action": "HOLD",
-   "score": -0.48,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.549,
-     "summary": "평범한 거래량 (평소 대비 1.2배), 하루 +1.7% · 호재 뉴스: CJ제일제당 ‘비비고 김부각’ 출시 3개월 만에 50만 봉 팔려 나가 -"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 40"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -2.9%), 최대 1주"
+     "summary": "20일선 근처, 진입 적기 (20일선 대비 +1.4%), 최대 6주"
     }
    ],
    "risk": {
@@ -2522,39 +2110,212 @@
     ]
    },
    "plan": {
-    "entry": 174800.0,
-    "stop": 166060.0,
-    "target": 192280.0,
-    "qty": 1
+    "entry": 22450.0,
+    "stop": 21327.5,
+    "target": 24695.0,
+    "qty": 6
    }
   },
   {
-   "symbol": "011170.KS",
+   "symbol": "090430.KS",
    "action": "HOLD",
-   "score": -0.394,
+   "score": -0.572,
    "qty": 0,
-   "source": "규칙",
-   "reason": "",
+   "source": "AI",
+   "reason": "LLOYD가 거절했으며 팀 의견이 전반적으로 부정적이어서 BUY가 불가하고 현재 보유하지 않아 SELL도 할 수 없으므로 HOLD합니다.",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
     },
     {
      "agent": "OSCAR",
-     "score": -0.648,
-     "summary": "평범한 거래량 (평소 대비 0.8배), 하루 -4.3% · 악재 뉴스: 반짝 이익 끝⋯ 롯데케미칼·LG화학 3분기 수천억대 적자 예고"
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.3배), 하루 -2.3%"
     },
     {
      "agent": "RAY",
-     "score": -0.4,
-     "summary": "단기 하락추세, MACD 음, RSI 28"
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 34"
     },
     {
      "agent": "MILES",
      "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -16.4%), 최대 5주"
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -7.1%), 최대 1주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 125800.0,
+    "stop": 119510.0,
+    "target": 138380.0,
+    "qty": 1
+   }
+  },
+  {
+   "symbol": "352820.KS",
+   "action": "HOLD",
+   "score": 0.118,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며 현재 보유하지 않아 매수 금지, 매도도 불가하므로 보류합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -0.7%"
+    },
+    {
+     "agent": "RAY",
+     "score": 0.7,
+     "summary": "단기 상승추세, MACD 양, RSI 54"
+    },
+    {
+     "agent": "MILES",
+     "score": 0.5,
+     "summary": "20일선 근처, 진입 적기 (20일선 대비 +4.8%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 5.8%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 175200.0,
+    "stop": 166440.0,
+    "target": 192720.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "018260.KS",
+   "action": "HOLD",
+   "score": 0.198,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 매수를 거절했으며 현재 보유하고 있지 않아 BUY와 SELL이 불가능하므로 보류합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": 0.8,
+     "summary": "거래량 급증 + 상승 (평소 대비 2.3배), 하루 +0.7%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.1,
+     "summary": "단기 하락추세, MACD 양, RSI 53"
+    },
+    {
+     "agent": "MILES",
+     "score": 0.5,
+     "summary": "20일선 근처, 진입 적기 (20일선 대비 +3.2%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 215000.0,
+    "stop": 204250.0,
+    "target": 236500.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "011070.KS",
+   "action": "HOLD",
+   "score": -0.572,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD의 변동성 과다 거절 및 현재 보유하지 않아 BUY가 불가하고, 확신이 부족해 HOLD합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.3배), 하루 -1.8%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 31"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -24.0%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 11.0%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 372000.0,
+    "stop": 353400.0,
+    "target": 409200.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "000720.KS",
+   "action": "HOLD",
+   "score": -0.446,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며, 팀 의견이 전반적으로 부정적이어서 매수는 불가하고 보유도 없으므로 보류합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.896,
+     "summary": "평범한 거래량 (평소 대비 0.3배), 하루 -2.9%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.4,
+     "summary": "단기 하락추세, MACD 음, RSI 30"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -13.6%), 최대 1주"
     }
    ],
    "risk": {
@@ -2565,597 +2326,81 @@
     ]
    },
    "plan": {
-    "entry": 48050.0,
-    "stop": 45647.5,
-    "target": 52855.0,
-    "qty": 5
+    "entry": 89800.0,
+    "stop": 85310.0,
+    "target": 98780.0,
+    "qty": 1
    }
   },
   {
-   "symbol": "009830.KS",
+   "symbol": "000100.KS",
    "action": "HOLD",
-   "score": -0.57,
+   "score": 0.018,
    "qty": 0,
-   "source": "규칙",
-   "reason": "",
+   "source": "AI",
+   "reason": "팀 의견이 상쇄되고 LLOYD 리스크 통과이지만 확신이 부족해 현재 보유 상태를 유지합니다.",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
     },
     {
      "agent": "OSCAR",
      "score": -1.0,
-     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -1.2%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 41"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -11.7%), 최대 8주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 8.8%)",
-     "보유 종목 5개 꽉 참"
-    ]
-   },
-   "plan": {
-    "entry": 28750.0,
-    "stop": 27312.5,
-    "target": 31625.0,
-    "qty": 8
-   }
-  },
-  {
-   "symbol": "247540.KQ",
-   "action": "HOLD",
-   "score": -0.509,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.696,
-     "summary": "평범한 거래량 (평소 대비 0.8배), 하루 -4.7% · 악재 뉴스: 에코프로비엠, 8천861억 유상증자…내달 5일 신주 상장"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 39"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -16.0%), 최대 2주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 10.1%)",
-     "보유 종목 5개 꽉 참"
-    ]
-   },
-   "plan": {
-    "entry": 93600.0,
-    "stop": 88920.0,
-    "target": 102960.0,
-    "qty": 2
-   }
-  },
-  {
-   "symbol": "086520.KQ",
-   "action": "HOLD",
-   "score": -0.509,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.696,
-     "summary": "평범한 거래량 (평소 대비 0.7배), 하루 -4.9% · 악재 뉴스: 에코프로비엠, 8천861억 유상증자…내달 5일 신주 상장"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 39"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -12.7%), 최대 3주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 9.0%)",
-     "보유 종목 5개 꽉 참"
-    ]
-   },
-   "plan": {
-    "entry": 73400.0,
-    "stop": 69730.0,
-    "target": 80740.0,
-    "qty": 3
-   }
-  },
-  {
-   "symbol": "196170.KQ",
-   "action": "HOLD",
-   "score": -0.281,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.605,
-     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -2.4%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.1,
-     "summary": "단기 하락추세, MACD 양, RSI 39"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -6.8%), 최대 1주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 5.8%)",
-     "보유 종목 5개 꽉 참"
-    ]
-   },
-   "plan": {
-    "entry": 225500.0,
-    "stop": 214225.0,
-    "target": 248050.0,
-    "qty": 1
-   }
-  },
-  {
-   "symbol": "028300.KQ",
-   "action": "HOLD",
-   "score": 0.11,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.0,
-     "summary": "평범한 거래량 (평소 대비 0.2배), 하루 +1.0%"
-    },
-    {
-     "agent": "RAY",
-     "score": 0.1,
-     "summary": "단기 상승추세, MACD 음, RSI 55"
-    },
-    {
-     "agent": "MILES",
-     "score": 0.5,
-     "summary": "20일선 근처, 진입 적기 (20일선 대비 +0.9%), 최대 6주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 6.3%)",
-     "보유 종목 5개 꽉 참"
-    ]
-   },
-   "plan": {
-    "entry": 41700.0,
-    "stop": 39615.0,
-    "target": 45870.0,
-    "qty": 6
-   }
-  },
-  {
-   "symbol": "141080.KQ",
-   "action": "HOLD",
-   "score": -0.16,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.0,
-     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -1.6%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.1,
-     "summary": "단기 하락추세, MACD 양, RSI 37"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -8.2%), 최대 3주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 7.1%)",
-     "보유 종목 5개 꽉 참"
-    ]
-   },
-   "plan": {
-    "entry": 68300.0,
-    "stop": 64885.0,
-    "target": 75130.0,
-    "qty": 3
-   }
-  },
-  {
-   "symbol": "000250.KQ",
-   "action": "HOLD",
-   "score": -0.163,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -0.367,
-     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -0.2%"
-    },
-    {
-     "agent": "RAY",
-     "score": 0.1,
-     "summary": "단기 상승추세, MACD 음, RSI 52"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -0.4%), 최대 1주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 10.2%)",
-     "보유 종목 5개 꽉 참"
-    ]
-   },
-   "plan": {
-    "entry": 200000.0,
-    "stop": 190000.0,
-    "target": 220000.0,
-    "qty": 1
-   }
-  },
-  {
-   "symbol": "277810.KQ",
-   "action": "HOLD",
-   "score": -0.351,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.095,
-     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -2.9%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 35"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -12.0%), 최대 0주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 7.2%)",
-     "보유 종목 5개 꽉 참",
-     "살 수 있는 수량 없음 (비중 한도·현금)"
-    ]
-   },
-   "plan": {
-    "entry": 354500.0,
-    "stop": 336775.0,
-    "target": 389950.0,
-    "qty": 0
-   }
-  },
-  {
-   "symbol": "263750.KQ",
-   "action": "HOLD",
-   "score": 0.47,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.75,
-     "summary": "평범한 거래량 (평소 대비 0.9배), 하루 +1.2%"
+     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -3.4%"
     },
     {
      "agent": "RAY",
      "score": 0.7,
-     "summary": "단기 상승추세, MACD 양, RSI 58"
+     "summary": "단기 상승추세, MACD 양, RSI 55"
     },
     {
      "agent": "MILES",
-     "score": 0.5,
-     "summary": "20일선 근처, 진입 적기 (20일선 대비 +4.4%), 최대 0주"
+     "score": 0.1,
+     "summary": "다소 올라온 자리 (20일선 대비 +5.4%), 최대 1주"
     }
    ],
    "risk": {
-    "approved": false,
+    "approved": true,
     "reasons": [
-     "살 수 있는 수량 없음 (비중 한도·현금)"
+     "변동성 4.6%, 이상 없음"
     ]
    },
    "plan": {
-    "entry": 34850.0,
-    "stop": 33107.5,
-    "target": 38335.0,
-    "qty": 0
+    "entry": 81800.0,
+    "stop": 77710.0,
+    "target": 89980.0,
+    "qty": 1
    }
   },
   {
-   "symbol": "214150.KQ",
+   "symbol": "128940.KS",
    "action": "HOLD",
-   "score": -0.142,
+   "score": -0.467,
    "qty": 0,
-   "source": "규칙",
-   "reason": "",
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며 팀 의견이 전반적으로 부정적이므로 매수할 수 없고, 보유하지 않아 매도도 불가해 HOLD합니다.",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.091,
-     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -2.3%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.1,
-     "summary": "단기 하락추세, MACD 양, RSI 37"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -6.1%), 최대 9주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 5.3%)",
-     "보유 종목 5개 꽉 참"
-    ]
-   },
-   "plan": {
-    "entry": 27750.0,
-    "stop": 26362.5,
-    "target": 30525.0,
-    "qty": 9
-   }
-  },
-  {
-   "symbol": "214450.KQ",
-   "action": "HOLD",
-   "score": -0.465,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
     },
     {
      "agent": "OSCAR",
      "score": -1.0,
-     "summary": "평범한 거래량 (평소 대비 1.1배), 하루 -6.3%"
+     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -1.4%"
     },
     {
      "agent": "RAY",
      "score": -0.4,
-     "summary": "단기 하락추세, MACD 음, RSI 23"
+     "summary": "단기 하락추세, MACD 음, RSI 28"
     },
     {
      "agent": "MILES",
      "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -17.7%), 최대 1주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 6.7%)",
-     "보유 종목 5개 꽉 참"
-    ]
-   },
-   "plan": {
-    "entry": 239000.0,
-    "stop": 227050.0,
-    "target": 262900.0,
-    "qty": 1
-   }
-  },
-  {
-   "symbol": "145020.KQ",
-   "action": "HOLD",
-   "score": 0.156,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": 0.177,
-     "summary": "평범한 거래량 (평소 대비 0.8배), 하루 +0.1%"
-    },
-    {
-     "agent": "RAY",
-     "score": 0.7,
-     "summary": "단기 상승추세, MACD 양, RSI 39"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -0.1%), 최대 1주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "보유 종목 5개 꽉 참"
-    ]
-   },
-   "plan": {
-    "entry": 181000.0,
-    "stop": 171950.0,
-    "target": 199100.0,
-    "qty": 1
-   }
-  },
-  {
-   "symbol": "058470.KQ",
-   "action": "HOLD",
-   "score": -0.57,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -1.0,
-     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -4.5%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 36"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -18.0%), 최대 4주"
-    }
-   ],
-   "risk": {
-    "approved": false,
-    "reasons": [
-     "변동성 과다 (하루 평균 8.5%)",
-     "보유 종목 5개 꽉 참"
-    ]
-   },
-   "plan": {
-    "entry": 61300.0,
-    "stop": 58235.0,
-    "target": 67430.0,
-    "qty": 4
-   }
-  },
-  {
-   "symbol": "039030.KQ",
-   "action": "HOLD",
-   "score": -0.57,
-   "qty": 0,
-   "source": "규칙",
-   "reason": "",
-   "opinions": [
-    {
-     "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
-    },
-    {
-     "agent": "OSCAR",
-     "score": -1.0,
-     "summary": "평범한 거래량 (평소 대비 0.9배), 하루 -2.7%"
-    },
-    {
-     "agent": "RAY",
-     "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 38"
-    },
-    {
-     "agent": "MILES",
-     "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -16.6%), 최대 0주"
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -20.1%), 최대 0주"
     }
    ],
    "risk": {
@@ -3167,83 +2412,859 @@
     ]
    },
    "plan": {
-    "entry": 399000.0,
-    "stop": 379050.0,
-    "target": 438900.0,
+    "entry": 356500.0,
+    "stop": 338675.0,
+    "target": 392150.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "326030.KS",
+   "action": "HOLD",
+   "score": 0.335,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 매수를 거절했으며 팀 의견이 약간 긍정적이지만 확신이 부족해 현재 보유 상태를 유지합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": 0.087,
+     "summary": "평범한 거래량 (평소 대비 1.0배), 하루 -0.4%"
+    },
+    {
+     "agent": "RAY",
+     "score": 0.7,
+     "summary": "단기 상승추세, MACD 양, RSI 51"
+    },
+    {
+     "agent": "MILES",
+     "score": 0.5,
+     "summary": "20일선 근처, 진입 적기 (20일선 대비 +3.0%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 76600.0,
+    "stop": 72770.0,
+    "target": 84260.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "271560.KS",
+   "action": "HOLD",
+   "score": 0.421,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 매수를 거절했고 팀 의견이 혼재하여 확신이 없으므로 HOLD로 판단합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": 0.516,
+     "summary": "평범한 거래량 (평소 대비 1.2배), 하루 +1.8%"
+    },
+    {
+     "agent": "RAY",
+     "score": 0.7,
+     "summary": "단기 상승추세, MACD 양, RSI 54"
+    },
+    {
+     "agent": "MILES",
+     "score": 0.5,
+     "summary": "20일선 근처, 진입 적기 (20일선 대비 +4.3%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 113300.0,
+    "stop": 107635.0,
+    "target": 124630.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "097950.KS",
+   "action": "HOLD",
+   "score": -0.454,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 매수를 거절했으며 현금·비중 한도로 매수 가능 수량이 없고 현재 보유하고 있지 않으므로 BUY가 불가능하고, 확신이 부족해 HOLD합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.408,
+     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -2.0% · 호재 뉴스: CJ제일제당, 출시 30주년 ‘햇반’ 2028년 연매출 목표 1조5000"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 34"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -5.2%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 170500.0,
+    "stop": 161975.0,
+    "target": 187550.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "011170.KS",
+   "action": "HOLD",
+   "score": -0.467,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며, 팀 의견이 전반적으로 부정적이므로 보류합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -2.7%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.4,
+     "summary": "단기 하락추세, MACD 음, RSI 26"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -17.4%), 최대 3주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 6.0%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 46850.0,
+    "stop": 44507.5,
+    "target": 51535.0,
+    "qty": 3
+   }
+  },
+  {
+   "symbol": "009830.KS",
+   "action": "HOLD",
+   "score": -0.572,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며 팀 의견이 전반적으로 부정적이므로 매수 금지, 보유하지 않아 매도도 불가해 HOLD합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -6.0%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 37"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -17.7%), 최대 5주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 9.2%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 26750.0,
+    "stop": 25412.5,
+    "target": 29425.0,
+    "qty": 5
+   }
+  },
+  {
+   "symbol": "247540.KQ",
+   "action": "HOLD",
+   "score": -0.572,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며, 팀 의견이 전반적으로 부정적이어서 보류합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -1.7%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 38"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -17.6%), 최대 1주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 10.3%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 91200.0,
+    "stop": 86640.0,
+    "target": 100320.0,
+    "qty": 1
+   }
+  },
+  {
+   "symbol": "086520.KQ",
+   "action": "HOLD",
+   "score": -0.572,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며 현재 보유하지 않아 BUY가 금지되고, 확신이 부족해 HOLD합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -2.3%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 37"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -15.1%), 최대 2주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 9.1%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 71000.0,
+    "stop": 67450.0,
+    "target": 78100.0,
+    "qty": 2
+   }
+  },
+  {
+   "symbol": "196170.KQ",
+   "action": "HOLD",
+   "score": -0.572,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD의 변동성 과다 거절 및 현재 보유하지 않아 BUY가 금지되고, SELL도 불가하므로 HOLD로 판단합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -1.3%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 37"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -7.9%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 5.9%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 221500.0,
+    "stop": 210425.0,
+    "target": 243650.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "028300.KQ",
+   "action": "HOLD",
+   "score": -0.572,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며 팀 평균 점수가 -0.57로 부정적이므로 매수 금지이고, 현재 보유하지 않아 매도도 불가해 HOLD합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.2배), 하루 -4.0%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 50"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -4.4%), 최대 3주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 6.7%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 39950.0,
+    "stop": 37952.5,
+    "target": 43945.0,
+    "qty": 3
+   }
+  },
+  {
+   "symbol": "141080.KQ",
+   "action": "HOLD",
+   "score": -0.362,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며, 팀 의견이 전반적으로 부정적이어서 매수는 불가하고 보유도 없으므로 보류합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -3.4%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.1,
+     "summary": "단기 하락추세, MACD 양, RSI 34"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -10.6%), 최대 2주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 7.0%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 65900.0,
+    "stop": 62605.0,
+    "target": 72490.0,
+    "qty": 2
+   }
+  },
+  {
+   "symbol": "000250.KQ",
+   "action": "HOLD",
+   "score": -0.511,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며 팀 의견이 전반적으로 부정적이어서 매수 금지, 보유하지 않아 매도도 불가하므로 보류합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.696,
+     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -3.5% · 악재 뉴스: 삼천당제약 ‘주가 급락’ 정면 대응…“하반기 최소 2건 추가 계약 목표”"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 48"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -5.0%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 10.2%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 192200.0,
+    "stop": 182590.0,
+    "target": 211420.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "277810.KQ",
+   "action": "HOLD",
+   "score": -0.562,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며 현재 보유하지 않아 BUY와 SELL이 불가능하므로 보류합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.948,
+     "summary": "평범한 거래량 (평소 대비 0.8배), 하루 +1.1%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 36"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -10.6%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 7.2%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 356500.0,
+    "stop": 338675.0,
+    "target": 392150.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "263750.KQ",
+   "action": "HOLD",
+   "score": 0.367,
+   "qty": 0,
+   "source": "AI",
+   "reason": "팀 의견이 약간 긍정적이지만 LLOYD가 매수 제한을 걸어 확신이 부족하므로 현재 보유 상태를 유지합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": 0.245,
+     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -0.3%"
+    },
+    {
+     "agent": "RAY",
+     "score": 0.7,
+     "summary": "단기 상승추세, MACD 양, RSI 56"
+    },
+    {
+     "agent": "MILES",
+     "score": 0.5,
+     "summary": "20일선 근처, 진입 적기 (20일선 대비 +3.3%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 34500.0,
+    "stop": 32775.0,
+    "target": 37950.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "214150.KQ",
+   "action": "HOLD",
+   "score": -0.301,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며 현재 보유하지 않아 BUY가 불가하고, 확신이 부족해 HOLD합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.696,
+     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -2.2% · 악재 뉴스: 클래시스, 국내·브라질 부진에 실적 컨센서스 하회 전망 By 알파경제 a"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.1,
+     "summary": "단기 하락추세, MACD 양, RSI 35"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -7.6%), 최대 5주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 5.4%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 27150.0,
+    "stop": 25792.5,
+    "target": 29865.0,
+    "qty": 5
+   }
+  },
+  {
+   "symbol": "214450.KQ",
+   "action": "HOLD",
+   "score": -0.467,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며, 팀 의견이 전반적으로 부정적이어서 매수 금지입니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -2.7%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.4,
+     "summary": "단기 하락추세, MACD 음, RSI 22"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -18.5%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 6.5%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 233000.0,
+    "stop": 221350.0,
+    "target": 256300.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "145020.KQ",
+   "action": "HOLD",
+   "score": -0.048,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 매수를 거절했고 현재 보유하지 않아 BUY와 SELL이 불가능하므로 HOLD합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -0.829,
+     "summary": "평범한 거래량 (평소 대비 0.3배), 하루 -1.3%"
+    },
+    {
+     "agent": "RAY",
+     "score": 0.7,
+     "summary": "단기 상승추세, MACD 양, RSI 36"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -1.6%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 177700.0,
+    "stop": 168815.0,
+    "target": 195470.0,
+    "qty": 0
+   }
+  },
+  {
+   "symbol": "058470.KQ",
+   "action": "HOLD",
+   "score": -0.572,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며 현재 보유하지 않아 BUY가 금지되고, 확신이 부족해 HOLD합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.2배), 하루 -2.4%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 35"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -18.8%), 최대 2주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 8.3%)",
+     "보유 종목 5개 꽉 참"
+    ]
+   },
+   "plan": {
+    "entry": 60100.0,
+    "stop": 57095.0,
+    "target": 66110.0,
+    "qty": 2
+   }
+  },
+  {
+   "symbol": "039030.KQ",
+   "action": "HOLD",
+   "score": -0.572,
+   "qty": 0,
+   "source": "AI",
+   "reason": "LLOYD이 변동성 과다로 거절했으며 현재 보유하고 있지 않아 BUY가 불가하고, 확신이 없어 HOLD합니다.",
+   "opinions": [
+    {
+     "agent": "JOY",
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
+    },
+    {
+     "agent": "OSCAR",
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -4.8%"
+    },
+    {
+     "agent": "RAY",
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 36"
+    },
+    {
+     "agent": "MILES",
+     "score": -0.3,
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -18.9%), 최대 0주"
+    }
+   ],
+   "risk": {
+    "approved": false,
+    "reasons": [
+     "변동성 과다 (하루 평균 8.3%)",
+     "보유 종목 5개 꽉 참",
+     "살 수 있는 수량 없음 (비중 한도·현금)"
+    ]
+   },
+   "plan": {
+    "entry": 384500.0,
+    "stop": 365275.0,
+    "target": 422950.0,
     "qty": 0
    }
   },
   {
    "symbol": "357780.KQ",
    "action": "HOLD",
-   "score": -0.57,
+   "score": -0.572,
    "qty": 0,
-   "source": "규칙",
-   "reason": "",
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며 현재 보유하지 않아 매수 금지이므로 보류합니다.",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
     },
     {
      "agent": "OSCAR",
      "score": -1.0,
-     "summary": "평범한 거래량 (평소 대비 0.6배), 하루 -0.2%"
+     "summary": "평범한 거래량 (평소 대비 0.7배), 하루 -5.0%"
     },
     {
      "agent": "RAY",
      "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 34"
+     "summary": "단기 하락추세, MACD 음, RSI 30"
     },
     {
      "agent": "MILES",
      "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -18.2%), 최대 0주"
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -21.6%), 최대 0주"
     }
    ],
    "risk": {
     "approved": false,
     "reasons": [
-     "변동성 과다 (하루 평균 8.4%)",
+     "변동성 과다 (하루 평균 8.8%)",
      "보유 종목 5개 꽉 참",
      "살 수 있는 수량 없음 (비중 한도·현금)"
     ]
    },
    "plan": {
-    "entry": 302500.0,
-    "stop": 287375.0,
-    "target": 332750.0,
+    "entry": 288000.0,
+    "stop": 273600.0,
+    "target": 316800.0,
     "qty": 0
    }
   },
   {
    "symbol": "240810.KQ",
    "action": "HOLD",
-   "score": -0.57,
+   "score": -0.572,
    "qty": 0,
-   "source": "규칙",
-   "reason": "",
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며, 팀 의견이 전반적으로 부정적이어서 보류합니다.",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
     },
     {
      "agent": "OSCAR",
      "score": -1.0,
-     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -2.6%"
+     "summary": "평범한 거래량 (평소 대비 0.3배), 하루 -5.1%"
     },
     {
      "agent": "RAY",
      "score": -0.7,
-     "summary": "단기 하락추세, MACD 음, RSI 34"
+     "summary": "단기 하락추세, MACD 음, RSI 33"
     },
     {
      "agent": "MILES",
      "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -22.9%), 최대 2주"
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -24.4%), 최대 1주"
     }
    ],
    "risk": {
@@ -3254,39 +3275,39 @@
     ]
    },
    "plan": {
-    "entry": 94000.0,
-    "stop": 89300.0,
-    "target": 103400.0,
-    "qty": 2
+    "entry": 90700.0,
+    "stop": 86165.0,
+    "target": 99770.0,
+    "qty": 1
    }
   },
   {
    "symbol": "035900.KQ",
    "action": "HOLD",
-   "score": 0.029,
+   "score": -0.572,
    "qty": 0,
-   "source": "규칙",
-   "reason": "",
+   "source": "AI",
+   "reason": "LLOYD가 거절했으며 현재 보유하지 않아 매수 금지, 매도도 불가하므로 보류합니다.",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
     },
     {
      "agent": "OSCAR",
-     "score": -0.455,
-     "summary": "평범한 거래량 (평소 대비 0.5배), 하루 -3.1% · 호재 뉴스: [MK 골든크로스 돌파종목 : JYP Ent.(035900) & 레이(2"
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -1.5%"
     },
     {
      "agent": "RAY",
-     "score": 0.7,
-     "summary": "단기 상승추세, MACD 양, RSI 40"
+     "score": -0.7,
+     "summary": "단기 하락추세, MACD 음, RSI 38"
     },
     {
      "agent": "MILES",
      "score": -0.3,
-     "summary": "20일선 아래, 진입 보류 (20일선 대비 -3.4%), 최대 6주"
+     "summary": "20일선 아래, 진입 보류 (20일선 대비 -4.8%), 최대 4주"
     }
    ],
    "risk": {
@@ -3296,39 +3317,39 @@
     ]
    },
    "plan": {
-    "entry": 36900.0,
-    "stop": 35055.0,
-    "target": 40590.0,
-    "qty": 6
+    "entry": 36300.0,
+    "stop": 34485.0,
+    "target": 39930.0,
+    "qty": 4
    }
   },
   {
    "symbol": "041510.KQ",
    "action": "HOLD",
-   "score": 0.281,
+   "score": 0.118,
    "qty": 0,
-   "source": "규칙",
-   "reason": "",
+   "source": "AI",
+   "reason": "LLOYD가 변동성 과다로 거절했으며 현재 보유하지 않아 매수·매도가 불가하므로 보류합니다.",
    "opinions": [
     {
      "agent": "JOY",
-     "score": -0.249,
-     "summary": "코스피 하락 흐름, 5일 -3.2% · 환율 20일 -3.1% · 유가 +8.6% · 美10년물 -21bp · VIX 19.0"
+     "score": -0.261,
+     "summary": "코스피 하락 흐름, 5일 -4.0% · 환율 20일 -2.4% · 유가 +9.1% · 美10년물 -20bp · VIX 19.5"
     },
     {
      "agent": "OSCAR",
-     "score": -0.197,
-     "summary": "평범한 거래량 (평소 대비 0.7배), 하루 -1.6%"
+     "score": -1.0,
+     "summary": "평범한 거래량 (평소 대비 0.4배), 하루 -1.7%"
     },
     {
      "agent": "RAY",
      "score": 0.7,
-     "summary": "단기 상승추세, MACD 양, RSI 55"
+     "summary": "단기 상승추세, MACD 양, RSI 50"
     },
     {
      "agent": "MILES",
      "score": 0.5,
-     "summary": "20일선 근처, 진입 적기 (20일선 대비 +2.8%), 최대 3주"
+     "summary": "20일선 근처, 진입 적기 (20일선 대비 +0.2%), 최대 1주"
     }
    ],
    "risk": {
@@ -3339,10 +3360,10 @@
     ]
    },
    "plan": {
-    "entry": 83700.0,
-    "stop": 79515.0,
-    "target": 92070.0,
-    "qty": 3
+    "entry": 81500.0,
+    "stop": 77425.0,
+    "target": 89650.0,
+    "qty": 1
    }
   }
  ]
