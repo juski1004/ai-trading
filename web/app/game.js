@@ -342,7 +342,7 @@
         return `<button type="button" role="listitem" data-g="lim" data-v="${p}" class="${p === lim ? "on " : ""}${p === onTick(s.price) ? "cl " : ""}${r > 0.0001 ? "up" : r < -0.0001 ? "down" : ""}"><span class="num">${won(p)}</span><small class="num">${pct(r)}</small><em${p === onTick(s.price) ? "" : ' class="no"'}>종가</em><i${s.h != null && p <= s.h && p >= s.l ? "" : ' class="no"'}></i></button>`; }).join("")}</div>
       <p class="sub g-ladn">가격 단계는 호가 단위예요. <i class="g-dot"></i> 표시는 ${esc(SC.date.slice(5).replace("-", "."))}에 실제로 거래된 가격대(저가~고가)예요.</p>` : "";
     const quick = L ? (B ? [["종가", 0], ["-1%", -1], ["-3%", -3], ["-5%", -5]] : [["종가", 0], ["+1%", 1], ["+3%", 3], ["+5%", 5]]) : [];
-    const btn = L ? `${won(lim)}원에 ${B ? "사기" : "팔기"} 주문` : live() ? (B ? "종가로 사기" : "종가로 팔기") : (B ? "장 마감 종가로 사기 (예약)" : "장 마감 종가로 팔기 (예약)");
+    const btn = L ? `${won(lim)}원에 ${qv ? won(qv) + "주 " : ""}${B ? "사기" : "팔기"} 주문` : live() ? (B ? "종가로 사기" : "종가로 팔기") : (B ? "장 마감 종가로 사기 (예약)" : "장 마감 종가로 팔기 (예약)");
     const how = L ? (B ? `다음 장에서 저가가 <b>${won(lim)}원 이하</b>로 내려오면 ${won(lim)}원(시가가 더 낮으면 시가)에 체결돼요. 체결될 때까지 유지돼요.`
                        : `다음 장에서 고가가 <b>${won(lim)}원 이상</b>으로 올라가면 ${won(lim)}원(시가가 더 높으면 시가)에 체결돼요. 체결될 때까지 유지돼요.`)
       : live() ? `${esc(SC.date)} 종가로 바로 체결돼요` : `지금은 장 마감 전이라 <b>다음 장 마감 종가</b>로 체결돼요 (예약 주문)`;
@@ -358,15 +358,15 @@
       <div class="g-otype" role="group" aria-label="주문 방식"><button type="button" data-g="otype" data-v="M" aria-pressed="${!L}">종가 주문</button><button type="button" data-g="otype" data-v="L" aria-pressed="${L}">지정가</button></div>
       ${L ? `<label class="g-k" for="glim">주문 가격 (지정가)</label>
       <div class="g-qty g-lim"><button type="button" data-g="tick" data-v="-1" aria-label="한 호가 내리기">−</button><input id="glim" type="number" inputmode="numeric" min="1" step="${tick(lim)}" value="${lim}"><span>원</span><button type="button" data-g="tick" data-v="1" aria-label="한 호가 올리기">+</button></div>
-      <div class="chips">${quick.map(([t, r]) => `<button type="button" data-g="limq" data-v="${r}">${t}</button>`).join("")}</div>
-      ${ladder}` : ""}
-      <label class="g-k" for="gq">수량 (최대 ${won(maxQ)}주${B && reserved(g) ? ` · 다른 매수 주문에 묶인 돈 ${won(reserved(g))}원 제외` : ""}${!B && pendS ? ` · 매도 대기 ${won(pendS)}주 제외` : ""})</label>
+      <div class="chips">${quick.map(([t, r]) => `<button type="button" data-g="limq" data-v="${r}">${t}</button>`).join("")}</div>` : ""}
+      <label class="g-k" for="gq" id="gqlab">수량 (최대 ${won(maxQ)}주${B && reserved(g) ? ` · 다른 매수 주문에 묶인 돈 ${won(reserved(g))}원 제외` : ""}${!B && pendS ? ` · 매도 대기 ${won(pendS)}주 제외` : ""})</label>
       <div class="g-qty"><input id="gq" type="number" inputmode="numeric" min="0" max="${maxQ}" step="1" value="${qv}"><span>주</span></div>
       <div class="chips">${[["10%", 0.1], ["25%", 0.25], ["50%", 0.5], ["최대", 1]].map(([t, f]) => `<button type="button" data-g="frac" data-v="${f}" data-max="${maxQ}">${t}</button>`).join("")}</div>
       <p class="sub" id="gamt">주문 금액 ${won(qv * px)}원 · 주문 가능 현금 ${won(free)}원</p>
-      <p class="sub g-how">${how}</p>
-      <button class="cta ${B ? "g-buy" : "g-sell"}" type="button" data-g="order" data-v="${esc(sym)}" ${maxQ && !bad ? "" : "disabled"}>${btn}</button>
+      <p class="sub g-how" id="ghow">${how}</p>
+      <button class="cta ${B ? "g-buy" : "g-sell"}" id="gbtn" type="button" data-g="order" data-v="${esc(sym)}" ${maxQ && !bad ? "" : "disabled"}>${btn}</button>
       ${msg ? `<p class="g-msg" role="status">${esc(msg)}</p>` : ""}
+      ${L ? `<label class="g-k">가격 단계표 · 누르면 그 가격이 주문 가격이 돼요</label>${ladder}` : ""}
     </section>
     ${(g.orders || []).some(o => o.sym === sym) ? `<a class="back" href="#game">이 종목 미체결 주문 보기 ›</a>` : ""}
     ${s.score == null ? "" : `<a class="back" href="#analysis/${encodeURIComponent(sym)}">이 종목 AI 분석 보기 ›</a>`}`;
@@ -462,15 +462,31 @@
   document.addEventListener("change", e => {
     if (e.target.matches('#gameRoot [data-g="auto"]')) { G.autoExit = e.target.checked; save(KEY, G); }
   });
+  /* 가격·수량을 바꾸면 주문 금액·최대 수량·버튼 문구가 바로 바뀜 */
   document.addEventListener("input", e => {
-    if ((e.target.id !== "gq" && e.target.id !== "glim") || !SC) return;
-    const [, arg] = location.hash.slice(1).split("/"), s = stockOf(decodeURIComponent(arg || ""));
-    const el = document.getElementById("gamt"); if (!s || !el) return;
+    if ((e.target.id !== "gq" && e.target.id !== "glim") || !SC || !G) return;
     if (e.target.id === "glim") { const v = Math.floor(+e.target.value || 0); if (v > 0) lim = v; }
     else qv = Math.max(0, Math.floor(+e.target.value || 0));
-    el.textContent = `주문 금액 ${won(qv * (otype === "L" ? lim : s.price))}원 · 주문 가능 현금 ${won(Math.max(0, G.cash - reserved(G)))}원`;
+    liveForm();
   });
-  document.addEventListener("change", e => { if (e.target.id === "glim" && lim) { lim = onTick(lim); redraw(); } });
+  function liveForm() {
+    const [, arg] = location.hash.slice(1).split("/"), s = stockOf(decodeURIComponent(arg || "")); if (!s || !G) return;
+    const L = otype === "L", B = side === "B", px = L ? lim : s.price, free = Math.max(0, G.cash - reserved(G));
+    const sym = decodeURIComponent(arg), held = G.pos[sym];
+    const pendS = (G.orders || []).filter(o => o.sym === sym && o.side === "S").reduce((a, o) => a + o.qty, 0);
+    const maxQ = B ? Math.floor(free / (px * (1 + R.fee))) : Math.max(0, (held ? held.qty : 0) - pendS);
+    const $ = id => document.getElementById(id);
+    if ($("gamt")) $("gamt").textContent = `주문 금액 ${won(qv * px)}원 · 주문 가능 현금 ${won(free)}원`;
+    if ($("gqlab")) $("gqlab").firstChild.textContent = $("gqlab").firstChild.textContent.replace(/최대 [\d,]+주/, `최대 ${won(maxQ)}주`);
+    document.querySelectorAll('[data-g="frac"]').forEach(b => { b.dataset.max = maxQ; });
+    if ($("gq")) $("gq").max = maxQ;
+    const over = qv > maxQ;
+    if ($("gbtn")) { $("gbtn").textContent = L ? `${won(lim)}원에 ${qv ? won(qv) + "주 " : ""}${B ? "사기" : "팔기"} 주문` : $("gbtn").textContent; $("gbtn").disabled = !maxQ || over; }
+    if (over && $("gamt")) $("gamt").textContent += ` · 최대 ${won(maxQ)}주까지 돼요`;
+    if (L && $("ghow")) $("ghow").innerHTML = $("ghow").innerHTML.replace(/[\d,]+원/g, won(lim) + "원");
+    document.querySelectorAll('.g-lad button').forEach(b => b.classList.toggle("on", +b.dataset.v === lim));
+  }
+  document.addEventListener("change", e => { if (e.target.id === "glim" && lim) { lim = onTick(lim); e.target.value = lim; liveForm(); } }); // 호가 단위로 맞추되 화면은 다시 그리지 않음(입력 중인 칸 유지)
 
   /* 이 파일 전용 모양 */
   const css = document.createElement("style");
