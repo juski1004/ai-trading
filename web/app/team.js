@@ -50,12 +50,41 @@
   const call = () => CALL || "투자자님";
 
   /* ---------- 시작 연출 ---------- */
+  /* 로고가 날아와 박히는 소리: 휙(0~0.5초) → 쿵(0.5초) → 반짝(0.6초). 파일 없이 웹오디오로 합성.
+     브라우저가 사용자 조작 전 소리를 막으면(자동 재생 제한) 조용히 건너뜀 */
+  function introSfx() {
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+      const ac = new AC(); if (ac.state === "suspended") ac.resume().catch(() => {});
+      setTimeout(() => { if (ac.state !== "running") ac.close().catch(() => {}); }, 300);
+      const t0 = ac.currentTime + 0.02, out = ac.createGain(); out.gain.value = 0.45; out.connect(ac.destination);
+      const noise = dur => { const b = ac.createBuffer(1, Math.ceil(ac.sampleRate * dur), ac.sampleRate), d = b.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; const n = ac.createBufferSource(); n.buffer = b; return n; };
+      // 휙: 높은 소리에서 낮은 소리로 훑는 바람 소리
+      const w = noise(0.55), bp = ac.createBiquadFilter(), wg = ac.createGain();
+      bp.type = "bandpass"; bp.Q.value = 1.2; bp.frequency.setValueAtTime(3200, t0); bp.frequency.exponentialRampToValueAtTime(420, t0 + 0.48);
+      wg.gain.setValueAtTime(0.0001, t0); wg.gain.exponentialRampToValueAtTime(0.5, t0 + 0.32); wg.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.52);
+      w.connect(bp).connect(wg).connect(out); w.start(t0); w.stop(t0 + 0.55);
+      // 쿵: 낮게 떨어지는 소리 + 짧은 타격음
+      const hit = t0 + 0.5, o = ac.createOscillator(), og = ac.createGain();
+      o.type = "sine"; o.frequency.setValueAtTime(140, hit); o.frequency.exponentialRampToValueAtTime(42, hit + 0.35);
+      og.gain.setValueAtTime(0.0001, hit); og.gain.exponentialRampToValueAtTime(0.9, hit + 0.01); og.gain.exponentialRampToValueAtTime(0.0001, hit + 0.45);
+      o.connect(og).connect(out); o.start(hit); o.stop(hit + 0.5);
+      const c = noise(0.06), lp = ac.createBiquadFilter(), cg = ac.createGain(); lp.type = "lowpass"; lp.frequency.value = 1800;
+      cg.gain.setValueAtTime(0.35, hit); cg.gain.exponentialRampToValueAtTime(0.0001, hit + 0.06); c.connect(lp).connect(cg).connect(out); c.start(hit);
+      // 반짝: 고리가 퍼질 때 맑은 두 음
+      [[1318.5, 0.6], [1975.5, 0.68]].forEach(([f, d]) => { const b = ac.createOscillator(), bg = ac.createGain(); b.type = "triangle"; b.frequency.value = f;
+        bg.gain.setValueAtTime(0.0001, t0 + d); bg.gain.exponentialRampToValueAtTime(0.18, t0 + d + 0.01); bg.gain.exponentialRampToValueAtTime(0.0001, t0 + d + 0.7);
+        b.connect(bg).connect(out); b.start(t0 + d); b.stop(t0 + d + 0.75); });
+      setTimeout(() => ac.close().catch(() => {}), 2000);
+    } catch (e) {}
+  }
   function splash() {
     const el = document.createElement("div");
     el.className = "tm-splash"; el.setAttribute("aria-hidden", "true");
     el.innerHTML = `<div class="tm-burst"></div><div class="tm-title"><img src="${BASE}app/icon-192.png" alt=""><b>AI 투자연구소</b><small>PREMIUM AI RESEARCH</small></div>`;
     document.body.appendChild(el);
     const quick = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!quick) introSfx();
     setTimeout(() => { el.classList.add("out"); setTimeout(() => { el.remove(); onboard(); if (CALL && T) after(); }, 450); }, quick ? 600 : 2000);
   }
 
