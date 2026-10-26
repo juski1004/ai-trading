@@ -39,9 +39,14 @@
         const buy = t.side === "BUY";
         add(`ai:${t.time}:${t.symbol}`, RIV(), `알파 팀이 <b>${esc(nm(t.symbol))}</b> ${won(t.qty)}주를 ${won(t.price)}원에 ${buy ? "매수" : "매도"}했습니다.${t.realized_krw ? ` 실현 손익 ${won(t.realized_krw)}원입니다.` : ""}`, "#vs");
       });
-      const stock = Object.entries(st.positions || {}).reduce((a, [s, p]) => a + p.qty * (S[s] ? S[s].price : p.avg_price), 0), cash = st.cash_krw || 0;
-      const eqh = st.equity_history || [], base = eqh.length ? eqh[0][1] : 10_000_000, r = ((stock + cash) / base - 1) * 100;
-      add(`aibal:${SC.date}`, RIV(), `알파 계좌 현황입니다. 주식 <b>${won(stock)}원</b>, 현금 <b>${won(cash)}원</b>, 수익률 <b class="${r >= 0 ? "up" : "down"}">${pct(r)}</b>입니다.`, "#vs");
+      // 내 게임과 같은 날·같은 돈으로 시작한 '알파 팀' 계좌 (알파 원래 계좌가 아니라 내 상대 계좌)
+      const c = window.Game && Game.alphaClone ? Game.alphaClone(st, G, SC.date, Game.nowPx) : null;
+      if (c && !G.done) {
+        const stock = Math.max(0, c.eq - c.cash), r = c.ret, n = Object.keys(c.pos || {}).length;
+        add(`aibal:${SC.date}:${G.start}`, RIV(), n
+          ? `내 게임 상대 알파 팀 계좌예요 (${esc(G.start.slice(5).replace("-", "."))} 같은 돈으로 시작). 주식 <b>${won(stock)}원</b>, 현금 <b>${won(c.cash)}원</b>, 수익률 <b class="${r >= 0 ? "up" : "down"}">${pct(r)}</b>.`
+          : `내 게임 상대 알파 팀은 아직 산 종목이 없어요 (${esc(G.start.slice(5).replace("-", "."))} 같은 돈 ${won(c.base)}원으로 시작). 알파가 사면 바로 알려 드려요.`, "#vs");
+      }
     }
     // 2) 내 보유 종목: 목표가·손절가·AI 판단
     if (G && G.pos) Object.entries(G.pos).forEach(([s, p]) => {
