@@ -160,6 +160,22 @@ export default {
         if (!/^[a-z0-9]{6,10}$/.test(code)) return json(req, { error: "bad code" }, 400);
         return json(req, { count: +((await env.KV.get("invc:" + code)) || 0) });
       }
+      /* ---------- 기록 백업 (복구 코드 12자리) ----------
+         브라우저가 저장 공간을 지워도 코드로 되살린다. 코드는 해시로만 저장(목록으로 못 봄). 400일 보관. */
+      if (p === "/backup" && req.method === "POST") {
+        const b = await req.json().catch(() => ({}));
+        const code = String(b.code || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+        if (!/^[a-z0-9]{12}$/.test(code) || typeof b.data !== "string" || b.data.length > 300000) return json(req, { error: "bad backup" }, 400);
+        try { JSON.parse(b.data); } catch (e) { return json(req, { error: "bad backup" }, 400); }
+        await env.KV.put("bk:" + (await sha(code)), JSON.stringify({ at: Date.now(), data: b.data }), { expirationTtl: 400 * 86400 });
+        return json(req, { ok: true });
+      }
+      if (p === "/backup") {
+        const code = String(url.searchParams.get("code") || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+        if (!/^[a-z0-9]{12}$/.test(code)) return json(req, { error: "bad code" }, 400);
+        const rec = await env.KV.get("bk:" + (await sha(code)), "json");
+        return rec ? json(req, rec) : json(req, { error: "not found" }, 404);
+      }
       /* ---------- 사용 집계 ---------- */
       if (p === "/hit" && req.method === "POST") {
         const b = await req.json().catch(() => ({}));

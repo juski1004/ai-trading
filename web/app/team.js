@@ -86,7 +86,8 @@
         <li>실제 투자 판단과 결과(원금 손실 포함)의 책임은 본인에게 있어요.</li>
       </ul>
       <label class="tm-agree"><input type="checkbox" id="tmAgree"><span>만 14세 이상이고, 위 내용과 <a href="${BASE}app/terms.html" target="_blank" rel="noopener">이용약관·개인정보처리방침</a>에 동의해요</span></label>
-      <button class="cta" type="button" data-tm="agree" disabled>동의하고 시작</button>`);
+      <button class="cta" type="button" data-tm="agree" disabled>동의하고 시작</button>
+      <button class="cta sub2" type="button" data-bk="restore">예전 기록이 있어요 (복구 코드로 불러오기)</button>`);
   }
   function askName(edit) {
     sheet(`<div class="tm-step">${edit ? "호칭 바꾸기" : "처음 오셨네요"}</div>
@@ -179,6 +180,7 @@
     return `<section class="card tm-me"><div class="tm-hi"><div><div class="sub">반갑습니다</div><h2>${esc(call())}</h2></div><button class="pclink tm-sm" type="button" data-tm="rename">호칭 바꾸기</button></div></section>
     <section class="card"><div class="hd"><h2>나의 담당 팀</h2><button class="pclink tm-sm" type="button" data-tm="swap">매니저 교체</button></div>
       <div class="tm-list tm-mine">${card(d, false, "x")}${ms.map(m => card(m, false, "x")).join("")}</div></section>
+    ${window.Backup ? Backup.card() : ""}
     <section class="card"><div class="hd"><h2>초기화</h2></div>
       <p class="sub">이 기기에 저장된 기록을 지워요. 지운 기록은 되돌릴 수 없어요.</p>
       <button class="cta sub2" type="button" data-tm="resetrec">투자·AI 대결 기록만 초기화</button>
