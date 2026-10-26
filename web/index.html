@@ -1975,6 +1975,7 @@ function spoken(k){
   const body=BRIEF[k].l.map(h=>{box.innerHTML=h;box.querySelectorAll('.bcall,.bwho').forEach(e=>e.remove());return box.textContent.trim()}).filter(Boolean).join('\n');
   return BRIEF[k].t.replace(/ · /g,', ')+'.'+String.fromCharCode(10)+body// 이름·호칭은 읽지 않고 '수급', '시황'처럼 파트 이름으로 시작
     .replace(/%p/g,' 퍼센트포인트').replace(/%/g,' 퍼센트')// '%.'를 '퍼센트 사인'으로 읽지 않게
+    .replace(/POSCO|NAVER|KAKAO|HYBE|S-?OIL|KT&G|SOOP|LOTTE/gi,w=>BRAND[w.toUpperCase().replace('-','')]||w)// 회사 이름은 한글 이름대로 (POSCO → 포스코)
     .replace(/S&P/g,'SP').replace(/\b[A-Z]{2,6}\b/g,w=>[...w].map(c=>ABC[c]).join(''))// HMM → 에이치엠엠, SK → 에스케이
     .replace(/[▲▼]\s*/g,'').replace(/\[(호재|악재|중립)\]/g,'$1,').replace(/\s*\([^()\d]*\)/g,'')// 기호·출처 괄호는 읽지 않음
     .replace(/((?:19|20)\d{2})[.\-/](\d{1,2})[.\-/](\d{1,2})(?![\d])/g,(s,y,m,d)=>md(m,d)?`${y}년 ${n0(m)}월 ${n0(d)}일`:s)
@@ -1993,6 +1994,7 @@ function spoken(k){
     // 된소리로 읽는 낱말만(앞이 한글이 아닐 때) — '권유가' 같은 조사 '가'는 그대로
     .replace(/(^|[^가-힣])(저평|고평|재평|최고|최저|목표|현재|매입|매도|유|주|종|고|저|물|평|원|단)가(?=[^가-힣]|$|[은는이을를도와의에로만])/g,'$1$2까');
 }
+const BRAND={POSCO:'포스코',NAVER:'네이버',KAKAO:'카카오',HYBE:'하이브',SOIL:'에쓰오일','KT&G':'케이티앤지',SOOP:'숲',LOTTE:'롯데'};
 const ABC={A:'에이',B:'비',C:'씨',D:'디',E:'이',F:'에프',G:'지',H:'에이치',I:'아이',J:'제이',K:'케이',L:'엘',M:'엠',N:'엔',O:'오',P:'피',Q:'큐',R:'알',S:'에스',T:'티',U:'유',V:'브이',W:'더블유',X:'엑스',Y:'와이',Z:'지'};
 /* 정수를 한자어 수로(1330 → 천삼백삼십) */
 function sino(n){if(!n)return '영';const D='영일이삼사오육칠팔구',U=['','십','백','천'],G=['','만','억','조'];let out='',g=0;
