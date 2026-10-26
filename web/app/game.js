@@ -228,7 +228,9 @@
         <div class="tile"><div class="k">거래 / 승률</div><div class="v num">${r.trades}회 · ${r.win == null ? "-" : Math.round(r.win) + "%"}</div></div></div>
         <button class="cta" type="button" data-g="new">새 게임 시작</button></section>${reviewView(g)}${tradesView(g)}`;
     }
-    return `<section class="card">
+    return `<section class="card g-find"><label class="g-k" for="gsearch" style="margin-top:0">🔎 종목 찾아서 바로 사고팔기</label>
+      <input id="gsearch" type="search" placeholder="종목 이름 또는 코드 (예: 삼성전자, 005930)" autocomplete="off"><ul id="gsres" class="g-sres"></ul></section>
+    <section class="card">
       <div class="hd"><h2>내 게임 계좌</h2><span class="sub">D-${left} · ${esc(g.end.slice(5).replace("-", "."))} 종료</span></div>
       <div class="g-big num">${won(eq)}<small>원</small></div>
       <div class="g-prog"><i style="width:${Math.min(100, passed / g.days * 100)}%"></i></div>
@@ -244,10 +246,11 @@
       ${pos.length ? (() => { const rowsP = pos.map(([sym, p]) => { const now = priceOf(sym) ?? p.last, val = now * p.qty, cost = p.avg * p.qty; return { sym, p, now, val, pnl: val - cost, r: (now / p.avg - 1) * 100 }; });
         const tv = rowsP.reduce((a, x) => a + x.val, 0), tp = rowsP.reduce((a, x) => a + x.pnl, 0), tc = tv - tp;
         return `<div class="g-hsum"><span>평가금액<b class="num">${won(tv)}원</b></span><span>평가손익<b class="num ${cls(tp)}">${tp >= 0 ? "+" : ""}${won(tp)}원</b></span><span>수익률<b class="num ${cls(tc ? tp / tc * 100 : 0)}">${pct(tc ? tp / tc * 100 : 0)}</b></span></div>
-        <ul class="list">${rowsP.map(x => `<li><button class="row g-hold" type="button" data-g="open" data-v="${esc(x.sym)}">
+        <ul class="list">${rowsP.map(x => `<li class="g-hli"><button class="row g-hold" type="button" data-g="open" data-v="${esc(x.sym)}">
         <span style="min-width:0"><div class="nm">${esc(x.p.name)}</div><div class="meta num">보유 ${won(x.p.qty)}주 · 평단 ${won(x.p.avg)} · 현재가 ${won(x.now)}</div></span>
-        <span class="rt"><div class="px num">${won(x.val)}</div><div class="sc num ${cls(x.r)}">${x.pnl >= 0 ? "+" : ""}${won(x.pnl)} · ${pct(x.r)}</div></span></button></li>`).join("")}</ul>`; })()
-        : `<p class="empty">아직 산 종목이 없어요. <a href="#analysis">분석 탭</a>에서 종목을 골라 "모의투자 해 보기"를 눌러 보세요.</p>`}
+        <span class="rt"><div class="px num">${won(x.val)}</div><div class="sc num ${cls(x.r)}">${x.pnl >= 0 ? "+" : ""}${won(x.pnl)} · ${pct(x.r)}</div></span></button>
+        <div class="g-hbtn"><button type="button" class="b" data-g="go" data-side="B" data-v="${esc(x.sym)}">사기</button><button type="button" class="s" data-g="go" data-side="S" data-v="${esc(x.sym)}">팔기</button></div></li>`).join("")}</ul>`; })()
+        : `<p class="empty">아직 산 종목이 없어요. <a href="#analysis">종목검색 탭</a>에서 종목을 골라 <b>사기</b>를 눌러 보세요. 위 검색 칸에서 바로 찾아도 돼요.</p>`}
       <label class="g-auto"><input type="checkbox" data-g="auto" ${g.autoExit ? "checked" : ""}> 자동 손절 −5% · 익절 +10%</label>
     </section>
     ${pos.length ? holdReview(g, pos) : ""}
@@ -369,6 +372,20 @@
     ${s.score == null ? "" : `<a class="back" href="#analysis/${encodeURIComponent(sym)}">이 종목 AI 분석 보기 ›</a>`}`;
   }
 
+  /* 다른 화면의 사기·팔기 버튼: 누른 쪽으로 주문 화면을 연다 */
+  document.addEventListener("click", e => { const a = e.target.closest("a[data-side]"); if (a) { side = a.dataset.side; qv = 0; } }, true);
+  /* 거래하기 탭 종목 검색 */
+  document.addEventListener("input", e => {
+    if (e.target.id !== "gsearch") return;
+    const q = e.target.value.trim().toLowerCase(), box = document.getElementById("gsres"); if (!box) return;
+    if (!q) { box.innerHTML = ""; return; }
+    const all = { ...((window.__PX && window.__PX.stocks) || {}), ...((SC && SC.stocks) || {}) };
+    const hit = Object.entries(all).filter(([k, x]) => (x.name || "").toLowerCase().includes(q) || (x.code || k).includes(q)).slice(0, 6);
+    box.innerHTML = hit.length ? hit.map(([k, x]) => `<li><span><b>${esc(x.name)}</b> <small class="num">${won(x.price)} <span class="${cls(x.chg)}">${pct(x.chg)}</span></small></span>
+      <span class="g-hbtn"><button type="button" class="b" data-g="go" data-side="B" data-v="${esc(k)}">사기</button><button type="button" class="s" data-g="go" data-side="S" data-v="${esc(k)}">팔기</button></span></li>`).join("")
+      : '<li class="sub">찾는 종목이 없어요. 시가총액 상위 종목만 거래할 수 있어요.</li>';
+  });
+
   /* 주문 결과 알림: 어느 화면이든 앱을 열면 새 장 마감 데이터로 체결 확인 후 알려 줌 */
   function toast(notes) {
     const old = document.getElementById("gToast"); if (old) old.remove();
@@ -427,6 +444,7 @@
     else if (a === "limq") { const s = stockOf(decodeURIComponent(location.hash.split("/")[1] || "")); if (s) lim = onTick(s.price * (1 + +v / 100)); }
     else if (a === "frac") { const q = document.getElementById("gq"); q.value = Math.floor(+b.dataset.max * +v); q.dispatchEvent(new Event("input", { bubbles: true })); return; }
     else if (a === "open") { location.hash = "game/" + encodeURIComponent(v); return; }
+    else if (a === "go") { side = b.dataset.side; qv = 0; location.hash = "game/" + encodeURIComponent(v); return; }
     else if (a === "order") {
       const q = Math.floor(+document.getElementById("gq").value || 0), s = stockOf(v);
       if (q > 0) window.dispatchEvent(new CustomEvent("aiLab:trade"));
@@ -476,6 +494,11 @@
   .g-toast{position:fixed;left:12px;right:12px;top:12px;z-index:80;max-width:480px;margin:0 auto;padding:12px 14px;border-radius:16px;background:#1d2033;color:#fff;font-size:14px;line-height:1.5;box-shadow:0 12px 30px rgba(0,0,0,.3)}
   .g-toast ul{margin:6px 0;padding-left:18px}.g-toast div{display:flex;justify-content:flex-end;gap:8px}
   .g-toast a,.g-toast button{border:0;border-radius:10px;padding:6px 12px;font-weight:700;font-size:13px;background:#fff;color:#1d2033;text-decoration:none}.g-toast button{background:#454a63;color:#fff}
+  .g-find input{width:100%;box-sizing:border-box;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--soft);font:inherit;font-size:15px;color:var(--fg)}
+  .g-sres{list-style:none;margin:6px 0 0;padding:0}.g-sres li{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 2px;border-top:1px solid var(--line)}.g-sres li:first-child{border-top:0}
+  .g-sres small{color:var(--muted);margin-left:4px}
+  .g-hbtn{display:flex;gap:6px;justify-content:flex-end}.g-hli .g-hbtn{margin:-2px 0 8px}
+  .g-hbtn button{border:0;border-radius:10px;padding:7px 16px;font-weight:800;font-size:14px;color:#fff}.g-hbtn .b{background:#e8344e}.g-hbtn .s{background:#2f6bdc}
   .g-otype{display:flex;gap:6px;margin-top:10px}.g-otype button{flex:1;padding:8px;border-radius:12px;border:1px solid var(--line);font-weight:700;color:var(--muted);background:none}
   .g-otype button[aria-pressed="true"]{border-color:var(--fg);color:var(--fg);background:var(--soft)}
   .g-lim button{width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:var(--card,#fff);font-size:20px;font-weight:700;color:var(--fg)}
