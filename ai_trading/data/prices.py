@@ -44,6 +44,9 @@ def parse(rows: list[dict], market: str) -> dict:
             "halt": stop != "TRADING" or r.get("tradableStatus") not in (None, "tradable"),
             "at": (r.get("localTradedAt") or "")[:10],
         }
+        o, h, l = (_num(r.get(k)) for k in ("openPrice", "highPrice", "lowPrice"))
+        if o and h and l:  # 있으면 지정가 체결 확인에 씀
+            out[code + suffix].update({"o": o, "h": h, "l": l})
     return out
 
 
