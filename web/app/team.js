@@ -180,12 +180,18 @@
     return `<section class="card tm-me"><div class="tm-hi"><div><div class="sub">반갑습니다</div><h2>${esc(call())}</h2></div><button class="pclink tm-sm" type="button" data-tm="rename">호칭 바꾸기</button></div></section>
     <section class="card"><div class="hd"><h2>나의 담당 팀</h2><button class="pclink tm-sm" type="button" data-tm="swap">매니저 교체</button></div>
       <div class="tm-list tm-mine">${card(d, false, "x")}${ms.map(m => card(m, false, "x")).join("")}</div></section>
+    ${window.Daily && Daily.meCard ? Daily.meCard() : ""}
+`;
+  }
+
+  /* 내 정보 맨 아래: 기록 백업·복구, 초기화 */
+  function meBottom() {
+    return `<section class="card"><div class="hd"><h2>앱처럼 쓰기</h2></div><p class="sub">아이폰: 공유 → 홈 화면에 추가 · 안드로이드: 메뉴 → 홈 화면에 추가</p></section>
     ${window.Backup ? Backup.card() : ""}
     <section class="card"><div class="hd"><h2>초기화</h2></div>
       <p class="sub">이 기기에 저장된 기록을 지워요. 지운 기록은 되돌릴 수 없어요.</p>
       <button class="cta sub2" type="button" data-tm="resetrec">투자·AI 대결 기록만 초기화</button>
-      <button class="cta sub2" type="button" data-tm="resetall">처음부터 다시 시작 (호칭·매니저 선택부터)</button></section>
-    <section class="card"><div class="hd"><h2>앱처럼 쓰기</h2></div><p class="sub">아이폰: 공유 → 홈 화면에 추가 · 안드로이드: 메뉴 → 홈 화면에 추가</p></section>`;
+      <button class="cta sub2" type="button" data-tm="resetall">처음부터 다시 시작 (호칭·매니저 선택부터)</button></section>`;
   }
 
   /* 모양 */
@@ -242,6 +248,6 @@
   // AI 대결은 4대4: 내 본부장 + 내 직원 앞 3명  vs  상대 본부장 + 내가 고르지 않은 직원 3명
   const rivals = () => ({ dir: DIRS.find(d => d.id !== team().dir) || DIRS[1], staff: STAFF.filter(s => !team().staff.includes(s.id)).slice(0, 3) });
   const squad = () => members().slice(0, 3);
-  window.Team = { personById: person, name: a => forAgent(a).name, photo: a => forAgent(a).id, person: forAgent, director, members, rivals, squad, reporter, call, meView, open: () => onboard(true) };
+  window.Team = { personById: person, name: a => forAgent(a).name, photo: a => forAgent(a).id, person: forAgent, director, members, rivals, squad, reporter, call, meView, meBottom, open: () => onboard(true) };
   if (!window.TEAM_SKIP) document.addEventListener("DOMContentLoaded", splash);
 })();
