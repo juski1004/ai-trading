@@ -1,4 +1,5 @@
-"""인스타 릴스 자동 제작 (주 2회: 화·목, 15초 세로 1080x1920). 2026-10-25 사용자: "릴스는 두 번만, 초보자 지표 설명도 넣고 광고에도 활용"
+"""인스타 릴스 자동 제작 (평일 매일 1개, 15초 세로 1080x1920). 2026-10-26 사용자: "카드뉴스 평일 1회, 릴스 평일 1회" (이전: 주 2회)
+월 앱 둘러보기 · 화 용어 · 수 차트·보조지표 · 목 용어 · 금 알파와 대결 (용어는 한 주에 2개)
 
 - 화 '30초 주식 용어': PER·VIX·CPI 같은 말을 쉽게 풀고 오늘 실제 숫자로 예시 → 앱 용어 사전 화면 (설명은 web/app/glossary.json, 앱과 같은 파일)
 - 목 '앱 소개': 실제 앱 화면을 휴대폰 틀 안에서 천천히 보여 줌. 주마다 돌아가며 앱 둘러보기 → 차트·보조지표 → 알파와 대결
@@ -37,7 +38,7 @@ KINDS = {
            "shots": [("#vs", "같은 날, 같은 돈으로 시작"), ("#game", "하루 한 번, 종가로 주문"), ("#analysis", "대형주 AI 점수로 종목 고르기")]},
 }
 KINDS["word"] = {"hook": [], "shots": [("#learn/{term}", "용어 사전")]}
-BY_WEEKDAY = {1: "word", 3: "app"}                       # 화·목
+BY_WEEKDAY = {0: "tour", 1: "word", 2: "chart", 3: "word", 4: "vs"}  # 평일 매일
 APP_KINDS = ["tour", "chart", "vs"]                      # 목요일은 주마다 돌아가며
 # 용어 릴스 순서 (초보자가 많이 묻는 것부터, 주마다 하나)
 WORD_ORDER = ["per", "vix", "cpi", "rate", "rsi", "pbr", "usdkrw", "roe", "ma", "flow", "macd", "us10y", "div", "bb", "wti", "vol",
@@ -155,13 +156,13 @@ def build(web: Path, kind: str | None = None) -> dict | None:
     date = sc["date"]; d = dt.date.fromisoformat(date); md = f"{d.month}월 {d.day}일"
     kind = kind or BY_WEEKDAY.get(d.weekday())
     if not kind: return None
-    if kind == "app": kind = APP_KINDS[_week(d) % len(APP_KINDS)]
+    if kind == "app": kind = APP_KINDS[_week(d) % len(APP_KINDS)]  # 수동 실행용
     sym = EX if EX in sc["stocks"] else next(iter(sc["stocks"]))
     host = host_of(date); hname = host[1]
     M.set_theme(theme_of(date))  # 카드뉴스와 같은 그 주의 색
     josa = "이" if (ord(hname[-1]) - 0xAC00) % 28 else "가"
     G = json.loads((web / "app" / "glossary.json").read_text(encoding="utf-8")); TT = {t["id"]: t for t in G["terms"]}
-    term = TT[os.environ.get("REEL_TERM") or WORD_ORDER[_week(d) % len(WORD_ORDER)]] if kind == "word" else None  # REEL_TERM: 시험용
+    term = TT[os.environ.get("REEL_TERM") or WORD_ORDER[(_week(d) * 2 + (1 if d.weekday() == 3 else 0)) % len(WORD_ORDER)]] if kind == "word" else None  # REEL_TERM: 시험용
     out = data / "reel"; out.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory() as tdir:
         tmp = Path(tdir)
@@ -216,4 +217,4 @@ def build(web: Path, kind: str | None = None) -> dict | None:
 
 if __name__ == "__main__":
     r = build(Path(sys.argv[1] if len(sys.argv) > 1 else "web"), sys.argv[2] if len(sys.argv) > 2 else None)
-    print(json.dumps(r, ensure_ascii=False, indent=1) if r else "오늘은 릴스 없는 날 (화·목만)")
+    print(json.dumps(r, ensure_ascii=False, indent=1) if r else "오늘은 릴스 없는 날 (주말)")
