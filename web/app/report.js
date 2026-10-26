@@ -156,7 +156,7 @@
       <div class="rp-from"><img src="${img(d.id)}" alt="본부장 사진"><div><b>${esc(d.name)} ${esc(d.role)}</b><div class="sub">최종 의견 ${d.source === "AI" ? "· AI 작성" : ""}</div></div></div>
       <p class="rp-quote">${esc(d.opinion)}</p>
     </section>`, sec("알파가 고른 이유", `<ol class="rp-ol">${p.reasons.slice(0, 3).map(x => `<li>${esc(x)}</li>`).join("")}</ol>`))}
-    <a class="cta" href="#game/${encodeURIComponent(p.sym)}">이 종목으로 모의투자 해 보기</a>
+    <a class="cta" href="#game/${encodeURIComponent(p.sym)}" data-side="B">이 종목 사기 · 팔기</a>
     <a class="cta sub2" href="#analysis/${encodeURIComponent(p.sym)}">종목 분석 자세히 보기</a>
     <p class="note">알파의 선택은 AI 상대 팀이 모의투자 게임 계좌에서 한 행동과, 공개 시세·재무·뉴스·증권사 전망을 정리한 참고 정보이며 투자 권유가 아닙니다. 매일 장 마감 뒤 조건을 모두 통과한 종목이 있을 때만 1종목을 담습니다. 투자 판단과 결과의 책임은 본인에게 있습니다.</p>`;
   }
