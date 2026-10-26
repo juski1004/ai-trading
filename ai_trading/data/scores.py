@@ -143,6 +143,8 @@ def build_scores(market: dict, news_sym: dict | None = None, fin: dict | None = 
         stocks[sym] = {
             "name": st["name"], "code": st["code"], "market": st["market"],
             "price": round(float(c.iloc[-1])), "chg": round((c.iloc[-1] / c.iloc[-2] - 1) * 100, 2),
+            # 그날 시가·고가·저가: 앱 지정가 주문 체결 확인용 (저가 ≤ 매수 지정가, 고가 ≥ 매도 지정가)
+            "o": round(float(df["Open"].iloc[-1])), "h": round(float(df["High"].iloc[-1])), "l": round(float(df["Low"].iloc[-1])),
             "vol_ratio": round(float(v.iloc[-1] / avg_vol), 2) if avg_vol else None,
             "score": round(score, 3), "label": label_of(score),
             "opinions": [{"agent": o.agent, "score": round(o.score, 3), "summary": o.summary} for o in ops],

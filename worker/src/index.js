@@ -83,7 +83,7 @@ async function scheduled(cron, env) {
   if (!meta || !meta.updated || kstDate(meta.updated) !== today) return { skip: "오늘 데이터 아직 없음" };
   const out = {};
   if (!(await env.KV.get(`sent:brief:${today}`))) {
-    out.brief = await broadcast(env, { title: "본부장이 브리핑을 가져왔습니다", body: "오늘 장 마감 브리핑이 준비됐어요. 눌러서 확인하세요.", url: "./#home", tag: "brief" });
+    out.brief = await broadcast(env, { title: "본부장이 브리핑을 가져왔습니다", body: "오늘 장 마감 브리핑이 준비됐어요. 모의투자 예약·지정가 주문 체결 결과도 앱을 열면 바로 알려 드려요.", url: "./#home", tag: "brief" });
     await env.KV.put(`sent:brief:${today}`, "1", { expirationTtl: 3 * 86400 });
   }
   if (cron !== "0 9 * * 1-5" && !(await env.KV.get(`sent:pick:${today}`))) {
