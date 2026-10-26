@@ -1,5 +1,5 @@
-"""인스타 릴스 자동 제작 (주 3개, 15초 세로 1080x1920). 2026-10-26 사용자: "장마감(카드) 5일, 용어 정리 2일, 앱 광고 릴스 1일"
-화·목 용어(한 주에 2개) · 금 앱 광고(주마다 앱 둘러보기 → 차트·보조지표 → 알파와 대결)
+"""인스타 릴스 자동 제작 (주 1개: 금요일 앱 광고, 15초 세로 1080x1920). 2026-10-26 사용자: "용어 정리는 릴스 말고 카드뉴스로 토·일, 광고 릴스는 주 1회 금"
+금 앱 광고(주마다 앱 둘러보기 → 차트·보조지표 → 알파와 대결). 용어 릴스(word)는 수동 실행용으로만 남김 — 주말 용어는 data/termcards.py 카드뉴스
 
 - 화 '30초 주식 용어': PER·VIX·CPI 같은 말을 쉽게 풀고 오늘 실제 숫자로 예시 → 앱 용어 사전 화면 (설명은 web/app/glossary.json, 앱과 같은 파일)
 - 목 '앱 소개': 실제 앱 화면을 휴대폰 틀 안에서 천천히 보여 줌. 주마다 돌아가며 앱 둘러보기 → 차트·보조지표 → 알파와 대결
@@ -38,7 +38,7 @@ KINDS = {
            "shots": [("#vs", "같은 날, 같은 돈으로 시작"), ("#game", "하루 한 번, 종가로 주문"), ("#analysis", "대형주 AI 점수로 종목 고르기")]},
 }
 KINDS["word"] = {"hook": [], "shots": [("#learn/{term}", "용어 사전")]}
-BY_WEEKDAY = {1: "word", 3: "word", 4: "app"}  # 화·목 용어, 금 앱 광고
+BY_WEEKDAY = {4: "app"}  # 금요일 앱 광고만
 APP_KINDS = ["tour", "chart", "vs"]                      # 목요일은 주마다 돌아가며
 # 용어 릴스 순서 (초보자가 많이 묻는 것부터, 주마다 하나)
 WORD_ORDER = ["per", "vix", "cpi", "rate", "rsi", "pbr", "usdkrw", "roe", "ma", "flow", "macd", "us10y", "div", "bb", "wti", "vol",
@@ -217,4 +217,4 @@ def build(web: Path, kind: str | None = None) -> dict | None:
 
 if __name__ == "__main__":
     r = build(Path(sys.argv[1] if len(sys.argv) > 1 else "web"), sys.argv[2] if len(sys.argv) > 2 else None)
-    print(json.dumps(r, ensure_ascii=False, indent=1) if r else "오늘은 릴스 없는 날 (화·목·금만)")
+    print(json.dumps(r, ensure_ascii=False, indent=1) if r else "오늘은 릴스 없는 날 (금요일만)")

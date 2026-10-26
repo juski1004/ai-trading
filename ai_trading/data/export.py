@@ -274,6 +274,12 @@ def build(out: Path, quick: bool = False, game_dir: Path = Path("game")) -> dict
         print(f"카드뉴스 6장 ({c['date']}, 진행 {c['hostName']})")
     except Exception as e:
         print(f"[카드뉴스 실패] {type(e).__name__}: {e}")
+    try:  # 주말(토·일) 용어 정리 카드뉴스: 목·금 데이터일 때만 미리 만듦
+        from .termcards import build as build_terms
+        tc = build_terms(out)
+        if tc: print("주말 용어 카드:", ", ".join(f"{i['date']} {i['name']}" for i in tc["items"]))
+    except Exception as e:
+        print(f"[주말 용어 카드 실패] {type(e).__name__}: {e}")
 
     meta = {"updated": collect.now_kst(), "stocks": len(stocks), "listing": len(listing),
             "keys": {k: bool(os.getenv(k)) for k in ("FRED_API_KEY", "ECOS_API_KEY", "DART_API_KEY", "GEMINI_API_KEY", "GROQ_API_KEY", "XAI_API_KEY")},

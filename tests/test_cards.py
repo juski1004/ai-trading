@@ -21,3 +21,10 @@ def test_theme_changes_weekly_no_purple():
     assert theme_of("2026-10-26") is not theme_of("2026-11-02")
     for t in THEMES:
         r, g, b = t["paper"]; assert not (b > g + 8 and r > g)   # 보라 바탕 없음
+
+
+def test_weekend_term_dates():
+    from ai_trading.data.termcards import weekend_dates
+    assert weekend_dates("2026-10-30") == ["2026-10-31", "2026-11-01"]   # 금 → 그 주 토·일
+    assert weekend_dates("2026-10-29") == ["2026-10-31", "2026-11-01"]   # 금요일 휴장이면 목 데이터로
+    assert weekend_dates("2026-10-27") == []
