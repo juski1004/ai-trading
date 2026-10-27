@@ -203,17 +203,20 @@ def build(out: Path) -> dict:
            f"원/달러 {sc['market']['usdkrw']['v']:,.0f}원 · 코스피 1주 {pct(fx['코스피']['5일'])}"]
     if ma and len(pts) < 5: pts.append(f"20일선 위 대형주 {ma['20일선_위']}/{ma['전체']}종목")
     for i, t in enumerate(pts):
-        y = 320 + i * 98
+        y = 300 + i * 88
         d.ellipse((80, y + 10, 116, y + 46), fill=LAVD); d.text((98, y + 28), str(i + 1), font=F("Bold", 26), fill=WHITE, anchor="mm")
         d.text((140, y + 2), t, font=F("Bold", 40), fill=INK)
-    card(d, (70, 830, 1010, 1240))
-    ph = _photo(hid, 240, 320, 28); im.paste(ph[0], (100, 875), ph[1])
-    d.text((370, 880), f"이번 주 진행은 {hname}", font=F("ExtraBold", 44), fill=INK)
-    d.text((370, 940), f"다음 주는 {nname} 차례예요", font=F("Medium", 34), fill=MUTED)
-    d.text((370, 1010), "AI 직원 11명과 함께하는", font=F("Medium", 32), fill=INK)
-    d.text((370, 1052), "모의투자 앱도 있어요", font=F("Bold", 32), fill=INK)
-    d.rounded_rectangle((370, 1120, 975, 1190), 34, fill=LAVD)
-    d.text((672, 1155), "댓글에 '연구소' → DM으로 받기", font=F("Bold", 34), fill=WHITE, anchor="mm")
+    card(d, (70, 760, 1010, 1250))
+    ph = _photo(hid, 240, 320, 28); im.paste(ph[0], (100, 790), ph[1])
+    d.text((370, 795), f"이번 주 진행은 {hname}", font=F("ExtraBold", 44), fill=INK)
+    d.text((370, 855), f"다음 주는 {nname} 차례예요", font=F("Medium", 34), fill=MUTED)
+    d.text((370, 920), "AI 직원 11명이 한 주씩", font=F("Medium", 32), fill=INK)
+    d.text((370, 962), "평일 장마감을 정리해 드려요", font=F("Medium", 32), fill=INK)
+    d.rounded_rectangle((370, 1030, 975, 1100), 34, fill=LAVD)
+    d.text((672, 1065), "팔로우하고 내일도 받아보기", font=F("Bold", 34), fill=WHITE, anchor="mm")
+    d.rounded_rectangle((100, 1130, 980, 1225), 22, fill=UP)
+    d.text((540, 1160), "실전 데이터 모의투자 앱 선착순 무료 배포", font=F("ExtraBold", 36), fill=WHITE, anchor="mm")
+    d.text((540, 1202), "캡션 더보기 → 댓글 '연구소' 남기면 DM", font=F("Bold", 28), fill=WHITE, anchor="mm")
     im.save(dst / "5.png")
 
     caption = f"""{hname}{josa} 알려주는 {md} 장마감 현황 | 오늘 주식 장마감 요약 · 코스피 {pct(k['chg'])} · 코스닥 {pct(q['chg'])}
@@ -227,8 +230,8 @@ def build(out: Path) -> dict:
 🔺 많이 오른: {', '.join(s['name'] + ' ' + pct(s['chg']) for _, s in ranked[:3])}
 🔻 많이 내린: {', '.join(s['name'] + ' ' + pct(s['chg']) for _, s in ranked[-3:][::-1])}
 
-💬 댓글에 '연구소' 남기면 AI 직원 11명과 함께하는 모의투자 앱 링크를 DM으로 보내 드려요 (팔로워 선공개)
 👉 팔로우하면 평일 17시 50분, 장마감 요약을 매일 받아볼 수 있어요
+🎁 실전 데이터 모의투자 앱 선착순 무료 배포 중! 댓글에 '연구소' 남기면 DM으로 바로 보내 드려요
 
 ※ 공개 시세로 만든 참고 자료이며 투자 권유가 아닙니다. 투자 판단과 책임은 본인에게 있습니다.
 
