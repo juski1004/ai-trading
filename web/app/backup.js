@@ -65,14 +65,14 @@
     t.querySelector("button").onclick = () => t.remove(); document.body.appendChild(t);
   }
   /* 내 정보 탭에 넣는 칸 */
-  function card() {
+  function card(bare) {
     const m = meta();
     const when = m.at ? new Date(m.at).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" }) : null;
-    return `<section class="card"><div class="hd"><h2>기록 백업·복구</h2></div>
+    return `${bare ? "" : '<section class="card"><div class="hd"><h2>기록 백업·복구</h2></div>'}
       <p class="sub">기록은 자동으로 서버에 백업돼요. 브라우저 정리 등으로 기록이 지워졌거나 다른 기기에서 이어 하려면 아래 복구 코드를 넣으세요. <b>캡처해 두세요.</b></p>
       ${m.code ? `<div class="bk-code">${fmt(m.code)}</div><p class="sub">${when ? "마지막 백업 " + when : "백업 준비 중"}</p>
         <button class="cta sub2" type="button" data-bk="copy">복구 코드 복사</button>` : `<p class="sub">팀을 고르면 백업이 시작돼요.</p>`}
-      <button class="cta sub2" type="button" data-bk="restore">복구 코드로 기록 불러오기</button></section>`;
+      <button class="cta sub2" type="button" data-bk="restore">복구 코드로 기록 불러오기</button>${bare ? "" : "</section>"}`;
   }
   document.addEventListener("click", e => {
     const b = e.target.closest("[data-bk]"); if (!b) return;

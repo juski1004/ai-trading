@@ -215,17 +215,20 @@
 
   /* 내 정보 맨 아래: 기록 백업·복구, 초기화 */
   function meBottom() {
-    return `<section class="card"><div class="hd"><h2>앱처럼 쓰기</h2></div><p class="sub">아이폰: 공유 → 홈 화면에 추가 · 안드로이드: 메뉴 → 홈 화면에 추가</p></section>
-    ${window.Backup ? Backup.card() : ""}
-    <section class="card"><div class="hd"><h2>초기화</h2></div>
-      <p class="sub">이 기기에 저장된 기록을 지워요. 지운 기록은 되돌릴 수 없어요.</p>
+    const fold = (t, body) => `<details class="card tm-fold"><summary><h2>${t}</h2><span>펼치기</span></summary>${body}</details>`;
+    return `${fold("앱처럼 쓰기", '<p class="sub">아이폰: 공유 → 홈 화면에 추가 · 안드로이드: 메뉴 → 홈 화면에 추가</p>')}
+    ${window.Backup ? fold("기록 백업·복구", Backup.card(true)) : ""}
+    ${fold("초기화", `<p class="sub">이 기기에 저장된 기록을 지워요. 지운 기록은 되돌릴 수 없어요.</p>
       <button class="cta sub2" type="button" data-tm="resetrec">투자·AI 대결 기록만 초기화</button>
-      <button class="cta sub2" type="button" data-tm="resetall">처음부터 다시 시작 (호칭·매니저 선택부터)</button></section>`;
+      <button class="cta sub2" type="button" data-tm="resetall">처음부터 다시 시작 (호칭·매니저 선택부터)</button>`)}`;
   }
 
   /* 모양 */
   const css = document.createElement("style");
   css.textContent = `
+  .tm-fold summary{display:flex;align-items:center;justify-content:space-between;cursor:pointer;list-style:none}.tm-fold summary::-webkit-details-marker{display:none}
+  .tm-fold summary::after{display:none}.tm-fold summary h2{margin:0;font-size:16px;flex:1}.tm-fold summary span{font-size:12.5px;font-weight:700;color:var(--lav-d,#6c5ce7)}
+  .tm-fold[open] summary span{font-size:0}.tm-fold[open] summary span::after{content:"접기";font-size:12.5px}.tm-fold[open] summary{margin-bottom:8px}
   .tm-splash{position:fixed;inset:0;z-index:60;display:grid;place-items:center;background:radial-gradient(600px 400px at 50% 40%,#f3f1ff,#f6f7fb 70%);transition:opacity .45s ease}
   .tm-splash.out{opacity:0}
   .tm-title{display:flex;flex-direction:column;align-items:center;gap:10px;animation:tmSlam .9s cubic-bezier(.25,.9,.3,1) both}
