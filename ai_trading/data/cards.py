@@ -217,11 +217,7 @@ def build(out: Path) -> dict:
     d.rounded_rectangle((100, 1130, 980, 1225), 22, fill=UP)
     d.text((540, 1160), "실전 데이터 모의투자 앱 선착순 무료 배포", font=F("ExtraBold", 36), fill=WHITE, anchor="mm")
     parts = [("댓글에 ", F("Medium", 30)), ("'연구소'", F("ExtraBold", 33)), (" 남겨주세요", F("Medium", 30))]
-    tw = sum(d.textlength(t, font=f) for t, f in parts); bx = 540 - (tw + 48) / 2  # 선물상자 아이콘 + 글자를 가운데로
-    d.rectangle((bx + 3, 1196, bx + 33, 1220), fill=WHITE); d.rectangle((bx, 1187, bx + 36, 1196), fill=WHITE)  # 상자·뚜껑
-    d.rectangle((bx + 15, 1187, bx + 21, 1220), fill=UP); d.line((bx + 3, 1196, bx + 33, 1196), fill=UP, width=2)  # 리본
-    d.ellipse((bx + 6, 1178, bx + 18, 1188), outline=WHITE, width=3); d.ellipse((bx + 18, 1178, bx + 30, 1188), outline=WHITE, width=3)  # 매듭
-    x = bx + 48
+    tw = sum(d.textlength(t, font=f) for t, f in parts); x = 540 - tw / 2  # 가운데 정렬
     for t, f in parts: d.text((x, 1203), t, font=f, fill=WHITE, anchor="lm"); x += d.textlength(t, font=f)
     im.save(dst / "5.png")
 
