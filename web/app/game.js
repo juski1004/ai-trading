@@ -85,8 +85,9 @@
         const p = pos[sym]; if (!p || !before) continue;
         const frac = Math.min(1, t.qty / before), q = frac > 0.999 ? p.qty : Math.min(p.qty, Math.round(p.qty * frac));
         if (q <= 0) continue;
+        const realized_krw = Math.round((price * (1 - R.fee - R.tax) - p.avg) * q);
         cash += price * q * (1 - R.fee - R.tax); p.qty -= q; if (!p.qty) delete pos[sym];
-        trades.push({ ...t, qty: q });
+        trades.push({ ...t, qty: q, realized_krw });
       }
     }
     const eq = cash + Object.entries(pos).reduce((s, [k, p]) => s + p.qty * px(k, p.avg), 0);

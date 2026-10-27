@@ -34,13 +34,13 @@
 
     // 1) AI 대결: AI 실전 계좌 매매 알림 + 잔고
     if (G && AI && AI.state) {
-      const st = AI.state, since = G.start || "";
-      (st.trades || []).filter(t => t.time.slice(0, 10) >= since).slice(-2).forEach(t => {
+      const st = AI.state;
+      // 내 게임 상대 알파 팀 계좌 (AI 대결 화면과 같은 계좌·같은 수량)
+      const c = window.Game && Game.alphaClone ? Game.alphaClone(st, G, SC.date, Game.nowPx) : null;
+      ((c && c.trades) || []).slice(-2).forEach(t => {
         const buy = t.side === "BUY";
         add(`ai:${t.time}:${t.symbol}`, RIV(), `알파 팀이 <b>${esc(nm(t.symbol))}</b> ${won(t.qty)}주를 ${won(t.price)}원에 ${buy ? "매수" : "매도"}했습니다.${t.realized_krw ? ` 실현 손익 ${won(t.realized_krw)}원입니다.` : ""}`, "#vs");
       });
-      // 내 게임과 같은 날·같은 돈으로 시작한 '알파 팀' 계좌 (알파 원래 계좌가 아니라 내 상대 계좌)
-      const c = window.Game && Game.alphaClone ? Game.alphaClone(st, G, SC.date, Game.nowPx) : null;
       if (c && !G.done) {
         const stock = Math.max(0, c.eq - c.cash), r = c.ret, n = Object.keys(c.pos || {}).length;
         add(`aibal:${SC.date}:${G.start}`, RIV(), n
