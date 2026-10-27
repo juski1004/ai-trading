@@ -197,7 +197,7 @@ def build(web: Path, kind: str | None = None, at: str | None = None, out: Path |
 
 ※ 공개 자료로 만든 학습용 설명이며 투자 권유가 아닙니다.
 
-#주식공부 #주식용어 #주식초보 #{term['name'].replace(' ', '').replace('/', '')} #재테크 #직장인재테크 #모의투자 #AI투자"""
+#주식공부 #주식용어 #주식초보 #{term['name'].replace(' ', '').replace('/', '')} #재테크"""
     else:
         K = KINDS[kind]
         caption = f"""{' '.join(K['hook'])} 🎮
@@ -211,7 +211,7 @@ def build(web: Path, kind: str | None = None, at: str | None = None, out: Path |
 
 ※ 가상 돈으로 하는 모의투자 게임이며 투자 권유가 아닙니다.
 
-#주식 #모의투자 #주식게임 #주식공부 #재테크 #직장인재테크 #AI투자 #종가매매"""
+#모의투자 #주식게임 #주식공부 #주식초보 #재테크"""
     info = {"date": date, "kind": kind, "term": term["id"] if term else None, "host": host[0],
             "video": "reel/reel.mp4", "cover": "reel/cover.jpg", "caption": caption}
     (out / "reel.json").write_text(json.dumps(info, ensure_ascii=False), encoding="utf-8")
