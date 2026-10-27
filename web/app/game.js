@@ -31,6 +31,7 @@
   const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* 저장이 막힌 브라우저: 이번 접속 동안만 유지 */ } };
 
   let SC = null, AI = null, G = load(KEY, null), side = "B", pickPeriod = 30, pickCap = R.cash0, msg = "";
+  let hTab = null; // 주문·체결 내역 탭
   let otype = "M", lim = null, limSym = null, qv = 0; // 주문 방식(M 종가 · L 지정가), 지정가, 입력 중인 수량
   /* 한국거래소 호가 단위 */
   const tick = p => (p < 2000 ? 1 : p < 5000 ? 5 : p < 20000 ? 10 : p < 50000 ? 50 : p < 200000 ? 100 : p < 500000 ? 500 : 1000);
@@ -240,8 +241,7 @@
       ${g.note && g.note.d === SC.date ? `<p class="g-msg" role="status">${esc(g.note.t)}</p>` : ""}
       ${msg ? `<p class="g-msg" role="status">${esc(msg)}</p>` : ""}
     </section>
-    ${(g.orders || []).length ? `<section class="card"><div class="hd"><h2>미체결 주문</h2><span class="sub">종가 주문은 다음 장 마감, 지정가는 가격이 닿으면</span></div><ul class="list">${g.orders.map((o, i) => `<li><div class="row g-hrow"><span class="${o.side === "B" ? "up" : "down"} g-side">${o.side === "B" ? "매수" : "매도"}</span>
-        <span style="min-width:0"><div class="nm">${esc(o.name)}</div><div class="meta">${o.limit ? `지정가 <b class="num">${won(o.limit)}</b>원` : "종가"} · ${won(o.qty)}주 · ${esc(o.at.slice(5))} 주문</div></span><span class="rt"><button class="g-cancel" type="button" data-g="cancel" data-v="${i}">취소</button></span></div></li>`).join("")}</ul></section>` : ""}
+    ${ordersCard(g)}
     <section class="card"><div class="hd"><h2>보유 종목</h2><a class="sub" href="#analysis">+ 종목 사기</a></div>
       ${pos.length ? (() => { const rowsP = pos.map(([sym, p]) => { const now = priceOf(sym) ?? p.last, val = now * p.qty, cost = p.avg * p.qty; return { sym, p, now, val, pnl: val - cost, r: (now / p.avg - 1) * 100 }; });
         const tv = rowsP.reduce((a, x) => a + x.val, 0), tp = rowsP.reduce((a, x) => a + x.pnl, 0), tc = tv - tp;
@@ -254,7 +254,6 @@
       <label class="g-auto"><input type="checkbox" data-g="auto" ${g.autoExit ? "checked" : ""}> 자동 손절 −5% · 익절 +10%</label>
     </section>
     ${pos.length ? holdReview(g, pos) : ""}
-    ${tradesView(g)}
     <button class="g-quit" type="button" data-g="quit">게임 그만두기</button>`;
   }
 
@@ -318,6 +317,30 @@
     if (navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file], title: "모의투자 성적표" }); return; } catch (e) { if (e.name === "AbortError") return; } }
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "ai-report.png"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
   }
+  /* 주문·체결 내역: 미체결(예약·지정가) / 매수 내역 / 매도 내역 탭 */
+  function ordersCard(g) {
+    const O = g.orders || [], T = g.trades || [], buys = T.filter(x => x.side === "B").reverse(), sells = T.filter(x => x.side === "S").reverse();
+    if (!hTab) hTab = O.length ? "O" : "B";
+    const tab = (k, t, n) => `<button type="button" data-g="htab" data-v="${k}" aria-pressed="${hTab === k}">${t} <b class="num">${n}</b></button>`;
+    const sd = b => `<span class="${b ? "up" : "down"} g-side">${b ? "매수" : "매도"}</span>`;
+    let body;
+    if (hTab === "O") body = O.length ? `<ul class="list">${O.map((o, i) => { const px = o.limit || priceOf(o.sym) || 0; return `<li><div class="row g-hrow">${sd(o.side === "B")}
+        <span style="min-width:0"><div class="nm">${esc(o.name)}</div><div class="meta">${o.limit ? `지정가 <b class="num">${won(o.limit)}</b>원` : "장 마감 종가"} · ${won(o.qty)}주 · ${esc(o.at.slice(5).replace("-", "."))} 주문</div></span>
+        <span class="rt"><div class="px num">약 ${won(px * o.qty)}원</div><button class="g-cancel" type="button" data-g="cancel" data-v="${i}">취소</button></span></div></li>`; }).join("")}</ul>
+        <p class="sub">종가 주문은 다음 장 마감 종가로, 지정가는 그날 가격이 닿으면 체결돼요. 결과는 앱을 열면 알려 드려요.</p>`
+      : '<p class="empty">걸어 둔 예약·지정가 주문이 없어요.</p>';
+    else {
+      const L = hTab === "B" ? buys : sells, realized = sells.reduce((a, x) => a + (x.pnl || 0), 0);
+      body = (hTab === "S" && sells.length ? `<p class="sub">실현 손익 합계 <b class="num ${cls(realized)}">${realized >= 0 ? "+" : ""}${won(realized)}원</b></p>` : "")
+        + (L.length ? `<ul class="list">${L.slice(0, 40).map(x => `<li><div class="row g-hrow">${sd(x.side === "B")}
+        <span style="min-width:0"><div class="nm">${esc(x.name)}</div><div class="meta">${esc(x.d.slice(5).replace("-", "."))} · ${esc(x.why || "")}</div></span>
+        <span class="rt"><div class="px num">${won(x.qty)}주 × ${won(x.p)}</div><div class="sc num">${x.pnl != null ? `<span class="${cls(x.pnl)}">${x.pnl >= 0 ? "+" : ""}${won(x.pnl)}원</span>` : won(x.qty * x.p) + "원"}</div></span></div></li>`).join("")}</ul>`
+        : `<p class="empty">아직 ${hTab === "B" ? "산" : "판"} 내역이 없어요.</p>`);
+    }
+    return `<section class="card" id="gOrders"><div class="hd"><h2>주문·체결 내역</h2></div>
+      <div class="g-htabs" role="tablist">${tab("O", "미체결", O.length)}${tab("B", "매수 내역", buys.length)}${tab("S", "매도 내역", sells.length)}</div>${body}</section>`;
+  }
+
   function tradesView(g) {
     const t = g.trades.slice(-15).reverse();
     return `<section class="card"><div class="hd"><h2>거래 내역</h2><span class="sub">${g.trades.length}회</span></div>
@@ -450,11 +473,12 @@
       if (q > 0) window.dispatchEvent(new CustomEvent("aiLab:trade"));
       if (otype === "L" && q > 0) {
         (G.orders = G.orders || []).push({ sym: v, name: s.name, qty: q, side, at: todayKST(), limit: lim });
-        msg = `${s.name} 지정가 ${won(lim)}원 ${won(q)}주 ${side === "S" ? "매도" : "매수"} 주문 접수 · 가격이 닿는 장 마감 때 체결돼요`;
+        msg = `${s.name} 지정가 ${won(lim)}원 ${won(q)}주 ${side === "S" ? "매도" : "매수"} 주문 접수 · 가격이 닿는 장 마감 때 체결돼요 (거래하기 › 주문·체결 내역 › 미체결)`;
       } else if (live() || q <= 0) msg = trade(G, v, q, side === "S", "직접 주문");
-      else { (G.orders = G.orders || []).push({ sym: v, name: s.name, qty: q, side, at: todayKST() }); msg = `${s.name} ${won(q)}주 ${side === "S" ? "매도" : "매수"} 예약 완료 · 다음 장 마감 종가로 체결돼요`; }
-      qv = 0; save(KEY, G);
+      else { (G.orders = G.orders || []).push({ sym: v, name: s.name, qty: q, side, at: todayKST() }); msg = `${s.name} ${won(q)}주 ${side === "S" ? "매도" : "매수"} 예약 완료 · 다음 장 마감 종가로 체결돼요 (거래하기 › 주문·체결 내역 › 미체결)`; }
+      hTab = (G.orders || []).length && !(live() && otype !== "L") ? "O" : side; qv = 0; save(KEY, G);
     }
+    else if (a === "htab") { hTab = v; }
     else if (a === "cancel") { (G.orders || []).splice(+v, 1); save(KEY, G); }
     else if (a === "share") { shareResult(G); return; }
     redraw();
@@ -515,6 +539,10 @@
   .g-sres small{color:var(--muted);margin-left:4px}
   .g-hbtn{display:flex;gap:6px;justify-content:flex-end}.g-hli .g-hbtn{margin:-2px 0 8px}
   .g-hbtn button{border:0;border-radius:10px;padding:7px 16px;font-weight:800;font-size:14px;color:#fff}.g-hbtn .b{background:#e8344e}.g-hbtn .s{background:#2f6bdc}
+  .g-htabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;border-radius:14px;background:var(--soft);margin-bottom:8px}
+  .g-htabs button{border:0;background:none;padding:8px 4px;border-radius:10px;font-weight:700;font-size:13.5px;color:var(--muted)}
+  .g-htabs button[aria-pressed="true"]{background:var(--card,#fff);color:var(--fg);box-shadow:0 2px 6px rgba(0,0,0,.08)}
+  .g-htabs b{margin-left:2px;color:var(--lav-d,#6c5ce7)}
   .g-otype{display:flex;gap:6px;margin-top:10px}.g-otype button{flex:1;padding:8px;border-radius:12px;border:1px solid var(--line);font-weight:700;color:var(--muted);background:none}
   .g-otype button[aria-pressed="true"]{border-color:var(--fg);color:var(--fg);background:var(--soft)}
   .g-lim button{width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:var(--card,#fff);font-size:20px;font-weight:700;color:var(--fg)}
