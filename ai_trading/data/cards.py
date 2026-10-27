@@ -216,11 +216,13 @@ def build(out: Path) -> dict:
     d.text((672, 1065), "팔로우하고 내일도 받아보기", font=F("Bold", 34), fill=WHITE, anchor="mm")
     d.rounded_rectangle((100, 1130, 980, 1225), 22, fill=UP)
     d.text((540, 1160), "실전 데이터 모의투자 앱 선착순 무료 배포", font=F("ExtraBold", 36), fill=WHITE, anchor="mm")
-    sub = "캡션 더보기 → 댓글 '연구소' 남겨주세요"; sf = F("Bold", 28); sw = d.textlength(sub, font=sf)
-    bx = 540 - (sw + 46) / 2  # 말풍선 아이콘 + 글자를 가운데로
-    d.rounded_rectangle((bx, 1188, bx + 36, 1214), 8, fill=WHITE); d.polygon([(bx + 8, 1212), (bx + 6, 1222), (bx + 17, 1212)], fill=WHITE)
-    for dot in range(3): d.ellipse((bx + 8 + dot * 8, 1199, bx + 12 + dot * 8, 1203), fill=UP)
-    d.text((bx + 46, 1202), sub, font=sf, fill=WHITE, anchor="lm")
+    parts = [("댓글에 ", F("Medium", 30)), ("'연구소'", F("ExtraBold", 33)), (" 남겨주세요", F("Medium", 30))]
+    tw = sum(d.textlength(t, font=f) for t, f in parts); bx = 540 - (tw + 48) / 2  # 선물상자 아이콘 + 글자를 가운데로
+    d.rectangle((bx + 3, 1196, bx + 33, 1220), fill=WHITE); d.rectangle((bx, 1187, bx + 36, 1196), fill=WHITE)  # 상자·뚜껑
+    d.rectangle((bx + 15, 1187, bx + 21, 1220), fill=UP); d.line((bx + 3, 1196, bx + 33, 1196), fill=UP, width=2)  # 리본
+    d.ellipse((bx + 6, 1178, bx + 18, 1188), outline=WHITE, width=3); d.ellipse((bx + 18, 1178, bx + 30, 1188), outline=WHITE, width=3)  # 매듭
+    x = bx + 48
+    for t, f in parts: d.text((x, 1203), t, font=f, fill=WHITE, anchor="lm"); x += d.textlength(t, font=f)
     im.save(dst / "5.png")
 
     caption = f"""{hname}{josa} 알려주는 {md} 장마감 현황 | 오늘 주식 장마감 요약 · 코스피 {pct(k['chg'])} · 코스닥 {pct(q['chg'])}
