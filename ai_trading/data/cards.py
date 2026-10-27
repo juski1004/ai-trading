@@ -237,7 +237,7 @@ def build(out: Path) -> dict:
 
 ※ 공개 시세로 만든 참고 자료이며 투자 권유가 아닙니다. 투자 판단과 책임은 본인에게 있습니다.
 
-#주식 #코스피 #코스닥 #장마감 #주식공부 #모의투자 #재테크 #AI투자"""
+#장마감 #코스피 #주식공부"""
     (dst / "caption.txt").write_text(caption, encoding="utf-8")
     info = {"date": date, "host": hid, "hostName": hname, "next": nname,
             "images": [f"cards/{i}.png" for i in range(1, N + 1)], "caption": caption}
