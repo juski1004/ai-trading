@@ -216,7 +216,11 @@ def build(out: Path) -> dict:
     d.text((672, 1065), "팔로우하고 내일도 받아보기", font=F("Bold", 34), fill=WHITE, anchor="mm")
     d.rounded_rectangle((100, 1130, 980, 1225), 22, fill=UP)
     d.text((540, 1160), "실전 데이터 모의투자 앱 선착순 무료 배포", font=F("ExtraBold", 36), fill=WHITE, anchor="mm")
-    d.text((540, 1202), "캡션 더보기 → 댓글 '연구소' 남기면 DM", font=F("Bold", 28), fill=WHITE, anchor="mm")
+    sub = "캡션 더보기 → 댓글 '연구소' 남겨주세요"; sf = F("Bold", 28); sw = d.textlength(sub, font=sf)
+    bx = 540 - (sw + 46) / 2  # 말풍선 아이콘 + 글자를 가운데로
+    d.rounded_rectangle((bx, 1188, bx + 36, 1214), 8, fill=WHITE); d.polygon([(bx + 8, 1212), (bx + 6, 1222), (bx + 17, 1212)], fill=WHITE)
+    for dot in range(3): d.ellipse((bx + 8 + dot * 8, 1199, bx + 12 + dot * 8, 1203), fill=UP)
+    d.text((bx + 46, 1202), sub, font=sf, fill=WHITE, anchor="lm")
     im.save(dst / "5.png")
 
     caption = f"""{hname}{josa} 알려주는 {md} 장마감 현황 | 오늘 주식 장마감 요약 · 코스피 {pct(k['chg'])} · 코스닥 {pct(q['chg'])}
@@ -231,7 +235,8 @@ def build(out: Path) -> dict:
 🔻 많이 내린: {', '.join(s['name'] + ' ' + pct(s['chg']) for _, s in ranked[-3:][::-1])}
 
 👉 팔로우하면 평일 17시 50분, 장마감 요약을 매일 받아볼 수 있어요
-🎁 실전 데이터 모의투자 앱 선착순 무료 배포 중! 댓글에 '연구소' 남기면 DM으로 바로 보내 드려요
+🎁 실전 데이터 모의투자 앱 선착순 무료 배포 중!
+💬 댓글에 '연구소' 남겨주세요 👇 DM으로 바로 보내 드려요
 
 ※ 공개 시세로 만든 참고 자료이며 투자 권유가 아닙니다. 투자 판단과 책임은 본인에게 있습니다.
 
