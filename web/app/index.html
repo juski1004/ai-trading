@@ -443,8 +443,10 @@ $('#view').addEventListener('click',e=>{
   const m=e.target.closest('[data-more]');if(m){LIMIT+=30;render()}});
 $('#view').addEventListener('click',e=>{const w=e.target.closest('[data-watch]');if(!w)return;e.stopPropagation();const sym=w.dataset.watch;
   WATCH=WATCH.includes(sym)?WATCH.filter(x=>x!==sym):[sym,...WATCH].slice(0,30);saveWatch();render()},true);
-$('#view').addEventListener('input',e=>{if(e.target.id==='q'){LIMIT=20}});
-$('#view').addEventListener('input',e=>{if(e.target.id==='q'){Q=e.target.value;render()}});
+/* 검색: 입력칸은 그대로 두고 아래 목록만 바꿈 (입력칸을 다시 그리면 한글 조합이 깨짐) */
+$('#view').addEventListener('input',e=>{if(e.target.id!=='q')return;Q=e.target.value;LIMIT=20;
+  const box=e.target.closest('.search'),tmp=document.createElement('div');tmp.innerHTML=analysis();
+  while(box.nextSibling)box.nextSibling.remove();[...tmp.childNodes].slice(1).forEach(n=>box.parentNode.appendChild(n))});
 /* ---------- 사용법 (처음 한 번 자동) ---------- */
 const gd=$('#guide');
 const openG=()=>{gd.hidden=false;$('#gdOk').focus()};
