@@ -10,6 +10,7 @@ out, text, voices = Path(sys.argv[1]), sys.argv[2], sys.argv[3].split(",")
 LINES = [t.strip() for t in text.split("||") if t.strip()]
 out.mkdir(parents=True, exist_ok=True); res = {}
 STYLE = os.getenv("TTS_STYLE", "")
+SPEED = float(os.getenv("TTS_SPEED") or 1)  # 1.2 = 1.2배 빠르게 (음높이 그대로, ffmpeg atempo)
 
 
 def post(url, body):
@@ -37,6 +38,11 @@ def gemini(name, line, dst):
     pcm = base64.b64decode(j["candidates"][0]["content"]["parts"][0]["inlineData"]["data"])
     with wave.open(str(dst), "wb") as w:
         w.setnchannels(1); w.setsampwidth(2); w.setframerate(24000); w.writeframes(pcm)
+    if abs(SPEED - 1) > 0.01:
+        import subprocess
+        tmp = dst.with_suffix(".tmp.wav")
+        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(dst), "-filter:a", f"atempo={SPEED}", str(tmp)], check=True)
+        tmp.replace(dst)
 
 
 for v in voices:
