@@ -1,0 +1,11 @@
+{
+ "gemini:Charon": "ok",
+ "gemini:Fenrir": "ok",
+ "gemini:Orus": "ok",
+ "gemini:Puck": "ok",
+ "gemini:Algenib": "ok",
+ "gemini:Iapetus": "ok",
+ "gemini:Enceladus": "실패: 429 {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quot",
+ "gemini:Alnilam": "실패: 429 {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quot",
+ "ko-KR-Wavenet-C": "실패: 403 {\n  \"error\": {\n    \"code\": 403,\n    \"message\": \"Method doesn't allow unregistered callers (callers without established identity). Please use API Key or other form of API consumer identity to call this API.\",\n    \"status\": \"PERMISSION_DENIED\"\n  }\n}\n"
+}
