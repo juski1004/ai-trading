@@ -259,6 +259,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var
 <script src="deck.js"></script>
 <script src="advise.js"></script>
 <script src="rebound.js"></script>
+<script src="sim.js"></script>
 <script src="vs.js"></script>
 <script src="push.js"></script>
 <script src="vendor/lightweight-charts.js"></script>
@@ -377,6 +378,7 @@ function analysisDetail(sym){
   </section>
   ${window.AppChart?AppChart.html(sym):spark(s)}
   ${window.Rebound?Rebound.detail(sym):''}
+  ${window.Sim?Sim.card(sym):''}
   <section class="card">
     <div class="big"><div class="ring" style="--p:${P};--rc:${rc}"><b class="num">${P}<small>점</small></b></div>
       <div><h2>AI 종합 점수 <span class="chip ${s.label}">${s.label}</span></h2><p class="sub">100점 만점, 50점이 중간이에요. 차트·거래량·시장 흐름·진입 자리를 합쳤어요.</p></div></div>
