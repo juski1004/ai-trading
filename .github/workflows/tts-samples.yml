@@ -15,6 +15,7 @@ jobs:
       - name: 목소리별 mp3 만들기
         env:
           GOOGLE_TTS_API_KEY: ${{ secrets.GOOGLE_TTS_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python tools/tts_samples.py "out/${{ inputs.tag }}" "${{ inputs.text }}" "${{ inputs.voices }}"
       - name: tts-samples 브랜치에 올리기
         run: |
