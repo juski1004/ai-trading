@@ -1,8 +1,9 @@
-name: 음성 샘플 만들기 (수동)
+name: 음성 만들기 (깡통 내레이션·샘플, 수동·예약 작업이 실행)
 on:
   workflow_dispatch:
     inputs:
-      text: {description: "읽을 문장", required: true}
+      text: {description: "읽을 문장 (줄별이면 ' || ' 로 구분)", required: true}
+      style: {description: "말투 지시(선택)", required: false, default: ""}
       voices: {description: "목소리 이름들(쉼표)", required: true}
       tag: {description: "폴더 이름", required: true}
 permissions:
@@ -10,18 +11,24 @@ permissions:
 jobs:
   tts:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
-      - name: 목소리별 mp3 만들기
+      - name: 목소리별 음성 만들기
         env:
           GOOGLE_TTS_API_KEY: ${{ secrets.GOOGLE_TTS_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: python tools/tts_samples.py "out/${{ inputs.tag }}" "${{ inputs.text }}" "${{ inputs.voices }}"
-      - name: tts-samples 브랜치에 올리기
+          TTS_STYLE: ${{ inputs.style }}
+          TTS_TEXT: ${{ inputs.text }}
+          TTS_VOICES: ${{ inputs.voices }}
+          TTS_TAG: ${{ inputs.tag }}
+        run: python tools/tts_samples.py "/tmp/tts/$TTS_TAG" "$TTS_TEXT" "$TTS_VOICES"
+      - name: tts-samples 브랜치에 올리기 (기존 폴더는 그대로 두고 추가)
+        env:
+          TTS_TAG: ${{ inputs.tag }}
         run: |
           git config user.name "ai-trading-bot"; git config user.email "ai-trading-bot@users.noreply.github.com"
-          git fetch origin tts-samples || true
-          git checkout -B tts-samples
-          git rm -rq --cached . ; git add -f "out/${{ inputs.tag }}"
-          git commit -qm "음성 샘플 ${{ inputs.tag }}"
-          git push -f origin tts-samples
+          if git fetch origin tts-samples; then git checkout -B tts-samples FETCH_HEAD; else git checkout --orphan tts-samples && git rm -rqf --cached . && git clean -fdqx; fi
+          mkdir -p out && rm -rf "out/$TTS_TAG" && cp -r "/tmp/tts/$TTS_TAG" "out/$TTS_TAG"
+          git add -f "out/$TTS_TAG" && git commit -qm "음성 $TTS_TAG"
+          for i in 1 2 3; do git push origin tts-samples && break; git pull --rebase origin tts-samples; done
