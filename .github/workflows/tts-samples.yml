@@ -4,6 +4,7 @@ on:
     inputs:
       text: {description: "읽을 문장 (줄별이면 ' || ' 로 구분)", required: true}
       style: {description: "말투 지시(선택)", required: false, default: ""}
+      speed: {description: "속도 배수(선택, 예 1.2)", required: false, default: "1"}
       voices: {description: "목소리 이름들(쉼표)", required: true}
       tag: {description: "폴더 이름", required: true}
 permissions:
@@ -19,6 +20,7 @@ jobs:
           GOOGLE_TTS_API_KEY: ${{ secrets.GOOGLE_TTS_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           TTS_STYLE: ${{ inputs.style }}
+          TTS_SPEED: ${{ inputs.speed }}
           TTS_TEXT: ${{ inputs.text }}
           TTS_VOICES: ${{ inputs.voices }}
           TTS_TAG: ${{ inputs.tag }}
