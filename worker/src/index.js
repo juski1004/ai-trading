@@ -194,12 +194,14 @@ export default {
         const days = Math.max(1, Math.min(60, +url.searchParams.get("days") || 14));
         return json(req, { days: await stats(env, days) });
       }
-      if (p === "/run" && url.searchParams.get("cron")) { // 수동 점검용: 오늘 이미 보냈으면 다시 안 보냄
+      // 수동 점검용 (오늘 이미 보냈으면 다시 안 보냄). 아무나 불러 알림을 앞당겨 보내지 못하게 비밀 키(RUN_KEY)가 맞을 때만
+      if (p === "/run" && url.searchParams.get("cron") && env.RUN_KEY && url.searchParams.get("key") === env.RUN_KEY) {
         return json(req, await scheduled(url.searchParams.get("cron"), env));
       }
       return json(req, { error: "not found" }, 404);
     } catch (e) {
-      return json(req, { error: String(e && e.message || e) }, 500);
+      console.error(e); // 내부 오류 내용은 밖으로 보이지 않게
+      return json(req, { error: "server error" }, 500);
     }
   },
   async scheduled(event, env, ctx) { ctx.waitUntil(scheduled(event.cron, env)); },
