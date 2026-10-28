@@ -202,6 +202,13 @@ def build(out: Path, quick: bool = False, game_dir: Path = Path("game")) -> dict
         ol = write_outlook(mac["daily"], mflows, big5, news["eco"], {"전체": len(stocks), "20일선_위": above})
         (out / "outlook.json").write_text(json.dumps({"date": dates[-1], **ol}, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
         print(f"수급 {len(sflows)}종목·시장 전망({ol.get('source')}) 저장 ({time.time() - t0:.0f}초)")
+        try:  # 바닥 반등 신호 (하락 → 아래꼬리·거래량·바닥 골든크로스·수급·반등)
+            from .rebound import build as build_rebound
+            rb = build_rebound(stocks, dates, sflows)
+            (out / "rebound.json").write_text(json.dumps(rb, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+            print(f"바닥 반등 신호 {len(rb['items'])}종목")
+        except Exception as e:
+            print(f"[바닥 반등 신호 실패] {type(e).__name__}: {e}")
     except Exception as e:
         print(f"[수급·시장 전망 실패] {type(e).__name__}: {e}")
 
