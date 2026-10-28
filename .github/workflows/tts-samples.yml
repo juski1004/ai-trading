@@ -1,0 +1,26 @@
+name: 음성 샘플 만들기 (수동)
+on:
+  workflow_dispatch:
+    inputs:
+      text: {description: "읽을 문장", required: true}
+      voices: {description: "목소리 이름들(쉼표)", required: true}
+      tag: {description: "폴더 이름", required: true}
+permissions:
+  contents: write
+jobs:
+  tts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 목소리별 mp3 만들기
+        env:
+          GOOGLE_TTS_API_KEY: ${{ secrets.GOOGLE_TTS_API_KEY }}
+        run: python tools/tts_samples.py "out/${{ inputs.tag }}" "${{ inputs.text }}" "${{ inputs.voices }}"
+      - name: tts-samples 브랜치에 올리기
+        run: |
+          git config user.name "ai-trading-bot"; git config user.email "ai-trading-bot@users.noreply.github.com"
+          git fetch origin tts-samples || true
+          git checkout -B tts-samples
+          git rm -rq --cached . ; git add -f "out/${{ inputs.tag }}"
+          git commit -qm "음성 샘플 ${{ inputs.tag }}"
+          git push -f origin tts-samples
