@@ -13,5 +13,13 @@
       "mcp__86be3758-dc6e-4be6-bdd7-d1b2b85f2351",
       "mcp__d127e470-8866-431e-8da8-b7cad4bcf313"
     ]
+  },
+  "extraKnownMarketplaces": {
+    "ponytail": {
+      "source": { "source": "github", "repo": "DietrichGebert/ponytail" }
+    }
+  },
+  "enabledPlugins": {
+    "ponytail@ponytail": true
   }
 }
