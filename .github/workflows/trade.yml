@@ -81,6 +81,13 @@ jobs:
           google-chrome --headless=new --disable-gpu --no-sandbox --virtual-time-budget=40000 \
             --dump-dom "http://localhost:8000/?view=brieftext" > /tmp/brief.html
           python -m ai_trading.brief_audio /tmp/brief.html web/data/brief
+      - name: 장마감 카드 릴스 만들기 (매일 만들어만 둠, 올리는 건 정한 날만 · 실패해도 계속)
+        if: env.CMD == 'data'
+        continue-on-error: true
+        timeout-minutes: 5
+        run: |
+          command -v ffmpeg >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
+          python -m ai_trading.data.cards_reel web
       - name: 인스타 릴스 만들기 (화·목·금, 실제 앱 화면 15초 · 실패해도 계속)
         if: env.CMD == 'data'
         continue-on-error: true
