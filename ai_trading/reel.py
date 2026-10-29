@@ -38,6 +38,16 @@ KINDS = {
            "shots": [("#vs", "같은 날, 같은 돈으로 시작"), ("#game", "하루 한 번, 종가로 주문"), ("#analysis", "대형주 AI 점수로 종목 고르기")]},
 }
 KINDS["word"] = {"hook": [], "shots": [("#learn/{term}", "용어 사전")]}
+# 앱 공개 홍보 (2026-10-30 사용자: "원래 하려던 것에 좋은 점 추가") — 수동 실행용: python -m ai_trading.reel web promo
+# shots = (화면 주소, 자막, 맞출 자리) · 기능 하나에 2초
+KINDS["promo"] = {"hook": ["드디어", "공개합니다"],
+                  "reason": "주식 처음이라 무섭다는 분들이 많아서, 실전 데이터로 연습하는 모의투자 앱을 열었어요",
+                  "sticker": "팔로워 한정 · 선착순",
+                  "shots": [("#home", "홈 · 오늘 장마감 한눈에", "h2:마감 현황"),
+                            ("#home", "바닥 반등 신호", ".rb-card"),
+                            ("#analysis/{sym}", "사기 전에 1만 번 돌려 보기", ".sim-card"),
+                            ("#vs", "AI 팀과 수익률 대결", ""),
+                            ("#vs", "시즌 랭킹", "#vsRank")]}
 BY_WEEKDAY = {4: "app"}  # 금요일 앱 광고만
 APP_KINDS = ["tour", "chart", "vs"]                      # 목요일은 주마다 돌아가며
 # 용어 릴스 순서 (초보자가 많이 묻는 것부터, 주마다 하나)
@@ -106,7 +116,8 @@ def shoot(web: Path, kind: str, sym: str, tmp: Path, term: str = "") -> list[Pat
                 f"try{{localStorage.setItem({json.dumps(k)},{json.dumps(v)})}}catch(e){{}};" for k, v in seed.items()))
             ctx.route("**/*.workers.dev/**", lambda r: r.abort())  # 집계·랭킹 서버에 찍기용 방문을 남기지 않음
             pg = ctx.new_page()
-            for i, (route, _) in enumerate(KINDS[kind]["shots"]):
+            for i, sh in enumerate(KINDS[kind]["shots"]):
+                route, focus = sh[0], (sh[2] if len(sh) > 2 else "")
                 ind = route.endswith("@ind"); route = route.replace("@ind", "").format(sym=sym, term=term)
                 pg.goto(f"http://127.0.0.1:{port}/app/{route}", wait_until="networkidle")
                 pg.wait_for_timeout(2500)
@@ -118,10 +129,21 @@ def shoot(web: Path, kind: str, sym: str, tmp: Path, term: str = "") -> list[Pat
                         if el: el.click(); pg.wait_for_timeout(500)
                     pg.evaluate("document.getElementById('acBox')?.scrollIntoView({block:'start'})")
                     pg.evaluate("window.scrollBy(0,-120)")
+                elif focus:  # 그 기능이 보이는 자리로 (1만 번 돌려 보기는 눌러서 그래프까지)
+                    if kind == "promo" and focus == ".sim-card":
+                        el = pg.query_selector("[data-simgo]")
+                        if el: el.click(); pg.wait_for_timeout(1800)
+                    if focus.startswith("h2:"):  # 제목 글자로 찾는 자리
+                        pg.evaluate("t=>[...document.querySelectorAll('h2')].find(x=>x.textContent.trim().startsWith(t))?.scrollIntoView({block:'start'})", focus[3:])
+                    else:
+                        pg.evaluate("s=>document.querySelector(s)?.scrollIntoView({block:'start'})", focus)
+                    pg.evaluate("window.scrollBy(0,-90)")
                 elif route.startswith("#learn/"):  # 그 용어를 펼친 자리로
                     pg.wait_for_timeout(900); pg.evaluate(f"document.getElementById('lr-{term}')?.scrollIntoView({{block:'start'}})"); pg.evaluate("window.scrollBy(0,-90)")
                 elif route.startswith("#analysis/"):
                     pg.evaluate("document.getElementById('acBox')?.scrollIntoView({block:'start'})"); pg.evaluate("window.scrollBy(0,-170)")
+                elif kind == "promo":  # 홍보 영상: 맨 위부터 (앞 화면의 스크롤이 남지 않게)
+                    pg.evaluate("window.scrollTo(0,0)")
                 pg.wait_for_timeout(800)
                 f = tmp / f"s{i}.png"; pg.screenshot(path=str(f)); out.append(f)
             b.close()
@@ -137,6 +159,16 @@ def make_app(R: "M.Reel", shots: list[Path], kind: str, host, md: str):
     for i, ((_, cap), shot) in enumerate(zip(K["shots"], shots)):
         M.phone_scene(R, shot, cap, 3.4, side=1 if i % 2 == 0 else -1)
     M.end_scene(R, md=md, sec=2.4)
+
+
+def make_promo(R: "M.Reel", shots: list[Path], kind: str, host):
+    """앱 공개 홍보: 훅(2.6초) → 기능 5개(각 2초, 왼쪽·오른쪽 번갈아) → 팔로우 안내(2.4초). 구석 스티커는 처음부터 끝까지."""
+    K = KINDS[kind]
+    R.overlay = M.sticker(K["sticker"])
+    M.promo_hook(R, K["hook"], K["reason"], host, "AI 투자연구소")
+    for i, ((_, cap, _f), shot) in enumerate(zip(K["shots"], shots)):
+        M.feature_scene(R, shot, cap, f"{i + 1}/{len(shots)}", 2.0, side=1 if i % 2 == 0 else -1)
+    M.promo_end(R, 2.4)
 
 
 def make_word(R: "M.Reel", shots: list[Path], t: dict, lv: str, n_terms: int, host, md: str):
@@ -174,6 +206,8 @@ def build(web: Path, kind: str | None = None, at: str | None = None, out: Path |
         if term:
             lv = live(term, sc, facts)
             make_word(R, shots, term, lv, len(G["terms"]), host, end_md)
+        elif kind == "promo":
+            make_promo(R, shots, kind, host)
         else:
             make_app(R, shots, kind, host, end_md)
         R.cover.save(tmp / "cover.jpg", quality=90)
@@ -198,6 +232,19 @@ def build(web: Path, kind: str | None = None, at: str | None = None, out: Path |
 ※ 공개 자료로 만든 학습용 설명이며 투자 권유가 아닙니다.
 
 #주식공부 #주식용어 #주식초보 #{term['name'].replace(' ', '').replace('/', '')} #재테크"""
+    elif kind == "promo":
+        caption = f"""드디어 공개합니다 🎮
+{hname}{josa} 소개하는 AI 투자연구소 ({md})
+
+{KINDS[kind]['reason']}.
+
+📌 홈 · 바닥 반등 신호 · 사기 전에 1만 번 돌려 보기 · AI 대결 · 랭킹
+
+💬 팔로워 한정 · 선착순! 댓글에 '연구소' 남기면 DM으로 앱 보내 드려요
+
+※ 가상 돈으로 하는 모의투자 게임이며 신호는 참고용입니다. 투자 권유가 아닙니다.
+
+#모의투자 #주식게임 #주식초보 #재테크 #AI투자"""
     else:
         K = KINDS[kind]
         caption = f"""{' '.join(K['hook'])} 🎮
