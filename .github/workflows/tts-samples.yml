@@ -5,6 +5,7 @@ on:
       text: {description: "읽을 문장 (줄별이면 ' || ' 로 구분)", required: true}
       style: {description: "말투 지시(선택)", required: false, default: ""}
       speed: {description: "속도 배수(선택, 예 1.2)", required: false, default: "1"}
+      group: {description: "몇 줄씩 묶어 한 번에 만들지(선택, 무료 한도 절약. 예 10)", required: false, default: "1"}
       voices: {description: "목소리 이름들(쉼표)", required: true}
       tag: {description: "폴더 이름", required: true}
 permissions:
@@ -24,6 +25,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           TTS_STYLE: ${{ inputs.style }}
           TTS_SPEED: ${{ inputs.speed }}
+          TTS_GROUP: ${{ inputs.group }}
           TTS_TEXT: ${{ inputs.text }}
           TTS_VOICES: ${{ inputs.voices }}
           TTS_TAG: ${{ inputs.tag }}
