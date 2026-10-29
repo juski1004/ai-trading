@@ -99,6 +99,9 @@ def build(out: Path) -> dict:
     whyp = out / "why.json"; why = json.loads(whyp.read_text(encoding="utf-8")) if whyp.exists() else {}
     fx = o["facts"]; date = sc["date"]; md = f"{int(date[5:7])}월 {int(date[8:])}일"
     hid, hname, hrole = host_of(date); _, nname, _ = host_of(date, 1)
+    # 2026-10-29 사용자: 이름은 성 빼고 "시아가 전해주는" 식으로, "이번 주 진행은 누구" 같은 소개는 빼기
+    gname = hname[1:] if len(hname) == 3 else hname
+    gsub = gname + ("이가" if (ord(gname[-1]) - 0xAC00) % 28 else "가")  # 시아가 / 하진이가
     th = theme_of(date); PAPER, GRID, LAVD, LINE = th["paper"], th["grid"], th["acc"], th["line"]  # 이번 주 색
     F = _font
     pct = lambda x: f"{'+' if x > 0 else ''}{x:.2f}%"
@@ -116,7 +119,7 @@ def build(out: Path) -> dict:
         d.text((W - 60, 90), f"{n}/{N}", font=F("Bold", 32), fill=MUTED, anchor="rm")
         if n not in (1, N):  # 오늘 진행자 얼굴 (작게)
             d.ellipse((W - 222, 40, W - 118, 144), fill=WHITE); im.paste(avatar[0], (W - 218, 44), avatar[1])
-            d.text((W - 170, 160), hname, font=F("Bold", 24), fill=LAVD, anchor="mt")
+            d.text((W - 170, 160), gname, font=F("Bold", 24), fill=LAVD, anchor="mt")
         if title: d.text((70, 190), title, font=F("ExtraBold", 72), fill=INK)
         if sub: d.text((72, 290), sub, font=F("Medium", 36), fill=MUTED)
         d.text((W // 2, H - 60), f"{md} 장 마감 기준 · 참고용, 투자 권유 아님", font=F("Medium", 26), fill=MUTED, anchor="mm")
@@ -131,25 +134,29 @@ def build(out: Path) -> dict:
     mf = fx["오늘_시장수급_억원"]
     up = sum(1 for s in S.values() if s["chg"] > 0); dn = sum(1 for s in S.values() if s["chg"] < 0)
 
-    # 1. 표지 (훅): "○○가 알려주는 10월 27일 장마감 현황" + 진행자 사진 크게
-    im, d = base(1, None)
-    josa = "이" if (ord(hname[-1]) - 0xAC00) % 28 else "가"
-    d.text((70, 170), f"{hname}{josa} 알려주는", font=F("Bold", 54), fill=LAVD)
-    d.text((66, 245), md, font=F("ExtraBold", 120), fill=INK)
-    d.rounded_rectangle((70, 440, 70 + d.textlength("장마감 현황", font=F("ExtraBold", 120)), 500), 10, fill=MARK)  # 형광펜
-    d.text((66, 385), "장마감 현황", font=F("ExtraBold", 120), fill=INK)
-    ph = _photo(hid, 510, 680, 44); card(d, (494, 546, 1014, 1236), 50); im.paste(ph[0], (499, 551), ph[1])
-    badge = hrole if hrole == "본부장" else f"{hrole} 담당"
-    d.rounded_rectangle((520, 1160, 520 + 40 + d.textlength(badge, font=F("Bold", 30)), 1214), 27, fill=LAVD)
-    d.text((540, 1187), badge, font=F("Bold", 30), fill=WHITE, anchor="lm")
+    # 1. 표지 (2026-10-29 사용자: 사진 전체 화면 + 위아래 큰 글씨 + 넘기기 유도)
+    big = max(S.values(), key=lambda x: abs(x["chg"]))
+    from PIL import ImageFilter
+    ph = Image.open(TEAM_IMG / f"{hid}.jpg").convert("RGB")
+    ph = ph.resize((W, round(ph.height * W / ph.width)), Image.LANCZOS).filter(ImageFilter.UnsharpMask(2, 80, 2))
+    im = ph.crop((0, 40, W, 40 + H)) if ph.height >= H + 40 else ph.resize((W, H), Image.LANCZOS)
+    shade = Image.new("L", (W, H), 0); sd = ImageDraw.Draw(shade)
+    for y in range(H):  # 위·아래만 어둡게 (얼굴은 밝게)
+        t = max(0, 1 - y / 520) if y < 520 else max(0, (y - 760) / (H - 760))
+        sd.line([(0, y), (W, y)], fill=int(235 * min(1, t) ** 1.2))
+    im = Image.composite(Image.new("RGB", (W, H), (12, 14, 22)), im, shade); d = ImageDraw.Draw(im)
+    d.text((60, 70), f"AI 투자연구소 · {md} 장마감", font=F("Bold", 36), fill=WHITE, anchor="lm")
+    d.rounded_rectangle((W - 150, 48, W - 50, 94), 23, fill=(0, 0, 0)); d.text((W - 100, 71), f"1/{N}", font=F("Bold", 28), fill=WHITE, anchor="mm")
+    d.text((58, 130), f"{big['name']} {pct(big['chg'])}", font=F("ExtraBold", 92), fill=(255, 214, 10))
+    d.text((58, 245), "왜 올랐을까?" if big["chg"] > 0 else "왜 빠졌을까?", font=F("ExtraBold", 104), fill=WHITE)
+    d.text((60, 900), f"{gsub} 전해주는 오늘 장마감", font=F("Bold", 44), fill=WHITE)
     for i, (lab, x) in enumerate([("코스피", k), ("코스닥", q)]):
-        y0 = 560 + i * 230; card(d, (70, y0, 460, y0 + 200), 36)
-        d.text((105, y0 + 30), lab, font=F("Bold", 38), fill=MUTED)
-        d.text((105, y0 + 88), pct(x["chg"]), font=F("ExtraBold", 66), fill=col(x["chg"]))
-    d.text((72, 1035), f"대형주 {len(S)}종목 중", font=F("Medium", 32), fill=MUTED)
-    d.text((72, 1080), f"{up}개 상승", font=F("ExtraBold", 46), fill=UP)
-    d.text((72, 1135), f"{dn}개 하락", font=F("ExtraBold", 46), fill=DOWN)
-    d.text((72, 1210), "넘겨 보기 →", font=F("Bold", 34), fill=LAVD)
+        x0 = 60 + i * 500
+        d.text((x0, 975), lab, font=F("Bold", 40), fill=(220, 222, 232))
+        d.text((x0, 1025), pct(x["chg"]), font=F("ExtraBold", 96), fill=(255, 120, 140) if x["chg"] > 0 else (120, 170, 255) if x["chg"] < 0 else WHITE)
+    d.rounded_rectangle((60, 1175, W - 60, 1275), 50, fill=(255, 214, 10))
+    d.text((W // 2, 1225), "넘겨서 이유 보기  →", font=F("ExtraBold", 48), fill=(20, 22, 30), anchor="mm")
+    d.text((W // 2, H - 30), f"{md} 장 마감 기준 · 참고용, 투자 권유 아님", font=F("Medium", 24), fill=(200, 202, 212), anchor="mm")
     im.save(dst / "1.png")
 
     # 2·3. 많이 오른 / 내린 종목
@@ -208,8 +215,8 @@ def build(out: Path) -> dict:
         d.text((140, y + 2), t, font=F("Bold", 40), fill=INK)
     card(d, (70, 760, 1010, 1250))
     ph = _photo(hid, 240, 320, 28); im.paste(ph[0], (100, 790), ph[1])
-    d.text((370, 795), f"이번 주 진행은 {hname}", font=F("ExtraBold", 44), fill=INK)
-    d.text((370, 855), f"다음 주는 {nname} 차례예요", font=F("Medium", 34), fill=MUTED)
+    d.text((370, 795), f"오늘은 {gsub}", font=F("ExtraBold", 44), fill=INK)
+    d.text((370, 855), "전해 드렸어요", font=F("Medium", 34), fill=MUTED)
     d.text((370, 920), "AI 직원 11명이 한 주씩", font=F("Medium", 32), fill=INK)
     d.text((370, 962), "평일 장마감을 정리해 드려요", font=F("Medium", 32), fill=INK)
     d.rounded_rectangle((370, 1030, 975, 1100), 34, fill=LAVD)
@@ -228,9 +235,7 @@ def build(out: Path) -> dict:
     hook = (f"{'📈' if k['chg'] >= 0 else '📉'} 코스피 {pct(k['chg'])} {mood}한 날, "
             f"{big['name']} {pct(big['chg'])} {'왜 올랐을까?' if big['chg'] > 0 else '왜 빠졌을까?'}")
     caption = f"""{hook}
-{hname}{josa} 알려주는 {md} 장마감 현황 · 코스피 {pct(k['chg'])} · 코스닥 {pct(q['chg'])}
-
-이번 주 진행: {hname} ({hrole}) · 다음 주는 {nname}
+{gsub} 전해주는 {md} 장마감 · 코스피 {pct(k['chg'])} · 코스닥 {pct(q['chg'])}
 
 코스피 {k['v']:,.2f} ({pct(k['chg'])}) · 코스닥 {q['v']:,.2f} ({pct(q['chg'])})
 대형주 {len(S)}종목 중 {up}개 상승 · {dn}개 하락
