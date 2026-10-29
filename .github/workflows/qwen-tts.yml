@@ -1,0 +1,38 @@
+name: 무료 복제 음성 만들기 (깡통 내레이션, Qwen3-TTS · CPU)
+on:
+  workflow_dispatch:
+    inputs:
+      text: {description: "읽을 줄들 (' || ' 로 구분)", required: true}
+      tag: {description: "폴더 이름 (예 kkt-ep06)", required: true}
+permissions:
+  contents: write
+jobs:
+  tts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: 모델 저장 공간 재사용
+        uses: actions/cache@v4
+        with: {path: ~/.cache/huggingface, key: qwen3-tts-0.6b-base}
+      - name: 설치
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq sox libsndfile1 >/dev/null
+          pip install -q --index-url https://download.pytorch.org/whl/cpu torch torchaudio
+          pip install -q qwen-tts soundfile
+      - name: 줄별 음성 만들기
+        env:
+          TTS_TEXT: ${{ inputs.text }}
+          TTS_TAG: ${{ inputs.tag }}
+        run: python tools/qwen_tts_run.py "/tmp/tts/$TTS_TAG/qwen" "$TTS_TEXT"
+      - name: tts-samples 브랜치에 올리기
+        env:
+          TTS_TAG: ${{ inputs.tag }}
+        run: |
+          git config user.name "ai-trading-bot"; git config user.email "ai-trading-bot@users.noreply.github.com"
+          git fetch origin tts-samples && git checkout -B tts-samples FETCH_HEAD
+          mkdir -p "out/$TTS_TAG" && rm -rf "out/$TTS_TAG/qwen" && cp -r "/tmp/tts/$TTS_TAG/qwen" "out/$TTS_TAG/qwen"
+          git add -f "out/$TTS_TAG/qwen" && git commit -qm "음성 $TTS_TAG (qwen)"
+          for i in 1 2 3; do git push origin tts-samples && break; git pull --rebase origin tts-samples; done
