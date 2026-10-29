@@ -221,7 +221,14 @@ def build(out: Path) -> dict:
     for t, f in parts: d.text((x, 1203), t, font=f, fill=WHITE, anchor="lm"); x += d.textlength(t, font=f)
     im.save(dst / "5.png")
 
-    caption = f"""{hname}{josa} 알려주는 {md} 장마감 현황 | 오늘 주식 장마감 요약 · 코스피 {pct(k['chg'])} · 코스닥 {pct(q['chg'])}
+    # 캡션 첫 줄 = 피드에서 잘리기 전에 보이는 한 줄. 사실 나열 대신 그날 가장 크게 움직인 종목으로 궁금증을 건다
+    # (2026-10-29 미라 분석: "윤시아가 알려주는…"로 시작하면 넘겨 볼 이유가 없음). 권유·추천 표현은 쓰지 않음
+    big = max(S.values(), key=lambda x: abs(x["chg"]))
+    mood = "급등" if k["chg"] >= 2 else "급락" if k["chg"] <= -2 else "상승" if k["chg"] > 0 else "하락"
+    hook = (f"{'📈' if k['chg'] >= 0 else '📉'} 코스피 {pct(k['chg'])} {mood}한 날, "
+            f"{big['name']} {pct(big['chg'])} {'왜 올랐을까?' if big['chg'] > 0 else '왜 빠졌을까?'}")
+    caption = f"""{hook}
+{hname}{josa} 알려주는 {md} 장마감 현황 · 코스피 {pct(k['chg'])} · 코스닥 {pct(q['chg'])}
 
 이번 주 진행: {hname} ({hrole}) · 다음 주는 {nname}
 
@@ -237,7 +244,7 @@ def build(out: Path) -> dict:
 
 ※ 공개 시세로 만든 참고 자료이며 투자 권유가 아닙니다. 투자 판단과 책임은 본인에게 있습니다.
 
-#장마감 #코스피 #주식공부"""
+#장마감브리핑 #퇴근길주식 #국내주식"""
     (dst / "caption.txt").write_text(caption, encoding="utf-8")
     info = {"date": date, "host": hid, "hostName": hname, "next": nname,
             "images": [f"cards/{i}.png" for i in range(1, N + 1)], "caption": caption}
