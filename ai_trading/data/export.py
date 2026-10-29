@@ -252,6 +252,14 @@ def build(out: Path, quick: bool = False, game_dir: Path = Path("game")) -> dict
         sc = build_scores(market, news["sym"] or None, fin or None)
         (out / "scores.json").write_text(json.dumps(sc, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
         print(f"AI 점수 {len(sc['stocks'])}종목")
+        if fin:  # 고성장 기업 발굴 (증권사 전망·분기 실적·목표가로 6가지 확인)
+            try:
+                from .growth import build as build_growth
+                gr = build_growth(sc, fin)
+                (out / "growth.json").write_text(json.dumps(gr, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+                print(f"고성장 기업 {len(gr['items'])}종목")
+            except Exception as e:
+                print(f"[고성장 기업 실패] {type(e).__name__}: {e}")
         from ..llm import from_env as _llm
         from .pick import build_pick
         pk = build_pick(out, _llm())

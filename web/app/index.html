@@ -259,6 +259,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var
 <script src="deck.js"></script>
 <script src="advise.js"></script>
 <script src="rebound.js"></script>
+<script src="growth.js"></script>
 <script src="sim.js"></script>
 <script src="vs.js"></script>
 <script src="push.js"></script>
@@ -308,6 +309,7 @@ function home(){
   <section class="card bcard"><img src="../img/team/${window.Team?Team.director().id:'theo'}.jpg?v=4" alt="본부장 사진"><div><h2>오늘의 본부장 브리핑</h2><p class="sub">${window.Team?Team.director().name:'정서연'} 본부장이 시장·수급·상승/하락 종목·거래량·펀더멘탈을 8장으로 짚어 드려요.</p><button class="pclink" type="button" id="openBrief">브리핑 보기 ▶</button></div></section>
   ${window.Advise?Advise.homeCard():''}
   ${window.Rebound?Rebound.homeCard():''}
+  ${window.Growth?Growth.homeCard():''}
   ${window.Learn?Learn.homeCard():''}
   ${window.Deck?Deck.view(SC):''}
   <a class="pclink arc-link" href="../archive/">📚 지난 장마감 요약 모아 보기</a>
@@ -378,6 +380,7 @@ function analysisDetail(sym){
   </section>
   ${window.AppChart?AppChart.html(sym):spark(s)}
   ${window.Rebound?Rebound.detail(sym):''}
+  ${window.Growth?Growth.detail(sym):''}
   ${window.Sim?Sim.card(sym):''}
   <section class="card">
     <div class="big"><div class="ring" style="--p:${P};--rc:${rc}"><b class="num">${P}<small>점</small></b></div>
