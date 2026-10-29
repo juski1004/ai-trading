@@ -1,0 +1,58 @@
+name: 인스타 직접 올리기
+
+# 미라 대신 인스타 공식 API로 게시. 예약 작업(AI 작업방)이 정한 시각에 실행시킴.
+on:
+  workflow_dispatch:
+    inputs:
+      what:
+        description: "check(토큰 확인) / cards(장마감 카드) / cardsreel(카드 릴스) / term(주말 용어 카드) / reel(앱 소개 릴스)"
+        default: check
+        type: choice
+        options: [check, cards, cardsreel, term, reel]
+      tags:
+        description: "캡션 끝에 붙일 해시태그 (선택, 예: #삼성전자 #반도체)"
+        default: ""
+      date:
+        description: "용어 카드 날짜 YYYY-MM-DD (비우면 오늘)"
+        default: ""
+      force:
+        description: "날짜·중복 확인 없이 올리기"
+        type: boolean
+        default: false
+  schedule:
+    - cron: "17 1 1,15 * *"   # 매달 1·15일 10:17 KST 토큰 연장 (60일 만료 방지)
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: ig-post
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: 올리기
+        env:
+          WHAT: ${{ inputs.what || 'check' }}
+          TAGS: ${{ inputs.tags }}
+          DATE: ${{ inputs.date }}
+          FORCE: ${{ inputs.force }}
+        run: |
+          ARGS=()
+          [ -n "$DATE" ] && ARGS+=(--date "$DATE")
+          [ "$FORCE" = "true" ] && ARGS+=(--force)
+          python tools/ig_publish.py "$WHAT" --tags "$TAGS" "${ARGS[@]}"
+      - name: 실패 알림
+        if: failure()
+        run: |
+          gh label create "자동점검" --color d93f0b --description "자동 실행이 찾은 문제" 2>/dev/null || true
+          gh issue create --title "[인스타 게시 실패] ${{ inputs.what || 'check' }}" --label "자동점검" \
+            --body "인스타 직접 게시가 실패했습니다: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
