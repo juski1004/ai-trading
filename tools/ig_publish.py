@@ -1,7 +1,9 @@
 """인스타그램 공식 API로 직접 올리기 (미라 대신, 무료).
 
 사이트(GitHub Pages)에 이미 공개된 카드·릴스 파일 주소를 인스타에 넘겨 게시한다.
-토큰: 환경변수 IG_ACCESS_TOKEN (메타 개발자 앱 → Instagram 로그인 API에서 만든 장기 토큰)
+토큰: 환경변수 IG_ACCESS_TOKEN
+ - 통합 로그인(시스템 사용자 토큰, 만료 없음) → graph.facebook.com + 인스타 계정 ID (IG_USER_ID, 없으면 자동으로 찾음)
+ - Instagram 로그인 토큰(IG로 시작) → graph.instagram.com + me
 
 사용:
   python tools/ig_publish.py check                 # 토큰·계정 확인, 남은 기간 표시 (게시 안 함)
@@ -23,7 +25,25 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-API = "https://graph.instagram.com/v23.0"
+TOKEN = os.environ.get("IG_ACCESS_TOKEN", "")
+IGLOGIN = TOKEN.startswith("IG")
+API = "https://graph.instagram.com/v23.0" if IGLOGIN else "https://graph.facebook.com/v23.0"
+_UID: list[str] = []
+
+
+def uid() -> str:
+    """게시할 인스타 계정 ID. Instagram 로그인 토큰은 me, 통합 로그인은 실제 ID."""
+    if IGLOGIN: return "me"
+    if not _UID:
+        u = os.environ.get("IG_USER_ID", "").strip()
+        if not u:  # 토큰에 연결된 페이지 → 인스타 비즈니스 계정 순으로 찾기
+            for pg in call("GET", "me/accounts", fields="instagram_business_account{id,username}").get("data", []):
+                ib = pg.get("instagram_business_account")
+                if ib: u = ib["id"]; break
+        if not u:
+            raise SystemExit("인스타 계정 ID를 못 찾음 → GitHub 비밀값 IG_USER_ID 에 넣어 주세요")
+        _UID.append(u)
+    return _UID[0]
 SITE = os.environ.get("SITE_BASE", "https://juski1004.github.io/ai-trading/data/")
 KST = dt.timezone(dt.timedelta(hours=9))
 
@@ -33,7 +53,7 @@ def today() -> str:
 
 
 def call(method: str, path: str, **params) -> dict:
-    params["access_token"] = os.environ["IG_ACCESS_TOKEN"]
+    params["access_token"] = TOKEN
     url = path if path.startswith("http") else f"{API}/{path}"
     data = None
     if method == "GET":
@@ -75,7 +95,7 @@ def wait_ready(cid: str, minutes: int = 8) -> None:
 def already_posted(caption: str) -> bool:
     first = caption.strip().splitlines()[0].strip()
     since = dt.datetime.now(dt.timezone.utc) - dt.timedelta(hours=20)
-    for m in call("GET", "me/media", fields="caption,timestamp", limit=10).get("data", []):
+    for m in call("GET", f"{uid()}/media", fields="caption,timestamp", limit=10).get("data", []):
         ts = dt.datetime.strptime(m["timestamp"], "%Y-%m-%dT%H:%M:%S%z")
         if ts >= since and (m.get("caption") or "").strip().splitlines()[:1] == [first]:
             return True
@@ -84,23 +104,23 @@ def already_posted(caption: str) -> bool:
 
 def publish(container: str) -> str:
     wait_ready(container)
-    mid = call("POST", "me/media_publish", creation_id=container)["id"]
+    mid = call("POST", f"{uid()}/media_publish", creation_id=container)["id"]
     link = call("GET", mid, fields="permalink").get("permalink", "")
     print(f"게시 완료: {link}")
     return link
 
 
 def post_carousel(images: list[str], caption: str) -> str:
-    kids = [call("POST", "me/media", image_url=url(p), is_carousel_item="true")["id"] for p in images]
+    kids = [call("POST", f"{uid()}/media", image_url=url(p), is_carousel_item="true")["id"] for p in images]
     for k in kids: wait_ready(k, 3)
-    c = call("POST", "me/media", media_type="CAROUSEL", children=",".join(kids), caption=caption)["id"]
+    c = call("POST", f"{uid()}/media", media_type="CAROUSEL", children=",".join(kids), caption=caption)["id"]
     return publish(c)
 
 
 def post_reel(video: str, cover: str | None, caption: str) -> str:
     p = dict(media_type="REELS", video_url=url(video), caption=caption, share_to_feed="true")
     if cover: p["cover_url"] = url(cover)
-    return publish(call("POST", "me/media", **p)["id"])
+    return publish(call("POST", f"{uid()}/media", **p)["id"])
 
 
 def with_tags(caption: str, tags: str) -> str:
@@ -119,11 +139,13 @@ def main() -> None:
         raise SystemExit("IG_ACCESS_TOKEN 비밀값이 없습니다 (GitHub 저장소 Settings → Secrets 에 넣어 주세요)")
 
     if a.what == "check":
-        me = call("GET", "me", fields="user_id,username,account_type")
-        print(f"연결된 계정: @{me.get('username')} ({me.get('account_type')})")
-        r = call("GET", "https://graph.instagram.com/refresh_access_token", grant_type="ig_refresh_token")
-        days = int(r.get("expires_in", 0)) // 86400
-        print(f"토큰 연장 완료 · 남은 기간 약 {days}일")
+        me = call("GET", uid(), fields="username,followers_count,media_count")
+        print(f"연결된 계정: @{me.get('username')} · 팔로워 {me.get('followers_count')} · 게시물 {me.get('media_count')}")
+        if IGLOGIN:  # Instagram 로그인 토큰만 60일 만료 → 연장
+            r = call("GET", "https://graph.instagram.com/refresh_access_token", grant_type="ig_refresh_token")
+            print(f"토큰 연장 완료 · 남은 기간 약 {int(r.get('expires_in', 0)) // 86400}일")
+        else:
+            print("시스템 사용자 토큰 (만료 없음)")
         return
 
     if a.what in ("cards", "cardsreel"):
