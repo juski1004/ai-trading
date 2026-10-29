@@ -54,22 +54,24 @@ def save(pcm: bytes, dst):
         tmp.replace(dst)
 
 
-def gemini_pcm(name, line):
+def gemini_pcm(name, line, extra=""):
     last = None
     for model in MODELS:
         try:
-            return _gemini_pcm(name, line, model)
+            return _gemini_pcm(name, line, model, extra)
         except RuntimeError as e:
             last = e
             if not str(e).startswith("429"): raise
     raise last
 
 
-def _gemini_pcm(name, line, model):
+def _gemini_pcm(name, line, model, extra=""):
+    # 말투 지시는 콜론 앞에만 둬야 소리 내어 읽지 않음
+    style = ", ".join(x for x in (STYLE, extra) if x)
     for k in range(4):
         try:
             j = post(f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={os.environ['GEMINI_API_KEY']}",
-                     {"contents": [{"parts": [{"text": (STYLE + ": " if STYLE else "") + line}]}],
+                     {"contents": [{"parts": [{"text": (style + ": " if style else "") + line}]}],
                       "generationConfig": {"responseModalities": ["AUDIO"],
                                            "speechConfig": {"voiceConfig": {"prebuiltVoiceConfig": {"voiceName": name}}}}})
             break
@@ -93,7 +95,7 @@ for v in voices:
                     part = LINES[g0:g0 + GROUP]
                     if g0: time.sleep(21)
                     text_g = "\n".join(part) if len(part) > 1 else part[0]
-                    pcm = gemini_pcm(name, ("각 줄 끝마다 1초씩 확실히 쉬고 읽어. " if len(part) > 1 else "") + text_g)
+                    pcm = gemini_pcm(name, text_g, extra="줄이 바뀔 때마다 1초씩 쉬어서" if len(part) > 1 else "")
                     for i, chunk in enumerate(split_pcm(pcm, len(part)) if len(part) > 1 else [pcm], g0 + 1):
                         save(chunk, d / f"{i:02d}.wav")
             elif len(LINES) > 1:
