@@ -217,8 +217,8 @@ def build(out: Path) -> dict:
     ph = _photo(hid, 240, 320, 28); im.paste(ph[0], (100, 790), ph[1])
     d.text((370, 795), f"오늘은 {gsub}", font=F("ExtraBold", 44), fill=INK)
     d.text((370, 855), "전해 드렸어요", font=F("Medium", 34), fill=MUTED)
-    d.text((370, 920), "AI 직원 11명이 한 주씩", font=F("Medium", 32), fill=INK)
-    d.text((370, 962), "평일 장마감을 정리해 드려요", font=F("Medium", 32), fill=INK)
+    d.text((370, 920), "평일 17시 50분,", font=F("Medium", 32), fill=INK)  # 2026-10-29 사용자: 'AI 직원 11명' 문구 빼기
+    d.text((370, 962), "장마감을 1분으로 정리해 드려요", font=F("Medium", 32), fill=INK)
     d.rounded_rectangle((370, 1030, 975, 1100), 34, fill=LAVD)
     d.text((672, 1065), "팔로우하고 내일도 받아보기", font=F("Bold", 34), fill=WHITE, anchor="mm")
     d.rounded_rectangle((100, 1130, 980, 1225), 22, fill=UP)
