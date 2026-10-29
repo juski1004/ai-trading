@@ -1,6 +1,6 @@
 // 앱 화면·데이터 모두 항상 새로 받고(고친 화면이 바로 보이게), 인터넷이 안 될 때만 저장본을 씀.
-const SHELL = "shell-v41";
-const FILES = ["./", "./index.html", "./team.js", "./game.js", "./report.js", "./deck.js", "./advise.js", "./rebound.js", "./sim.js", "./vs.js", "./push.js", "./bgm.js", "./chart.js", "./vendor/lightweight-charts.js", "./metrics.js", "./backup.js", "./daily.js", "./learn.js", "./glossary.json", "./tour.js", "./terms.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png"];
+const SHELL = "shell-v42";
+const FILES = ["./", "./index.html", "./team.js", "./game.js", "./report.js", "./deck.js", "./advise.js", "./rebound.js", "./growth.js", "./sim.js", "./vs.js", "./push.js", "./bgm.js", "./chart.js", "./vendor/lightweight-charts.js", "./metrics.js", "./backup.js", "./daily.js", "./learn.js", "./glossary.json", "./tour.js", "./terms.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png"];
 self.addEventListener("install", e => e.waitUntil(caches.open(SHELL).then(c => c.addAll(FILES)).then(() => self.skipWaiting())));
 self.addEventListener("activate", e => e.waitUntil(
   caches.keys().then(ks => Promise.all(ks.filter(k => k !== SHELL && k !== "data").map(k => caches.delete(k)))).then(() => self.clients.claim())));
