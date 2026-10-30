@@ -62,8 +62,31 @@ def fetch(session: requests.Session | None = None) -> dict:
     return stocks
 
 
+def krx_close(stocks: dict) -> int:
+    """종가를 거래소(KRX) 정규장 값으로 바로잡기. 목록 API는 저녁(~20:00)에 넥스트레이드 애프터마켓 거래가 섞인
+    값을 줘서 네이버 종목 화면의 종가와 달랐음 (2026-10-30 삼성화재 659,000 vs 655,000). 바뀐 종목 수를 돌려준다."""
+    from concurrent.futures import ThreadPoolExecutor
+    from .collect import naver_daily
+    def one(k):
+        v = stocks[k]; d = naver_daily(v["code"], n=2)
+        return k, (d.get(v["at"]), d) if v.get("at") else (None, d)
+    n = 0
+    with ThreadPoolExecutor(8) as ex:
+        for k, (x, d) in ex.map(one, list(stocks)):
+            if not x: continue
+            v = stocks[k]  # 등락률은 목록 값 그대로 (네이버 화면과 같은 기준)
+            if x["c"] != v["price"]: n += 1
+            v["price"] = x["c"]
+            if "o" in v: v.update({"o": x["o"], "h": x["h"], "l": x["l"]})  # 지정가 체결 확인도 거래소 값으로
+    return n
+
+
 def build(out: Path, analyzed: set[str] | None = None) -> dict:
     stocks = fetch()
+    try:
+        print(f"거래소 종가로 바로잡은 종목 {krx_close(stocks)}개")
+    except Exception as e:  # 실패해도 목록 값 그대로
+        print(f"[거래소 종가 보정 실패] {type(e).__name__}: {e}")
     dates = sorted({v["at"] for v in stocks.values() if v["at"]})
     date = dates[-1] if dates else ""
     # 날짜가 다른(거래 정지 등으로 오래된) 종목은 거래 정지로 표시
