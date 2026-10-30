@@ -237,6 +237,7 @@ def build(out: Path) -> dict:
             f"{big['name']} {pct(big['chg'])} {'왜 올랐을까?' if big['chg'] > 0 else '왜 빠졌을까?'}")
     caption = f"""{hook}
 {gsub} 전해주는 {md} 장마감 · 코스피 {pct(k['chg'])} · 코스닥 {pct(q['chg'])}
+🔎 오늘 주식 시황 · 코스피 마감 · {' · '.join(dict.fromkeys(s['name'] + ' 주가' for s in (big, ranked[0][1], ranked[-1][1])))}
 
 코스피 {k['v']:,.2f} ({pct(k['chg'])}) · 코스닥 {q['v']:,.2f} ({pct(q['chg'])})
 대형주 {len(S)}종목 중 {up}개 상승 · {dn}개 하락

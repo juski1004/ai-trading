@@ -167,17 +167,30 @@ def publish(container: str) -> str:
     return link
 
 
+def _threads(caption: str, **media) -> None:
+    """인스타에 올린 것을 스레드에도 (토큰 없거나 실패해도 인스타 게시는 성공으로 둠)."""
+    try:
+        import threads_publish as T
+        print(T.mirror(caption, **media))
+    except Exception as e:
+        print(f"[스레드 건너뜀] {e}")
+
+
 def post_carousel(images: list[str], caption: str) -> str:
     kids = [call("POST", f"{uid()}/media", image_url=url(p), is_carousel_item="true")["id"] for p in images]
     for k in kids: wait_ready(k, 3)
     c = call("POST", f"{uid()}/media", media_type="CAROUSEL", children=",".join(kids), caption=caption)["id"]
-    return publish(c)
+    link = publish(c)
+    _threads(caption, images=[url(p) for p in images])
+    return link
 
 
 def post_reel(video: str, cover: str | None, caption: str) -> str:
     p = dict(media_type="REELS", video_url=url(video), caption=caption, share_to_feed="true")
     if cover: p["cover_url"] = url(cover)
-    return publish(call("POST", f"{uid()}/media", **p)["id"])
+    link = publish(call("POST", f"{uid()}/media", **p)["id"])
+    _threads(caption, video=url(video))
+    return link
 
 
 def gh(method: str, path: str, body: dict | None = None) -> dict:
@@ -276,6 +289,9 @@ def main() -> None:
         for path, f in (("me", "id,name"), ("me/accounts", "name,instagram_business_account{id,username}")):
             try: print(f"[진단] {path}: {json.dumps(call('GET', path, fields=f), ensure_ascii=False)[:400]}")
             except SystemExit as e: print(f"[진단] {path} 실패: {str(e)[:200]}")
+        try:
+            import threads_publish as T; print(T.refresh())
+        except Exception as e: print(f"[스레드 확인 건너뜀] {e}")
         me = call("GET", uid(), fields="username,followers_count,media_count")
         print(f"연결된 계정: @{me.get('username')} · 팔로워 {me.get('followers_count')} · 게시물 {me.get('media_count')}")
         if IGLOGIN:  # Instagram 로그인 토큰: 60일 만료 → 여기서 연장
