@@ -220,20 +220,25 @@ def naver_news(code: str, limit: int = 15) -> list[dict]:
 
 
 def naver_daily(code: str, n: int = 10) -> dict[str, dict]:
-    """한국거래소 정규장 일봉(네이버). 야후 시세가 최근 며칠 틀리게 오는 일이 있어 마지막 n일을 이걸로 바로잡는다.
+    """한국거래소(KRX) 정규장 일봉(네이버 차트). 야후 시세가 최근 며칠 틀리게 오는 일이 있어 마지막 n일을 이걸로 바로잡는다.
+    2026-10-30: 모바일 시세 API(/stock/{code}/price)는 넥스트레이드(NXT) 애프터마켓(~20:00) 거래가 섞인 값을 줘서
+    저녁에 받으면 종가가 거래소 종가와 달랐음(삼성화재 659,000 vs 655,000) → 거래소 정규장만 주는 차트 API로 바꿈.
     {날짜: {"o","h","l","c","v"}}. 못 받으면 빈 dict."""
+    import datetime as _dt
+    end = _dt.date.today(); start = end - _dt.timedelta(days=n * 2 + 10)
     try:
-        r = requests.get(f"{NAVER}/stock/{code}/price?pageSize={n}&page=1", headers=UA, timeout=10).json()
+        r = requests.get(f"https://api.stock.naver.com/chart/domestic/item/{code}/day",
+                         params={"startDateTime": start.strftime("%Y%m%d"), "endDateTime": end.strftime("%Y%m%d")},
+                         headers=UA, timeout=10).json()
     except Exception as e:
         _warn(f"네이버 일봉 {code}", e)
         return {}
-    num = lambda x: float(str(x).replace(",", "")) if x not in (None, "") else None
     out = {}
-    for x in r if isinstance(r, list) else []:
-        c = num(x.get("closePrice"))
-        if x.get("localTradedAt") and c:
-            out[x["localTradedAt"][:10]] = {"o": num(x.get("openPrice")) or c, "h": num(x.get("highPrice")) or c,
-                                            "l": num(x.get("lowPrice")) or c, "c": c, "v": int(x.get("accumulatedTradingVolume") or 0)}
+    for x in (r if isinstance(r, list) else [])[-n:]:
+        c = x.get("closePrice"); d = str(x.get("localDate") or "")
+        if c and len(d) == 8:
+            out[f"{d[:4]}-{d[4:6]}-{d[6:]}"] = {"o": x.get("openPrice") or c, "h": x.get("highPrice") or c,
+                                                "l": x.get("lowPrice") or c, "c": float(c), "v": int(x.get("accumulatedTradingVolume") or 0)}
     return out
 
 
