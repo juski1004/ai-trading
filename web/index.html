@@ -1379,7 +1379,7 @@ function renderReal(){
 }
 
 /* ---------- 수급 · 매매 계획 · 시장 전망 · 예상 실적 ---------- */
-const eok=x=>`${x>=0?'+':''}${Math.round(x/1e8).toLocaleString('ko-KR')}억`;
+const eok=x=>{const n=Math.abs(Math.round(x/1e8)),j=Math.floor(n/1e4),r=n%1e4;return `${x>=0?'+':'-'}${j?`${j}조${r?` ${r.toLocaleString('ko-KR')}억`:''}`:`${n.toLocaleString('ko-KR')}억`}`};
 function flowSum(id,i,n){const f=DATA[id]?.flows;if(!f)return null;let o=null;for(let k=Math.max(0,i-n+1);k<=i;k++){const x=f[k];if(!x)continue;o=o||{frg:0,org:0,ind:0,days:0};o.frg+=x.frg;o.org+=x.org;o.ind+=x.ind;o.days++}return o}
 function flowView(id,i){// 그날까지의 흐름으로 본 수급 전망 (추정)
   const f5=flowSum(id,i,5),f20=flowSum(id,i,20);if(!f5||!f20||f20.days<10)return null;
@@ -1604,8 +1604,10 @@ document.addEventListener('click',e=>{const a=e.target.closest('[data-acc]');if(
 
 /* ---------- 이벤트 전략: 호재 전에 사고, 호재에 팔고, 악재에 산다 ---------- */
 const SEVERE=['횡령','배임','상장폐지','거래정지','감사의견','분식','파산','회생','부도','불성실공시'];
+const EARN_DONE=/잠정\)?\s*실적|영업\(잠정\)|실적\s?발표|실적\s?공시|분기\s?실적|분기보고서|반기보고서|손익구조|어닝/;
 function nextEarn(id,i){
   const D=DATA[id],nx=D.quarters.find(q=>q.i>i&&q.i!==Infinity);
+  if(!nx&&(D.events||[]).some(e=>e.i<=i&&e.i>=i-15&&(e.kind==='earn'||EARN_DONE.test(e.title||''))))return null;// 이미 발표함 (재무 자료 반영 전이라도)
   let ds=nx?nx.date:null;if(!ds){const rel=released(id,i),lq=rel[rel.length-1];if(!lq)return null;const d=new Date(lq.end);d.setMonth(d.getMonth()+3);d.setDate(d.getDate()+30);ds=d.toISOString().slice(0,10)}
   const cal=Math.round((new Date(ds)-new Date(DATES[i]))/864e5);return cal<0?null:{date:ds,cal,td:Math.round(cal*5/7)};
 }
@@ -1914,7 +1916,7 @@ function buildBrief(){
   const acc=accumScan(i).slice(0,5),ev={pre:[],sell:[],dip:[]};STOCKS.forEach(s=>{const e=J[s.id].EV;if(ev[e.st])ev[e.st].push(s.id)});
   const soon=STOCKS.map(s=>({id:s.id,ne:nextEarn(s.id,i)})).filter(x=>x.ne&&x.ne.td<=7).sort((a,b)=>a.ne.td-b.ne.td).slice(0,5);
   const reg=MC?.overall||'전환기',expo=reg==='상승기'?[70,90]:reg==='하락기'?[20,30]:[40,60],seed=MY.seed;
-  const pc=x=>`${x>=0?'+':''}${x.toFixed(2)}%`,won8=x=>`${Math.abs(Math.round(x)).toLocaleString('ko-KR')}억`;
+  const pc=x=>`${x>=0?'+':''}${x.toFixed(2)}%`,won8=x=>{const n=Math.abs(Math.round(x)),j=Math.floor(n/1e4),r=n%1e4;return j?`${j}조${r?` ${r.toLocaleString('ko-KR')}억`:''}`:`${n.toLocaleString('ko-KR')}억`};
   const bs=(who,x)=>`${who} ${won8(x)} ${x>=0?'<b class="up">순매수</b>':'<b class="down">순매도</b>'}`;
   const ieum=w=>{const c=w.charCodeAt(w.length-1)-0xAC00;return c>=0&&c<11172&&c%28?'이에요':'예요'};// 받침 따라 이에요/예요
   const call=(()=>{try{return JSON.parse(localStorage.getItem('aiLab.call.v1')||'null')}catch(e){return null}})()||'대표님';
@@ -1931,7 +1933,7 @@ function buildBrief(){
   S.push({t:'시황',who:'JOY',l:[
     `<b class="bwho">${KNAME.NOVA}:</b> 큰 그림부터 말씀드릴게요. ${kr?`코스피는 ${kr}, `:''}${us?`미국 나스닥은 ${us}${ieum(us)}.`:''}${MC?.fed?.label?` 미국 금리는 지금 '${MC.fed.label.replace(/\s*\(.*\)\s*/,'')}' 국면이에요.`:''}`,
     `<b class="bwho">${KNAME.JOY}:</b> 단기로는 환율이 ${M.usdkrw[i].toFixed(0)}원으로 한 달 새 ${pc(mac.fx)}, 유가는 ${pc(mac.oil)} 움직였어요. 공포지수(VIX)는 ${mac.vx.toFixed(1)}로 ${mac.vx>25?'불안한 편이에요':mac.vx<15?'아주 차분해요':'보통 수준이에요'}.`,
-    ...(O&&O.source!=='규칙'?ol.slice(0,2):[]).map(x=>`<b>시황 한마디:</b> ${esc(x)}`)]});
+    ...(O&&O.source!=='규칙'?ol.slice(0,2):[]).map(x=>esc(x))]});
   S.push({t:'수급',who:'OSCAR',l:[MF.KOSPI?`<b class="bwho">${KNAME.OSCAR}:</b> 오늘 코스피에서는 ${bs('외국인',MF.KOSPI.frg)}, ${bs('기관',MF.KOSPI.org)}, ${bs('개인',MF.KOSPI.ind)}했어요.`:`<b class="bwho">${KNAME.OSCAR}:</b> 오늘은 시장 수급 자료가 아직 없어요.`,
     MF.KOSDAQ?`코스닥은 ${bs('외국인',MF.KOSDAQ.frg)}, ${bs('기관',MF.KOSDAQ.org)}, ${bs('개인',MF.KOSDAQ.ind)}예요.`:'',
     flw.length?`외국인과 기관이 함께 많이 산 종목은 ${flw.slice(0,3).map(x=>`${sl(x.id)}(${eok(x.net)})`).join(', ')} 순이고,`:'',
@@ -1973,11 +1975,18 @@ function renderBrief(){
 function spoken(k){
   const n0=x=>String(+x),md=(m,d)=>+m>=1&&+m<=12&&+d>=1&&+d<=31,box=document.createElement('div');
   const body=BRIEF[k].l.map(h=>{box.innerHTML=h;box.querySelectorAll('.bcall,.bwho').forEach(e=>e.remove());return box.textContent.trim()}).filter(Boolean).join('\n');
-  return BRIEF[k].t.replace(/ · /g,', ')+'.'+String.fromCharCode(10)+body// 이름·호칭은 읽지 않고 '수급', '시황'처럼 파트 이름으로 시작
+  return body// 장 제목('수급', '시황'…)과 이름·호칭은 읽지 않음 (2026-10-30 사용자 지시)
+    .replace(/(^|\n)\s*[가-힣 ·]{1,8}:\s*/g,'$1')// '시황 한마디:' 같은 꼬리표
+    // 종목 이름 뒤 등락률은 한 박자 쉬고: '삼성전자 +2.3%' → '삼성전자, 플러스 이쩜삼 퍼센트'
+    .replace(/([가-힣A-Za-z0-9)])\s+([+-]\d)/g,'$1, $2')
     .replace(/%p/g,' 퍼센트포인트').replace(/%/g,' 퍼센트')// '%.'를 '퍼센트 사인'으로 읽지 않게
     .replace(/POSCO|NAVER|KAKAO|HYBE|S-?OIL|KT&G|SOOP|LOTTE/gi,w=>BRAND[w.toUpperCase().replace('-','')]||w)// 회사 이름은 한글 이름대로 (POSCO → 포스코)
     .replace(/S&P/g,'SP').replace(/\b[A-Z]{2,6}\b/g,w=>[...w].map(c=>ABC[c]).join(''))// HMM → 에이치엠엠, SK → 에스케이
     .replace(/[▲▼]\s*/g,'').replace(/\[(호재|악재|중립)\]/g,'$1,').replace(/\s*\([^()\d]*\)/g,'')// 기호·출처 괄호는 읽지 않음
+    // 금액: 16,293억 → 일조 육천이백구십삼억 (만 단위 넘으면 조로)
+    .replace(/(\d[\d,]*)조\s?(\d[\d,]*)억/g,(m,a,b)=>`${sino(+a.replace(/,/g,''))}조 ${sino(+b.replace(/,/g,''))}억`)
+    .replace(/(\d[\d,]*)억/g,(m,a)=>{const n=+a.replace(/,/g,''),j=Math.floor(n/1e4),r=n%1e4;return j?`${sino(j)}조${r?' '+sino(r)+'억':''}`:`${sino(n)}억`})
+    .replace(/(^|[\s(])([+-])(?=[영일이삼사오육칠팔구십백천])/g,(m,p,sg)=>`${p}${sg==='-'?'마이너스 ':'플러스 '}`)
     .replace(/((?:19|20)\d{2})[.\-/](\d{1,2})[.\-/](\d{1,2})(?![\d])/g,(s,y,m,d)=>md(m,d)?`${y}년 ${n0(m)}월 ${n0(d)}일`:s)
     .replace(/((?:19|20)\d{2})-(\d{1,2})(?![\d])/g,(s,y,m)=>+m>=1&&+m<=12?`${y}년 ${n0(m)}월`:s)
     .replace(/(^|[^\d.])(\d{1,2})-(\d{1,2})(?![\d.])/g,(s,p,m,d)=>md(m,d)?`${p}${n0(m)}월 ${n0(d)}일`:s)
