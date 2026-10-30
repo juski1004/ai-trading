@@ -209,6 +209,13 @@ def build(out: Path, quick: bool = False, game_dir: Path = Path("game")) -> dict
             print(f"바닥 반등 신호 {len(rb['items'])}종목")
         except Exception as e:
             print(f"[바닥 반등 신호 실패] {type(e).__name__}: {e}")
+        try:  # 기관 매수 트래커 + 위치 진단(기관·외국인 추정 평단 대비 현재가)
+            from .position import build as build_position
+            ps = build_position(stocks, dates, sflows)
+            (out / "position.json").write_text(json.dumps(ps, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+            print(f"위치 진단 {len(ps['items'])}종목 · 기관 매수 트래커 {len(ps['tracker'])}종목")
+        except Exception as e:
+            print(f"[위치 진단 실패] {type(e).__name__}: {e}")
     except Exception as e:
         print(f"[수급·시장 전망 실패] {type(e).__name__}: {e}")
 
