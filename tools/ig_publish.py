@@ -216,7 +216,7 @@ def with_tags(caption: str, tags: str) -> str:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("what", choices=["check", "cards", "cardsreel", "term", "reel"])
+    ap.add_argument("what", choices=["check", "cards", "cardsreel", "term", "reel", "stats"])
     ap.add_argument("--tags", default="")
     ap.add_argument("--date", default="")
     ap.add_argument("--force", action="store_true")
@@ -243,6 +243,30 @@ def main() -> None:
         if left < 14:
             raise SystemExit(f"[토큰 곧 만료] {left:.0f}일 남음 → 그래프 API 탐색기에서 토큰을 새로 만들어 "
                              "장기 토큰으로 연장한 뒤 GitHub 비밀값 IG_ACCESS_TOKEN 을 바꿔 주세요")
+        return
+
+    if a.what == "stats":
+        # 최근 게시물 성과 (읽기만). 조회·도달은 insights 권한이 있을 때만 나옴
+        me = call("GET", uid(), fields="username,followers_count,media_count")
+        print(f"@{me.get('username')} · 팔로워 {me.get('followers_count')} · 게시물 {me.get('media_count')}")
+        since = dt.datetime.now(KST) - dt.timedelta(days=int(a.date or 14))
+        items = call("GET", f"{uid()}/media", limit=50,
+                     fields="id,timestamp,media_type,media_product_type,like_count,comments_count,caption,permalink").get("data", [])
+        print("날짜(KST)|종류|좋아요|댓글|조회|도달|저장|공유|캡션")
+        for m in items:
+            t = dt.datetime.strptime(m["timestamp"][:19], "%Y-%m-%dT%H:%M:%S").replace(tzinfo=dt.timezone.utc).astimezone(KST)
+            if t < since: break
+            ins = {}
+            try:
+                q = urllib.parse.urlencode({"metric": "views,reach,saved,shares", "access_token": TOKEN})
+                with urllib.request.urlopen(f"{API}/{m['id']}/insights?{q}", timeout=30) as r:
+                    ins = {d["name"]: d["values"][0]["value"] for d in json.loads(r.read()).get("data", [])}
+            except (urllib.error.URLError, ValueError, KeyError, IndexError):
+                pass
+            cap = (m.get("caption") or "").replace("\n", " ")[:28]
+            print(f"{t:%m-%d %H:%M}|{m.get('media_product_type') or m.get('media_type')}|{m.get('like_count')}|"
+                  f"{m.get('comments_count')}|{ins.get('views','-')}|{ins.get('reach','-')}|{ins.get('saved','-')}|"
+                  f"{ins.get('shares','-')}|{cap}")
         return
 
     if a.what in ("cards", "cardsreel"):
