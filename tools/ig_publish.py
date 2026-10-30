@@ -260,6 +260,11 @@ def main() -> None:
         return
 
     if a.what == "check":
+        # 진단: 토큰 종류(앞 4글자만)와 토큰이 볼 수 있는 계정 (토큰 값은 출력하지 않음)
+        print(f"토큰 종류: {TOKEN[:4]}… ({'Instagram 로그인' if IGLOGIN else '페이스북/통합 로그인'})")
+        for path, f in (("me", "id,name,username"), ("me/accounts", "name,instagram_business_account{id,username}")):
+            try: print(f"[진단] {path}: {json.dumps(call('GET', path, fields=f), ensure_ascii=False)[:400]}")
+            except SystemExit as e: print(f"[진단] {path} 실패: {str(e)[:200]}")
         me = call("GET", uid(), fields="username,followers_count,media_count")
         print(f"연결된 계정: @{me.get('username')} · 팔로워 {me.get('followers_count')} · 게시물 {me.get('media_count')}")
         if IGLOGIN:  # Instagram 로그인 토큰: 60일 만료 → 여기서 연장
