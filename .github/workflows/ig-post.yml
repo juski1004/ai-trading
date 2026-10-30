@@ -6,10 +6,10 @@ on:
   workflow_dispatch:
     inputs:
       what:
-        description: "stats(최근 게시물 성과, date칸=며칠) / check(토큰 확인) / cards(장마감 카드) / cardsreel(카드 릴스) / term(주말 용어 카드) / reel(앱 소개 릴스)"
+        description: "comment(최근 24시간 게시물에 팔로우 유도 댓글) / stats(최근 게시물 성과, date칸=며칠) / check(토큰 확인) / cards(장마감 카드) / cardsreel(카드 릴스) / term(주말 용어 카드) / reel(앱 소개 릴스)"
         default: check
         type: choice
-        options: [check, cards, cardsreel, term, reel, stats]
+        options: [check, cards, cardsreel, term, reel, stats, comment]
       tags:
         description: "캡션 끝에 붙일 해시태그 (선택, 예: #삼성전자 #반도체)"
         default: ""
