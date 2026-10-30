@@ -139,8 +139,10 @@ def base(f: int, brand=True) -> Image.Image:
 class Reel:
     def __init__(self, out: Path):
         self.out = Path(out); self.out.mkdir(parents=True, exist_ok=True); self.n = 0; self.cover = None
+        self.overlay = None  # 모든 프레임 위에 고정으로 얹는 층 (구석 스티커 등)
 
     def emit(self, fr: Image.Image):
+        if self.overlay is not None: fr.alpha_composite(self.overlay)
         fr.convert("RGB").save(self.out / f"{self.n:04d}.jpg", quality=88); self.n += 1
 
     def scene(self, frames: int, draw, exit_frames=7):
@@ -290,3 +292,99 @@ def split_q(q: str) -> list[str]:
     if len(q) <= 8 or len(w) == 1: return [q]
     i = min(range(1, len(w)), key=lambda k: abs(len(" ".join(w[:k])) - len(" ".join(w[k:]))))
     return [" ".join(w[:i]), " ".join(w[i:])]
+
+
+# ---------- 앱 홍보 릴스 (10/30 "드디어 공개합니다": 훅 → 기능 5개 2초씩 → 팔로우 안내) ----------
+def sticker(text_s: str) -> Image.Image:
+    """영상 전체 오른쪽 위에 고정되는 스티커."""
+    pl = pill(text_s, 30, INK, MARK, pad=(26, 12))
+    lay = Image.new("RGBA", (W, H), (0, 0, 0, 0)); lay.alpha_composite(pl, (W - 60 - pl.width, 52))
+    return lay
+
+
+def promo_hook(R: Reel, lines: list[str], reason: str, host, tag: str, sec=2.6):
+    """첫 문장 훅: 큰 글씨 + 이유 한 줄 + 진행자."""
+    hid, hname, hrole = host
+    ph, m = _photo(hid, 700, 880, 52); photo = shadowed(ph, m)
+    tg = pill(tag, 38, WHITE, BLUE)
+    size = 150
+    T = [text(s, size) for s in lines]
+    why = [text(s, 50, "Bold", MUTED) for s in wrapw(reason, font("Bold", 50), W - 140)]
+    nm = pill(f"{hname} · {hrole}", 36, INK, WHITE)
+    top = 250; ry = top + 140 + len(T) * int(size * 1.18) + 30
+
+    def draw(fr, f):
+        put_left(fr, tg, 70, top, scale=out_back(prog(f, 0, 9)), alpha=prog(f, 0, 4))
+        for i, t in enumerate(T):
+            p = prog(f, 3 + i * 4, 10); put_left(fr, t, 64, top + 140 + i * int(size * 1.18), scale=1 + 0.35 * (1 - out_cubic(p)), alpha=out_cubic(p))
+        d = ImageDraw.Draw(fr)
+        for i, t in enumerate(why):
+            p = prog(f, 14 + i * 4, 10); put_left(fr, t, 66, ry + i * 68 + 30 * (1 - out_cubic(p)), alpha=out_cubic(p))
+        p = prog(f, 12, 16); x = W + 360 - (W + 360 - (W - 330)) * out_back(p, 1.3)
+        put(fr, photo, x, 1450, scale=0.72, rot=8 * (1 - out_cubic(p)))
+        p = prog(f, 24, 10); put(fr, nm, W - 330, 1835 + 40 * (1 - out_cubic(p)), alpha=out_cubic(p))
+    R.scene(int(sec * FPS), draw)
+
+
+def feature_scene(R: Reel, shot: Path, cap: str, step: str, sec: float = 2.0, side=1):
+    """기능 하나: 휴대폰 화면이 빨리 올라오고, 아래쪽 색 띠 안에 큰 자막이 뜸."""
+    s = Image.open(shot).convert("RGB")
+    pw, ph_h = 740, 1230; s = s.resize((pw, int(s.height * pw / s.width)), Image.LANCZOS)
+    top1 = max(0, min(s.height - ph_h, 260))
+    mask = Image.new("L", (pw, ph_h), 0); ImageDraw.Draw(mask).rounded_rectangle((0, 0, pw - 1, ph_h - 1), 56, fill=255)
+    frame = Image.new("RGBA", (pw + 28, ph_h + 28), (0, 0, 0, 0))
+    ImageDraw.Draw(frame).rounded_rectangle((0, 0, pw + 27, ph_h + 27), 70, fill=INK)
+    sh = shadowed(frame, blur=30, off=24, op=90)
+    stp = pill(step, 36, WHITE, INK)
+    size = 76
+    for size in (76, 68, 60):
+        capL = [text(x, size, "ExtraBold", WHITE) for x in wrapw(cap, font("ExtraBold", size), W - 150)]
+        if len(capL) <= 2: break
+    bh = 80 + len(capL) * int(size * 1.25)
+    band = Image.new("RGBA", (W, bh), (0, 0, 0, 0)); ImageDraw.Draw(band).rounded_rectangle((40, 0, W - 41, bh - 1), 44, fill=BLUE)
+    n = int(sec * FPS)
+
+    def draw(fr, f):
+        put_left(fr, stp, 70, 215, scale=out_back(prog(f, 0, 8)), alpha=prog(f, 0, 3))
+        p = out_back(prog(f, 0, 12), 1.1)
+        cx = W / 2 + side * 420 * (1 - p); cy = 880 + 600 * (1 - p) * 0.4
+        k = in_out(prog(f, 10, n - 22)); top = int(top1 * k)
+        scr = s.crop((0, top, pw, top + ph_h)).convert("RGBA"); scr.putalpha(mask)
+        ph = sh.copy(); off = (ph.width - frame.width) // 2
+        ph.alpha_composite(scr, (off + 14, off + 14))
+        put(fr, ph, cx, cy, scale=0.94 + 0.06 * p, rot=side * 5 * (1 - out_cubic(prog(f, 0, 12))))
+        q = prog(f, 3, 10); by = H - 120 - bh / 2
+        put(fr, band, W / 2, by + 90 * (1 - out_cubic(q)), alpha=out_cubic(q))
+        for i, t in enumerate(capL):
+            r = prog(f, 6 + i * 3, 9); put(fr, t, W / 2, by - bh / 2 + 40 + int(size * 1.25) * (i + 0.5) + 30 * (1 - out_cubic(r)), alpha=out_cubic(r))
+    R.scene(n, draw, exit_frames=4)
+
+
+def follow_button() -> Image.Image:
+    """팔로우 버튼 그림: 사람 모양 + 플러스 + '팔로우'."""
+    w, h = 520, 150
+    im = Image.new("RGBA", (w, h), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
+    d.rounded_rectangle((0, 0, w - 1, h - 1), h // 2, fill=BLUE)
+    d.ellipse((50, 34, 90, 74), fill=WHITE); d.rounded_rectangle((38, 80, 102, 116), 18, fill=WHITE)   # 사람
+    d.rectangle((128, 66, 160, 78), fill=WHITE); d.rectangle((138, 56, 150, 88), fill=WHITE)            # +
+    im.alpha_composite(text("팔로우", 64, "ExtraBold", WHITE), (190, 24))
+    return im
+
+
+def promo_end(R: Reel, sec=2.4):
+    """마지막 장면: 팔로우 버튼 → 댓글에 '연구소' 남기면 끝! DM으로 앱 보내 드려요."""
+    btn = follow_button()
+    t1 = text("댓글에", 80, "Bold", MUTED)
+    kw = text("'연구소'", 190, "ExtraBold", BLUE)
+    t2 = text("남기면 끝!", 96)
+    t3 = text("DM으로 앱 보내 드려요", 62, "ExtraBold")
+    ft = text("가상 돈으로 하는 연습용 게임 · 투자 권유 아님", 32, "Medium", MUTED)
+
+    def draw(fr, f):
+        p = prog(f, 0, 12); put(fr, btn, W / 2, 400, scale=out_back(p, 2.0), alpha=prog(f, 0, 3))
+        put(fr, t1, W / 2, 640, alpha=prog(f, 8, 6))
+        p = prog(f, 10, 12); put(fr, kw, W / 2, 800, scale=1.7 - 0.7 * out_back(p, 1.5), alpha=prog(f, 10, 4))
+        p = prog(f, 18, 9); put(fr, t2, W / 2, 1010 + 40 * (1 - out_cubic(p)), alpha=out_cubic(p))
+        p = prog(f, 24, 9); put(fr, t3, W / 2, 1150 + 40 * (1 - out_cubic(p)), alpha=out_cubic(p))
+        put(fr, ft, W / 2, 1830, alpha=prog(f, 26, 8))
+    R.scene(int(sec * FPS), draw, exit_frames=1)
