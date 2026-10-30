@@ -126,13 +126,16 @@ def s_cover(im, t, R, md, PH):
     zw, zh = int(W * z), int(H * z); p = PH.resize((zw, zh), Image.BILINEAR)
     im.alpha_composite(p.crop(((zw - W) // 2, (zh - H) // 2, (zw - W) // 2 + W, (zh - H) // 2 + H)))
     a = prog(t, 0.05, 0.4); T(im, f"AI 투자연구소 · {md} 장마감", 60 - 300 * (1 - out3(a)), 60, 38, FG, "Bold", alpha=a)
-    b = R["big"]; a = prog(t, 0.35, 0.5)
-    xo = 700 * (1 - out3(a)); sp = sprite(f"{b['name']} {pct(b['chg'])}", "ExtraBold", 96, col(b["chg"]))
-    if a > 0: rr(im, (50 + xo, 150, 50 + xo + sp.width + 20, 150 + sp.height - 10), 14, YEL + (int(230 * a),))  # 형광펜
-    put(im, sp, 58 + xo, 130, alpha=a)
-    a = prog(t, 0.8, 0.45)
+    # 첫 1초가 승부 (2026-10-30): 첫 장면부터 큰 등락률이 화면 가득 '쾅' → 0.3초 만에 제자리로 줄어듦
+    b = R["big"]; a = prog(t, 0.0, 0.3); e = out3(a)
+    sp = sprite(f"{b['name']} {pct(b['chg'])}", "ExtraBold", 96, col(b["chg"]))
+    s0 = min(2.1, 0.92 * W / sp.width); sc = s0 - (s0 - 1) * e  # 화면 폭을 넘지 않게
+    x = 58 * e + (W - sp.width * sc) / 2 * (1 - e); y = 130 + 520 * (1 - e)
+    if e > 0.97: rr(im, (50, 150, 50 + sp.width + 20, 150 + sp.height - 10), 14, YEL + (230,))  # 형광펜 (자리 잡은 뒤)
+    put(im, sp, x, y, scale=sc)
+    a = prog(t, 0.3, 0.4)
     T(im, "왜 올랐을까?" if b["chg"] > 0 else "왜 빠졌을까?", 58, 250, 112, FG, scale=1 + 0.6 * (1 - back(a)) if a < 1 else 1, alpha=a)
-    a = prog(t, 1.3, 0.6); d = ImageDraw.Draw(im); d.rectangle((60, 392, 60 + int(560 * out3(a)), 404), fill=ACC)  # 밑줄 그어지기
+    a = prog(t, 0.7, 0.6); d = ImageDraw.Draw(im); d.rectangle((60, 392, 60 + int(560 * out3(a)), 404), fill=ACC)  # 밑줄 그어지기
     line = f"{R['gsub']} 전해주는 오늘 장마감"; n = int(len(line) * prog(t, 1.5, 0.8))  # 한 글자씩
     if n: T(im, line[:n], 60, 1440, 48, FG, "Bold")
     for i, (lab, x) in enumerate([("코스피", R["kospi"]), ("코스닥", R["kosdaq"])]):
