@@ -189,6 +189,10 @@ def main() -> None:
     print("연결 방식:", "Instagram 로그인 (graph.instagram.com)" if IGLOGIN else "Facebook 통합 로그인 (graph.facebook.com)")
 
     if a.what == "check":
+        if not IGLOGIN:  # 토큰이 무엇에 연결돼 있는지 먼저 보여 줌 (토큰 값은 출력 안 함)
+            for path, f in (("me", "id,name"), ("me/accounts", "name,instagram_business_account{id,username}")):
+                try: print(f"[진단] {path}:", json.dumps(call("GET", path, fields=f), ensure_ascii=False)[:400])
+                except SystemExit as e: print(f"[진단] {path} 실패:", str(e)[:300])
         me = call("GET", uid(), fields="username,followers_count,media_count")
         print(f"연결된 계정: @{me.get('username')} · 팔로워 {me.get('followers_count')} · 게시물 {me.get('media_count')}")
         if IGLOGIN:  # Instagram 로그인 토큰만 60일 만료 → 연장
