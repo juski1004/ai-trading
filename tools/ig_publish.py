@@ -290,8 +290,12 @@ def main() -> None:
             try: print(f"[진단] {path}: {json.dumps(call('GET', path, fields=f), ensure_ascii=False)[:400]}")
             except SystemExit as e: print(f"[진단] {path} 실패: {str(e)[:200]}")
         try:
-            import threads_publish as T; print(T.refresh())
-        except Exception as e: print(f"[스레드 확인 건너뜀] {e}")
+            import threads_publish as T; msg = T.refresh(); print(msg)
+            import re as _re
+            m = _re.search(r"약 (\d+)일", msg)
+            if m and int(m.group(1)) < 15:  # 연장이 안 되고 있으면 만료 2주 전에 실패로 알림(이슈)
+                raise SystemExit(f"[스레드 토큰 곧 만료] {m.group(1)}일 남음 → 집 PC방에서 스레드 '사용자 토큰 생성기'로 새로 발급해 THREADS_TOKEN 교체")
+        except ImportError as e: print(f"[스레드 확인 건너뜀] {e}")
         me = call("GET", uid(), fields="username,followers_count,media_count")
         print(f"연결된 계정: @{me.get('username')} · 팔로워 {me.get('followers_count')} · 게시물 {me.get('media_count')}")
         if IGLOGIN:  # Instagram 로그인 토큰: 60일 만료 → 여기서 연장
