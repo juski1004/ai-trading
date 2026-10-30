@@ -252,8 +252,17 @@ def build(out: Path) -> dict:
 
 #장마감브리핑 #퇴근길주식 #국내주식"""
     (dst / "caption.txt").write_text(caption, encoding="utf-8")
+    def mv(sym, s):  # 릴스용: 이름·등락률·한 줄 이유
+        w = WY.get(sym) or {}; line = w.get("line") or ""
+        if (not line or "뚜렷한" in line) and w.get("title"): line = w["title"].rstrip(".…")
+        return {"name": s["name"], "chg": round(s["chg"], 2), "why": _clean(line) if line else ""}
+    reel = {"gname": gname, "gsub": gsub, "kospi": {"v": k["v"], "chg": round(k["chg"], 2)},
+            "kosdaq": {"v": q["v"], "chg": round(q["chg"], 2)}, "n": len(S), "up": up, "dn": dn,
+            "big": {"name": big["name"], "chg": round(big["chg"], 2)},
+            "top": [mv(a, b) for a, b in ranked[:3]], "bottom": [mv(a, b) for a, b in ranked[-3:][::-1]],
+            "flow": {key: {w: round(mf[key][w]) for w in ("frg", "org", "ind")} for key in ("KOSPI", "KOSDAQ") if key in mf}}
     info = {"date": date, "host": hid, "hostName": hname, "next": nname,
-            "images": [f"cards/{i}.png" for i in range(1, N + 1)], "caption": caption}
+            "images": [f"cards/{i}.png" for i in range(1, N + 1)], "caption": caption, "reel": reel}
     (dst / "cards.json").write_text(json.dumps(info, ensure_ascii=False), encoding="utf-8")
     return info
 
