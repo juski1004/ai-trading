@@ -262,7 +262,17 @@ def main() -> None:
     if a.what == "check":
         # 진단: 토큰 종류(앞 4글자만)와 토큰이 볼 수 있는 계정 (토큰 값은 출력하지 않음)
         print(f"토큰 종류: {TOKEN[:4]}… ({'Instagram 로그인' if IGLOGIN else '페이스북/통합 로그인'})")
-        for path, f in (("me", "id,name,username"), ("me/accounts", "name,instagram_business_account{id,username}")):
+        KNOWN = "17841447147919785"  # ai.tooja.lab 인스타 계정 ID (메타 대시보드 표시값, 비밀 아님)
+        print(f"[진단] IG_USER_ID 가 ai.tooja.lab ID와 같음: {os.environ.get('IG_USER_ID', '').strip() == KNOWN}")
+        q = urllib.parse.urlencode({"fields": "user_id,username", "access_token": TOKEN})
+        try:
+            with urllib.request.urlopen(f"{IG_API}/me?{q}", timeout=30) as r: print(f"[진단] 인스타 주소 /me: {r.read()[:200]!r}")
+        except urllib.error.HTTPError as e: print(f"[진단] 인스타 주소 /me 실패: {e.read()[:250]!r}")
+        q = urllib.parse.urlencode({"fields": "username", "access_token": TOKEN})
+        try:
+            with urllib.request.urlopen(f"{FB_API}/{KNOWN}?{q}", timeout=30) as r: print(f"[진단] 페이스북 주소 /{KNOWN}: {r.read()[:200]!r}")
+        except urllib.error.HTTPError as e: print(f"[진단] 페이스북 주소 /{KNOWN} 실패: {e.read()[:250]!r}")
+        for path, f in (("me", "id,name"), ("me/accounts", "name,instagram_business_account{id,username}")):
             try: print(f"[진단] {path}: {json.dumps(call('GET', path, fields=f), ensure_ascii=False)[:400]}")
             except SystemExit as e: print(f"[진단] {path} 실패: {str(e)[:200]}")
         me = call("GET", uid(), fields="username,followers_count,media_count")
