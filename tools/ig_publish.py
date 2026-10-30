@@ -25,6 +25,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
+ROOT_DIR = __import__("pathlib").Path(__file__).resolve().parents[1]
 TOKEN = os.environ.get("IG_ACCESS_TOKEN", "")
 IG_API = "https://graph.instagram.com/v23.0"
 FB_API = "https://graph.facebook.com/v23.0"
@@ -330,6 +331,10 @@ def main() -> None:
     elif a.what == "term":
         # 그날 데이터 실행이 새로 만든 것(data/termcards) → 없으면 미리 만든 것(content/termcards)
         d = a.date or today()
+        # 다른 곳(메타 비즈니스 스위트 등)에 이미 예약해 둔 날은 건너뜀 → 같은 시각 두 번 올라가는 것 방지
+        manual = ROOT_DIR / "tools" / "manual_posts.txt"
+        if not a.force and manual.exists() and f"term {d}" in manual.read_text(encoding="utf-8"):
+            print(f"[건너뜀] {d} 용어 카드는 다른 곳에 예약됨 (tools/manual_posts.txt)"); return
         item = next((i for i in try_json("termcards/termcards.json").get("items", []) if i["date"] == d), None)
         if not item:
             item = next((i for i in try_json("content/termcards/termcards.json", ROOT).get("items", []) if i["date"] == d), None)
