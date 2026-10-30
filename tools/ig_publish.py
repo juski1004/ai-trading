@@ -137,11 +137,32 @@ def already_posted(caption: str, reel: bool = False) -> bool:
     return False
 
 
+# 첫 댓글: 팔로우·댓글 참여 유도 (2026-10-30 사용자 지시). '연구소'는 넣지 않음 → 우리 댓글이 DM 자동화를 건드리지 않게
+COMMENTS = {
+    "cards": "📌 매일 장마감 현황이 궁금하면 팔로우해 두세요! 평일 17시 50분, 1분 요약으로 정리해 드려요\n💬 내일 코스피는 오를까요, 내릴까요? 댓글로 ↑ 또는 ↓ 남겨 주세요",
+    "term": "📌 주말마다 주식 용어 하나씩! 팔로우하고 저장해 두면 헷갈릴 때 바로 꺼내 볼 수 있어요\n💬 다음에 알고 싶은 용어를 댓글로 남겨 주세요",
+    "reel": "📌 팔로우하면 평일 17시 50분 장마감 요약을 매일 받아볼 수 있어요\n💬 모의투자 앱이 궁금하면 캡션의 키워드를 댓글로 남겨 주세요, DM으로 보내 드려요",
+}
+WHAT = ""
+
+
+def comment(mid: str, kind: str) -> None:
+    text = COMMENTS.get(kind)
+    if not text: return
+    try:
+        mine = call("GET", f"{mid}/comments", fields="username,text").get("data", [])
+        if any(c.get("text") == text for c in mine): print("[댓글] 이미 있음"); return
+        call("POST", f"{mid}/comments", message=text); print("[댓글] 팔로우 유도 댓글 달았음")
+    except SystemExit as e:  # 댓글이 실패해도 게시는 성공으로
+        print(f"[댓글 실패] {e}")
+
+
 def publish(container: str) -> str:
     wait_ready(container)
     mid = call("POST", f"{uid()}/media_publish", creation_id=container)["id"]
     link = call("GET", mid, fields="permalink").get("permalink", "")
     print(f"게시 완료: {link}")
+    comment(mid, "cards" if WHAT in ("cards", "cardsreel") else WHAT)
     return link
 
 
@@ -219,15 +240,24 @@ def with_tags(caption: str, tags: str) -> str:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("what", choices=["check", "cards", "cardsreel", "term", "reel", "stats"])
+    ap.add_argument("what", choices=["check", "cards", "cardsreel", "term", "reel", "stats", "comment"])
     ap.add_argument("--tags", default="")
     ap.add_argument("--date", default="")
     ap.add_argument("--force", action="store_true")
     a = ap.parse_args()
+    global WHAT; WHAT = a.what
     if not os.environ.get("IG_ACCESS_TOKEN"):
         raise SystemExit("IG_ACCESS_TOKEN 비밀값이 없습니다 (GitHub 저장소 Settings → Secrets 에 넣어 주세요)")
     pick_api()
     print("연결 방식:", "Instagram 로그인 (graph.instagram.com)" if IGLOGIN else "Facebook 통합 로그인 (graph.facebook.com)")
+
+    if a.what == "comment":  # 최근 24시간 게시물에 팔로우 유도 댓글이 없으면 달기
+        since = dt.datetime.now(dt.timezone.utc) - dt.timedelta(hours=24)
+        for m in call("GET", f"{uid()}/media", fields="id,caption,timestamp,permalink", limit=10).get("data", []):
+            if dt.datetime.strptime(m["timestamp"], "%Y-%m-%dT%H:%M:%S%z") < since: continue
+            c = m.get("caption") or ""; kind = "cards" if "장마감" in c.splitlines()[1:2] or "장마감" in c[:120] else "term" if "용어" in c[:80] else "reel"
+            print(m.get("permalink"), kind); comment(m["id"], kind)
+        return
 
     if a.what == "check":
         me = call("GET", uid(), fields="username,followers_count,media_count")
