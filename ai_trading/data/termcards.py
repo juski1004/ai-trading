@@ -2,7 +2,7 @@
 
 - 금요일(또는 금요일이 휴장이면 목요일) 데이터 실행 때 그 주 토·일 것을 미리 만든다 → data/termcards/<날짜>/1..5.png, termcards.json
 - 용어는 web/app/glossary.json(앱 용어 사전과 같은 설명), 순서는 ai_trading.reel.WORD_ORDER (토 = 주 번호×2, 일 = 주 번호×2+1)
-- 진행자·배경색은 장마감 카드와 같은 그 주의 사람·색 (cards.host_of / theme_of)
+- 진행자·배경색은 장마감 카드와 같은 그날의 사람, 그 주의 색 (cards.host_of / theme_of)
 - '오늘 실제 숫자'는 마지막 거래일(금요일) 종가 기준. 권유 문장 없음
 장 구성: 1 표지(질문 + 진행자 사진) · 2 한 줄 뜻 · 3 자세히 · 4 읽는 법 + 실제 숫자 · 5 마무리(댓글 '연구소', 팔로우)
 """
@@ -144,7 +144,7 @@ def make(date: str, t: dict, lv: str, base_date: str, n_terms: int, dst: Path) -
     d.text((W // 2, 660), "DM으로 보내 드려요 (팔로워 선공개)", font=F("Bold", 40), fill=ACC, anchor="mt")
     d.rounded_rectangle((70, 830, W - 70, 1240), 40, fill=WHITE, outline=LINE, width=2)
     ph = C._photo(hid, 240, 320, 28); im.paste(ph[0], (100, 875), ph[1])
-    d.text((370, 880), f"이번 주 진행은 {hname}", font=F("ExtraBold", 44), fill=INK)
+    d.text((370, 880), f"오늘 진행은 {hname}", font=F("ExtraBold", 44), fill=INK)
     d.text((370, 945), "평일 17:50 장마감 요약", font=F("Medium", 34), fill=MUTED)
     d.text((370, 995), "주말엔 주식 용어 정리", font=F("Medium", 34), fill=MUTED)
     d.rounded_rectangle((370, 1120, 975, 1190), 34, fill=ACC)
