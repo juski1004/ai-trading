@@ -189,28 +189,22 @@ def main() -> None:
     print("연결 방식:", "Instagram 로그인 (graph.instagram.com)" if IGLOGIN else "Facebook 통합 로그인 (graph.facebook.com)")
 
     if a.what == "check":
-        if not IGLOGIN:  # 토큰이 무엇에 연결돼 있는지 먼저 보여 줌 (토큰 값은 출력 안 함)
-            for path, f in (("me", "id,name"), ("me/accounts", "name,instagram_business_account{id,username}")):
-                try: print(f"[진단] {path}:", json.dumps(call("GET", path, fields=f), ensure_ascii=False)[:400])
-                except SystemExit as e: print(f"[진단] {path} 실패:", str(e)[:300])
-            try:  # 토큰의 권한과 대상 계정 (토큰 값 자체는 출력 안 함)
-                d = call("GET", "debug_token", input_token=TOKEN).get("data", {})
-                print("[진단] 권한:", d.get("scopes"), "| 대상:", json.dumps(d.get("granular_scopes"), ensure_ascii=False)[:600],
-                      "| 유형:", d.get("type"), "| 만료:", d.get("expires_at"))
-            except SystemExit as e: print("[진단] debug_token 실패:", str(e)[:300])
-            u = os.environ.get("IG_USER_ID", "").strip()
-            if u:  # 같은 토큰으로 인스타 주소에서 계정 ID 직접 조회
-                q = urllib.parse.urlencode({"fields": "username", "access_token": TOKEN})
-                try:
-                    with urllib.request.urlopen(f"{IG_API}/{u}?{q}", timeout=30) as r: print("[진단] 인스타 주소로 계정 조회 성공:", r.read()[:200])
-                except urllib.error.HTTPError as e: print("[진단] 인스타 주소로 계정 조회 실패:", e.read()[:300])
         me = call("GET", uid(), fields="username,followers_count,media_count")
         print(f"연결된 계정: @{me.get('username')} · 팔로워 {me.get('followers_count')} · 게시물 {me.get('media_count')}")
-        if IGLOGIN:  # Instagram 로그인 토큰만 60일 만료 → 연장
+        if IGLOGIN:  # Instagram 로그인 토큰: 60일 만료 → 여기서 연장
             r = call("GET", "https://graph.instagram.com/refresh_access_token", grant_type="ig_refresh_token")
             print(f"토큰 연장 완료 · 남은 기간 약 {int(r.get('expires_in', 0)) // 86400}일")
-        else:
-            print("시스템 사용자 토큰 (만료 없음)")
+            return
+        # 페이스북 사용자 토큰(그래프 API 탐색기 → 장기 토큰): 60일 만료, 자동 연장 불가 → 14일 전부터 실패로 알림
+        exp = int(call("GET", "debug_token", input_token=TOKEN).get("data", {}).get("expires_at") or 0)
+        if not exp:
+            print("토큰 만료 없음")
+            return
+        left = (exp - time.time()) / 86400
+        print(f"토큰 만료: {dt.datetime.fromtimestamp(exp, KST):%Y-%m-%d} (남은 {left:.0f}일)")
+        if left < 14:
+            raise SystemExit(f"[토큰 곧 만료] {left:.0f}일 남음 → 그래프 API 탐색기에서 토큰을 새로 만들어 "
+                             "장기 토큰으로 연장한 뒤 GitHub 비밀값 IG_ACCESS_TOKEN 을 바꿔 주세요")
         return
 
     if a.what in ("cards", "cardsreel"):
