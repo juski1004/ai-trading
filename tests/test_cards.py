@@ -1,13 +1,13 @@
 from ai_trading.data.cards import HOSTS, THEMES, host_of, theme_of
 
 
-def test_host_changes_once_a_week():
+def test_host_changes_every_day():
     assert host_of("2026-10-26")[0] == "joy"          # 월
-    assert host_of("2026-10-30")[0] == "joy"          # 같은 주 금요일도 같은 사람
-    assert host_of("2026-11-02")[0] == "egen"         # 다음 주 월
-    assert host_of("2026-10-26", 1)[0] == "egen"      # '다음 주는' 안내
-    assert host_of("2026-10-23")[0] == "lloyd"        # 기준 주 이전도 순서 유지
-    assert host_of("2027-01-11")[0] == "joy"          # 11주 돌고 다시 처음
+    assert host_of("2026-10-27")[0] == "egen"         # 다음 날은 다음 사람
+    assert host_of("2026-10-30")[0] == "ray"          # 금
+    assert host_of("2026-10-26", 1)[0] == "egen"      # 다음 날 진행자
+    assert host_of("2026-10-25")[0] == "lloyd"        # 기준일 이전도 순서 유지
+    assert host_of("2026-11-06")[0] == "joy"          # 11일 돌고 다시 처음
 
 
 def test_eleven_hosts_with_men_and_directors():

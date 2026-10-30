@@ -21,7 +21,7 @@ INK, MUTED, LAV, LAVD, UP, DOWN = (20, 22, 30), (112, 116, 128), (234, 233, 228)
 PAPER, GRID, MARK, LINE = (246, 245, 241), (236, 235, 230), (255, 224, 102), (226, 224, 218)
 WHITE = (255, 255, 255)
 
-# 진행자: 직원 9명 + 본부장 2명 = 11명이 한 주씩 돌아가며 (여·남 번갈아). 2026-10-25 사용자 지시
+# 진행자: 직원 9명 + 본부장 2명 = 11명이 하루씩 돌아가며 (여·남 번갈아). 2026-10-30 사용자 지시: 같은 사람 5일은 지겨움 → 매일 한 명씩
 HOSTS = [
     ("joy", "윤시아", "시장 흐름"),
     ("egen", "윤하진", "차트 분석"),
@@ -35,7 +35,7 @@ HOSTS = [
     ("theo", "정서연", "본부장"),
     ("lloyd", "강도윤", "리스크 점검"),
 ]
-EPOCH = dt.date(2026, 10, 26)  # 월요일, 이 주는 윤시아부터
+EPOCH = dt.date(2026, 10, 26)  # 월요일, 이날 윤시아부터 하루에 한 명씩
 
 # 배경 색: 한 주마다 바뀜 (보라는 쓰지 않음). paper=바탕, grid=모눈, acc=포인트 색, line=카드 테두리
 THEMES = [
@@ -55,8 +55,9 @@ def week_of(date: str) -> int:
 
 
 def host_of(date: str, k: int = 0) -> tuple[str, str, str]:
-    """그 주의 진행자. k=1 이면 다음 주 진행자."""
-    return HOSTS[(week_of(date) + k) % len(HOSTS)]
+    """그날의 진행자 (매일 다음 사람, 주말 용어 카드도 이어서). k=1 이면 다음 날 진행자."""
+    d = dt.date.fromisoformat(date)
+    return HOSTS[((d - EPOCH).days + k) % len(HOSTS)]
 
 
 def theme_of(date: str) -> dict:
