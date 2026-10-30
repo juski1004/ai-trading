@@ -124,12 +124,15 @@ def wait_ready(cid: str, minutes: int = 8) -> None:
     raise SystemExit("[인스타] 미디어 처리 시간 초과")
 
 
-def already_posted(caption: str) -> bool:
+def already_posted(caption: str, reel: bool = False) -> bool:
+    """20시간 안에 같은 첫 줄 + 같은 종류(릴스/피드)로 올린 게 있으면 True.
+    카드(캐러셀)와 카드 릴스는 캡션이 같아도 서로 다른 게시물이라 종류까지 본다."""
     first = caption.strip().splitlines()[0].strip()
     since = dt.datetime.now(dt.timezone.utc) - dt.timedelta(hours=20)
-    for m in call("GET", f"{uid()}/media", fields="caption,timestamp", limit=10).get("data", []):
+    for m in call("GET", f"{uid()}/media", fields="caption,timestamp,media_product_type", limit=10).get("data", []):
         ts = dt.datetime.strptime(m["timestamp"], "%Y-%m-%dT%H:%M:%S%z")
-        if ts >= since and (m.get("caption") or "").strip().splitlines()[:1] == [first]:
+        is_reel = m.get("media_product_type") == "REELS"
+        if ts >= since and is_reel == reel and (m.get("caption") or "").strip().splitlines()[:1] == [first]:
             return True
     return False
 
@@ -276,7 +279,7 @@ def main() -> None:
         if j["date"] != today() and not a.force:
             skip(f"[건너뜀] 카드 날짜 {j['date']} 가 오늘({today()})이 아님 → 데이터 실행 먼저")
         cap = with_tags(j["caption"], a.tags or mover_tags())
-        if not a.force and already_posted(cap): print("[건너뜀] 오늘 이미 올림"); return
+        if not a.force and already_posted(cap, reel=a.what == "cardsreel"): print("[건너뜀] 오늘 이미 올림"); return
         if a.what == "cards": post_carousel(j["images"], cap)
         else: post_reel("cards/reel.mp4", "cards/reel_cover.jpg", cap)
     elif a.what == "term":
@@ -300,7 +303,7 @@ def main() -> None:
         if j.get("date") != d and not (a.force and j.get("video")):
             skip(f"[건너뜀] {d} 릴스 없음 (새로 만든 것 {j.get('date')})")
         cap = with_tags(j["caption"], a.tags)
-        if not a.force and already_posted(cap): print("[건너뜀] 오늘 이미 올림"); return
+        if not a.force and already_posted(cap, reel=True): print("[건너뜀] 오늘 이미 올림"); return
         post_reel(j["video"], j.get("cover"), cap)
 
 
