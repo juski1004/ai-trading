@@ -193,6 +193,17 @@ def main() -> None:
             for path, f in (("me", "id,name"), ("me/accounts", "name,instagram_business_account{id,username}")):
                 try: print(f"[진단] {path}:", json.dumps(call("GET", path, fields=f), ensure_ascii=False)[:400])
                 except SystemExit as e: print(f"[진단] {path} 실패:", str(e)[:300])
+            try:  # 토큰의 권한과 대상 계정 (토큰 값 자체는 출력 안 함)
+                d = call("GET", "debug_token", input_token=TOKEN).get("data", {})
+                print("[진단] 권한:", d.get("scopes"), "| 대상:", json.dumps(d.get("granular_scopes"), ensure_ascii=False)[:600],
+                      "| 유형:", d.get("type"), "| 만료:", d.get("expires_at"))
+            except SystemExit as e: print("[진단] debug_token 실패:", str(e)[:300])
+            u = os.environ.get("IG_USER_ID", "").strip()
+            if u:  # 같은 토큰으로 인스타 주소에서 계정 ID 직접 조회
+                q = urllib.parse.urlencode({"fields": "username", "access_token": TOKEN})
+                try:
+                    with urllib.request.urlopen(f"{IG_API}/{u}?{q}", timeout=30) as r: print("[진단] 인스타 주소로 계정 조회 성공:", r.read()[:200])
+                except urllib.error.HTTPError as e: print("[진단] 인스타 주소로 계정 조회 실패:", e.read()[:300])
         me = call("GET", uid(), fields="username,followers_count,media_count")
         print(f"연결된 계정: @{me.get('username')} · 팔로워 {me.get('followers_count')} · 게시물 {me.get('media_count')}")
         if IGLOGIN:  # Instagram 로그인 토큰만 60일 만료 → 연장
