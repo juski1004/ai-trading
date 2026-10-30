@@ -26,9 +26,26 @@ import urllib.parse
 import urllib.request
 
 TOKEN = os.environ.get("IG_ACCESS_TOKEN", "")
+IG_API = "https://graph.instagram.com/v23.0"
+FB_API = "https://graph.facebook.com/v23.0"
 IGLOGIN = TOKEN.startswith("IG")
-API = "https://graph.instagram.com/v23.0" if IGLOGIN else "https://graph.facebook.com/v23.0"
+API = IG_API if IGLOGIN else FB_API
 _UID: list[str] = []
+
+
+def pick_api() -> None:
+    """토큰 종류를 앞글자로만 판단하면 틀릴 수 있어(인스타 로그인으로 만든 EAA 토큰 등),
+    인스타 주소에서 먼저 확인해 보고 되면 그쪽을 쓴다. 안 되면 페이스북 주소 그대로."""
+    global IGLOGIN, API
+    q = urllib.parse.urlencode({"fields": "user_id,username", "access_token": TOKEN})
+    try:
+        with urllib.request.urlopen(f"{IG_API}/me?{q}", timeout=30) as r:
+            if json.loads(r.read()).get("username"):
+                IGLOGIN, API = True, IG_API
+                return
+    except (urllib.error.URLError, ValueError):
+        pass
+    IGLOGIN, API = False, FB_API
 
 
 def uid() -> str:
@@ -168,6 +185,8 @@ def main() -> None:
     a = ap.parse_args()
     if not os.environ.get("IG_ACCESS_TOKEN"):
         raise SystemExit("IG_ACCESS_TOKEN 비밀값이 없습니다 (GitHub 저장소 Settings → Secrets 에 넣어 주세요)")
+    pick_api()
+    print("연결 방식:", "Instagram 로그인 (graph.instagram.com)" if IGLOGIN else "Facebook 통합 로그인 (graph.facebook.com)")
 
     if a.what == "check":
         me = call("GET", uid(), fields="username,followers_count,media_count")
