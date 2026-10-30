@@ -155,6 +155,44 @@ def post_reel(video: str, cover: str | None, caption: str) -> str:
     return publish(call("POST", f"{uid()}/media", **p)["id"])
 
 
+def gh(method: str, path: str, body: dict | None = None) -> dict:
+    """GitHub API (Actions 안에서만: GH_TOKEN·GITHUB_REPOSITORY)."""
+    req = urllib.request.Request(
+        f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/{path}",
+        data=json.dumps(body).encode() if body is not None else None, method=method,
+        headers={"Authorization": f"Bearer {os.environ['GH_TOKEN']}", "Accept": "application/vnd.github+json"})
+    with urllib.request.urlopen(req, timeout=30) as r:
+        t = r.read()
+        return json.loads(t) if t else {}
+
+
+def ensure_today_cards(j: dict, wait_min: int = 45) -> dict:
+    """오늘 카드가 아직 없을 때 (미라 예약 작업이 하던 일):
+    오늘 15:30 이후 데이터 실행이 없으면 trade.yml(data)을 직접 실행시키고, 카드가 나올 때까지 기다린다."""
+    if not (os.environ.get("GH_TOKEN") and os.environ.get("GITHUB_REPOSITORY")):
+        return j
+    now = dt.datetime.now(KST)
+    if now.weekday() >= 5 or now.hour < 16:  # 주말이거나 장마감 데이터 시간 전이면 그대로
+        return j
+    since = now.replace(hour=15, minute=30, second=0, microsecond=0).astimezone(dt.timezone.utc)
+    runs = gh("GET", "actions/workflows/trade.yml/runs?per_page=10").get("workflow_runs", [])
+    recent = [r for r in runs if dt.datetime.strptime(r["created_at"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=dt.timezone.utc) >= since]
+    if not recent:
+        print("[데이터] 오늘 장마감 데이터 실행이 없어 직접 실행시킴")
+        gh("POST", "actions/workflows/trade.yml/dispatches", {"ref": "main", "inputs": {"command": "data"}})
+    else:
+        print(f"[데이터] 오늘 데이터 실행 {len(recent)}건 있음 (상태: {', '.join(r['status'] for r in recent)}) → 카드 기다림")
+    end = time.time() + wait_min * 60
+    while time.time() < end:
+        time.sleep(120)
+        j = fetch_json("cards/cards.json")
+        if j["date"] == today():
+            print("[데이터] 오늘 카드 준비됨")
+            time.sleep(60)  # JPG 사본까지 사이트에 다 올라가게 잠깐 더
+            return j
+    return j
+
+
 def skip(msg: str) -> None:
     """올릴 게 없을 때(휴장일·이미 올림 등): 실패가 아니므로 정상 종료 → 실패 알림 이슈가 안 생김."""
     print(msg)
@@ -209,6 +247,8 @@ def main() -> None:
 
     if a.what in ("cards", "cardsreel"):
         j = fetch_json("cards/cards.json")
+        if j["date"] != today() and not a.force:
+            j = ensure_today_cards(j)
         if j["date"] != today() and not a.force:
             skip(f"[건너뜀] 카드 날짜 {j['date']} 가 오늘({today()})이 아님 → 데이터 실행 먼저")
         cap = with_tags(j["caption"], a.tags or mover_tags())
