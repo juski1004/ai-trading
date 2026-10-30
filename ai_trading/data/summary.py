@@ -22,6 +22,20 @@ JSON으로만 답하라: {{"lines": ["...", "...", "..."], "tone": "호재|악�
 TONES = {"호재": 1, "악재": -1, "중립": 0}
 
 
+def _bigrams(t: str) -> set[str]:
+    t = "".join(ch for ch in str(t or "") if ch.isalnum())
+    return {t[i:i + 2] for i in range(len(t) - 1)}
+
+
+def source_of(line: str, items: list[dict], min_score: float = 0.18) -> dict | None:
+    """요약 한 줄의 근거 기사(글자 두 개씩 겹치는 정도가 가장 큰 제목). 화면에서 누르면 그 기사가 열린다."""
+    a = _bigrams(line); best, bs = None, 0.0
+    for x in items:
+        b = _bigrams(x.get("title")); sc = len(a & b) / max(4, min(len(a), len(b)) or 1)
+        if sc > bs and x.get("link"): best, bs = x, sc
+    return {"link": best["link"], "src": best.get("src") or "", "date": best.get("date") or ""} if best and bs >= min_score else None
+
+
 def recent_items(items: list[dict], today: date, days: int) -> list[dict]:
     since = (today - timedelta(days=days)).isoformat()
     seen, out = set(), []
@@ -56,5 +70,6 @@ def summarize(news_sym: dict[str, list[dict]], names: dict[str, str], llm, today
         if not lines:
             continue
         tone = ans.get("tone") if ans.get("tone") in TONES else "중립"
-        out[s] = {"date": today.isoformat(), "lines": lines, "tone": tone, "n": len(pool[s])}
+        out[s] = {"date": today.isoformat(), "lines": lines, "tone": tone, "n": len(pool[s]),
+                  "links": [source_of(l, items) for l in lines]}
     return out
