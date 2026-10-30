@@ -1,6 +1,7 @@
 name: 인스타 직접 올리기
 
-# 미라 대신 인스타 공식 API로 게시. 예약 작업(AI 작업방)이 정한 시각에 실행시킴.
+# 미라 대신 인스타 공식 API로 게시. 아래 예약 시각에 GitHub가 직접 실행 (Claude 예약 작업 필요 없음).
+# GitHub 예약은 늦게 돌 수 있어 시각마다 두 번 시도 → 두 번째는 '이미 올림'으로 건너뜀.
 on:
   workflow_dispatch:
     inputs:
@@ -20,7 +21,12 @@ on:
         type: boolean
         default: false
   schedule:
-    - cron: "17 1 1,15 * *"   # 매달 1·15일 10:17 KST 토큰 연장 (60일 만료 방지)
+    - cron: "17 1 1,15 * *"   # 매달 1·15일 10:17 KST 토큰 확인·연장 (60일 만료 방지)
+    - cron: "50 8 * * 1-5"      # 평일 17:50 KST 장마감 카드
+    - cron: "15,45 9 * * 1-5"   # 평일 18:15·18:45 KST 다시 시도 (예약이 밀렸거나 데이터가 늦은 날 · 오늘 카드만)
+    - cron: "0,40 2 * * 0,6"    # 토·일 11:00·11:40 KST 용어 정리 카드
+    - cron: "40 11 * * 5"       # 금 20:40 KST 앱 광고 릴스
+    - cron: "20 12 * * 5"       # 금 21:20 KST 릴스 다시 시도
 
 permissions:
   contents: read
@@ -42,7 +48,13 @@ jobs:
       - uses: actions/checkout@v5
       - name: 올리기
         env:
-          WHAT: ${{ inputs.what || 'check' }}
+          # 수동 실행은 고른 것, 예약 실행은 시각에 맞는 것
+          WHAT: >-
+            ${{ inputs.what
+            || (contains(github.event.schedule, ' * * 1-5') && 'cards')
+            || (contains(github.event.schedule, ' * * 0,6') && 'term')
+            || (contains(github.event.schedule, ' * * 5') && 'reel')
+            || 'check' }}
           TAGS: ${{ inputs.tags }}
           DATE: ${{ inputs.date }}
           FORCE: ${{ inputs.force }}
@@ -55,5 +67,5 @@ jobs:
         if: failure()
         run: |
           gh label create "자동점검" --color d93f0b --description "자동 실행이 찾은 문제" 2>/dev/null || true
-          gh issue create --title "[인스타 게시 실패] ${{ inputs.what || 'check' }}" --label "자동점검" \
+          gh issue create --title "[인스타 게시 실패] ${{ inputs.what || github.event.schedule || 'check' }}" --label "자동점검" \
             --body "인스타 직접 게시가 실패했습니다: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"

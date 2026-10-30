@@ -73,13 +73,28 @@ def call(method: str, path: str, **params) -> dict:
     raise SystemExit("[인스타 API] 재시도 실패")
 
 
-def fetch_json(rel: str) -> dict:
-    with urllib.request.urlopen(SITE + rel + f"?v={int(time.time())}", timeout=30) as r:
+ROOT = SITE.rsplit("data/", 1)[0]  # 사이트 맨 위 (미리 만든 content/ 가 여기 있음)
+
+
+def fetch_json(rel: str, base: str = "") -> dict:
+    with urllib.request.urlopen((base or SITE) + rel + f"?v={int(time.time())}", timeout=30) as r:
         return json.loads(r.read())
 
 
+def try_json(rel: str, base: str = "") -> dict:
+    """없을 수도 있는 파일 (그날 새로 만든 릴스·용어 카드): 없으면 빈 값."""
+    try:
+        return fetch_json(rel, base)
+    except (urllib.error.URLError, ValueError):
+        return {}
+
+
 def url(rel: str) -> str:
-    return SITE + rel + f"?v={int(time.time())}"  # 인스타가 옛 파일(캐시)을 가져가지 않게
+    """rel: data/ 기준 경로, 또는 http 로 시작하는 전체 주소.
+    인스타 API는 JPEG만 받으므로 .png 는 데이터 실행이 같이 만든 .jpg 사본을 쓴다."""
+    if rel.endswith(".png"): rel = rel[:-4] + ".jpg"
+    base = "" if rel.startswith("http") else SITE
+    return base + rel + f"?v={int(time.time())}"  # 인스타가 옛 파일(캐시)을 가져가지 않게
 
 
 def wait_ready(cid: str, minutes: int = 8) -> None:
@@ -123,6 +138,22 @@ def post_reel(video: str, cover: str | None, caption: str) -> str:
     return publish(call("POST", f"{uid()}/media", **p)["id"])
 
 
+def skip(msg: str) -> None:
+    """올릴 게 없을 때(휴장일·이미 올림 등): 실패가 아니므로 정상 종료 → 실패 알림 이슈가 안 생김."""
+    print(msg)
+    sys.exit(0)
+
+
+def mover_tags() -> str:
+    """그날 가장 많이 오른·내린 종목 이름 해시태그 2개 (미라 예약 작업이 하던 것)."""
+    try:
+        st = [s for s in fetch_json("scores.json").get("stocks", {}).values() if s.get("chg") is not None]
+        st.sort(key=lambda s: s["chg"])
+        return " ".join("#" + s["name"].replace(" ", "") for s in (st[-1], st[0])) if st else ""
+    except Exception:  # 태그가 없어도 게시는 계속
+        return ""
+
+
 def with_tags(caption: str, tags: str) -> str:
     tags = " ".join(t for t in tags.split() if t.startswith("#") and t not in caption)
     return f"{caption} {tags}".rstrip() if tags else caption
@@ -151,22 +182,31 @@ def main() -> None:
     if a.what in ("cards", "cardsreel"):
         j = fetch_json("cards/cards.json")
         if j["date"] != today() and not a.force:
-            raise SystemExit(f"[건너뜀] 카드 날짜 {j['date']} 가 오늘({today()})이 아님 → 데이터 실행 먼저")
-        cap = with_tags(j["caption"], a.tags)
+            skip(f"[건너뜀] 카드 날짜 {j['date']} 가 오늘({today()})이 아님 → 데이터 실행 먼저")
+        cap = with_tags(j["caption"], a.tags or mover_tags())
         if not a.force and already_posted(cap): print("[건너뜀] 오늘 이미 올림"); return
         if a.what == "cards": post_carousel(j["images"], cap)
         else: post_reel("cards/reel.mp4", "cards/reel_cover.jpg", cap)
     elif a.what == "term":
+        # 그날 데이터 실행이 새로 만든 것(data/termcards) → 없으면 미리 만든 것(content/termcards)
         d = a.date or today()
-        items = [i for i in fetch_json("termcards/termcards.json")["items"] if i["date"] == d]
-        if not items: raise SystemExit(f"[건너뜀] {d} 용어 카드 없음")
-        cap = with_tags(items[0]["caption"], a.tags)
+        item = next((i for i in try_json("termcards/termcards.json").get("items", []) if i["date"] == d), None)
+        if not item:
+            item = next((i for i in try_json("content/termcards/termcards.json", ROOT).get("items", []) if i["date"] == d), None)
+            if item: item = {**item, "images": [ROOT + p for p in item["images"]]}
+        if not item: skip(f"[건너뜀] {d} 용어 카드 없음")
+        cap = with_tags(item["caption"], a.tags)
         if not a.force and already_posted(cap): print("[건너뜀] 오늘 이미 올림"); return
-        post_carousel(items[0]["images"], cap)
+        post_carousel(item["images"], cap)
     elif a.what == "reel":
-        j = fetch_json("reel/reel.json")
-        if j["date"] != today() and not a.force:
-            raise SystemExit(f"[건너뜀] 릴스 날짜 {j['date']} 가 오늘({today()})이 아님")
+        # 금요일 앱 광고 릴스: 그날 새로 만든 것(data/reel) → 없으면 미리 만든 것(content/reels)
+        d = a.date or today()
+        j = try_json("reel/reel.json")
+        if j.get("date") != d:
+            pre = next((i for i in try_json("content/reels/reels.json", ROOT).get("items", []) if i["date"] == d), None)
+            if pre: j = {**pre, "video": ROOT + pre["video"], "cover": ROOT + pre["cover"] if pre.get("cover") else None}
+        if j.get("date") != d and not (a.force and j.get("video")):
+            skip(f"[건너뜀] {d} 릴스 없음 (새로 만든 것 {j.get('date')})")
         cap = with_tags(j["caption"], a.tags)
         if not a.force and already_posted(cap): print("[건너뜀] 오늘 이미 올림"); return
         post_reel(j["video"], j.get("cover"), cap)
