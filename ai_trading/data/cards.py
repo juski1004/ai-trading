@@ -60,7 +60,7 @@ def cta_app(date: str) -> str:
 
 
 def cta_line(date: str) -> str:
-    return f"팔로우하고 '연구소' 남기면 선착순 무료 {cta_app(date)} 드려요"
+    return f"팔로우하고 '연구소' 남기면 무료 {cta_app(date)} 드려요"
 
 
 def week_of(date: str) -> int:
@@ -239,7 +239,7 @@ def build(out: Path) -> dict:
     d.rounded_rectangle((370, 1030, 975, 1100), 34, fill=LAVD)
     d.text((672, 1065), "팔로우하고 내일도 받아보기", font=F("Bold", 34), fill=WHITE, anchor="mm")
     d.rounded_rectangle((100, 1130, 980, 1225), 22, fill=UP)
-    d.text((540, 1160), f"선착순 무료 {cta_app(date)} 드려요", font=F("ExtraBold", 38), fill=WHITE, anchor="mm")
+    d.text((540, 1160), f"무료 {cta_app(date)} 드려요", font=F("ExtraBold", 38), fill=WHITE, anchor="mm")
     parts = [("팔로우하고 ", F("Medium", 30)), ("'연구소'", F("ExtraBold", 33)), (" 남겨주세요", F("Medium", 30))]
     tw = sum(d.textlength(t, font=f) for t, f in parts); x = 540 - tw / 2  # 가운데 정렬
     for t, f in parts: d.text((x, 1203), t, font=f, fill=WHITE, anchor="lm"); x += d.textlength(t, font=f)
