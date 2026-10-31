@@ -48,6 +48,18 @@ THEMES = [
 ]
 
 
+# 2026-10-31 사용자: 두 문장을 게시물 올릴 때마다 번갈아 쓰기 (날짜로 정해서 같은 날 카드·캡션·릴스는 같은 문장)
+CTA_APPS = ("종목분석앱", "모의투자앱")
+
+
+def cta_app(date: str) -> str:
+    return CTA_APPS[dt.date.fromisoformat(date).toordinal() % 2]
+
+
+def cta_line(date: str) -> str:
+    return f"팔로우하고 '연구소' 남기면 선착순 무료 {cta_app(date)} 드려요"
+
+
 def week_of(date: str) -> int:
     """EPOCH 주를 0으로 한 주 번호 (월~일이 같은 주)."""
     d = dt.date.fromisoformat(date)
@@ -224,8 +236,8 @@ def build(out: Path) -> dict:
     d.rounded_rectangle((370, 1030, 975, 1100), 34, fill=LAVD)
     d.text((672, 1065), "팔로우하고 내일도 받아보기", font=F("Bold", 34), fill=WHITE, anchor="mm")
     d.rounded_rectangle((100, 1130, 980, 1225), 22, fill=UP)
-    d.text((540, 1160), "실전 데이터 모의투자 앱 선착순 무료 배포", font=F("ExtraBold", 36), fill=WHITE, anchor="mm")
-    parts = [("댓글에 ", F("Medium", 30)), ("'연구소'", F("ExtraBold", 33)), (" 남겨주세요", F("Medium", 30))]
+    d.text((540, 1160), f"선착순 무료 {cta_app(date)} 드려요", font=F("ExtraBold", 38), fill=WHITE, anchor="mm")
+    parts = [("팔로우하고 ", F("Medium", 30)), ("'연구소'", F("ExtraBold", 33)), (" 남겨주세요", F("Medium", 30))]
     tw = sum(d.textlength(t, font=f) for t, f in parts); x = 540 - tw / 2  # 가운데 정렬
     for t, f in parts: d.text((x, 1203), t, font=f, fill=WHITE, anchor="lm"); x += d.textlength(t, font=f)
     im.save(dst / "5.png")
@@ -289,7 +301,7 @@ def build(out: Path) -> dict:
 {checks}
 
 👉 팔로우하면 평일 17시 50분, 장마감 요약을 매일 받아볼 수 있어요
-🎁 실전 데이터 모의투자 앱 선착순 무료 배포 중! 댓글에 '연구소' 남기면 DM으로 바로 보내 드려요
+🎁 {cta_line(date)}
 
 ※ 공개 시세로 만든 참고 자료이며 투자 권유가 아닙니다. 투자 판단과 책임은 본인에게 있습니다.
 
@@ -299,7 +311,7 @@ def build(out: Path) -> dict:
         w = WY.get(sym) or {}; line = w.get("line") or ""
         if (not line or "뚜렷한" in line) and w.get("title"): line = w["title"].rstrip(".…")
         return {"name": s["name"], "chg": round(s["chg"], 2), "why": _clean(line) if line else ""}
-    reel = {"gname": gname, "gsub": gsub, "kospi": {"v": k["v"], "chg": round(k["chg"], 2)},
+    reel = {"app": cta_app(date), "gname": gname, "gsub": gsub, "kospi": {"v": k["v"], "chg": round(k["chg"], 2)},
             "kosdaq": {"v": q["v"], "chg": round(q["chg"], 2)}, "n": len(S), "up": up, "dn": dn,
             "big": {"name": big["name"], "chg": round(big["chg"], 2)},
             "top": [mv(a, b) for a, b in ranked[:3]], "bottom": [mv(a, b) for a, b in ranked[-3:][::-1]],
