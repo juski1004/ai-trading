@@ -214,6 +214,7 @@ def build(out: Path) -> dict:
         y = 300 + i * 88
         d.ellipse((80, y + 10, 116, y + 46), fill=LAVD); d.text((98, y + 28), str(i + 1), font=F("Bold", 26), fill=WHITE, anchor="mm")
         d.text((140, y + 2), t, font=F("Bold", 40), fill=INK)
+    d.text((540, 728), "▼ 오늘의 분석과 내일 전망 전문은 캡션 '더 보기'에서", font=F("Bold", 28), fill=LAVD, anchor="mm")  # 2026-10-31 사용자: 더보기 유도
     card(d, (70, 760, 1010, 1250))
     ph = _photo(hid, 240, 320, 28); im.paste(ph[0], (100, 790), ph[1])
     d.text((370, 795), f"오늘은 {gsub}", font=F("ExtraBold", 44), fill=INK)
@@ -235,7 +236,34 @@ def build(out: Path) -> dict:
     mood = "급등" if k["chg"] >= 2 else "급락" if k["chg"] <= -2 else "상승" if k["chg"] > 0 else "하락"
     hook = (f"{'📈' if k['chg'] >= 0 else '📉'} 코스피 {pct(k['chg'])} {mood}한 날, "
             f"{big['name']} {pct(big['chg'])} {'왜 올랐을까?' if big['chg'] > 0 else '왜 빠졌을까?'}")
+    # 2026-10-31 사용자: "현황만이 아니라 분석이랑 전망이 있어야 더보기 눌러서 본다" → 둘째 줄에 예고, 본문에 분석·내일 체크 포인트
+    bsym = next((sy for sy, x in S.items() if x is big), None)
+    def why_of(sym):
+        w = WY.get(sym) or {}; line = w.get("line") or ""; nm = (S.get(sym) or {}).get("name", "")
+        if (not line or "뚜렷한" in line) and w.get("title") and nm and nm[:2] in w["title"]:  # 그 종목 기사일 때만 제목을 씀
+            line = w["title"].rstrip(".…") + (f" ({w['src']})" if w.get("src") else "")
+        return _clean(line) if line and "뚜렷한" not in line else "뚜렷한 개별 소식은 없었어요"
+    def amt(x):  # 문장 속 금액: 부호 없이, 1만 억 넘으면 조
+        n = abs(round(x)); j, r = divmod(n, 10000)
+        return f"{j}조 {r:,}억" if j and r else f"{j}조" if j else f"{n:,}억"
+    fk, ok_ = mf["KOSPI"]["frg"], mf["KOSPI"]["org"]
+    flow_txt = (f"외국인이 {amt(fk)} 팔고, 기관이 {amt(ok_)} 받아 냈어요" if fk < 0 < ok_ else
+                f"외국인 {amt(fk)}, 기관 {amt(ok_)} 함께 샀어요" if fk > 0 and ok_ > 0 else
+                f"외국인 {amt(fk)}, 기관 {amt(ok_)} 함께 팔고 개인이 받았어요" if fk < 0 and ok_ < 0 else
+                f"외국인이 {amt(fk)} 사고, 기관이 {amt(ok_)} 팔았어요")
+    breadth = ("대부분 오른 하루" if up > dn * 1.5 else "대부분 내린 하루" if dn > up * 1.5 else "종목마다 엇갈린 하루")
+    tone = o.get("tone") if o.get("date") == date and o.get("source") != "규칙" else None
+    analysis = "\n".join([
+        f"• 시장: {breadth}였어요. 대형주 {len(S)}종목 중 {up}개 오르고 {dn}개 내렸어요" + (f" (분위기 '{tone}')" if tone else ""),
+        f"• 수급: {flow_txt}",
+        f"• {big['name']} {pct(big['chg'])}: {why_of(bsym)}",
+        *[f"• {x['name']} {pct(x['chg'])}: {why_of(sy)}" for sy, x in (ranked[0], ranked[-1]) if x is not big],
+    ])
+    checks = "\n".join(f"{i + 1}) {t}" for i, t in enumerate(pts[:3]))
+    teaser = f"👇 {big['name']} {'왜 올랐는지' if big['chg'] > 0 else '왜 빠졌는지'} · 내일 체크 포인트 3가지 (더 보기)"
     caption = f"""{hook}
+{teaser}
+
 {gsub} 전해주는 {md} 장마감 · 코스피 {pct(k['chg'])} · 코스닥 {pct(q['chg'])}
 🔎 오늘 주식 시황 · 코스피 마감 · {' · '.join(dict.fromkeys(s['name'] + ' 주가' for s in (big, ranked[0][1], ranked[-1][1])))}
 
@@ -245,6 +273,12 @@ def build(out: Path) -> dict:
 
 🔺 많이 오른: {', '.join(s['name'] + ' ' + pct(s['chg']) for _, s in ranked[:3])}
 🔻 많이 내린: {', '.join(s['name'] + ' ' + pct(s['chg']) for _, s in ranked[-3:][::-1])}
+
+🧐 오늘의 분석
+{analysis}
+
+🔭 내일 체크 포인트
+{checks}
 
 👉 팔로우하면 평일 17시 50분, 장마감 요약을 매일 받아볼 수 있어요
 🎁 실전 데이터 모의투자 앱 선착순 무료 배포 중! 댓글에 '연구소' 남기면 DM으로 바로 보내 드려요

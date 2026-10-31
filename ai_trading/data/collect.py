@@ -219,7 +219,13 @@ def naver_news(code: str, limit: int = 15) -> list[dict]:
     return out
 
 
-def naver_daily(code: str, n: int = 10) -> dict[str, dict]:
+def naver_index_daily(index: str, n: int = 10) -> dict[str, dict]:
+    """코스피·코스닥 지수 일봉(네이버 차트, 거래소 값). index: 'KOSPI' 또는 'KOSDAQ'.
+    2026-10-31: 야후 ^KS11 이 그날 봉을 늦게 줘서 지수가 전날 값으로 채워짐(코스피 0.0%) → 마지막 n일을 이걸로 바로잡음."""
+    return naver_daily(index, n, kind="index")
+
+
+def naver_daily(code: str, n: int = 10, kind: str = "item") -> dict[str, dict]:
     """한국거래소(KRX) 정규장 일봉(네이버 차트). 야후 시세가 최근 며칠 틀리게 오는 일이 있어 마지막 n일을 이걸로 바로잡는다.
     2026-10-30: 모바일 시세 API(/stock/{code}/price)는 넥스트레이드(NXT) 애프터마켓(~20:00) 거래가 섞인 값을 줘서
     저녁에 받으면 종가가 거래소 종가와 달랐음(삼성화재 659,000 vs 655,000) → 거래소 정규장만 주는 차트 API로 바꿈.
@@ -227,7 +233,7 @@ def naver_daily(code: str, n: int = 10) -> dict[str, dict]:
     import datetime as _dt
     end = _dt.date.today(); start = end - _dt.timedelta(days=n * 2 + 10)
     try:
-        r = requests.get(f"https://api.stock.naver.com/chart/domestic/item/{code}/day",
+        r = requests.get(f"https://api.stock.naver.com/chart/domestic/{kind}/{code}/day",
                          params={"startDateTime": start.strftime("%Y%m%d"), "endDateTime": end.strftime("%Y%m%d")},
                          headers=UA, timeout=10).json()
     except Exception as e:
