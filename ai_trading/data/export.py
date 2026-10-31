@@ -132,9 +132,24 @@ def build(out: Path, quick: bool = False, game_dir: Path = Path("game")) -> dict
         idx.index = day_index(idx.index)
         idx = idx[~idx.index.duplicated(keep="last")].reindex(axis).ffill().bfill()
         index_bars = {k: [_r(v) for v in idx[c]] for k, c in (("o", "Open"), ("h", "High"), ("l", "Low"), ("c", "Close"))}
+        # 최근 10거래일 지수는 거래소 값(네이버)으로 바로잡기 — 야후가 그날 봉을 늦게 주면 전날 값이 채워져 0.0%로 보임
+        nk = collect.naver_index_daily("KOSPI")
+        for k, d in enumerate(dates[-10:], start=len(dates) - 10):
+            x = nk.get(d)
+            if x:
+                for f in ("o", "h", "l", "c"):
+                    index_bars[f][k] = _r(x[f])
+        if not nk:
+            print("- 코스피 지수 네이버 일봉 못 받음 (야후 값 그대로)")
 
+    macro = {k: align(v) for k, v in mac["daily"].items()}
+    for key, ix in (("kospi", "KOSPI"), ("kosdaq", "KOSDAQ")):  # 경제지표 쪽 지수도 같은 방식으로 바로잡기
+        if key in macro:
+            nx = collect.naver_index_daily(ix) if key == "kosdaq" else (nk if index_bars is not None else collect.naver_index_daily(ix))
+            for k, d in enumerate(dates[-10:], start=len(dates) - 10):
+                if nx.get(d): macro[key][k] = _r(nx[d]["c"], 4)
     market = {"dates": dates, "stocks": stocks, "index": index_bars,
-              "macro": {k: align(v) for k, v in mac["daily"].items()},
+              "macro": macro,
               "releases": {"us_cpi": mac["us_cpi"], "kr_cpi": mac["kr_cpi"], "fed": mac["fed"], "bok": mac["bok"]}}
     (out / "market.json").write_text(json.dumps(market, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     (out / "listing.json").write_text(json.dumps([[c, n, m] for c, n, m, _ in listing], ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
