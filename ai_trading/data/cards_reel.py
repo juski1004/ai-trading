@@ -19,7 +19,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFilter
 
-from ai_trading.data.cards import TEAM_IMG, _font as F
+from ai_trading.data.cards import TEAM_IMG, _font as F, _photo
 
 W, H, FPS = 1080, 1920, 30
 # 2026-10-30 사용자: "밝은 화면으로" → 미색 바탕 + 진한 글씨 + 흰 패널
@@ -221,8 +221,7 @@ def build(web: Path) -> Path | None:
     if not R: print("[릴스] cards.json 에 reel 자료가 없음 → 건너뜀"); return None
     date = info["date"]; md = f"{int(date[5:7])}월 {int(date[8:])}일"; mood = R["kospi"]["chg"]
     BG = make_bg(); PH = photo_fill(info["host"])
-    av = Image.open(TEAM_IMG / f"{info['host']}.jpg").convert("RGB"); sz = min(av.size)
-    av = av.crop(((av.width - sz) // 2, 0, (av.width - sz) // 2 + sz, sz)).resize((360, 360), Image.LANCZOS)
+    av = _photo(info["host"], 360, 360, 180)[0]  # 얼굴이 원 가운데 오게 (2026-10-31)
     m = Image.new("L", (360, 360), 0); ImageDraw.Draw(m).ellipse((0, 0, 359, 359), fill=255)
     AV = Image.new("RGBA", (360, 360), (0, 0, 0, 0)); AV.paste(av, (0, 0), m)
     ImageDraw.Draw(AV).ellipse((2, 2, 357, 357), outline=ACC + (255,), width=8)

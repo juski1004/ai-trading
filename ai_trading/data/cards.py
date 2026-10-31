@@ -97,11 +97,21 @@ def _wrap(d, text, font, width):
     return lines + ([cur] if cur else [])
 
 
+def face_cy(hid: str) -> int | None:
+    """사진 속 얼굴 가운데 높이(원본 픽셀). web/img/team/faces.json (2026-10-31 사용자: 동그란 사진에서 얼굴이 잘림)"""
+    try:
+        return json.loads((TEAM_IMG / "faces.json").read_text(encoding="utf-8"))[hid]["cy"]
+    except Exception:
+        return None
+
+
 def _photo(hid: str, w: int, h: int, r: int) -> tuple[Image.Image, Image.Image]:
     ph = Image.open(TEAM_IMG / f"{hid}.jpg").convert("RGB")
-    sw, sh = ph.size  # 비율 유지하며 채우기 (얼굴이 위쪽이라 위 기준으로 자름)
+    sw, sh = ph.size  # 비율 유지하며 채우기, 얼굴이 가운데 오도록 자름 (얼굴 정보 없으면 위 기준)
     s = max(w / sw, h / sh); ph = ph.resize((round(sw * s), round(sh * s)), Image.LANCZOS)
-    x = (ph.width - w) // 2; ph = ph.crop((x, 0, x + w, h))
+    cy = face_cy(hid)
+    y = 0 if cy is None else min(max(round(cy * s) - h // 2, 0), ph.height - h)
+    x = (ph.width - w) // 2; ph = ph.crop((x, y, x + w, y + h))
     m = Image.new("L", (w, h), 0); ImageDraw.Draw(m).rounded_rectangle((0, 0, w, h), r, fill=255)
     return ph, m
 
