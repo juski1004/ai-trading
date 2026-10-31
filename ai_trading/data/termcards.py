@@ -165,7 +165,7 @@ def make(date: str, t: dict, lv: str, base_date: str, n_terms: int, dst: Path) -
 
 ※ 공개 자료로 만든 학습용 설명이며 투자 권유가 아닙니다.
 
-#주식공부 #주식용어 #주식초보 #{tag} #재테크"""
+#주식 #주식투자 #주식공부 #재테크 #주식용어 #주식초보 #{tag} #주말주식공부"""
     rel = dst.name
     return {"date": date, "term": t["id"], "name": t["name"], "host": hid, "hostName": hname,
             "images": [f"termcards/{rel}/{i}.png" for i in range(1, N + 1)], "caption": caption}
