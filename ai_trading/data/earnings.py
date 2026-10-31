@@ -31,7 +31,7 @@ def build_earnings(stocks: dict, fin: dict, today: str, within_days: int = 14) -
             continue
         nd, guess = got
         days = (date.fromisoformat(nd) - date.fromisoformat(today)).days
-        if not 0 <= days <= within_days:
+        if not 0 <= days <= within_days or (guess and days <= 1):  # 추정일이 됐는데 공시가 없으면 날짜를 모르는 것 → 알리지 않음
             continue
         eps = next((x for x in (f.get("est") or {}).get("eps", []) if x.get("period") == "이번 분기"), None)
         g = eps.get("growth") if eps else None  # 전년 같은 분기 대비 (1.0 = +100%)
