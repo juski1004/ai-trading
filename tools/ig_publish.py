@@ -344,7 +344,7 @@ def main() -> None:
             j = ensure_today_cards(j)
         if j["date"] != today() and not a.force:
             skip(f"[건너뜀] 카드 날짜 {j['date']} 가 오늘({today()})이 아님 → 데이터 실행 먼저")
-        cap = with_tags(j["caption"], a.tags or mover_tags())
+        cap = with_tags(j["caption"], a.tags)  # 태그는 캡션에 8개(큰 4·작은 4)로 이미 들어 있음 (2026-10-31)
         if not a.force and already_posted(cap, reel=a.what == "cardsreel"): print("[건너뜀] 오늘 이미 올림"); return
         if a.what == "cards": post_carousel(j["images"], cap)
         else: post_reel("cards/reel.mp4", "cards/reel_cover.jpg", cap)

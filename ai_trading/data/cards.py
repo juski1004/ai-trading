@@ -51,6 +51,9 @@ THEMES = [
 # 2026-10-31 사용자: 두 문장을 게시물 올릴 때마다 번갈아 쓰기 (날짜로 정해서 같은 날 카드·캡션·릴스는 같은 문장)
 CTA_APPS = ("종목분석앱", "모의투자앱")
 
+# 2026-10-31 사용자: "검색이 작은 단어라 노출이 안 된다 → 큰 태그 4개 + 작은 태그 4개"
+TAGS_BIG = "#주식 #주식투자 #코스피 #재테크"
+
 
 def cta_app(date: str) -> str:
     return CTA_APPS[dt.date.fromisoformat(date).toordinal() % 2]
@@ -305,7 +308,7 @@ def build(out: Path) -> dict:
 
 ※ 공개 시세로 만든 참고 자료이며 투자 권유가 아닙니다. 투자 판단과 책임은 본인에게 있습니다.
 
-#장마감브리핑 #퇴근길주식 #국내주식"""
+{TAGS_BIG} #장마감브리핑 #퇴근길주식 #주식시황 #{big['name'].replace(' ', '')}"""
     (dst / "caption.txt").write_text(caption, encoding="utf-8")
     def mv(sym, s):  # 릴스용: 이름·등락률·한 줄 이유
         w = WY.get(sym) or {}; line = w.get("line") or ""
