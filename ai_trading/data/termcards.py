@@ -141,7 +141,7 @@ def make(date: str, t: dict, lv: str, base_date: str, n_terms: int, dst: Path) -
     d.text((72, 420), "오늘 숫자와 함께 정리해 뒀어요", font=F("Medium", 40), fill=MUTED)
     d.rounded_rectangle((70, 520, W - 70, 760), 40, fill=WHITE, outline=LINE, width=2)
     d.text((W // 2, 590), "팔로우하고 '연구소' 남기면", font=F("Bold", 46), fill=INK, anchor="mt")
-    d.text((W // 2, 660), f"선착순 무료 {C.cta_app(date)} 드려요", font=F("Bold", 44), fill=ACC, anchor="mt")
+    d.text((W // 2, 660), f"무료 {C.cta_app(date)} 드려요", font=F("Bold", 44), fill=ACC, anchor="mt")
     d.rounded_rectangle((70, 830, W - 70, 1240), 40, fill=WHITE, outline=LINE, width=2)
     ph = C._photo(hid, 240, 320, 28); im.paste(ph[0], (100, 875), ph[1])
     d.text((370, 880), f"오늘 진행은 {hname}", font=F("ExtraBold", 44), fill=INK)
