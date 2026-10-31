@@ -207,8 +207,8 @@ def s_cta(im, t, R, md, PH, AV):
     pulse = 1 + 0.04 * math.sin(max(0, t - 1.0) * 7) if t > 1.0 else back(a) if a < 1 else 1
     bw, bh = int(900 * pulse), int(230 * pulse); x0, y0 = 540 - bw // 2, 1080 - bh // 2 + 120
     if a > 0: rr(im, (x0, y0, x0 + bw, y0 + bh), 40, RED + (int(255 * a),))
-    T(im, "실전 데이터 모의투자 앱 선착순 무료 배포", W // 2, y0 + 50 * pulse, 40, WHITE, "Bold", scale=pulse, anchor="mt", alpha=a)
-    T(im, "댓글에 '연구소' 남겨주세요", W // 2, y0 + 115 * pulse, 64, WHITE, scale=pulse, anchor="mt", alpha=a)
+    T(im, f"선착순 무료 {R.get('app', '모의투자앱')} 드려요", W // 2, y0 + 45 * pulse, 46, WHITE, "Bold", scale=pulse, anchor="mt", alpha=a)
+    T(im, "팔로우하고 '연구소' 남겨주세요", W // 2, y0 + 115 * pulse, 56, WHITE, scale=pulse, anchor="mt", alpha=a)
     a = prog(t, 1.0, 0.4)
     if a: rr(im, (340, 1520, 740, 1620), 50, FG + (int(255 * a),))
     T(im, "팔로우하기", W // 2, 1570, 46, WHITE, anchor="mm", alpha=a)

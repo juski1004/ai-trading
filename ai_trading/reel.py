@@ -24,7 +24,7 @@ from pathlib import Path
 
 
 from ai_trading import motion as M
-from ai_trading.data.cards import host_of, theme_of
+from ai_trading.data.cards import cta_line, host_of, theme_of
 
 FPS = M.FPS
 
@@ -226,7 +226,7 @@ def build(web: Path, kind: str | None = None, at: str | None = None, out: Path |
 ✔ {term['name']} ({term['full']}): {term['one']}
 ✔ 읽는 법: {term['how']}{lv_line}
 
-💬 댓글에 '연구소' 남기면 PER부터 RSI까지 {len(G['terms'])}개 용어를 오늘 숫자로 보는 사전과 모의투자 게임을 DM으로 보내 드려요 (팔로워 선공개)
+💬 {cta_line(date)}
 📌 저장해 두고 헷갈릴 때 다시 보기
 
 ※ 공개 자료로 만든 학습용 설명이며 투자 권유가 아닙니다.
@@ -240,7 +240,7 @@ def build(web: Path, kind: str | None = None, at: str | None = None, out: Path |
 
 📌 홈 · 바닥 반등 신호 · 사기 전에 1만 번 돌려 보기 · AI 대결 · 랭킹
 
-💬 팔로워 한정 · 선착순! 댓글에 '연구소' 남기면 DM으로 앱 보내 드려요
+💬 {cta_line(date)}
 
 ※ 가상 돈으로 하는 모의투자 게임이며 신호는 참고용입니다. 투자 권유가 아닙니다.
 
@@ -254,7 +254,7 @@ def build(web: Path, kind: str | None = None, at: str | None = None, out: Path |
 📌 하루 한 번, 퇴근길 5분이면 끝나는 종가 스윙 연습
 📌 AI 팀 '알파'와 같은 날·같은 돈으로 수익률 대결
 
-💬 댓글에 '연구소' 남기면 DM으로 보내 드려요 (팔로워 선공개)
+💬 {cta_line(date)}
 
 ※ 가상 돈으로 하는 모의투자 게임이며 투자 권유가 아닙니다.
 
