@@ -1,0 +1,1 @@
+{"updated": "2026-10-31T01:18+00:00", "stocks": 78, "listing": 2655, "keys": {"FRED_API_KEY": true, "ECOS_API_KEY": true, "DART_API_KEY": true, "GEMINI_API_KEY": true, "GROQ_API_KEY": true, "XAI_API_KEY": false}, "warnings": ["FRED DFEDTARU: HTTPError"]}
