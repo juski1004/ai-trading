@@ -42,3 +42,10 @@ def test_premade_captions_no_overlap():
         for it in json.loads((root / f).read_text(encoding="utf-8"))["items"]:
             tags = re.findall(r"#\S+", it["caption"])
             assert len(tags) == 8 and not overlaps(tags), (f, it["date"], tags)
+
+
+def test_first_comment_gets_same_tags():
+    import ig_publish
+    cap = "본문\n\n#주식 #재테크 #경제 #증시 #VIX #공포지수 #용어정리 #주말공부"
+    assert ig_publish.tags_of(cap) == "#주식 #재테크 #경제 #증시 #VIX #공포지수 #용어정리 #주말공부"
+    assert ig_publish.tags_of("태그 없음") == ""

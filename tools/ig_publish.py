@@ -19,6 +19,7 @@ import argparse
 import datetime as dt
 import json
 import os
+import re
 import sys
 import time
 import urllib.error
@@ -147,9 +148,21 @@ COMMENTS = {
 WHAT = ""
 
 
-def comment(mid: str, kind: str) -> None:
+LAST_CAPTION = ""  # 방금 올린 게시물 캡션 → 첫 댓글에도 같은 해시태그 8개를 붙임
+
+
+def tags_of(caption: str) -> str:
+    """캡션 맨 끝 해시태그 줄(큰4+작은4) 그대로"""
+    for l in reversed((caption or "").strip().splitlines()):
+        if l.strip().startswith("#"): return " ".join(re.findall(r"#\S+", l))
+    return ""
+
+
+def comment(mid: str, kind: str, caption: str = "") -> None:
     text = COMMENTS.get(kind)
     if not text: return
+    tg = tags_of(caption or LAST_CAPTION)  # 2026-11-01 사용자 지시: 본문과 댓글 모두 해시태그 8개
+    if tg and tg not in text: text = f"{text}\n\n{tg}"
     try:
         mine = call("GET", f"{mid}/comments", fields="username,text").get("data", [])
         if any(c.get("text") == text for c in mine): print("[댓글] 이미 있음"); return
@@ -177,6 +190,7 @@ def _threads(caption: str, **media) -> None:
 
 
 def post_carousel(images: list[str], caption: str) -> str:
+    global LAST_CAPTION; LAST_CAPTION = caption
     kids = [call("POST", f"{uid()}/media", image_url=url(p), is_carousel_item="true")["id"] for p in images]
     for k in kids: wait_ready(k, 3)
     c = call("POST", f"{uid()}/media", media_type="CAROUSEL", children=",".join(kids), caption=caption)["id"]
@@ -186,6 +200,7 @@ def post_carousel(images: list[str], caption: str) -> str:
 
 
 def post_reel(video: str, cover: str | None, caption: str) -> str:
+    global LAST_CAPTION; LAST_CAPTION = caption
     p = dict(media_type="REELS", video_url=url(video), caption=caption, share_to_feed="true")
     if cover: p["cover_url"] = url(cover)
     link = publish(call("POST", f"{uid()}/media", **p)["id"])
@@ -270,7 +285,7 @@ def main() -> None:
         for m in call("GET", f"{uid()}/media", fields="id,caption,timestamp,permalink", limit=10).get("data", []):
             if dt.datetime.strptime(m["timestamp"], "%Y-%m-%dT%H:%M:%S%z") < since: continue
             c = m.get("caption") or ""; kind = "cards" if "장마감" in c.splitlines()[1:2] or "장마감" in c[:120] else "term" if "용어" in c[:80] else "reel"
-            print(m.get("permalink"), kind); comment(m["id"], kind)
+            print(m.get("permalink"), kind); comment(m["id"], kind, c)
         return
 
     if a.what == "check":
