@@ -114,6 +114,15 @@ jobs:
           command -v ffmpeg >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
           python -m playwright install chromium >/dev/null 2>&1 || true   # 크롬이 있으면 그걸 쓰고, 없을 때 대비
           python -m ai_trading.reel web
+      - name: 일요일 용어 릴스 미리 만들기 (금요일 데이터 실행 때 · 실패해도 계속)
+        if: env.CMD == 'data'
+        continue-on-error: true
+        timeout-minutes: 10
+        run: |
+          [ "$(TZ=Asia/Seoul date +%u)" = 5 ] || { echo "금요일만"; exit 0; }
+          SUN=$(TZ=Asia/Seoul date -d "+2 day" +%F)
+          rm -rf web/data/reel_sun
+          python -m ai_trading.reel web word "$SUN" web/data/reel_sun
       - name: 게임 기록 저장
         if: env.CMD != 'data' && env.CMD != 'aicheck' && env.CMD != 'site'
         run: |
