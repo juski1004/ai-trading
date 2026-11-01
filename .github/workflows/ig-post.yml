@@ -6,10 +6,10 @@ on:
   workflow_dispatch:
     inputs:
       what:
-        description: "comment(최근 24시간 게시물에 팔로우 유도 댓글) / stats(최근 게시물 성과, date칸=며칠) / check(토큰 확인) / cards(장마감 카드) / cardsreel(카드 릴스) / term(주말 용어 카드) / reel(앱 소개 릴스)"
+        description: "comment(최근 24시간 게시물에 팔로우 유도 댓글) / stats(최근 게시물 성과, date칸=며칠) / check(토큰 확인) / cards(장마감 카드) / cardsreel(카드 릴스) / term(주말 용어 카드) / reel(앱 소개 릴스) / termreel(일요일 용어 릴스)"
         default: check
         type: choice
-        options: [check, cards, cardsreel, term, reel, stats, comment]
+        options: [check, cards, cardsreel, term, reel, termreel, stats, comment]
       tags:
         description: "캡션 끝에 붙일 해시태그 (선택, 예: #삼성전자 #반도체)"
         default: ""
@@ -22,11 +22,11 @@ on:
         default: false
   schedule:
     - cron: "17 1 1,15 * *"   # 매달 1·15일 10:17 KST 토큰 확인·연장 (60일 만료 방지)
-    - cron: "50 8 * * 1-5"      # 평일 17:50 KST 장마감 카드
-    - cron: "15,45 9 * * 1-5"   # 평일 18:15·18:45 KST 다시 시도 (예약이 밀렸거나 데이터가 늦은 날 · 오늘 카드만)
-    - cron: "0,40 2 * * 0,6"    # 토·일 11:00·11:40 KST 용어 정리 카드
-    - cron: "40 11 * * 5"       # 금 20:40 KST 앱 광고 릴스
-    - cron: "20 12 * * 5"       # 금 21:20 KST 릴스 다시 시도
+    # 2026-11-01 사용자: 카드뉴스는 새 사람에게 노출이 0이라 멈추고 릴스만 (평일 장마감 릴스 · 토 앱 소개 릴스 · 일 용어 릴스)
+    - cron: "50 8 * * 1-5"      # 평일 17:50 KST 장마감 릴스
+    - cron: "15,45 9 * * 1-5"   # 평일 18:15·18:45 KST 다시 시도 (데이터가 늦은 날 · 오늘 것만)
+    - cron: "0,40 2 * * 6"      # 토 11:00·11:40 KST 앱 소개 릴스 (미리 만든 것)
+    - cron: "0,40 2 * * 0"      # 일 11:00·11:40 KST 용어 릴스 (금요일 데이터 실행 때 만든 것)
 
 permissions:
   contents: read
@@ -53,9 +53,9 @@ jobs:
           # 수동 실행은 고른 것, 예약 실행은 시각에 맞는 것
           WHAT: >-
             ${{ inputs.what
-            || (contains(github.event.schedule, ' * * 1-5') && 'cards')
-            || (contains(github.event.schedule, ' * * 0,6') && 'term')
-            || (contains(github.event.schedule, ' * * 5') && 'reel')
+            || (contains(github.event.schedule, ' * * 1-5') && 'cardsreel')
+            || (contains(github.event.schedule, ' * * 6') && 'reel')
+            || (contains(github.event.schedule, ' * * 0') && 'termreel')
             || 'check' }}
           TAGS: ${{ inputs.tags }}
           DATE: ${{ inputs.date }}

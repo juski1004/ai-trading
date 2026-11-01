@@ -53,7 +53,7 @@ KINDS["promo"] = {"hook": ["드디어", "공개합니다"],
                             ("#analysis/{sym}", "사기 전에 1만 번 돌려 보기", ".sim-card"),
                             ("#vs", "AI 팀과 수익률 대결", ""),
                             ("#vs", "시즌 랭킹", "#vsRank")]}
-BY_WEEKDAY = {4: "app"}  # 금요일 앱 광고만
+BY_WEEKDAY = {4: "app"}  # 금요일 데이터 실행 때 만들어 둠 (올리는 건 토요일, 2026-11-01 사용자: 평일 장마감 릴스·토 앱 소개·일 용어 릴스)
 APP_KINDS = ["tour", "chart", "vs"]                      # 목요일은 주마다 돌아가며
 # 용어 릴스 순서 (초보자가 많이 묻는 것부터, 주마다 하나)
 WORD_ORDER = ["per", "vix", "cpi", "rate", "rsi", "pbr", "usdkrw", "roe", "ma", "flow", "macd", "us10y", "div", "bb", "wti", "vol",
@@ -265,11 +265,13 @@ def build(web: Path, kind: str | None = None, at: str | None = None, out: Path |
 
 {APP_TAGS}"""
     info = {"date": date, "kind": kind, "term": term["id"] if term else None, "host": host[0],
-            "video": "reel/reel.mp4", "cover": "reel/cover.jpg", "caption": caption}
+            "video": f"{out.name}/reel.mp4", "cover": f"{out.name}/cover.jpg", "caption": caption}
     (out / "reel.json").write_text(json.dumps(info, ensure_ascii=False), encoding="utf-8")
     return info
 
 
 if __name__ == "__main__":
-    r = build(Path(sys.argv[1] if len(sys.argv) > 1 else "web"), sys.argv[2] if len(sys.argv) > 2 else None)
+    # usage: python -m ai_trading.reel web [kind] [at YYYY-MM-DD] [out 폴더]
+    a = sys.argv[1:]; web = Path(a[0] if a else "web")
+    r = build(web, a[1] if len(a) > 1 and a[1] != "-" else None, a[2] if len(a) > 2 else None, Path(a[3]) if len(a) > 3 else None)
     print(json.dumps(r, ensure_ascii=False, indent=1) if r else "오늘은 릴스 없는 날 (금요일만)")

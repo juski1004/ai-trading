@@ -176,7 +176,7 @@ def publish(container: str) -> str:
     mid = call("POST", f"{uid()}/media_publish", creation_id=container)["id"]
     link = call("GET", mid, fields="permalink").get("permalink", "")
     print(f"게시 완료: {link}")
-    comment(mid, "cards" if WHAT in ("cards", "cardsreel") else WHAT)
+    comment(mid, "cards" if WHAT in ("cards", "cardsreel") else "term" if WHAT == "termreel" else WHAT)
     return link
 
 
@@ -269,7 +269,7 @@ def with_tags(caption: str, tags: str) -> str:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("what", choices=["check", "cards", "cardsreel", "term", "reel", "stats", "comment"])
+    ap.add_argument("what", choices=["check", "cards", "cardsreel", "term", "reel", "termreel", "stats", "comment"])
     ap.add_argument("--tags", default="")
     ap.add_argument("--date", default="")
     ap.add_argument("--force", action="store_true")
@@ -378,6 +378,14 @@ def main() -> None:
         cap = with_tags(item["caption"], a.tags)
         if not a.force and already_posted(cap): print("[건너뜀] 오늘 이미 올림"); return
         post_carousel(item["images"], cap)
+    elif a.what == "termreel":
+        # 일요일 용어 릴스: 금요일 데이터 실행 때 그 일요일 날짜로 만들어 둔 것(data/reel_sun)
+        d = a.date or today()
+        j = try_json("reel_sun/reel.json")
+        if j.get("date") != d and not a.force: skip(f"[건너뜀] {d} 용어 릴스 없음 (만들어 둔 것 {j.get('date')})")
+        cap = with_tags(j["caption"], a.tags)
+        if not a.force and already_posted(cap, reel=True): print("[건너뜀] 오늘 이미 올림"); return
+        post_reel(j["video"], j.get("cover"), cap)
     elif a.what == "reel":
         # 금요일 앱 광고 릴스: 그날 새로 만든 것(data/reel) → 없으면 미리 만든 것(content/reels)
         d = a.date or today()
@@ -385,6 +393,8 @@ def main() -> None:
         if j.get("date") != d:
             pre = next((i for i in try_json("content/reels/reels.json", ROOT).get("items", []) if i["date"] == d), None)
             if pre: j = {**pre, "video": ROOT + pre["video"], "cover": ROOT + pre["cover"] if pre.get("cover") else None}
+            elif j.get("date") == (dt.date.fromisoformat(d) - dt.timedelta(days=1)).isoformat():
+                j = {**j, "date": d}  # 미리 만든 게 없으면 금요일 데이터 실행 때 만든 앱 소개 릴스를 토요일에 (2026-11-01)
         if j.get("date") != d and not (a.force and j.get("video")):
             skip(f"[건너뜀] {d} 릴스 없음 (새로 만든 것 {j.get('date')})")
         cap = with_tags(j["caption"], a.tags)
