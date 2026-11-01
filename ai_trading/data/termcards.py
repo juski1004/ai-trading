@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import datetime as dt
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -165,10 +166,17 @@ def make(date: str, t: dict, lv: str, base_date: str, n_terms: int, dst: Path) -
 
 ※ 공개 자료로 만든 학습용 설명이며 투자 권유가 아닙니다.
 
-#주식 #주식투자 #주식공부 #재테크 #주식용어 #주식초보 #{tag} #주말주식공부"""
+{term_tags(t['name'], t.get('full', ''))}"""
     rel = dst.name
     return {"date": date, "term": t["id"], "name": t["name"], "host": hid, "hostName": hname,
             "images": [f"termcards/{rel}/{i}.png" for i in range(1, N + 1)], "caption": caption}
+
+
+def term_tags(name: str, full: str = "") -> str:
+    """주말 용어 카드 해시태그: 큰 4(주식·재테크·경제·증시) + 작은 4(용어·풀이·용어정리·주말공부), 서로 겹치지 않게"""
+    from ai_trading.data.hashtags import line
+    clean = lambda x: re.sub(r"[^0-9A-Za-z가-힣]", "", x)
+    return line(["주식", "재테크", "경제", "증시"], [*[clean(x) for x in re.split(r"[ /·]", name)], clean(full)], ["용어정리", "주말공부", "초보가이드", "쉬운설명"])
 
 
 def build(out: Path, dates: list[str] | None = None) -> dict | None:

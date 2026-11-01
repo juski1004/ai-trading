@@ -24,7 +24,12 @@ from pathlib import Path
 
 
 from ai_trading import motion as M
+from ai_trading.data import termcards as TT
 from ai_trading.data.cards import cta_line, host_of, theme_of
+from ai_trading.data.hashtags import line as _htag
+
+# 앱 소개 릴스 해시태그: 큰 4 + 작은 4, 서로 겹치지 않게 (2026-11-01)
+APP_TAGS = _htag(["주식", "코스피", "재테크", "증시"], ["모의투자", "투자게임", "초보투자", "AI투자연구소"])
 
 FPS = M.FPS
 
@@ -231,7 +236,7 @@ def build(web: Path, kind: str | None = None, at: str | None = None, out: Path |
 
 ※ 공개 자료로 만든 학습용 설명이며 투자 권유가 아닙니다.
 
-#주식 #주식투자 #주식공부 #재테크 #주식용어 #주식초보 #{term['name'].replace(' ', '').replace('/', '')} #주말주식공부"""
+{TT.term_tags(term['name'], term.get('full', ''))}"""
     elif kind == "promo":
         caption = f"""드디어 공개합니다 🎮
 {hname}{josa} 소개하는 AI 투자연구소 ({md})
@@ -244,7 +249,7 @@ def build(web: Path, kind: str | None = None, at: str | None = None, out: Path |
 
 ※ 가상 돈으로 하는 모의투자 게임이며 신호는 참고용입니다. 투자 권유가 아닙니다.
 
-#주식 #주식투자 #주식공부 #재테크 #모의투자 #주식게임 #주식앱 #AI투자"""
+{APP_TAGS}"""
     else:
         K = KINDS[kind]
         caption = f"""{' '.join(K['hook'])} 🎮
@@ -258,7 +263,7 @@ def build(web: Path, kind: str | None = None, at: str | None = None, out: Path |
 
 ※ 가상 돈으로 하는 모의투자 게임이며 투자 권유가 아닙니다.
 
-#주식 #주식투자 #주식공부 #재테크 #모의투자 #주식게임 #주식앱 #주식초보"""
+{APP_TAGS}"""
     info = {"date": date, "kind": kind, "term": term["id"] if term else None, "host": host[0],
             "video": "reel/reel.mp4", "cover": "reel/cover.jpg", "caption": caption}
     (out / "reel.json").write_text(json.dumps(info, ensure_ascii=False), encoding="utf-8")

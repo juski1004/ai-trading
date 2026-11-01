@@ -14,6 +14,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
 FONT = Path(__file__).parent / "fonts"
+from ai_trading.data.hashtags import line as _tags  # noqa: E402
 TEAM_IMG = Path(__file__).resolve().parents[2] / "web" / "img" / "team"
 W, H = 1080, 1350
 # 2026-10-25 사용자: 보라 배경 빼고 릴스와 같은 디자인 (밝은 모눈 종이 + 검정 글씨 + 파랑 포인트 + 노란 형광펜)
@@ -52,7 +53,7 @@ THEMES = [
 CTA_APPS = ("종목분석앱", "모의투자앱")
 
 # 2026-10-31 사용자: "검색이 작은 단어라 노출이 안 된다 → 큰 태그 4개 + 작은 태그 4개"
-TAGS_BIG = "#주식 #주식투자 #코스피 #재테크"
+BIG_TAGS = ["주식", "코스피", "재테크", "증시"]  # 큰 태그 4개 (서로 겹치지 않게, ai_trading/data/hashtags.py)
 
 
 def cta_app(date: str) -> str:
@@ -318,7 +319,7 @@ def build(out: Path) -> dict:
 
 ※ 공개 시세로 만든 참고 자료이며 투자 권유가 아닙니다. 투자 판단과 책임은 본인에게 있습니다.
 
-{TAGS_BIG} #장마감브리핑 #퇴근길주식 #주식시황 #{big['name'].replace(' ', '')}"""
+{_tags(BIG_TAGS, ['장마감', '퇴근길', '오늘의시황', big['name']], ['시장브리핑', '투자일기'])}"""
     (dst / "caption.txt").write_text(caption, encoding="utf-8")
     def mv(sym, s):  # 릴스용: 이름·등락률·한 줄 이유
         w = WY.get(sym) or {}; line = w.get("line") or ""
