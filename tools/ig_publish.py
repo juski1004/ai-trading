@@ -230,6 +230,8 @@ def ensure_today_cards(j: dict, wait_min: int = 45) -> dict:
     since = now.replace(hour=15, minute=30, second=0, microsecond=0).astimezone(dt.timezone.utc)
     runs = gh("GET", "actions/workflows/trade.yml/runs?per_page=10").get("workflow_runs", [])
     recent = [r for r in runs if dt.datetime.strptime(r["created_at"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=dt.timezone.utc) >= since]
+    # 끝난 실행이 있는데도 카드가 오늘 날짜가 아니면 그건 데이터 실행이 아니었던 것(예: 늦게 돈 낮 cycle) → 지금 도는 게 없으면 직접 실행 (2026-11-02)
+    recent = [r for r in recent if r["status"] in ("queued", "in_progress", "waiting", "pending")]
     if not recent:
         print("[데이터] 오늘 장마감 데이터 실행이 없어 직접 실행시킴")
         gh("POST", "actions/workflows/trade.yml/dispatches", {"ref": "main", "inputs": {"command": "data"}})
