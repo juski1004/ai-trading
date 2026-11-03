@@ -70,7 +70,7 @@ jobs:
           id = "$KV"
 
           [triggers]
-          crons = ["0 9 * * 1-5", "10 9 * * 1-5", "40 9 * * 1-5"]  # 18:00·18:10·18:40 KST
+          crons = ["*/10 7-10 * * 1-5", "0,40 2 * * 0,6"]  # 평일 16:00~19:50 KST 10분마다(알림 18:00·18:10·18:40 + GitHub 작업 정확한 시각 실행) · 토·일 11:00·11:40 KST
           EOF
           sed -i 's/^          //' worker/wrangler.toml
           echo "url=https://ai-lab.$SUB.workers.dev" >> "$GITHUB_OUTPUT"
@@ -79,6 +79,13 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ env.CF_TOKEN }}
         run: npx --yes wrangler@3.90.0 deploy
+      - name: GitHub 작업을 깨우는 열쇠 넣기 (GH_DISPATCH_TOKEN 시크릿이 있을 때만)
+        working-directory: worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ env.CF_TOKEN }}
+          GHT: ${{ secrets.GH_DISPATCH_TOKEN }}
+        run: |
+          if [ -n "$GHT" ]; then printf '%s' "$GHT" | npx --yes wrangler@3.90.0 secret put GH_DISPATCH_TOKEN; else echo "::warning::GH_DISPATCH_TOKEN 시크릿이 없어 정확한 시각 타이머는 꺼져 있습니다"; fi
       - name: 동작 확인
         run: |
           for i in 1 2 3 4 5 6; do

@@ -5,6 +5,7 @@
    - 사용 집계: 날짜별 숫자만 (오늘 연 기기 수, 새 기기, 홈 화면 설치, 튜토리얼 완료, 첫 주문, 3·7일째 재방문, 들어온 경로). 개인 정보·기기 id 저장 없음
    저장소는 KV 하나(바인딩 이름 KV). VAPID 열쇠는 처음 쓸 때 만들어 KV에 둔다. 외부 비밀값 없음. */
 import { makeVapid, sendPush } from "./push.js";
+import { runPlan } from "./dispatch.js";
 
 const SITE = "https://juski1004.github.io/ai-trading";
 const ORIGINS = ["https://juski1004.github.io", "http://localhost:8765"];
@@ -204,5 +205,11 @@ export default {
       return json(req, { error: "server error" }, 500);
     }
   },
-  async scheduled(event, env, ctx) { ctx.waitUntil(scheduled(event.cron, env)); },
+  // 10분마다(평일 16~19시 KST)·주말 11시대 타이머: ① 18:00·18:10·18:40 알림은 예전 방식 그대로 ② GitHub 작업을 정확한 시각에 시킴(dispatch.js)
+  async scheduled(event, env, ctx) {
+    const t = event.scheduledTime || Date.now(), k = new Date(t + 9 * 3600e3), hm = k.getUTCHours() * 60 + k.getUTCMinutes(), wd = k.getUTCDay() >= 1 && k.getUTCDay() <= 5;
+    const legacy = wd && hm === 18 * 60 ? "0 9 * * 1-5" : wd && hm === 18 * 60 + 10 ? "10 9 * * 1-5" : wd && hm === 18 * 60 + 40 ? "40 9 * * 1-5" : null;
+    if (legacy) ctx.waitUntil(scheduled(legacy, env));
+    ctx.waitUntil(runPlan(t, env));
+  },
 };
