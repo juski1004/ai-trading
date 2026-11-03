@@ -263,6 +263,7 @@ img[src*="img/team/egen."]{object-position:50% 2%!important}img[src*="img/team/j
 <script src="advise.js"></script>
 <script src="rebound.js"></script>
 <script src="position.js"></script>
+<script src="trace.js"></script>
 <script src="growth.js"></script>
 <script src="sim.js"></script>
 <script src="vs.js"></script>
@@ -317,6 +318,7 @@ function home(){
   ${window.Advise?Advise.homeCard():''}
   ${window.Rebound?Rebound.homeCard():''}
   ${window.Position?Position.homeCard():''}
+  ${window.Trace?Trace.homeCard():''}
   ${window.Growth?Growth.homeCard():''}
   ${window.Learn?Learn.homeCard():''}
   ${window.Deck?Deck.view(SC):''}
@@ -387,6 +389,7 @@ function analysisDetail(sym){
     <p class="sub" style="margin-top:6px">${esc(SC.date)} 종가 기준</p>
   </section>
   ${window.AppChart?AppChart.html(sym):spark(s)}
+  ${window.Trace?Trace.detail(sym):''}
   ${window.Position?Position.detail(sym):''}
   ${window.Rebound?Rebound.detail(sym):''}
   ${window.Growth?Growth.detail(sym):''}
