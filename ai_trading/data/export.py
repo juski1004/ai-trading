@@ -224,6 +224,13 @@ def build(out: Path, quick: bool = False, game_dir: Path = Path("game")) -> dict
             print(f"바닥 반등 신호 {len(rb['items'])}종목")
         except Exception as e:
             print(f"[바닥 반등 신호 실패] {type(e).__name__}: {e}")
+        try:  # 큰손 매수 흔적 ◆ (거래 규모·희소성·방향이 평소와 다른 날) + 지난 흔적 성적표
+            from .trace import build as build_trace
+            tr = build_trace(stocks, dates, sflows)
+            (out / "trace.json").write_text(json.dumps(tr, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+            print(f"큰손 흔적 {len(tr['items'])}종목 · 최근 5일 {len(tr['recent'])}종목")
+        except Exception as e:
+            print(f"[큰손 흔적 실패] {type(e).__name__}: {e}")
         try:  # 기관 매수 트래커 + 위치 진단(기관·외국인 추정 평단 대비 현재가)
             from .position import build as build_position
             ps = build_position(stocks, dates, sflows)
