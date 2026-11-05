@@ -17,6 +17,7 @@ export function plan(ms) {
   if (weekday) {
     if (at === 16 * 60 + 10 || at === 16 * 60 + 50) out.push({ kind: "data" });   // 데이터가 오늘 것이 아니면 실행 (17:50 게시 전에 끝나게)
     if (at === 17 * 60 + 50 || at === 19 * 60 + 20) out.push({ kind: "ig", what: "cardsreel" }); // 평일 장마감 릴스 (+ 늦게 올라가는 날 다시)
+    if (dow === 3 && (at === 12 * 60 || at === 12 * 60 + 40)) out.push({ kind: "ig", what: "quiz" }); // 수 주간 차트 퀴즈 (정답은 목 장마감 릴스)
   } else if (dow === 6 || dow === 0) {
     if (at === 11 * 60 || at === 11 * 60 + 40) out.push({ kind: "ig", what: dow === 6 ? "reel" : "termreel" }); // 토 앱 소개 · 일 용어 릴스
   }

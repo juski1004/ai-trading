@@ -8,7 +8,8 @@
 사용:
   python tools/ig_publish.py check                 # 토큰·계정 확인, 남은 기간 표시 (게시 안 함)
   python tools/ig_publish.py cards  [--tags "#a #b"] # 오늘 장마감 카드 5장 (캐러셀)
-  python tools/ig_publish.py cardsreel [--tags ..]  # 장마감 카드로 만든 릴스
+  python tools/ig_publish.py cardsreel [--tags ..]  # 장마감 카드로 만든 릴스 (목: 어제 퀴즈 정답 줄 추가)
+  python tools/ig_publish.py quiz                    # 수 12:00 주간 차트 퀴즈 릴스
   python tools/ig_publish.py term [--date YYYY-MM-DD]  # 주말 용어 카드
   python tools/ig_publish.py reel                   # 앱 소개 릴스
 공통: --force (날짜가 오늘이 아니어도, 이미 올린 것 같아도 올림)
@@ -143,6 +144,7 @@ def already_posted(caption: str, reel: bool = False) -> bool:
 COMMENTS = {
     "cards": "📌 매일 장마감 현황이 궁금하면 팔로우해 두세요! 평일 17시 50분, 1분 요약으로 정리해 드려요\n💬 내일 코스피는 오를까요, 내릴까요? 댓글로 ↑ 또는 ↓ 남겨 주세요",
     "term": "📌 주말마다 주식 용어 하나씩! 팔로우하고 저장해 두면 헷갈릴 때 바로 꺼내 볼 수 있어요\n💬 다음에 알고 싶은 용어를 댓글로 남겨 주세요",
+    "quiz": "💬 1(오른다) 또는 2(내린다)로 골라 주세요! 정답은 내일 17시 50분 장마감 릴스에서 공개해요\n📌 팔로우해 두면 정답 릴스를 놓치지 않아요",
     "reel": "📌 팔로우하면 평일 17시 50분 장마감 요약을 매일 받아볼 수 있어요\n💬 모의투자 앱이 궁금하면 캡션의 키워드를 댓글로 남겨 주세요, DM으로 보내 드려요",
 }
 WHAT = ""
@@ -271,7 +273,7 @@ def with_tags(caption: str, tags: str) -> str:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("what", choices=["check", "cards", "cardsreel", "term", "reel", "termreel", "stats", "comment"])
+    ap.add_argument("what", choices=["check", "cards", "cardsreel", "term", "reel", "termreel", "quiz", "stats", "comment"])
     ap.add_argument("--tags", default="")
     ap.add_argument("--date", default="")
     ap.add_argument("--force", action="store_true")
@@ -362,6 +364,9 @@ def main() -> None:
         if j["date"] != today() and not a.force:
             skip(f"[건너뜀] 카드 날짜 {j['date']} 가 오늘({today()})이 아님 → 데이터 실행 먼저")
         cap = with_tags(j["caption"], a.tags)  # 태그는 캡션에 8개(큰 4·작은 4)로 이미 들어 있음 (2026-10-31)
+        q = try_json("quiz/quiz.json")
+        if a.what == "cardsreel" and q.get("answer_date") == j["date"] and q.get("answer_line"):  # 목: 어제 퀴즈 정답 (영상에도 장면 있음)
+            ls = cap.splitlines(); cap = "\n".join(ls[:2] + ["", q["answer_line"]] + ls[2:])
         if not a.force and already_posted(cap, reel=a.what == "cardsreel"): print("[건너뜀] 오늘 이미 올림"); return
         if a.what == "cards": post_carousel(j["images"], cap)
         else: post_reel("cards/reel.mp4", "cards/reel_cover.jpg", cap)
@@ -385,6 +390,14 @@ def main() -> None:
         d = a.date or today()
         j = try_json("reel_sun/reel.json")
         if j.get("date") != d and not a.force: skip(f"[건너뜀] {d} 용어 릴스 없음 (만들어 둔 것 {j.get('date')})")
+        cap = with_tags(j["caption"], a.tags)
+        if not a.force and already_posted(cap, reel=True): print("[건너뜀] 오늘 이미 올림"); return
+        post_reel(j["video"], j.get("cover"), cap)
+    elif a.what == "quiz":
+        # 수 12:00 주간 차트 퀴즈: 화요일 데이터 실행 때 수요일 날짜로 만들어 둔 것(data/quiz) (2026-11-05)
+        d = a.date or today()
+        j = try_json("quiz/quiz.json")
+        if j.get("date") != d and not a.force: skip(f"[건너뜀] {d} 퀴즈 없음 (만들어 둔 것 {j.get('date')})")
         cap = with_tags(j["caption"], a.tags)
         if not a.force and already_posted(cap, reel=True): print("[건너뜀] 오늘 이미 올림"); return
         post_reel(j["video"], j.get("cover"), cap)

@@ -70,7 +70,7 @@ jobs:
           id = "$KV"
 
           [triggers]
-          crons = ["*/10 7-10 * * MON-FRI", "0,40 2 * * SAT,SUN"]  # 평일 16:00~19:50 KST 10분마다(알림 18:00·18:10·18:40 + GitHub 작업 정확한 시각 실행) · 토·일 11:00·11:40 KST
+          crons = ["*/10 7-10 * * MON-FRI", "0,40 2 * * SAT,SUN", "0,40 3 * * WED"]  # 평일 16:00~19:50 KST 10분마다(알림 18:00·18:10·18:40 + GitHub 작업 정확한 시각 실행) · 토·일 11:00·11:40 · 수 12:00·12:40 KST(차트 퀴즈)
           EOF
           sed -i 's/^          //' worker/wrangler.toml
           echo "url=https://ai-lab.$SUB.workers.dev" >> "$GITHUB_OUTPUT"
