@@ -26,7 +26,7 @@ W, H, FPS = 1080, 1920, 30
 BG1, BG2 = (250, 249, 245), (236, 240, 248)
 WHITE, FG, DIM, YEL = (255, 255, 255), (20, 22, 30), (112, 116, 128), (255, 214, 10)
 RED, BLUE, ACC = (226, 52, 92), (40, 98, 222), (38, 99, 235)
-SCENES = [3.6, 3.6, 3.4, 3.4, 3.0, 3.4]  # 초
+SC = [3.6, 3.6, 3.4, 3.4, 3.0, 3.4]  # 장면 길이(초) · 퀴즈 정답 날은 4초 장면이 하나 더
 TR = 0.35  # 전환 길이
 
 
@@ -214,6 +214,20 @@ def s_cta(im, t, R, md, PH, AV):
     T(im, "팔로우하기", W // 2, 1570, 46, WHITE, anchor="mm", alpha=a)
 
 
+def s_quiz(im, t, R, md, PH, Q):
+    """목요일: 어제(수) 퀴즈 정답 — 이름 공개 + 가렸던 한 달이 그려짐 (2026-11-05)."""
+    from ai_trading.data.quiz import draw_chart
+    a = prog(t, 0, 0.35); T(im, "어제 차트 퀴즈 정답", 70, 200, 84, FG, alpha=a, scale=1.3 - 0.3 * out3(a))
+    T(im, f"{Q['name']} · {Q['period']}", 74, 315, 44, DIM, "Bold", alpha=prog(t, 0.2, 0.4))
+    draw_chart(im, Q, (50, 420, 1030, 1220), upto=1, reveal=prog(t, 0.3, 1.8), mask=False)
+    a = prog(t, 1.9, 0.4); c = RED if Q["up"] else BLUE
+    if a > 0:
+        rr(im, (60, 1290, 1020, 1560), 40, c + (int(255 * a),))
+        T(im, f"정답 {'1번 올랐다' if Q['up'] else '2번 내렸다'}", W // 2, 1360, 60, WHITE, anchor="mm", alpha=a)
+        T(im, f"한 달 뒤 {pct(Q['chg'])}", W // 2, 1470, 84, WHITE, anchor="mm", alpha=a, scale=1.4 - 0.4 * back(a) if a < 1 else 1)
+    T(im, "다음 퀴즈는 다음 주 수요일 12시", W // 2, 1640, 42, FG, "Bold", anchor="mm", alpha=prog(t, 2.4, 0.4))
+
+
 def build(web: Path) -> Path | None:
     web = Path(web); cd = web / "data" / "cards"
     info = json.loads((cd / "cards.json").read_text(encoding="utf-8"))
@@ -227,6 +241,11 @@ def build(web: Path) -> Path | None:
     ImageDraw.Draw(AV).ellipse((2, 2, 357, 357), outline=ACC + (255,), width=8)
     fns = [s_cover, s_index, s_movers("top", "많이 오른 종목", 1), s_movers("bottom", "많이 내린 종목", -1), s_flow,
            lambda im, t, R, md, PH: s_cta(im, t, R, md, PH, AV)]
+    SCENES = list(SC)
+    from ai_trading.data.quiz import answer_due
+    Q = answer_due(web, date)
+    if Q:  # 어제 퀴즈 정답 장면을 마무리 앞에
+        fns.insert(-1, lambda im, t, R, md, PH: s_quiz(im, t, R, md, PH, Q)); SCENES.insert(-1, 4.0)
     starts = [sum(SCENES[:i]) for i in range(len(SCENES))]; total = sum(SCENES)
 
     def scene(k, t):

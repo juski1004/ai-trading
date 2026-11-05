@@ -123,6 +123,15 @@ jobs:
           SUN=$(TZ=Asia/Seoul date -d "+2 day" +%F)
           rm -rf web/data/reel_sun
           python -m ai_trading.reel web word "$SUN" web/data/reel_sun
+      - name: 수요일 차트 퀴즈 릴스 미리 만들기 (화요일 데이터 실행 때 · 실패해도 계속)
+        if: env.CMD == 'data'
+        continue-on-error: true
+        timeout-minutes: 8
+        run: |
+          [ "$(TZ=Asia/Seoul date +%u)" = 2 ] || { echo "화요일만"; exit 0; }
+          WED=$(TZ=Asia/Seoul date -d "+1 day" +%F)
+          command -v ffmpeg >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
+          python -m ai_trading.data.quiz web "$WED"
       - name: 게임 기록 저장
         if: env.CMD != 'data' && env.CMD != 'aicheck' && env.CMD != 'site'
         run: |

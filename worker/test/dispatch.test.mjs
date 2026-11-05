@@ -14,5 +14,8 @@ test("토 앱 소개 릴스, 일 용어 릴스, 평일엔 주말 게시 없음",
   assert.deepEqual(plan(kst("2026-11-07T11:00:00")), [{ kind: "ig", what: "reel" }]);
   assert.deepEqual(plan(kst("2026-11-08T11:40:00")), [{ kind: "ig", what: "termreel" }]);
   assert.deepEqual(plan(kst("2026-11-04T11:00:00")), []);
+  assert.deepEqual(plan(kst("2026-11-11T12:00:00")), [{ kind: "ig", what: "quiz" }]);
+  assert.deepEqual(plan(kst("2026-11-11T12:40:00")), [{ kind: "ig", what: "quiz" }]);
+  assert.deepEqual(plan(kst("2026-11-12T12:00:00")), []);
   assert.equal(kstParts(kst("2026-11-08T11:00:00")).dow, 0);
 });
