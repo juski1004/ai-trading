@@ -205,7 +205,12 @@ def post_reel(video: str, cover: str | None, caption: str) -> str:
     global LAST_CAPTION; LAST_CAPTION = caption
     p = dict(media_type="REELS", video_url=url(video), caption=caption, share_to_feed="true")
     if cover: p["cover_url"] = url(cover)
-    link = publish(call("POST", f"{uid()}/media", **p)["id"])
+    for n in range(2):  # 11/6: 인스타 쪽 '처리 실패(ERROR)'로 장마감 릴스가 빠짐 → 새로 한 번 더 (2026-11-09)
+        try:
+            link = publish(call("POST", f"{uid()}/media", **p)["id"]); break
+        except SystemExit as e:
+            if n or "처리 실패" not in str(e): raise
+            print(f"{e} → 1분 뒤 다시 올림"); time.sleep(60); p["video_url"] = url(video)
     _threads(caption, video=url(video))
     return link
 
