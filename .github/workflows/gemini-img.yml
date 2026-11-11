@@ -1,0 +1,33 @@
+name: 이미지 만들기 (제미나이, 깡통 AI 장면 · 예약 작업이 실행)
+on:
+  workflow_dispatch:
+    inputs:
+      prompts: {description: "프롬프트들 (' || ' 로 구분, 영어 권장)", required: true}
+      models: {description: "모델들(쉼표, 비우면 기본 순서)", required: false, default: ""}
+      tag: {description: "폴더 이름", required: true}
+permissions:
+  contents: write
+jobs:
+  img:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: 이미지 만들기
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          IMG_PROMPTS: ${{ inputs.prompts }}
+          IMG_MODELS: ${{ inputs.models }}
+          IMG_TAG: ${{ inputs.tag }}
+        run: python tools/gemini_img.py "/tmp/img/$IMG_TAG" "$IMG_PROMPTS" "$IMG_MODELS"
+      - name: img-samples 브랜치에 올리기 (기존 폴더는 그대로 두고 추가)
+        if: always()
+        env:
+          IMG_TAG: ${{ inputs.tag }}
+        run: |
+          [ -d "/tmp/img/$IMG_TAG" ] || exit 0
+          git config user.name "ai-trading-bot"; git config user.email "ai-trading-bot@users.noreply.github.com"
+          if git fetch origin img-samples; then git checkout -B img-samples FETCH_HEAD; else git checkout --orphan img-samples && git rm -rqf --cached . && git clean -fdqx; fi
+          mkdir -p out && rm -rf "out/$IMG_TAG" && cp -r "/tmp/img/$IMG_TAG" "out/$IMG_TAG"
+          git add -f "out/$IMG_TAG" && git commit -qm "이미지 $IMG_TAG"
+          for i in 1 2 3; do git push origin img-samples && break; git pull --rebase origin img-samples; done
