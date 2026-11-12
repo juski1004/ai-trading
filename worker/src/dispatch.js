@@ -16,7 +16,7 @@ export function plan(ms) {
   const weekday = dow >= 1 && dow <= 5;
   if (weekday) {
     if (at === 16 * 60 + 10 || at === 16 * 60 + 50) out.push({ kind: "data" });   // 데이터가 오늘 것이 아니면 실행 (금요일 실행은 토요일 퀴즈 준비도 겸함)
-    if (dow === 4 && (at === 12 * 60 || at === 12 * 60 + 40)) out.push({ kind: "ig", what: "reel" }); // 목 앱 홍보 릴스 (주 1회)
+    if (dow === 4 && (at === 17 * 60 + 30 || at === 17 * 60 + 40)) out.push({ kind: "ig", what: "reel" }); // 목 앱 홍보 릴스 (주 1회, 17:30 업로드)
   } else if (dow === 6) {
     if (at === 12 * 60 || at === 12 * 60 + 40) out.push({ kind: "ig", what: "quiz" }); // 토 차트 퀴즈 릴스 (정답은 다음 퀴즈 릴스에서)
   }
