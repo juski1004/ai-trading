@@ -104,16 +104,18 @@ jobs:
         run: |
           command -v ffmpeg >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
           python -m ai_trading.data.cards_reel web
-      - name: 인스타 릴스 만들기 (화·목·금, 실제 앱 화면 15초 · 실패해도 계속)
+      - name: 목요일 앱 홍보 릴스 미리 만들기 (수요일 데이터 실행 때 · 실제 앱 화면 15초 · 실패해도 계속)
         if: env.CMD == 'data'
         continue-on-error: true
         timeout-minutes: 10
         run: |
+          [ "$(TZ=Asia/Seoul date +%u)" = 3 ] || { echo "수요일만"; exit 0; }
+          THU=$(TZ=Asia/Seoul date -d "+1 day" +%F)
           rm -rf web/data/reel
           pip install -q playwright
           command -v ffmpeg >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
           python -m playwright install chromium >/dev/null 2>&1 || true   # 크롬이 있으면 그걸 쓰고, 없을 때 대비
-          python -m ai_trading.reel web
+          python -m ai_trading.reel web - "$THU"
       - name: 일요일 용어 릴스 미리 만들기 (금요일 데이터 실행 때 · 실패해도 계속)
         if: env.CMD == 'data'
         continue-on-error: true
@@ -123,15 +125,15 @@ jobs:
           SUN=$(TZ=Asia/Seoul date -d "+2 day" +%F)
           rm -rf web/data/reel_sun
           python -m ai_trading.reel web word "$SUN" web/data/reel_sun
-      - name: 수요일 차트 퀴즈 릴스 미리 만들기 (화요일 데이터 실행 때 · 실패해도 계속)
+      - name: 토요일 차트 퀴즈 릴스 미리 만들기 (금요일 데이터 실행 때 · 실패해도 계속)
         if: env.CMD == 'data'
         continue-on-error: true
         timeout-minutes: 8
         run: |
-          [ "$(TZ=Asia/Seoul date +%u)" = 2 ] || { echo "화요일만"; exit 0; }
-          WED=$(TZ=Asia/Seoul date -d "+1 day" +%F)
+          [ "$(TZ=Asia/Seoul date +%u)" = 5 ] || { echo "금요일만"; exit 0; }
+          SAT=$(TZ=Asia/Seoul date -d "+1 day" +%F)
           command -v ffmpeg >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
-          python -m ai_trading.data.quiz web "$WED"
+          python -m ai_trading.data.quiz web "$SAT"
       - name: 게임 기록 저장
         if: env.CMD != 'data' && env.CMD != 'aicheck' && env.CMD != 'site'
         run: |

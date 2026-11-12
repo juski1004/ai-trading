@@ -9,9 +9,9 @@
   python tools/ig_publish.py check                 # 토큰·계정 확인, 남은 기간 표시 (게시 안 함)
   python tools/ig_publish.py cards  [--tags "#a #b"] # 오늘 장마감 카드 5장 (캐러셀)
   python tools/ig_publish.py cardsreel [--tags ..]  # 장마감 카드로 만든 릴스 (목: 어제 퀴즈 정답 줄 추가)
-  python tools/ig_publish.py quiz                    # 수 12:00 주간 차트 퀴즈 릴스
+  python tools/ig_publish.py quiz                    # 토 12:00 주간 차트 퀴즈 릴스 (2026-11-12 일정 재편)
   python tools/ig_publish.py term [--date YYYY-MM-DD]  # 주말 용어 카드
-  python tools/ig_publish.py reel                   # 앱 소개 릴스
+  python tools/ig_publish.py reel                   # 목 12:00 앱 홍보 릴스
 공통: --force (날짜가 오늘이 아니어도, 이미 올린 것 같아도 올림)
 """
 from __future__ import annotations
@@ -144,8 +144,8 @@ def already_posted(caption: str, reel: bool = False) -> bool:
 COMMENTS = {
     "cards": "📌 매일 장마감 현황이 궁금하면 팔로우해 두세요! 평일 17시 50분, 1분 요약으로 정리해 드려요\n💬 내일 코스피는 오를까요, 내릴까요? 댓글로 ↑ 또는 ↓ 남겨 주세요",
     "term": "📌 주말마다 주식 용어 하나씩! 팔로우하고 저장해 두면 헷갈릴 때 바로 꺼내 볼 수 있어요\n💬 다음에 알고 싶은 용어를 댓글로 남겨 주세요",
-    "quiz": "💬 1(오른다) 또는 2(내린다)로 골라 주세요! 정답은 내일 17시 50분 장마감 릴스에서 공개해요\n📌 팔로우해 두면 정답 릴스를 놓치지 않아요",
-    "reel": "📌 팔로우하면 평일 17시 50분 장마감 요약을 매일 받아볼 수 있어요\n💬 모의투자 앱이 궁금하면 캡션의 키워드를 댓글로 남겨 주세요, DM으로 보내 드려요",
+    "quiz": "💬 1(오른다) 또는 2(내린다)로 골라 주세요! 정답은 다음 주 토요일 12시 퀴즈 릴스에서 공개해요\n📌 팔로우해 두면 정답 릴스를 놓치지 않아요",
+    "reel": "📌 팔로우하면 차트 퀴즈와 투자 공부 릴스를 받아볼 수 있어요\n💬 모의투자 앱이 궁금하면 캡션의 키워드를 댓글로 남겨 주세요, DM으로 보내 드려요",
 }
 WHAT = ""
 
