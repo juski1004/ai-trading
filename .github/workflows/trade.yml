@@ -62,6 +62,9 @@ jobs:
             # 장마감 요약 아카이브: 사이트에 쌓인 지난 글을 꺼내 오고 오늘 글을 더함 (실패해도 사이트 갱신은 계속)
             (git fetch -q --depth 1 origin site && git archive origin/site archive | tar -x -C web) 2>/dev/null || echo "지난 아카이브 없음 (처음)"
             python -m ai_trading.data.archive web || echo "[아카이브 실패]"
+            # 미리 만든 앱 홍보 릴스·차트 퀴즈는 다음 데이터 실행이 사이트를 덮어써도 남게 다시 가져옴 (2026-11-14: 늦게 돈 금요일 실행이 토 0시에 퀴즈를 지움)
+            (git archive origin/site data/quiz | tar -x -C web) 2>/dev/null || echo "미리 만든 퀴즈 없음"
+            (git archive origin/site data/reel | tar -x -C web) 2>/dev/null || echo "미리 만든 릴스 없음"
           elif [ "$CMD" = "cycle" ] && [ ! -f game/state.json ]; then
             echo "진행 중인 게임이 없어 건너뜀"
           else
@@ -109,8 +112,12 @@ jobs:
         continue-on-error: true
         timeout-minutes: 10
         run: |
-          [ "$(TZ=Asia/Seoul date +%u)" = 3 ] || { echo "수요일만"; exit 0; }
-          THU=$(TZ=Asia/Seoul date -d "+1 day" +%F)
+          case "$(TZ=Asia/Seoul date +%u)" in
+            3) THU=$(TZ=Asia/Seoul date -d "+1 day" +%F) ;;
+            4) THU=$(TZ=Asia/Seoul date +%F) ;;   # 수요일 실행이 자정 넘어 늦게 돈 날
+            *) echo "수·목요일만"; exit 0 ;;
+          esac
+          if python -c "import json,sys; sys.exit(0 if json.load(open('web/data/reel/reel.json')).get('date') == '$THU' else 1)" 2>/dev/null; then echo "$THU 릴스 이미 있음"; exit 0; fi
           rm -rf web/data/reel
           pip install -q playwright
           command -v ffmpeg >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
@@ -121,8 +128,12 @@ jobs:
         continue-on-error: true
         timeout-minutes: 8
         run: |
-          [ "$(TZ=Asia/Seoul date +%u)" = 5 ] || { echo "금요일만"; exit 0; }
-          SAT=$(TZ=Asia/Seoul date -d "+1 day" +%F)
+          case "$(TZ=Asia/Seoul date +%u)" in
+            5) SAT=$(TZ=Asia/Seoul date -d "+1 day" +%F) ;;
+            6) SAT=$(TZ=Asia/Seoul date +%F) ;;   # 금요일 실행이 자정 넘어 늦게 돈 날
+            *) echo "금·토요일만"; exit 0 ;;
+          esac
+          if python -c "import json,sys; sys.exit(0 if json.load(open('web/data/quiz/quiz.json')).get('date') == '$SAT' else 1)" 2>/dev/null; then echo "$SAT 퀴즈 이미 있음"; exit 0; fi
           command -v ffmpeg >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
           python -m ai_trading.data.quiz web "$SAT"
       - name: 게임 기록 저장
