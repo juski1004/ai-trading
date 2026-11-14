@@ -135,7 +135,7 @@ def render(web: Path, at: str) -> dict | None:
             return im
         T(im, "이 종목, 한 달 뒤 오를까? 내릴까?", 60, 200, 56, FG)
         T(im, f"종목 이름 ???  ·  {Q['period']}", 64, 290, 38, DIM, "Medium")
-        T(im, "실제 지난 차트 · 이름은 내일 공개", 64, 345, 34, DIM, "Medium")
+        T(im, "실제 지난 차트 · 이름은 정답 릴스에서", 64, 345, 34, DIM, "Medium")
         if k == 1: draw_chart(im, Q, CH, upto=out3(prog(t, 0, 4.0)))
         else: draw_chart(im, Q, CH, upto=1)
         if k == 2:
@@ -152,7 +152,7 @@ def render(web: Path, at: str) -> dict | None:
             T(im, "댓글로 1 또는 2 남겨 주세요", W // 2, 1720, 50, FG, anchor="mm", alpha=prog(t, 0.8, 0.4))
         if k == 4:
             a = prog(t, 0, 0.4); rr(im, (60, 1400, 1020, 1700), 40, FG + (int(240 * a),))
-            T(im, "정답은 내일 장마감 릴스에서", W // 2, 1480, 56, WHITE, anchor="mm", alpha=a)
+            T(im, "정답은 다음 주 토요일에", W // 2, 1480, 56, WHITE, anchor="mm", alpha=a)
             T(im, f"{ans_md} 17시 50분 · 팔로우하고 확인", W // 2, 1590, 44, YEL, "Bold", anchor="mm", alpha=prog(t, 0.3, 0.4))
         T(im, "지난 시세로 만든 차트 공부용 퀴즈 · 투자 권유 아님", W // 2, H - 40, 26, DIM, "Medium", anchor="mb")
         return im
@@ -169,7 +169,7 @@ def render(web: Path, at: str) -> dict | None:
     pr.stdin.close(); pr.wait()
     if pr.returncode: raise SystemExit(f"ffmpeg 실패 {pr.returncode}")
     caption = f"""🧩 주간 차트 퀴즈 | 한 달 뒤, 오를까? 내릴까?
-실제 있었던 차트예요 ({Q['period']}, 종목 이름은 내일 공개)
+실제 있었던 차트예요 ({Q['period']}, 종목 이름은 정답 릴스에서 공개)
 
 💡 힌트: {Q['hint']}
 
@@ -177,7 +177,7 @@ def render(web: Path, at: str) -> dict | None:
 1 = 오른다 📈
 2 = 내린다 📉
 
-정답과 가렸던 차트 뒷부분은 내일({ans_md}) 17:50 장마감 릴스에서 공개해요. 팔로우하고 확인하세요!
+정답과 가렸던 차트 뒷부분은 다음 주 토요일 퀴즈 릴스에서 공개해요. 팔로우하고 확인하세요!
 
 ※ 지난 시세로 만든 차트 공부용 퀴즈이며 투자 권유가 아닙니다.
 
