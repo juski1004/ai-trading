@@ -55,17 +55,26 @@ def pick(market: dict, at: str) -> dict | None:
     """올릴 날짜(at)로 정해지는 무작위(같은 날 다시 만들어도 같은 문제). 최근 25거래일은 빼고 '지난' 차트만."""
     dates = market["dates"]; n = len(dates)
     rnd = random.Random(f"quiz-{at}")
-    want_up = dt.date.fromisoformat(at).isocalendar()[1] % 2 == 0
+    # 2026-11-14 사용자: 지표만 보면 답이 뻔함 → 절반은 '함정'(지표가 가리키는 방향과 정답이 반대)
+    # 4주마다 함정 2번·지표대로 2번을 섞어서 (어느 주가 함정인지는 무작위)
+    y, wk, _ = dt.date.fromisoformat(at).isocalendar()
+    order = [True, True, False, False]; random.Random(f"quiz-trap-{y}-{wk // 4}").shuffle(order)
+    trap = order[wk % 4]
     # 거래대금 큰 종목(이름 들으면 아는 회사) 위주
     big = sorted(market["stocks"].values(), key=lambda s: -sum(a * b for a, b in zip(s["c"][-60:], s["v"][-60:])))[:40]
-    cands = {True: [], False: []}
+    pool, rest = [], []
     for st in big:
         c = st["c"]
         if len(c) != n: continue
         for k in range(SHOW + 60, n - AHEAD - 25):  # 60일 이평선을 처음부터 그릴 수 있게 앞쪽 여유
             r = c[k + AHEAD] / c[k] - 1
-            if 0.10 <= abs(r) <= 0.40: cands[r > 0].append((st, k, r))
-    pool = cands[want_up] or cands[not want_up]
+            if not 0.10 <= abs(r) <= 0.40: continue
+            rest.append((st, k, r))
+            r14 = rsi(c, k); gap = c[k] / (sum(c[k - 19:k + 1]) / 20) - 1
+            naive = True if (r14 < 50 and gap < 0) else False if (r14 > 50 and gap > 0) else None  # 지표가 보여 주는 방향
+            if naive is None or (naive == (r > 0)) == trap: continue
+            pool += [(st, k, r)] * (1 if (r14 < 25 or r14 > 75) else 2)  # 너무 뻔한 극단 장면은 덜 나오게
+    pool = pool or rest
     if not pool: return None
     st, k, r = rnd.choice(pool)
     s0 = k - SHOW + 1; s1 = k + AHEAD + 1
