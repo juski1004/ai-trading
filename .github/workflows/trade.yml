@@ -65,6 +65,7 @@ jobs:
             # 미리 만든 앱 홍보 릴스·차트 퀴즈는 다음 데이터 실행이 사이트를 덮어써도 남게 다시 가져옴 (2026-11-14: 늦게 돈 금요일 실행이 토 0시에 퀴즈를 지움)
             (git archive origin/site data/quiz | tar -x -C web) 2>/dev/null || echo "미리 만든 퀴즈 없음"
             (git archive origin/site data/reel | tar -x -C web) 2>/dev/null || echo "미리 만든 릴스 없음"
+            (git archive origin/site data/study | tar -x -C web) 2>/dev/null || echo "미리 만든 공부 릴스 없음"
           elif [ "$CMD" = "cycle" ] && [ ! -f game/state.json ]; then
             echo "진행 중인 게임이 없어 건너뜀"
           else
@@ -107,35 +108,36 @@ jobs:
         run: |
           command -v ffmpeg >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
           python -m ai_trading.data.cards_reel web
-      - name: 목요일 앱 홍보 릴스 미리 만들기 (수요일 데이터 실행 때 · 실제 앱 화면 15초 · 실패해도 계속)
+      - name: 화·목 홍보 + 차트 퀴즈 릴스 미리 만들기 (월·수요일 데이터 실행 때 · 실패해도 계속)
         if: env.CMD == 'data'
         continue-on-error: true
-        timeout-minutes: 10
+        timeout-minutes: 14
         run: |
           case "$(TZ=Asia/Seoul date +%u)" in
-            3) THU=$(TZ=Asia/Seoul date -d "+1 day" +%F) ;;
-            4) THU=$(TZ=Asia/Seoul date +%F) ;;   # 수요일 실행이 자정 넘어 늦게 돈 날
-            *) echo "수·목요일만"; exit 0 ;;
+            1|3) DAY=$(TZ=Asia/Seoul date -d "+1 day" +%F) ;;
+            2|4) DAY=$(TZ=Asia/Seoul date +%F) ;;   # 전날 실행이 자정 넘어 늦게 돈 날·전날 실패한 날
+            *) echo "월~목요일만"; exit 0 ;;
           esac
-          if python -c "import json,sys; sys.exit(0 if json.load(open('web/data/reel/reel.json')).get('date') == '$THU' else 1)" 2>/dev/null; then echo "$THU 릴스 이미 있음"; exit 0; fi
-          rm -rf web/data/reel
+          if python -c "import json,sys; sys.exit(0 if json.load(open('web/data/reel/reel.json')).get('date') == '$DAY' else 1)" 2>/dev/null; then echo "$DAY 릴스 이미 있음"; exit 0; fi
           pip install -q playwright
           command -v ffmpeg >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
           python -m playwright install chromium >/dev/null 2>&1 || true   # 크롬이 있으면 그걸 쓰고, 없을 때 대비
-          python -m ai_trading.reel web app "$THU"
-      - name: 토요일 차트 퀴즈 릴스 미리 만들기 (금요일 데이터 실행 때 · 실패해도 계속)
+          python -m ai_trading.weekly_reels web promo "$DAY"
+      - name: 토 주식 공부 + 퀴즈 정답 릴스 미리 만들기 (금요일 데이터 실행 때 · 실패해도 계속)
         if: env.CMD == 'data'
         continue-on-error: true
-        timeout-minutes: 8
+        timeout-minutes: 12
         run: |
           case "$(TZ=Asia/Seoul date +%u)" in
             5) SAT=$(TZ=Asia/Seoul date -d "+1 day" +%F) ;;
             6) SAT=$(TZ=Asia/Seoul date +%F) ;;   # 금요일 실행이 자정 넘어 늦게 돈 날
             *) echo "금·토요일만"; exit 0 ;;
           esac
-          if python -c "import json,sys; sys.exit(0 if json.load(open('web/data/quiz/quiz.json')).get('date') == '$SAT' else 1)" 2>/dev/null; then echo "$SAT 퀴즈 이미 있음"; exit 0; fi
+          if python -c "import json,sys; sys.exit(0 if json.load(open('web/data/study/reel.json')).get('date') == '$SAT' else 1)" 2>/dev/null; then echo "$SAT 공부 릴스 이미 있음"; exit 0; fi
+          pip install -q playwright
           command -v ffmpeg >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
-          python -m ai_trading.data.quiz web "$SAT"
+          python -m playwright install chromium >/dev/null 2>&1 || true
+          python -m ai_trading.weekly_reels web study "$SAT"
       - name: 게임 기록 저장
         if: env.CMD != 'data' && env.CMD != 'aicheck' && env.CMD != 'site'
         run: |

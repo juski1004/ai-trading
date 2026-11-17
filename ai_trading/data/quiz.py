@@ -56,10 +56,11 @@ def pick(market: dict, at: str) -> dict | None:
     dates = market["dates"]; n = len(dates)
     rnd = random.Random(f"quiz-{at}")
     # 2026-11-14 사용자: 지표만 보면 답이 뻔함 → 절반은 '함정'(지표가 가리키는 방향과 정답이 반대)
-    # 4주마다 함정 2번·지표대로 2번을 섞어서 (어느 주가 함정인지는 무작위)
-    y, wk, _ = dt.date.fromisoformat(at).isocalendar()
-    order = [True, True, False, False]; random.Random(f"quiz-trap-{y}-{wk // 4}").shuffle(order)
-    trap = order[wk % 4]
+    # 퀴즈 4개마다 함정 2번·지표대로 2번을 섞어서 (어느 것이 함정인지는 무작위, 2026-11-17부터 화·목 주 2개)
+    y, wk, wd = dt.date.fromisoformat(at).isocalendar()
+    idx = wk * 2 + (1 if wd >= 4 else 0)
+    order = [True, True, False, False]; random.Random(f"quiz-trap-{y}-{idx // 4}").shuffle(order)
+    trap = order[idx % 4]
     # 거래대금 큰 종목(이름 들으면 아는 회사) 위주
     big = sorted(market["stocks"].values(), key=lambda s: -sum(a * b for a, b in zip(s["c"][-60:], s["v"][-60:])))[:40]
     pool, rest = [], []
@@ -145,13 +146,13 @@ def draw_chart(im: Image.Image, Q: dict, box: tuple, upto: float, reveal: float 
 SCENES = [3.0, 5.0, 3.2, 3.6, 2.6]
 
 
-def render(web: Path, at: str) -> dict | None:
+def render(web: Path, at: str, out: Path | None = None) -> dict | None:
     from ai_trading.data.cards_reel import (W, H, FPS, ACC, BLUE, DIM, FG, RED, WHITE, YEL, T, back, bg_at, make_bg, out3, prog, rr)
     web = Path(web); data = web / "data"
     Q = pick(json.loads((data / "market.json").read_text(encoding="utf-8")), at)
     if not Q: print("[퀴즈] 알맞은 과거 장면이 없음 → 건너뜀"); return None
-    out = data / "quiz"; out.mkdir(parents=True, exist_ok=True)
-    d0 = dt.date.fromisoformat(at); ans = d0 + dt.timedelta(days=7)  # 정답은 다음 주 토요일 퀴즈 릴스
+    out = Path(out) if out else data / "quiz"; out.mkdir(parents=True, exist_ok=True)
+    d0 = dt.date.fromisoformat(at); ans = d0 + dt.timedelta(days=(5 - d0.weekday()) % 7 or 7)  # 정답은 그 주 토요일 '주식 공부' 릴스
     ans_md = f"{ans.month}월 {ans.day}일"
     BG = make_bg(); CH = (50, 470, 1030, 1330)
     starts = [sum(SCENES[:i]) for i in range(len(SCENES))]; total = sum(SCENES)
@@ -185,7 +186,7 @@ def render(web: Path, at: str) -> dict | None:
             T(im, "댓글로 1 또는 2 남겨 주세요", W // 2, 1720, 50, FG, anchor="mm", alpha=prog(t, 0.8, 0.4))
         if k == 4:
             a = prog(t, 0, 0.4); rr(im, (60, 1400, 1020, 1700), 40, FG + (int(240 * a),))
-            T(im, "정답은 다음 주 토요일에", W // 2, 1480, 56, WHITE, anchor="mm", alpha=a)
+            T(im, "정답은 토요일에 공개", W // 2, 1480, 56, WHITE, anchor="mm", alpha=a)
             T(im, f"{ans_md} 토요일 12시 · 팔로우하고 확인", W // 2, 1590, 44, YEL, "Bold", anchor="mm", alpha=prog(t, 0.3, 0.4))
         T(im, "지난 시세로 만든 차트 공부용 퀴즈 · 투자 권유 아님", W // 2, H - 40, 26, DIM, "Medium", anchor="mb")
         return im
@@ -210,7 +211,7 @@ def render(web: Path, at: str) -> dict | None:
 1 = 오른다 📈
 2 = 내린다 📉
 
-정답과 가렸던 차트 뒷부분은 다음 주 토요일 퀴즈 릴스에서 공개해요. 팔로우하고 확인하세요!
+정답과 가렸던 차트 뒷부분은 이번 주 토요일 12시 '주식 공부' 릴스에서 공개해요. 팔로우하고 확인하세요!
 
 ※ 지난 시세로 만든 차트 공부용 퀴즈이며 투자 권유가 아닙니다.
 
@@ -218,7 +219,52 @@ def render(web: Path, at: str) -> dict | None:
     info = {"date": at, "answer_date": ans.isoformat(), **Q, "video": "quiz/quiz.mp4", "cover": "quiz/cover.jpg", "caption": caption,
             "answer_line": f"🧩 어제 퀴즈 정답: {Q['name']} → 한 달 뒤 {'+' if Q['chg'] > 0 else ''}{Q['chg']}% ({'1번 오른다' if Q['up'] else '2번 내린다'})"}
     (out / "quiz.json").write_text(json.dumps(info, ensure_ascii=False), encoding="utf-8")
+    # 토요일 정답 공개용 기록 (최근 10개)
+    hp = data / "quiz" / "history.json"; hp.parent.mkdir(parents=True, exist_ok=True)
+    hist = [h for h in (json.loads(hp.read_text(encoding="utf-8")) if hp.exists() else []) if h.get("date") != at]
+    hist.append({k: info[k] for k in ("date", "sym", "name", "cut", "cut_i", "up", "chg", "hint", "period", "bars")})
+    hp.write_text(json.dumps(hist[-10:], ensure_ascii=False), encoding="utf-8")
     return info
+
+
+ANS = 6.0  # 정답 한 문제당 초
+
+
+def render_answers(web: Path, at: str, out_mp4: Path) -> list:
+    """토요일: 그 주 화·목 퀴즈 정답 장면(가렸던 뒷부분 차트 공개 + 종목 이름 + 한 달 뒤 결과). 없으면 []."""
+    from ai_trading.data.cards_reel import (W, H, FPS, BLUE, DIM, FG, RED, WHITE, YEL, T, bg_at, make_bg, out3, prog, rr)
+    web = Path(web); hp = web / "data" / "quiz" / "history.json"
+    d0 = dt.date.fromisoformat(at)
+    items = [h for h in (json.loads(hp.read_text(encoding="utf-8")) if hp.exists() else [])
+             if 0 < (d0 - dt.date.fromisoformat(h["date"])).days <= 6]
+    if not items: return []
+    BG = make_bg(); CH = (50, 520, 1030, 1380); total = ANS * len(items)
+    DAY = "월화수목금토일"
+
+    def frame(tt: float) -> Image.Image:
+        k = min(int(tt // ANS), len(items) - 1); t = tt - k * ANS; Q = items[k]
+        im = bg_at(BG, tt, 1 if Q["up"] else -1)
+        dd = dt.date.fromisoformat(Q["date"])
+        T(im, "AI 투자연구소 · 차트 퀴즈 정답", 60, 60, 36, FG, "Bold")
+        T(im, f"{dd.month}월 {dd.day}일({DAY[dd.weekday()]}) 퀴즈 정답", 60, 190, 60, FG)
+        a = prog(t, 1.6, 0.4)
+        T(im, f"{Q['name']}  ·  {Q['period']}", 64, 290, 42, DIM, "Bold", alpha=a)
+        draw_chart(im, Q, CH, upto=1, reveal=out3(prog(t, 0.3, 1.6)))
+        a = prog(t, 2.2, 0.4); col = RED if Q["up"] else BLUE
+        rr(im, (60, 1450, 1020, 1700), 40, col + (int(255 * a),))
+        T(im, f"정답 {'1번 오른다' if Q['up'] else '2번 내린다'}", W // 2, 1525, 64, WHITE, anchor="mm", alpha=a)
+        T(im, f"한 달 뒤 {'+' if Q['chg'] > 0 else ''}{Q['chg']}%", W // 2, 1625, 52, YEL, "Bold", anchor="mm", alpha=a)
+        T(im, "지난 시세로 만든 차트 공부용 퀴즈 · 투자 권유 아님", W // 2, H - 40, 26, DIM, "Medium", anchor="mb")
+        return im
+
+    args = ["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-",
+            "-f", "lavfi", "-i", "anullsrc=r=44100:cl=stereo", "-map", "0:v", "-map", "1:a", "-c:a", "aac", "-b:a", "128k",
+            "-t", f"{total:.2f}", "-c:v", "libx264", "-preset", "veryfast", "-crf", "21", "-pix_fmt", "yuv420p", str(out_mp4)]
+    pr = subprocess.Popen(args, stdin=subprocess.PIPE)
+    for fi in range(int(total * FPS)): pr.stdin.write(frame(fi / FPS).convert("RGB").tobytes())
+    pr.stdin.close(); pr.wait()
+    if pr.returncode: raise SystemExit(f"ffmpeg 실패 {pr.returncode}")
+    return items
 
 
 def answer_due(web: Path, date: str) -> dict | None:
