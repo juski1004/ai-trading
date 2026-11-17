@@ -37,10 +37,19 @@ FPS = M.FPS
 KINDS = {
     "tour": {"hook": ["퇴근길 5분,", "종가로만 하는", "투자 게임"],
              "shots": [("#home", "오늘 장마감을 AI 직원들이 정리"), ("#analysis", "대형주를 점수로 한눈에"), ("#game", "가상 돈으로 하루 한 번 종가 주문")]},
+    # 2026-11-17 사용자: 홍보 릴스는 기능별 특징(AI 종목분석기 · AI 투자대결 · AI 브리핑)으로 주마다 돌아가며
+    "analyzer": {"hook": ["AI 종목분석기,", "사기 전에", "1만 번 돌려 본다"],
+                 "shots": [("#analysis", "대형주를 AI 점수로 한눈에"), ("#analysis/{sym}", "사기 전에 1만 번 시뮬레이션", ".sim-card"),
+                           ("#analysis/{sym}@ind", "MACD·RSI 보조지표까지 한 번에")],
+                 "points": ["대형주를 AI 점수로 한눈에", "사기 전에 1만 번 돌려 보는 시뮬레이션", "MACD·RSI 보조지표까지 한 번에"]},
+    "brief": {"hook": ["오늘 장마감,", "AI 직원들이", "한눈에 정리"],
+              "shots": [("#home", "매일 장마감 AI 브리핑", "h2:마감 현황"), ("#analysis", "내일 체크할 대형주 점수"), ("#learn", "모르는 말은 용어 사전")],
+              "points": ["매일 장마감 AI 브리핑", "오른 이유·내린 이유를 한 줄로", "초보도 읽는 용어 사전"]},
     "chart": {"hook": ["차트 보는 법,", "보조지표까지", "손가락으로"],
               "shots": [("#analysis/{sym}", "일·주·월봉, 두 손가락 확대"), ("#analysis/{sym}@ind", "MACD·RSI·볼린저 한 번에"), ("#home", "매일 17:50 장마감 정리")]},
-    "vs": {"hook": ["AI 팀 '알파'와", "수익률 대결,", "이길 수 있을까?"],
-           "shots": [("#vs", "같은 날, 같은 돈으로 시작"), ("#game", "하루 한 번, 종가로 주문"), ("#analysis", "대형주 AI 점수로 종목 고르기")]},
+    "vs": {"hook": ["AI 투자대결,", "AI 팀 '알파'를", "이길 수 있을까?"],
+           "shots": [("#vs", "같은 날, 같은 돈으로 시작"), ("#vs", "월간 시즌 랭킹", "#vsRank"), ("#game", "하루 한 번, 종가로 주문")],
+           "points": ["AI 팀 '알파'와 같은 날·같은 돈으로 수익률 대결", "월간 시즌 랭킹", "하루 한 번 종가로 주문"]},
 }
 KINDS["word"] = {"hook": [], "shots": [("#learn/{term}", "용어 사전")]}
 # 앱 공개 홍보 (2026-10-30 사용자: "원래 하려던 것에 좋은 점 추가") — 수동 실행용: python -m ai_trading.reel web promo
@@ -54,7 +63,7 @@ KINDS["promo"] = {"hook": ["드디어", "공개합니다"],
                             ("#vs", "AI 팀과 수익률 대결", ""),
                             ("#vs", "시즌 랭킹", "#vsRank")]}
 BY_WEEKDAY = {4: "app"}  # 금요일 데이터 실행 때 만들어 둠 (올리는 건 토요일, 2026-11-01 사용자: 평일 장마감 릴스·토 앱 소개·일 용어 릴스)
-APP_KINDS = ["tour", "chart", "vs"]                      # 목요일은 주마다 돌아가며
+APP_KINDS = ["analyzer", "vs", "brief"]                  # 목요일 앱 홍보: 기능별로 주마다 돌아가며 (2026-11-17)
 # 용어 릴스 순서 (초보자가 많이 묻는 것부터, 주마다 하나)
 WORD_ORDER = ["per", "vix", "cpi", "rate", "rsi", "pbr", "usdkrw", "roe", "ma", "flow", "macd", "us10y", "div", "bb", "wti", "vol",
               "margin", "debt", "cap", "close", "stop", "swing"]
@@ -135,7 +144,7 @@ def shoot(web: Path, kind: str, sym: str, tmp: Path, term: str = "") -> list[Pat
                     pg.evaluate("document.getElementById('acBox')?.scrollIntoView({block:'start'})")
                     pg.evaluate("window.scrollBy(0,-120)")
                 elif focus:  # 그 기능이 보이는 자리로 (1만 번 돌려 보기는 눌러서 그래프까지)
-                    if kind == "promo" and focus == ".sim-card":
+                    if focus == ".sim-card":
                         el = pg.query_selector("[data-simgo]")
                         if el: el.click(); pg.wait_for_timeout(1800)
                     if focus.startswith("h2:"):  # 제목 글자로 찾는 자리
@@ -161,7 +170,8 @@ def make_app(R: "M.Reel", shots: list[Path], kind: str, host, md: str):
     """앱 소개: 훅(2.4초) → 앱 화면 3개(각 3.4초, 좌우 번갈아 날아옴) → 마무리(2.4초)."""
     K = KINDS[kind]
     M.hook(R, K["hook"], host, "AI 투자연구소")
-    for i, ((_, cap), shot) in enumerate(zip(K["shots"], shots)):
+    for i, (sh, shot) in enumerate(zip(K["shots"], shots)):
+        cap = sh[1]
         M.phone_scene(R, shot, cap, 3.4, side=1 if i % 2 == 0 else -1)
     M.end_scene(R, md=md, sec=2.4)
 
@@ -255,9 +265,7 @@ def build(web: Path, kind: str | None = None, at: str | None = None, out: Path |
         caption = f"""{' '.join(K['hook'])} 🎮
 {hname}{josa} 소개하는 AI 투자연구소 ({md})
 
-📌 실제 거래소 종가 그대로
-📌 하루 한 번, 퇴근길 5분이면 끝나는 종가 스윙 연습
-📌 AI 팀 '알파'와 같은 날·같은 돈으로 수익률 대결
+{chr(10).join("📌 " + p for p in K.get("points") or ["실제 거래소 종가 그대로", "하루 한 번, 퇴근길 5분이면 끝나는 종가 스윙 연습", "AI 팀 '알파'와 같은 날·같은 돈으로 수익률 대결"])}
 
 💬 {cta_line(date)}
 
