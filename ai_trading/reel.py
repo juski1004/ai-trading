@@ -63,7 +63,15 @@ KINDS["promo"] = {"hook": ["드디어", "공개합니다"],
                             ("#vs", "AI 팀과 수익률 대결", ""),
                             ("#vs", "시즌 랭킹", "#vsRank")]}
 BY_WEEKDAY = {4: "app"}  # 금요일 데이터 실행 때 만들어 둠 (올리는 건 토요일, 2026-11-01 사용자: 평일 장마감 릴스·토 앱 소개·일 용어 릴스)
-APP_KINDS = ["analyzer", "vs", "brief"]                  # 목요일 앱 홍보: 기능별로 주마다 돌아가며 (2026-11-17)
+KINDS["study"] = {"hook": ["주식 용어,", "쉬운 말로", "한 번에 공부"],
+                  "shots": [("#learn", "주식 용어 사전, 쉬운 말로"), ("#analysis/{sym}@ind", "배운 지표를 차트에서 바로"), ("#game", "가상 돈으로 바로 연습")],
+                  "points": ["초보도 읽는 주식 용어 사전", "배운 보조지표를 실제 차트에서 바로 확인", "가상 돈으로 하루 한 번 연습"]}
+KINDS["signal"] = {"hook": ["세력 매집 신호,", "AI가 먼저", "찾아 줘요"],
+                   "shots": [("#analysis/{sym}", "매집 흔적까지 AI 종합 판단", "h2:AI 종합 판단"), ("#home", "바닥 반등·매집 신호 매일 정리", "h2:마감 현황"),
+                             ("#analysis/{sym}@ind", "거래량·보조지표로 직접 확인")],
+                   "points": ["기관·외국인 매집 흔적을 AI가 정리", "바닥 반등 신호 매일 확인", "거래량·보조지표로 직접 확인"]}
+# 2026-11-17 사용자: 평일 홍보 2회(화·목) — 기능 5개를 돌아가며 (AI 종목분석기 · AI 투자대결 · AI 브리핑 · 용어 공부 · 세력 매집 신호)
+APP_KINDS = ["analyzer", "vs", "brief", "study", "signal"]
 # 용어 릴스 순서 (초보자가 많이 묻는 것부터, 주마다 하나)
 WORD_ORDER = ["per", "vix", "cpi", "rate", "rsi", "pbr", "usdkrw", "roe", "ma", "flow", "macd", "us10y", "div", "bb", "wti", "vol",
               "margin", "debt", "cap", "close", "stop", "swing"]
@@ -206,13 +214,13 @@ def build(web: Path, kind: str | None = None, at: str | None = None, out: Path |
     end_md = "" if at else md
     kind = kind or BY_WEEKDAY.get(d.weekday())
     if not kind: return None
-    if kind == "app": kind = APP_KINDS[_week(d) % len(APP_KINDS)]  # 금요일: 주마다 돌아가며
+    if kind == "app": kind = APP_KINDS[(_week(d) * 2 + (1 if d.weekday() >= 3 else 0)) % len(APP_KINDS)]  # 화·목 홍보: 차례로 돌아가며
     sym = EX if EX in sc["stocks"] else next(iter(sc["stocks"]))
     host = host_of(date); hname = host[1]
     M.set_theme(theme_of(date))  # 카드뉴스와 같은 그 주의 색
     josa = "이" if (ord(hname[-1]) - 0xAC00) % 28 else "가"
-    G = json.loads((web / "app" / "glossary.json").read_text(encoding="utf-8")); TT = {t["id"]: t for t in G["terms"]}
-    term = TT[os.environ.get("REEL_TERM") or WORD_ORDER[(_week(d) * 2 + (1 if d.weekday() == 3 else 0)) % len(WORD_ORDER)]] if kind == "word" else None  # REEL_TERM: 시험용
+    G = json.loads((web / "app" / "glossary.json").read_text(encoding="utf-8")); TERMS = {t["id"]: t for t in G["terms"]}  # TT(termcards)와 이름 겹치지 않게
+    term = TERMS[os.environ.get("REEL_TERM") or WORD_ORDER[(_week(d) * 2 + (1 if d.weekday() == 3 else 0)) % len(WORD_ORDER)]] if kind == "word" else None  # REEL_TERM: 시험용
     out = Path(out) if out else data / "reel"; out.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory() as tdir:
         tmp = Path(tdir)

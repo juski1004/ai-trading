@@ -145,7 +145,7 @@ COMMENTS = {
     "cards": "📌 매일 장마감 현황이 궁금하면 팔로우해 두세요! 평일 17시 50분, 1분 요약으로 정리해 드려요\n💬 내일 코스피는 오를까요, 내릴까요? 댓글로 ↑ 또는 ↓ 남겨 주세요",
     "term": "📌 주말마다 주식 용어 하나씩! 팔로우하고 저장해 두면 헷갈릴 때 바로 꺼내 볼 수 있어요\n💬 다음에 알고 싶은 용어를 댓글로 남겨 주세요",
     "quiz": "💬 1(오른다) 또는 2(내린다)로 골라 주세요! 정답은 다음 주 토요일 12시 퀴즈 릴스에서 공개해요\n📌 팔로우해 두면 정답 릴스를 놓치지 않아요",
-    "reel": "📌 팔로우하면 차트 퀴즈와 투자 공부 릴스를 받아볼 수 있어요\n💬 모의투자 앱이 궁금하면 캡션의 키워드를 댓글로 남겨 주세요, DM으로 보내 드려요",
+    "reel": "🧩 퀴즈 정답은 댓글로 1 또는 2! 토요일 12시에 정답 공개해요\n📌 팔로우하면 차트 퀴즈와 투자 공부 릴스를 받아볼 수 있어요\n💬 모의투자 앱이 궁금하면 캡션의 키워드를 댓글로 남겨 주세요, DM으로 보내 드려요",
 }
 WHAT = ""
 
@@ -178,7 +178,7 @@ def publish(container: str) -> str:
     mid = call("POST", f"{uid()}/media_publish", creation_id=container)["id"]
     link = call("GET", mid, fields="permalink").get("permalink", "")
     print(f"게시 완료: {link}")
-    comment(mid, "cards" if WHAT in ("cards", "cardsreel") else "term" if WHAT == "termreel" else WHAT)
+    comment(mid, "cards" if WHAT in ("cards", "cardsreel") else "term" if WHAT in ("termreel", "study") else WHAT)
     return link
 
 
@@ -278,7 +278,7 @@ def with_tags(caption: str, tags: str) -> str:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("what", choices=["check", "cards", "cardsreel", "term", "reel", "termreel", "quiz", "stats", "comment"])
+    ap.add_argument("what", choices=["check", "cards", "cardsreel", "term", "reel", "termreel", "quiz", "study", "stats", "comment"])
     ap.add_argument("--tags", default="")
     ap.add_argument("--date", default="")
     ap.add_argument("--force", action="store_true")
@@ -390,6 +390,14 @@ def main() -> None:
         cap = with_tags(item["caption"], a.tags)
         if not a.force and already_posted(cap): print("[건너뜀] 오늘 이미 올림"); return
         post_carousel(item["images"], cap)
+    elif a.what == "study":
+        # 토 12:00 주식 공부(용어) + 그 주 퀴즈 정답: 금요일 데이터 실행 때 토요일 날짜로 만들어 둔 것(data/study) (2026-11-17)
+        d = a.date or today()
+        j = try_json("study/reel.json")
+        if j.get("date") != d and not a.force: skip(f"[건너뜀] {d} 주식 공부 릴스 없음 (만들어 둔 것 {j.get('date')})")
+        cap = with_tags(j["caption"], a.tags)
+        if not a.force and already_posted(cap, reel=True): print("[건너뜀] 오늘 이미 올림"); return
+        post_reel(j["video"], j.get("cover"), cap)
     elif a.what == "termreel":
         # 일요일 용어 릴스: 금요일 데이터 실행 때 그 일요일 날짜로 만들어 둔 것(data/reel_sun)
         d = a.date or today()
