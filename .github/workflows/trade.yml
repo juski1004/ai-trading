@@ -122,7 +122,7 @@ jobs:
           pip install -q playwright
           command -v ffmpeg >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
           python -m playwright install chromium >/dev/null 2>&1 || true   # 크롬이 있으면 그걸 쓰고, 없을 때 대비
-          python -m ai_trading.reel web - "$THU"
+          python -m ai_trading.reel web app "$THU"
       - name: 토요일 차트 퀴즈 릴스 미리 만들기 (금요일 데이터 실행 때 · 실패해도 계속)
         if: env.CMD == 'data'
         continue-on-error: true

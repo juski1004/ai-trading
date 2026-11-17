@@ -176,13 +176,24 @@ def build(out: Path) -> dict:
     d.rounded_rectangle((W - 150, 48, W - 50, 94), 23, fill=(0, 0, 0)); d.text((W - 100, 71), f"1/{N}", font=F("Bold", 28), fill=WHITE, anchor="mm")
     d.text((58, 130), f"{big['name']} {pct(big['chg'])}", font=F("ExtraBold", 92), fill=(255, 214, 10))
     d.text((58, 245), "왜 올랐을까?" if big["chg"] > 0 else "왜 빠졌을까?", font=F("ExtraBold", 104), fill=WHITE)
+    # 2026-11-17 사용자: "왜 올랐을까 하면서 궁금하게만 하고 답이 없어" → 표지에 답 한 줄 (그날 뉴스·공시 이유, 없으면 기사 제목)
+    bsym = max(S, key=lambda x: abs(S[x]["chg"])); bw_ = WY.get(bsym) or {}; ans = bw_.get("line") or ""
+    if (not ans or "뚜렷한" in ans) and bw_.get("title"): ans = bw_["title"].rstrip(".…") + f" ({bw_.get('src', '')})"
+    ans = _clean(ans) if ans else "뚜렷한 개별 소식 없이 시장 흐름을 따랐어요"
+    fa = F("Bold", 42); lines, cur = [], ""
+    for ch in "→ " + ans:
+        if d.textlength(cur + ch, font=fa) > W - 130: lines.append(cur); cur = ch.lstrip()
+        else: cur += ch
+    lines.append(cur)
+    if len(lines) > 2: lines = [lines[0], lines[1][:-1] + "…"]
+    for i, ln in enumerate(lines): d.text((62, 390 + i * 58), ln, font=fa, fill=(255, 214, 10) if i == 0 else WHITE)
     d.text((60, 900), f"{gsub} 전해주는 오늘 장마감", font=F("Bold", 44), fill=WHITE)
     for i, (lab, x) in enumerate([("코스피", k), ("코스닥", q)]):
         x0 = 60 + i * 500
         d.text((x0, 975), lab, font=F("Bold", 40), fill=(220, 222, 232))
         d.text((x0, 1025), pct(x["chg"]), font=F("ExtraBold", 96), fill=(255, 120, 140) if x["chg"] > 0 else (120, 170, 255) if x["chg"] < 0 else WHITE)
     d.rounded_rectangle((60, 1175, W - 60, 1275), 50, fill=(255, 214, 10))
-    d.text((W // 2, 1225), "넘겨서 이유 보기  →", font=F("ExtraBold", 48), fill=(20, 22, 30), anchor="mm")
+    d.text((W // 2, 1225), "넘겨서 다른 종목 이유도 보기  →", font=F("ExtraBold", 44), fill=(20, 22, 30), anchor="mm")
     d.text((W // 2, H - 30), f"{md} 장 마감 기준 · 참고용, 투자 권유 아님", font=F("Medium", 24), fill=(200, 202, 212), anchor="mm")
     im.save(dst / "1.png")
 
