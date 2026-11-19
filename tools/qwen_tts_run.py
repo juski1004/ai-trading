@@ -10,6 +10,8 @@ import soundfile as sf
 import torch
 from qwen_tts import Qwen3TTSModel
 
+from ko_numbers import speak  # 1번 → 일 번 (2026-11-19)
+
 out = Path(sys.argv[1]); out.mkdir(parents=True, exist_ok=True)
 lines = [t.strip() for t in sys.argv[2].split("||") if t.strip()]
 ref = sys.argv[3] if len(sys.argv) > 3 else "tools/voices/kkt_ref.wav"
@@ -21,7 +23,7 @@ res = {}
 for i, line in enumerate(lines, 1):
     t = time.time()
     try:
-        w, sr = m.generate_voice_clone(text=line, language="Korean", voice_clone_prompt=p)
+        w, sr = m.generate_voice_clone(text=speak(line), language="Korean", voice_clone_prompt=p)
         sf.write(out / f"{i:02d}.wav", w[0], sr); res[f"{i:02d}"] = round(len(w[0]) / sr, 2)
     except Exception as e:
         res[f"{i:02d}"] = f"실패: {type(e).__name__}: {str(e)[:120]}"
