@@ -1,0 +1,65 @@
+name: 그날의 기록 릴스 올리기
+
+# 2026-11-22 사용자: 인스타(@ai.tooja.lab → 그날의 기록)도 유튜브 쇼츠와 같이. 월·수·금 17:30 KST.
+# 영상·캡션은 Claude 가 브랜치 history_media/<날짜>/ (reel.mp4, reel.json)에 올려 둠 →
+# 이 작업이 사이트(site 브랜치) history/<날짜>/ 로 옮기고, 사이트에 뜨면 인스타 API로 게시. 두 번째 시도는 '이미 올림'으로 건너뜀.
+on:
+  workflow_dispatch:
+    inputs:
+      date: { description: "YYYY-MM-DD (비우면 오늘)", default: "" }
+      force: { description: "중복 확인 없이 올리기", type: boolean, default: false }
+  schedule:
+    - cron: "30,45 8 * * 1,3,5"
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: history-reel
+  cancel-in-progress: false
+
+env:
+  MEDIA_BRANCH: ccr-8c1c5ca4-6gk65t
+  SITE: https://juski1004.github.io/ai-trading/history/
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - name: 영상을 사이트에 올리기
+        id: media
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DATE: ${{ inputs.date }}
+        run: |
+          DAY="${DATE:-$(TZ=Asia/Seoul date +%F)}"; echo "day=$DAY" >> "$GITHUB_OUTPUT"
+          if curl -sf -o /dev/null "$SITE$DAY/reel.json"; then echo "사이트에 이미 있음"; exit 0; fi
+          git fetch -q --depth 1 origin "$MEDIA_BRANCH" || { echo "영상 브랜치 없음"; echo "none=1" >> "$GITHUB_OUTPUT"; exit 0; }
+          mkdir -p /tmp/m && (git archive FETCH_HEAD "history_media/$DAY" | tar -x -C /tmp/m) 2>/dev/null || true
+          if [ ! -f "/tmp/m/history_media/$DAY/reel.mp4" ]; then echo "$DAY 영상 없음"; echo "none=1" >> "$GITHUB_OUTPUT"; exit 0; fi
+          git fetch -q --depth 1 origin site && git worktree add -q /tmp/site FETCH_HEAD
+          mkdir -p "/tmp/site/history/$DAY" && cp "/tmp/m/history_media/$DAY/"reel.* "/tmp/site/history/$DAY/"
+          cd /tmp/site && git config user.name "ai-trading-bot" && git config user.email "ai-trading-bot@users.noreply.github.com"
+          git add history && git commit -qm "그날의 기록 $DAY" && git push -q "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:site
+          for i in $(seq 1 40); do curl -sf -o /dev/null "$SITE$DAY/reel.mp4" && { echo "사이트에 뜸"; exit 0; }; sleep 15; done
+          echo "사이트 반영 시간 초과"; exit 1
+      - name: 인스타 릴스 게시
+        if: steps.media.outputs.none != '1'
+        env:
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          FORCE: ${{ inputs.force }}
+        run: |
+          ARGS=(--date "${{ steps.media.outputs.day }}"); [ "$FORCE" = "true" ] && ARGS+=(--force)
+          python tools/ig_publish.py history "${ARGS[@]}"
+      - name: 실패 알림
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh label create "자동점검" --color d93f0b --description "자동 실행이 찾은 문제" 2>/dev/null || true
+          gh issue create --title "[그날의 기록 릴스 실패] ${{ steps.media.outputs.day }}" --label "자동점검" \
+            --body "릴스 게시 실패: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
