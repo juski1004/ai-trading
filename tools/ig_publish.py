@@ -147,6 +147,9 @@ COMMENTS = {
     "quiz": "💬 1(오른다) 또는 2(내린다)로 골라 주세요! 정답은 다음 주 토요일 12시 퀴즈 릴스에서 공개해요\n📌 팔로우해 두면 정답 릴스를 놓치지 않아요",
     "reel": "🧩 퀴즈 정답은 댓글로 1 또는 2! 토요일 12시에 정답 공개해요\n📌 팔로우하면 차트 퀴즈와 투자 공부 릴스를 받아볼 수 있어요\n💬 모의투자 앱이 궁금하면 캡션의 키워드를 댓글로 남겨 주세요, DM으로 보내 드려요",
 }
+# 2026-11-22: 인스타를 '그날의 기록 | 1분 실화'(유튜브 쇼츠와 같은 영상)로 바꿈
+COMMENTS["history"] = ("📌 매주 월·수·금 저녁 5시 30분, 기록에 남은 실화를 올려요. 팔로우해 두면 놓치지 않아요\n"
+                       "💬 다음에 듣고 싶은 사건이나 전설을 댓글로 알려 주세요")
 WHAT = ""
 
 
@@ -278,7 +281,7 @@ def with_tags(caption: str, tags: str) -> str:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("what", choices=["check", "cards", "cardsreel", "term", "reel", "termreel", "quiz", "study", "stats", "comment"])
+    ap.add_argument("what", choices=["check", "cards", "cardsreel", "term", "reel", "termreel", "quiz", "study", "stats", "comment", "history"])
     ap.add_argument("--tags", default="")
     ap.add_argument("--date", default="")
     ap.add_argument("--force", action="store_true")
@@ -295,6 +298,14 @@ def main() -> None:
             if dt.datetime.strptime(m["timestamp"], "%Y-%m-%dT%H:%M:%S%z") < since: continue
             c = m.get("caption") or ""; kind = "cards" if "장마감" in c.splitlines()[1:2] or "장마감" in c[:120] else "term" if "용어" in c[:80] else "reel"
             print(m.get("permalink"), kind); comment(m["id"], kind, c)
+        return
+
+    if a.what == "history":  # 그날의 기록 쇼츠를 릴스로 (영상은 history-reel.yml 이 사이트 history/<날짜>/ 에 올려 둠)
+        day = a.date or today(); base = os.environ.get("HISTORY_BASE", ROOT + "history/")
+        j = try_json(f"{day}/reel.json", base)
+        if not j.get("caption"): skip(f"{day} 그날의 기록 릴스 없음")
+        if not a.force and already_posted(j["caption"], reel=True): skip("이미 올림")
+        post_reel(f"{base}{day}/reel.mp4", None, j["caption"])
         return
 
     if a.what == "check":
