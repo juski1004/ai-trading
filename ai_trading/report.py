@@ -98,6 +98,20 @@ def news(n: int = 10) -> str:
     return "\n".join(out)
 
 
+_NM: dict = {}
+
+
+def nm(s: dict) -> str:
+    """앱 점수에 이름 대신 코드(예: 009150.KS)만 있는 날이 있어 네이버 이름으로 보충."""
+    n = s.get("name") or ""
+    if n and not n[:6].isdigit(): return n
+    c = s.get("code") or n[:6]
+    if c not in _NM:
+        try: _NM[c] = naver_stock(c)["name"]
+        except Exception: _NM[c] = n
+    return _NM[c]
+
+
 def scores() -> dict:
     return get(SITE + "scores.json")
 
@@ -110,12 +124,12 @@ def kr() -> str:
         except Exception: pass
     live.sort(key=lambda x: -x[1]["chg"])
     out.append("\n### 분석 대상 종목 중 많이 오른 5")
-    out += [f"- {s['name']}: {d['v']:,.0f}원 ({d['chg']:+.2f}%) · AI {s['label']}" for s, d in live[:5]]
+    out += [f"- {d.get('name') or nm(s)}: {d['v']:,.0f}원 ({d['chg']:+.2f}%) · AI {s['label']}" for s, d in live[:5]]
     out.append("\n### 많이 내린 5")
-    out += [f"- {s['name']}: {d['v']:,.0f}원 ({d['chg']:+.2f}%) · AI {s['label']}" for s, d in live[-5:][::-1]]
+    out += [f"- {d.get('name') or nm(s)}: {d['v']:,.0f}원 ({d['chg']:+.2f}%) · AI {s['label']}" for s, d in live[-5:][::-1]]
     out.append(f"\n### AI 점수 상위 5 (앱 기준 {scores()['date']}, 다음 날 참고)")
     top = sorted(sc.values(), key=lambda s: -s["score"])[:5]
-    out += [f"- {s['name']}: 점수 {s['score']:+.2f} ({s['label']}) · 목표 {s.get('target', 0):,} · 손절 {s.get('stop', 0):,} · 위험 {s.get('risk', {}).get('level', '-')}" for s in top]
+    out += [f"- {nm(s)}: 점수 {s['score']:+.2f} ({s['label']}) · 목표 {s.get('target', 0):,} · 손절 {s.get('stop', 0):,} · 위험 {s.get('risk', {}).get('level', '-')}" for s in top]
     return "\n".join(out)
 
 
@@ -168,7 +182,7 @@ def picks(monday: str, n: int = 3) -> str:
         base = s.get("price") or d["v"]  # 앱 목표·손절은 점수 기준일 가격 기준 → 그 비율을 진입가에 적용
         tg = round(d["v"] * s["target"] / base, -1) if s.get("target") else None
         st = round(d["v"] * s["stop"] / base, -1) if s.get("stop") else None
-        rows.append({"code": s["code"], "name": s["name"], "entry": d["v"], "target": tg, "stop": st,
+        rows.append({"code": s["code"], "name": d.get("name") or nm(s), "entry": d["v"], "target": tg, "stop": st,
                      "score": s["score"], "label": s["label"], "risk": s.get("risk", {}).get("level"), "expect": "상승",
                      "why": [o["summary"] for o in s.get("opinions", [])]})
     for r, w in zip(rows, weights(rows)): r["weight"] = w
@@ -188,7 +202,7 @@ DAILY = PICKS / "daily"
 def _row(s: dict) -> dict:
     """앱 점수 종목 → 추천 한 줄 (진입가 = 지금가, 손절·익절 = 앱 비율을 진입가에)."""
     d = naver_stock(s["code"]); base = s.get("price") or d["v"]
-    return {"code": s["code"], "name": s["name"], "entry": d["v"],
+    return {"code": s["code"], "name": d.get("name") or nm(s), "entry": d["v"],
             "target": round(d["v"] * s["target"] / base, -1) if s.get("target") else None,
             "stop": round(d["v"] * s["stop"] / base, -1) if s.get("stop") else None,
             "score": s["score"], "label": s["label"], "risk": s.get("risk", {}).get("level"), "expect": "상승",
