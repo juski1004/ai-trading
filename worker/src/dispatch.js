@@ -15,12 +15,13 @@ export function plan(ms) {
   const { dow, h, m } = kstParts(ms), at = h * 60 + m, out = [];
   const weekday = dow >= 1 && dow <= 5;
   if (weekday) {
-    if (at === 6 * 60 + 40) out.push({ kind: "data", force: true });   // 2026-11-23 사용자: 앱 데이터 아침에 한 번 더 (07:12 본부장 오전 보고 전, 날짜와 상관없이 실행)
-    if (at === 16 * 60 + 10 || at === 16 * 60 + 50) out.push({ kind: "data" });   // 데이터가 오늘 것이 아니면 실행 (금요일 실행은 토요일 퀴즈 준비도 겸함)
-    if ((dow === 2 || dow === 4) && (at === 17 * 60 + 30 || at === 17 * 60 + 40)) out.push({ kind: "ig", what: "reel" }); // 화·목 홍보 + 차트 퀴즈 릴스
-  } else if (dow === 6) {
-    if (at === 12 * 60 || at === 12 * 60 + 40) out.push({ kind: "ig", what: "study" }); // 토 주식 공부 + 그 주 퀴즈 정답
+    if (at === 6 * 60 + 40) out.push({ kind: "data", force: true });     // 2026-11-23 사용자: 앱 데이터 아침에 한 번 더 (날짜와 상관없이 실행)
+    if (at === 7 * 60 + 10) out.push({ kind: "report", slot: "am" });    // 본부장 오전 보고 (report.yml → 08:00 앱 알림)
+    if (at === 16 * 60 + 10 || at === 16 * 60 + 50) out.push({ kind: "data" });   // 장 마감 데이터 (오늘 것이 아니면 실행)
+    if (at === 16 * 60 + 40) out.push({ kind: "report", slot: "pm" });   // 본부장 오후 보고 (→ 16:50 앱 알림)
+    if ((dow === 1 || dow === 3 || dow === 5) && (at === 17 * 60 + 30 || at === 17 * 60 + 40)) out.push({ kind: "hreel" }); // 그날의 기록 인스타 릴스 (영상 없거나 이미 올렸으면 건너뜀)
   }
+  // 2026-11-23: 주식연구소 인스타 릴스(화·목 홍보, 토 공부)는 계정을 '그날의 기록'으로 바꿔 중단 → 타이머에서 뺌
   return out;
 }
 
@@ -46,6 +47,14 @@ export async function runPlan(ms, env, log = console.log) {
   for (const a of plan(ms)) {
     try {
       if (a.kind === "data") res.push(await ensureData(env, date, a.force));
+      else if (a.kind === "hreel") {
+        const r = await gh(env, "POST", "actions/workflows/history-reel.yml/dispatches", { ref: "main", inputs: { date: "" } });
+        res.push(r.status === 204 ? "그날의 기록 릴스 실행 시킴" : `그날의 기록 릴스 실행 실패 ${r.status}`);
+      }
+      else if (a.kind === "report") {
+        const r = await gh(env, "POST", "actions/workflows/report.yml/dispatches", { ref: "main", inputs: { slot: a.slot } });
+        res.push(r.status === 204 ? `본부장 ${a.slot} 보고 실행 시킴` : `본부장 ${a.slot} 보고 실행 실패 ${r.status}`);
+      }
       else {
         const r = await gh(env, "POST", "actions/workflows/ig-post.yml/dispatches", { ref: "main", inputs: { what: a.what } });
         res.push(r.status === 204 ? `${a.what} 게시 실행 시킴` : `${a.what} 게시 실행 실패 ${r.status}`);
