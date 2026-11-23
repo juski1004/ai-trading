@@ -33,7 +33,7 @@
     const add = (key, who, msg, go) => out.push({ key, who, msg, go });
 
     // 1) AI 대결: AI 실전 계좌 매매 알림 + 잔고
-    if (G && AI && AI.state) {
+    if (false && G && AI && AI.state) {  // 2026-11-24 사용자: AI 대결 없앰 → 알파 팀 알림 끔
       const st = AI.state;
       // 내 게임 상대 알파 팀 계좌 (AI 대결 화면과 같은 계좌·같은 수량)
       const c = window.Game && Game.alphaClone ? Game.alphaClone(st, G, SC.date, Game.nowPx) : null;
