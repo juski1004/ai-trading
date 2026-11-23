@@ -44,6 +44,7 @@ jobs:
           fi
           REPORT_STATE=/tmp/site/data/report/picks REPORT_OUT=/tmp/out python -m ai_trading.report app "$SLOT" auto "$DAY"
           cp "/tmp/out/$DAY-$SLOT.json" "/tmp/site/data/report/$SLOT.json" && cp "/tmp/out/$DAY-$SLOT.json" "/tmp/site/data/report/$DAY-$SLOT.json"
+          [ -f /tmp/out/track.json ] && cp /tmp/out/track.json /tmp/site/data/report/track.json   # 추천 따라 하기 모의 성적 (앱 '추천성적' 탭)
           cd /tmp/site && git config user.name "ai-trading-bot" && git config user.email "ai-trading-bot@users.noreply.github.com"
           git add data/report && git commit -qm "본부장 보고 $DAY $SLOT" && git push -q "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:site
           echo "올림: data/report/$SLOT.json"

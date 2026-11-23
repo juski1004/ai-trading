@@ -98,9 +98,10 @@
       `<p class="dk-line">관심 종목을 고르고 매수·매도 버튼으로 바로 주문해요. 체결은 그날 실제 종가, 자동 손절 -5% · 익절 +10%.</p>
        <a class="pclink" href="#game">거래 화면 열기 ▶</a>`, "MILES", "주문 도우미")]);
 
-    out.push(["vs", "AI 대결", page("vs", "AI 대결", "내 팀 vs 알파 팀, 수익률(%)로 겨루기",
-      `${window.Versus ? Versus.summary(SC) : ""}
-       <a class="pclink" href="#vs">대결 현황 보기 ▶</a>`, "THEO", "심판")]);
+    // 2026-11-24 사용자: AI 대결 없앰 → 추천 따라 하기 모의 성적 안내
+    out.push(["track", "추천 성적", page("track", "추천 성적", "월요일 추천을 그대로 샀다면 금요일에 얼마?",
+      `<p class="dk-line">본부장 주간 추천과 보고마다 새 추천을 비중대로 샀다고 치고, 손절·익절·금요일 종가로 수익률과 성공률을 쌓아요.</p>
+       <a class="pclink" href="#track">추천 성적 보기 ▶</a>`, "THEO", "기록")]);
     return out;
   }
 

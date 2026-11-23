@@ -250,7 +250,7 @@ img[src*="img/team/egen."]{object-position:50% 2%!important}img[src*="img/team/j
   <a href="#home" data-tab="home"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>홈·브리핑</a>
   <a href="#analysis" data-tab="analysis"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/></svg>종목검색</a>
   <a href="#game" data-tab="game"><svg viewBox="0 0 24 24"><path d="M7 4v16"/><path d="M4 8l3-4 3 4"/><path d="M17 20V4"/><path d="M14 16l3 4 3-4"/></svg>거래하기</a>
-  <a href="#vs" data-tab="vs"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M7 15l4-4 3 3 5-6"/></svg>AI대결</a>
+  <a href="#track" data-tab="track"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M7 15l4-4 3 3 5-6"/></svg>추천성적</a>
   <a href="#me" data-tab="me"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>내 정보</a>
 </div></nav>
 
@@ -267,6 +267,7 @@ img[src*="img/team/egen."]{object-position:50% 2%!important}img[src*="img/team/j
 <script src="growth.js"></script>
 <script src="sim.js"></script>
 <script src="vs.js"></script>
+<script src="track.js"></script>
 <script src="push.js"></script>
 <script src="vendor/lightweight-charts.js"></script>
 <script src="chart.js"></script>
@@ -443,15 +444,15 @@ const me=()=>window.Team?Team.meView()+(window.Push?Push.card():'')+(Team.meBott
 /* ---------- 화면 전환 ---------- */
 function route(){
   const [tab,arg]=(location.hash.slice(1)||'home').split('/');
-  const t=['home','analysis','game','me','pick','vs','learn'].includes(tab)?tab:'home';
+  const t=['home','analysis','game','me','pick','vs','track','learn'].includes(tab)?(tab==='vs'?'track':tab):'home';
   document.querySelectorAll('nav a').forEach(a=>a.dataset.tab===(t==='learn'?'home':t)?a.setAttribute('aria-current','page'):a.removeAttribute('aria-current'));
   render();window.scrollTo(0,0);
 }
 function render(){
   const [tab,arg]=(location.hash.slice(1)||'home').split('/');
-  const t=['home','analysis','game','me','pick','vs','learn'].includes(tab)?tab:'home';
+  const t=['home','analysis','game','me','pick','vs','track','learn'].includes(tab)?tab:'home';
   const typing=document.activeElement&&document.activeElement.id==='q',pos=typing?document.activeElement.selectionStart:0;
-  $('#view').innerHTML=t==='home'?home():t==='analysis'?analysis(arg&&decodeURIComponent(arg)):t==='game'?game(arg):t==='pick'?(window.Report&&SC?Report.view(SC):home()):t==='vs'?(window.Versus?Versus.view(SC):home()):t==='learn'?(window.Learn?Learn.view(arg):home()):me();
+  $('#view').innerHTML=t==='home'?home():t==='analysis'?analysis(arg&&decodeURIComponent(arg)):t==='game'?game(arg):t==='pick'?(window.Report&&SC?Report.view(SC):home()):t==='vs'||t==='track'?(window.Track?Track.view():home()):t==='learn'?(window.Learn?Learn.view(arg):home()):me();
   if(typing){const q=$('#q');if(q){q.focus();q.setSelectionRange(pos,pos)}}
   if(t==='learn'&&window.Learn)Learn.mount(arg);
   if(t==='analysis'&&arg&&window.AppChart&&document.getElementById('acBox'))AppChart.mount(decodeURIComponent(arg));

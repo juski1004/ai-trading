@@ -260,6 +260,94 @@ def result(monday: str) -> str:
     return "\n".join(out)
 
 
+def day_bars(code: str, start: str, end: str) -> list[dict]:
+    """네이버 차트(거래소 정규장) 일봉 [{d,o,h,l,c}] start~end (YYYY-MM-DD)."""
+    q = urllib.parse.urlencode({"startDateTime": start.replace("-", ""), "endDateTime": end.replace("-", "")})
+    import time
+    r = []
+    for k in range(3):  # 가끔 빈 값·오류가 와서 몇 번 다시
+        try:
+            r = get(f"https://api.stock.naver.com/chart/domestic/item/{code}/day?{q}")
+            if isinstance(r, list) and r: break
+        except Exception:
+            pass
+        time.sleep(1 + k)
+    out = []
+    for x in r if isinstance(r, list) else []:
+        d = str(x.get("localDate") or ""); c = x.get("closePrice")
+        if c and len(d) == 8:
+            out.append({"d": f"{d[:4]}-{d[4:6]}-{d[6:]}", "o": float(x.get("openPrice") or c), "h": float(x.get("highPrice") or c),
+                        "l": float(x.get("lowPrice") or c), "c": float(c)})
+    return out
+
+
+def simulate(r: dict, bars: list[dict], hold: int, end_day: str | None = None) -> dict:
+    """추천대로 진입가에 샀다고 치고: 손절가 닿으면 손절, 익절가 닿으면 익절(같은 날 둘 다면 보수적으로 손절),
+    아니면 보유 기간(hold 거래일, 또는 end_day 까지) 마지막 날 종가에 판다. 기간이 안 끝났으면 '진행 중'(지금 종가 기준)."""
+    e, st, tg = r["entry"], r.get("stop") or 0, r.get("target") or 0
+    days = [b for b in bars if not end_day or b["d"] <= end_day][:hold]
+    for b in days:
+        if st and b["l"] <= st:
+            px = min(b["o"], st); return {"exit": px, "ret": round((px / e - 1) * 100, 2), "why": "손절", "on": b["d"], "done": True}
+        if tg and b["h"] >= tg:
+            px = max(b["o"], tg); return {"exit": px, "ret": round((px / e - 1) * 100, 2), "why": "익절", "on": b["d"], "done": True}
+    if not days:
+        return {"exit": e, "ret": 0.0, "why": "대기", "on": None, "done": False}
+    last = days[-1]; today = dt.datetime.now(KST).date().isoformat()
+    done = (len(days) >= hold) or bool(end_day and today > end_day)
+    return {"exit": last["c"], "ret": round((last["c"] / e - 1) * 100, 2), "why": "기간 종료" if done else "보유 중", "on": last["d"], "done": done}
+
+
+def ledger() -> dict:
+    """'정서연 본부장 추천 따라 하기' 모의 성적 (2026-11-24 사용자: 월요일 추천을 샀을 때 금요일에 수익이 나는지,
+    따라 투자했을 때 성공률이 얼마나 되는지). 주간 추천 = 월요일 진입, 금요일 종가까지(손절·익절 먼저 닿으면 그때).
+    새 추천 = 보고 시점 진입(오전 보고는 그날부터, 오후 보고는 다음 날부터), 5거래일."""
+    today = dt.datetime.now(KST).date()
+    weeks, fresh_rows = [], []
+    for f in sorted(PICKS.glob("????-??-??.json")):
+        monday = f.stem; fri = (dt.date.fromisoformat(monday) + dt.timedelta(days=4)).isoformat()
+        rows = []
+        for r in load_picks(monday):
+            sim = simulate(r, day_bars(r["code"], monday, fri), 5, fri)
+            rows.append({k: r.get(k) for k in ("code", "name", "entry", "weight", "stop", "target")} | sim)
+        if not rows: continue
+        ret = round(sum(x["ret"] * (x.get("weight") or 0) / 100 for x in rows), 2)
+        weeks.append({"monday": monday, "friday": fri, "picks": rows, "ret": ret, "done": all(x["done"] for x in rows)})
+    for f in sorted(DAILY.glob("*.json")) if DAILY.exists() else []:
+        j = json.loads(f.read_text(encoding="utf-8")); d0 = dt.date.fromisoformat(j["date"])
+        start = (d0 if j["slot"] == "am" else d0 + dt.timedelta(days=1)).isoformat()
+        for r in j["picks"]:
+            sim = simulate(r, day_bars(r["code"], start, (d0 + dt.timedelta(days=12)).isoformat()), 5)
+            fresh_rows.append({"date": j["date"], "slot": j["slot"]} | {k: r.get(k) for k in ("code", "name", "entry", "weight", "stop", "target")} | sim)
+    wd = [w for w in weeks if w["done"]]; fd = [x for x in fresh_rows if x["done"]]
+    cum = 1.0
+    for w in wd: cum *= 1 + w["ret"] / 100
+    picks_done = [p for w in wd for p in w["picks"]]
+    summ = {"weeks": len(wd), "win_weeks": sum(w["ret"] > 0 for w in wd),
+            "win_rate": round(sum(w["ret"] > 0 for w in wd) / len(wd) * 100) if wd else None,
+            "avg_week": round(sum(w["ret"] for w in wd) / len(wd), 2) if wd else None,
+            "cum": round((cum - 1) * 100, 2) if wd else None,
+            "pick_hit": sum(p["ret"] > 0 for p in picks_done), "pick_n": len(picks_done),
+            "fresh_hit": sum(x["ret"] > 0 for x in fd), "fresh_n": len(fd),
+            "fresh_avg": round(sum(x["ret"] for x in fd) / len(fd), 2) if fd else None}
+    return {"made": dt.datetime.now(KST).strftime("%Y-%m-%d %H:%M"), "summary": summ,
+            "weeks": weeks[::-1], "fresh": fresh_rows[::-1][:40],
+            "rule": "추천 진입가에 비중대로 샀다고 가정. 손절가에 닿으면 손절, 익절가에 닿으면 익절, 아니면 주간 추천은 금요일 종가·새 추천은 5거래일째 종가에 매도. 수수료·세금 제외. 참고용 모의 성적."}
+
+
+def ledger_md(L: dict) -> str:
+    s = L["summary"]
+    out = ["## 추천 따라 하기 모의 성적 (누적)"]
+    if s["weeks"]:
+        out.append(f"- 주간 추천 {s['weeks']}주 중 수익 {s['win_weeks']}주 (성공률 {s['win_rate']}%) · 주 평균 {s['avg_week']:+.2f}% · 누적 {s['cum']:+.2f}%")
+        out.append(f"- 종목별 적중 {s['pick_hit']}/{s['pick_n']}")
+    else:
+        out.append("- 아직 끝난 주가 없어요 (첫 결과는 금요일 오후 보고)")
+    if s["fresh_n"]:
+        out.append(f"- 새 추천(5거래일) 적중 {s['fresh_hit']}/{s['fresh_n']} · 평균 {s['fresh_avg']:+.2f}%")
+    return "\n".join(out)
+
+
 def md_sections(md: str) -> list[dict]:
     """보고 마크다운 → 앱 화면용 [{h, items:[{t, sub:[]}]}]."""
     out = []
@@ -289,6 +377,12 @@ def app(slot: str, say_file: str, day: str | None = None) -> str:
         if rows:
             md += f"\n## 이번 주 추천 종목 ({monday} 주)\n" + "\n".join(f"- {pick_line(r, naver_stock(r['code'])['v'])}" for r in rows)
     if slot == "pm" and wd == 4 and (PICKS / f"{monday}.json").exists(): md += "\n" + result(monday)
+    try:
+        L = ledger()
+        (OUTDIR).mkdir(parents=True, exist_ok=True); (OUTDIR / "track.json").write_text(json.dumps(L, ensure_ascii=False), encoding="utf-8")
+        if slot == "pm" and wd == 4: md += "\n" + ledger_md(L)
+    except Exception as e:
+        print(f"[모의 성적 실패] {type(e).__name__}: {str(e)[:120]}")
     md += "\n" + fresh(day, slot)
     tr = fresh_track(day, slot)
     if tr: md += "\n" + tr
@@ -343,4 +437,4 @@ if __name__ == "__main__":
     print({"us": lambda: us(), "kr": lambda: kr(), "analyze": lambda: analyze(a[1]),
            "picks": lambda: picks(a[1]), "result": lambda: result(a[1]),
            "fresh": lambda: fresh(a[1], a[2]), "track": lambda: fresh_track(a[1], a[2]),
-           "app": lambda: app(a[1], a[2], a[3] if len(a) > 3 else None)}[cmd]())
+           "ledger": lambda: ledger_md(ledger()), "app": lambda: app(a[1], a[2], a[3] if len(a) > 3 else None)}[cmd]())
