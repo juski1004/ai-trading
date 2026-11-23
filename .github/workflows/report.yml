@@ -1,0 +1,49 @@
+name: 본부장 보고 만들기
+
+# 2026-11-23: Claude 예약 작업이 '접근 거부'로 실행되지 않아, 오전·오후 본부장 보고를 GitHub 작업이 직접 만든다.
+# 서버 타이머(worker dispatch.js)가 평일 07:10(오전)·16:40(오후)에 실행. 숫자 = ai_trading/report.py, 본부장 의견 = Gemini→Groq(실패 시 규칙 문장).
+# 추천 종목 기록은 사이트 data/report/picks/ 에 보관(주간 추천·보고마다 새 추천·성적 추적).
+on:
+  workflow_dispatch:
+    inputs:
+      slot: { description: "am(오전) 또는 pm(오후)", default: "am" }
+      date: { description: "YYYY-MM-DD (비우면 오늘)", default: "" }
+
+permissions:
+  contents: write
+
+concurrency:
+  group: site-write
+  cancel-in-progress: false
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -q requests
+      - name: 보고 만들기
+        env:
+          SLOT: ${{ inputs.slot }}
+          DATE: ${{ inputs.date }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          case "$SLOT" in am|pm) ;; *) echo "slot 은 am/pm"; exit 1;; esac
+          DAY="${DATE:-$(TZ=Asia/Seoul date +%F)}"
+          git fetch -q --depth 1 origin site && git worktree add -q /tmp/site FETCH_HEAD
+          mkdir -p /tmp/site/data/report/picks/daily
+          # 처음 한 번: 예전 Claude 브랜치에 있던 추천 기록을 가져옴
+          if [ -z "$(ls -A /tmp/site/data/report/picks 2>/dev/null | grep -v daily)" ]; then
+            (git fetch -q --depth 1 origin ccr-8c1c5ca4-6gk65t && git archive FETCH_HEAD reports/picks | tar -x -C /tmp && cp -rn /tmp/reports/picks/. /tmp/site/data/report/picks/) || echo "예전 기록 없음"
+          fi
+          REPORT_STATE=/tmp/site/data/report/picks REPORT_OUT=/tmp/out python -m ai_trading.report app "$SLOT" auto "$DAY"
+          cp "/tmp/out/$DAY-$SLOT.json" "/tmp/site/data/report/$SLOT.json" && cp "/tmp/out/$DAY-$SLOT.json" "/tmp/site/data/report/$DAY-$SLOT.json"
+          cd /tmp/site && git config user.name "ai-trading-bot" && git config user.email "ai-trading-bot@users.noreply.github.com"
+          git add data/report && git commit -qm "본부장 보고 $DAY $SLOT" && git push -q "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:site
+          echo "올림: data/report/$SLOT.json"
