@@ -63,4 +63,13 @@ def fetch_listing_safe() -> list[tuple[str, str, str, str]]:
         return fetch_listing()
     except Exception as e:  # KIND 접속 실패 시 분석 대상만이라도 쓰도록
         print(f"[종목 목록 받기 실패] {type(e).__name__}: {str(e)[:100]}")
-        return [(s.split(".")[0], s, "KOSPI" if s.endswith(".KS") else "KOSDAQ", s[-3:]) for s in DEFAULT_UNIVERSE]
+        # 2026-11-23: 이름 자리에 코드(005930.KS)가 들어가 앱 화면 종목명이 코드로 보였음 → 이름은 네이버에서 보충
+        return [(s.split(".")[0], _naver_name(s.split(".")[0]) or s, "KOSPI" if s.endswith(".KS") else "KOSDAQ", s[-3:]) for s in DEFAULT_UNIVERSE]
+
+
+def _naver_name(code: str) -> str | None:
+    try:
+        r = requests.get(f"https://m.stock.naver.com/api/stock/{code}/basic", headers={"User-Agent": "Mozilla/5.0"}, timeout=10)
+        return r.json().get("stockName") if r.ok else None
+    except Exception:
+        return None
