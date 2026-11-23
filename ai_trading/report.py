@@ -6,6 +6,7 @@
   python -m ai_trading.report analyze 005930     종목 하나 분석
   python -m ai_trading.report picks 2026-11-23   월요일: 이번 주 추천 종목 + 진입가 → reports/picks/<월요일>.json
   python -m ai_trading.report result 2026-11-23  금요일: 그 주 추천 종목 결과 (상승/하락, 예상 적중)
+  python -m ai_trading.report fresh 2026-11-23 pm 보고마다 새 추천 2종목 (reports/picks/daily, app 이 자동으로 부름)
   python -m ai_trading.report app am|pm say.txt [날짜]  앱 '본부장 보고' 파일 reports/app/<날짜>-<am|pm>.json
                                                  (오전 = 미국장+뉴스, 월요일은 추천 종목 포함 / 오후 = 한국장, 금요일은 주간 결과 포함)
                                                  → history_media 처럼 이 브랜치에 커밋 후 report-publish.yml 실행하면 앱 사이트 data/report/ 로
@@ -129,6 +130,34 @@ def analyze(code: str) -> str:
     return "\n".join(out)
 
 
+def weights(rows: list[dict]) -> list[int]:
+    """비중(%): AI 점수에 비례, 5% 단위, 합 100 (2026-11-23 사용자: 진입가·비율·손절가·익절가)."""
+    if not rows: return []
+    sc = [max(r.get("score", 0), 0.01) for r in rows]; w = [round(x / sum(sc) * 20) * 5 for x in sc]
+    w[w.index(max(w))] += 100 - sum(w)
+    return w
+
+
+def pick_line(r: dict, now: float | None = None) -> str:
+    """한 줄: 진입가 · 비중 · 손절가(-%) · 익절가(+%) [· 지금가(진입 대비 %) · 상태]."""
+    e, st, tg = r["entry"], r.get("stop") or 0, r.get("target") or 0
+    t = (f"{r['name']} ({r['code']}) · 진입가 {e:,.0f}원 · 비중 {r.get('weight', 0)}% · "
+         f"손절가 {st:,.0f}원 ({(st / e - 1) * 100:+.1f}%) · 익절가 {tg:,.0f}원 ({(tg / e - 1) * 100:+.1f}%)")
+    if now is not None:
+        stt = "익절가 도달" if tg and now >= tg else "손절가 이탈" if st and now <= st else "보유 구간"
+        t += f" · 지금 {now:,.0f}원 (진입 대비 {(now / e - 1) * 100:+.2f}%) · {stt}"
+    return t
+
+
+def load_picks(monday: str) -> list[dict]:
+    f = PICKS / f"{monday}.json"
+    if not f.exists(): return []
+    rows = json.loads(f.read_text(encoding="utf-8"))["picks"]
+    if rows and "weight" not in rows[0]:
+        for r, w in zip(rows, weights(rows)): r["weight"] = w
+    return rows
+
+
 def picks(monday: str, n: int = 3) -> str:
     """AI 점수 높은 순, 위험 '높음' 제외, 3종목. 진입가 = 지금(월요일 장 전이면 직전 거래일 종가) 가격."""
     sc = scores()["stocks"]
@@ -136,28 +165,82 @@ def picks(monday: str, n: int = 3) -> str:
     rows = []
     for s in cand:
         d = naver_stock(s["code"])
-        rows.append({"code": s["code"], "name": s["name"], "entry": d["v"], "target": s.get("target"), "stop": s.get("stop"),
+        base = s.get("price") or d["v"]  # 앱 목표·손절은 점수 기준일 가격 기준 → 그 비율을 진입가에 적용
+        tg = round(d["v"] * s["target"] / base, -1) if s.get("target") else None
+        st = round(d["v"] * s["stop"] / base, -1) if s.get("stop") else None
+        rows.append({"code": s["code"], "name": s["name"], "entry": d["v"], "target": tg, "stop": st,
                      "score": s["score"], "label": s["label"], "risk": s.get("risk", {}).get("level"), "expect": "상승",
                      "why": [o["summary"] for o in s.get("opinions", [])]})
+    for r, w in zip(rows, weights(rows)): r["weight"] = w
     PICKS.mkdir(parents=True, exist_ok=True)
     (PICKS / f"{monday}.json").write_text(json.dumps({"monday": monday, "picks": rows}, ensure_ascii=False, indent=1), encoding="utf-8")
     out = [f"## 이번 주 추천 종목 ({monday} 주 · 앱 AI 점수 기준일 {scores()['date']})"]
     for r in rows:
-        out.append(f"- **{r['name']}** ({r['code']}) 진입가 {r['entry']:,.0f}원 · 목표 {r['target']:,} · 손절 {r['stop']:,} · 예상 {r['expect']} · AI {r['score']:+.2f} · 위험 {r['risk']}")
+        out.append(f"- **{pick_line(r)}** · 예상 {r['expect']} · AI {r['score']:+.2f} · 위험 {r['risk']}")
         out += [f"  - {w}" for w in r["why"]]
     if not rows: out.append("- 조건(AI 점수 플러스·위험 높음 아님)에 맞는 종목 없음 → 이번 주는 쉬어 감")
     return "\n".join(out)
 
 
+DAILY = PICKS / "daily"
+
+
+def _row(s: dict) -> dict:
+    """앱 점수 종목 → 추천 한 줄 (진입가 = 지금가, 손절·익절 = 앱 비율을 진입가에)."""
+    d = naver_stock(s["code"]); base = s.get("price") or d["v"]
+    return {"code": s["code"], "name": s["name"], "entry": d["v"],
+            "target": round(d["v"] * s["target"] / base, -1) if s.get("target") else None,
+            "stop": round(d["v"] * s["stop"] / base, -1) if s.get("stop") else None,
+            "score": s["score"], "label": s["label"], "risk": s.get("risk", {}).get("level"), "expect": "상승",
+            "why": [o["summary"] for o in s.get("opinions", [])][:2]}
+
+
+def fresh(day: str, slot: str, n: int = 2) -> str:
+    """보고마다 새 추천 2종목 (2026-11-23 사용자: 새 종목 추천도 받고 월요일 종목 추천도 받고).
+    이번 주 추천·최근 5거래일 안에 새로 추천한 종목은 빼고 AI 점수 순 (위험 높음·점수 0 이하 제외). reports/picks/daily/<날짜>-<am|pm>.json"""
+    DAILY.mkdir(parents=True, exist_ok=True); f = DAILY / f"{day}-{slot}.json"
+    if f.exists():
+        rows = json.loads(f.read_text(encoding="utf-8"))["picks"]
+    else:
+        wd = dt.date.fromisoformat(day).weekday(); monday = (dt.date.fromisoformat(day) - dt.timedelta(days=wd)).isoformat()
+        used = {r["code"] for r in load_picks(monday)}
+        for old in sorted(DAILY.glob("*.json"))[-10:]: used |= {r["code"] for r in json.loads(old.read_text(encoding="utf-8"))["picks"]}
+        cand = [x for x in sorted(scores()["stocks"].values(), key=lambda x: -x["score"])
+                if x["code"] not in used and x.get("risk", {}).get("level") != "높음" and x["score"] > 0][:n]
+        rows = [_row(x) for x in cand]
+        for r, w in zip(rows, weights(rows)): r["weight"] = w
+        f.write_text(json.dumps({"date": day, "slot": slot, "picks": rows}, ensure_ascii=False, indent=1), encoding="utf-8")
+    out = [f"## 새 추천 종목 ({day} {'오전' if slot == 'am' else '오후'})"]
+    for r in rows:
+        out.append(f"- {pick_line(r)} · AI {r['score']:+.2f} · 위험 {r['risk']}")
+        out += [f"  - {w}" for w in r["why"]]
+    if not rows: out.append("- 조건(AI 점수 플러스·위험 높음 아님·최근 추천과 겹치지 않음)에 맞는 새 종목 없음 → 이번 보고는 쉬어 감")
+    return "\n".join(out)
+
+
+def fresh_track(day: str, slot: str, k: int = 6) -> str:
+    """지난 새 추천 성적 (이번 보고 것 빼고 최근 k개 보고)."""
+    files = [x for x in sorted(DAILY.glob("*.json")) if x.stem != f"{day}-{slot}"][-k:] if DAILY.exists() else []
+    rows = []
+    for x in files:
+        j = json.loads(x.read_text(encoding="utf-8"))
+        for r in j["picks"]:
+            try: rows.append(f"- [{j['date'][5:]} {'오전' if j['slot'] == 'am' else '오후'}] {pick_line(r, naver_stock(r['code'])['v'])}")
+            except Exception: pass
+    return ("## 지난 새 추천 성적\n" + "\n".join(rows)) if rows else ""
+
+
 def result(monday: str) -> str:
-    p = json.loads((PICKS / f"{monday}.json").read_text(encoding="utf-8"))
-    out = [f"## 이번 주 추천 종목 결과 ({monday} 주)"]; hit = 0
+    p = {"picks": load_picks(monday)}
+    out = [f"## 이번 주 추천 종목 결과 ({monday} 주)"]; hit = 0; tot = 0.0
     for r in p["picks"]:
         d = naver_stock(r["code"]); ret = (d["v"] / r["entry"] - 1) * 100
         up = ret > 0; flat = abs(ret) < 0.005; ok = (not flat) and up == (r["expect"] == "상승"); hit += ok
         tag = "목표가 도달" if r.get("target") and d["v"] >= r["target"] else "손절가 이탈" if r.get("stop") and d["v"] <= r["stop"] else ""
-        out.append(f"- {r['name']}: 진입 {r['entry']:,.0f} → 금요일 {d['v']:,.0f}원 ({ret:+.2f}%) · {'보합' if flat else '상승' if up else '하락'} · 예상 {r['expect']} → {'➖ 보합' if flat else '✅ 적중' if ok else '❌ 빗나감'} {tag}")
-    if p["picks"]: out.append(f"\n적중 {hit}/{len(p['picks'])}")
+        tot += ret * r.get("weight", 0) / 100
+        out.append(f"- {r['name']}: 진입 {r['entry']:,.0f} → 금요일 {d['v']:,.0f}원 ({ret:+.2f}%) · 비중 {r.get('weight', 0)}% · {'보합' if flat else '상승' if up else '하락'} · 예상 {r['expect']} → {'➖ 보합' if flat else '✅ 적중' if ok else '❌ 빗나감'} {tag}")
+        out.append(f"  - 손절가 {r.get('stop') or 0:,.0f}원 · 익절가 {r.get('target') or 0:,.0f}원")
+    if p["picks"]: out.append(f"- 적중 {hit}/{len(p['picks'])} · 비중대로 담았다면 주간 수익률 {tot:+.2f}%")
     return "\n".join(out)
 
 
@@ -183,14 +266,16 @@ def app(slot: str, say_file: str, day: str | None = None) -> str:
     now = dt.datetime.now(KST); day = day or now.date().isoformat(); wd = dt.date.fromisoformat(day).weekday()
     monday = (dt.date.fromisoformat(day) - dt.timedelta(days=wd)).isoformat()
     md = us() if slot == "am" else kr()
-    if slot == "am" and wd == 0: md += "\n" + picks(monday)
+    if slot == "am" and wd == 0 and not (PICKS / f"{monday}.json").exists():
+        md += "\n" + picks(monday)
+    elif not (slot == "pm" and wd == 4):  # 매 보고마다 이번 주 추천 종목 현황 (진입가·비중·손절가·익절가·지금가)
+        rows = load_picks(monday)
+        if rows:
+            md += f"\n## 이번 주 추천 종목 ({monday} 주)\n" + "\n".join(f"- {pick_line(r, naver_stock(r['code'])['v'])}" for r in rows)
     if slot == "pm" and wd == 4 and (PICKS / f"{monday}.json").exists(): md += "\n" + result(monday)
-    if slot == "pm" and wd != 4 and (PICKS / f"{monday}.json").exists():
-        p = json.loads((PICKS / f"{monday}.json").read_text(encoding="utf-8"))["picks"]
-        rows = []
-        for r in p:
-            d = naver_stock(r["code"]); rows.append(f"- {r['name']}: {d['v']:,.0f}원 (오늘 {d['chg']:+.2f}%, 진입가 대비 {(d['v'] / r['entry'] - 1) * 100:+.2f}%)")
-        md += "\n### 이번 주 추천 종목 오늘\n" + "\n".join(rows)
+    md += "\n" + fresh(day, slot)
+    tr = fresh_track(day, slot)
+    if tr: md += "\n" + tr
     say = [l.strip() for l in Path(say_file).read_text(encoding="utf-8").splitlines() if l.strip()]
     title = ("오전 보고 · 미국장 마감과 뉴스" + (" · 이번 주 추천 종목" if wd == 0 else "")) if slot == "am" else \
             ("오후 보고 · 한국장 마감" + (" · 이번 주 추천 결과" if wd == 4 else ""))
@@ -206,4 +291,5 @@ if __name__ == "__main__":
     cmd = a[0]
     print({"us": lambda: us(), "kr": lambda: kr(), "analyze": lambda: analyze(a[1]),
            "picks": lambda: picks(a[1]), "result": lambda: result(a[1]),
+           "fresh": lambda: fresh(a[1], a[2]), "track": lambda: fresh_track(a[1], a[2]),
            "app": lambda: app(a[1], a[2], a[3] if len(a) > 3 else None)}[cmd]())
