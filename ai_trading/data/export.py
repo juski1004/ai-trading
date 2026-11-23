@@ -49,10 +49,15 @@ def drop_unfinished_day(axis: pd.DatetimeIndex, now_kst: pd.Timestamp) -> pd.Dat
     return axis
 
 
-def trading_axis(kospi_idx, stock_idxs: list, min_ratio: float = 0.5) -> pd.DatetimeIndex:
-    """날짜축 = 코스피 지수 날짜 + 종목 절반 이상이 거래한 날짜.
-    야후 코스피 지수에 하루가 빠지는 일이 있어서 (2026-10-22), 지수만 믿으면 그날 시세가 화면에서 통째로 사라진다."""
+def trading_axis(kospi_idx, stock_idxs: list, min_ratio: float = 0.5, exchange_days=()) -> pd.DatetimeIndex:
+    """날짜축 = 코스피 지수 날짜 + 종목 절반 이상이 거래한 날짜 + 거래소(네이버) 지수 일봉 날짜.
+    야후 코스피 지수에 하루가 빠지는 일이 있어서 (2026-10-22), 지수만 믿으면 그날 시세가 화면에서 통째로 사라진다.
+    2026-11-24: 아침 실행 때 야후가 전날(11-23) 봉을 지수·종목 모두 아직 안 줘서 앱이 '11.20 장 마감 기준'에 머묾
+    → 네이버 지수 일봉에 있는 날짜도 넣는다 (그날 값은 아래에서 네이버 일봉으로 채움)."""
     axis = day_index(kospi_idx)
+    if len(exchange_days):
+        ex = pd.DatetimeIndex(pd.to_datetime(list(exchange_days))).astype("datetime64[ns]")
+        axis = axis.union(ex[ex >= axis.min()]).unique().sort_values()
     if not stock_idxs:
         return axis
     counts = pd.Series(np.concatenate([day_index(i).unique().values for i in stock_idxs])).value_counts()
@@ -84,7 +89,8 @@ def build(out: Path, quick: bool = False, game_dir: Path = Path("game")) -> dict
         return [_r(v, 4) for v in s]
 
     px = collect.bars(syms + ["^KS11"])
-    axis = trading_axis(kospi.index, [px[s].index for s in syms if px.get(s) is not None])
+    axis = trading_axis(kospi.index, [px[s].index for s in syms if px.get(s) is not None],
+                        exchange_days=list(collect.naver_index_daily("KOSPI")))
     axis = drop_unfinished_day(axis, pd.Timestamp.now(tz="Asia/Seoul"))
     dates = [d.date().isoformat() for d in axis]
     stocks = {}

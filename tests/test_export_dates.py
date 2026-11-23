@@ -32,3 +32,11 @@ def test_drops_today_only_during_market_hours():
     assert len(drop_unfinished_day(ax, pd.Timestamp("2026-10-23 09:30", tz="Asia/Seoul"))) == 1
     assert len(drop_unfinished_day(ax, pd.Timestamp("2026-10-23 16:20", tz="Asia/Seoul"))) == 2
     assert len(drop_unfinished_day(ax, pd.Timestamp("2026-10-24 09:30", tz="Asia/Seoul"))) == 2
+
+
+def test_axis_adds_exchange_day_missing_from_yahoo():
+    from ai_trading.data.export import trading_axis
+    kospi = pd.DatetimeIndex(["2026-11-19", "2026-11-20"])
+    stocks = [pd.DatetimeIndex(["2026-11-19", "2026-11-20"])] * 3
+    ax = trading_axis(kospi, stocks, exchange_days=["2026-11-10", "2026-11-20", "2026-11-23"])
+    assert [str(d.date()) for d in ax] == ["2026-11-19", "2026-11-20", "2026-11-23"]
