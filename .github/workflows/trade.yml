@@ -57,6 +57,7 @@ jobs:
             git fetch -q --depth 1 origin site
             git archive origin/site data | tar -x -C web
             git archive origin/site archive 2>/dev/null | tar -x -C web || echo "아카이브 없음"
+            git archive origin/site data/report 2>/dev/null | tar -x -C web || echo "본부장 보고 없음"
           elif [ "$CMD" = "data" ]; then
             python -m ai_trading.data.export --out web/data
             # 장마감 요약 아카이브: 사이트에 쌓인 지난 글을 꺼내 오고 오늘 글을 더함 (실패해도 사이트 갱신은 계속)
@@ -66,6 +67,7 @@ jobs:
             (git archive origin/site data/quiz | tar -x -C web) 2>/dev/null || echo "미리 만든 퀴즈 없음"
             (git archive origin/site data/reel | tar -x -C web) 2>/dev/null || echo "미리 만든 릴스 없음"
             (git archive origin/site data/study | tar -x -C web) 2>/dev/null || echo "미리 만든 공부 릴스 없음"
+            (git archive origin/site data/report | tar -x -C web) 2>/dev/null || echo "본부장 보고 없음"   # 2026-11-23 개인 보고 (report-publish.yml)
           elif [ "$CMD" = "cycle" ] && [ ! -f game/state.json ]; then
             echo "진행 중인 게임이 없어 건너뜀"
           else
@@ -148,6 +150,8 @@ jobs:
       - name: 화면을 site 브랜치에 올리기 (기록 없이 매번 덮어씀)
         if: env.CMD == 'data' || env.CMD == 'site'
         run: |
+          # 데이터 실행 도중 올라온 본부장 보고(report-publish.yml)가 덮어써져 사라지지 않게, 올리기 직전에 다시 가져옴
+          (git fetch -q --depth 1 origin site && git archive FETCH_HEAD data/report | tar -x -C web) 2>/dev/null || true
           rm -rf /tmp/site && cp -r web /tmp/site && cd /tmp/site
           git init -q && git checkout -q -b site
           git config user.name "ai-trading-bot"

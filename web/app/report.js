@@ -1,4 +1,4 @@
-/* 본부장 브리핑 알림 + 알파의 선택(오늘 알파 팀이 게임 계좌에 담은 종목) 보고 (앱).
+/* 본부장 오전·오후 보고(08:00 미국장·뉴스 / 16:50 한국장, data/report/am·pm.json) + 본부장 브리핑 알림 + 알파의 선택(오늘 알파 팀이 게임 계좌에 담은 종목) 보고 (앱).
    - 18:00(한국 시간) 이후, 오늘 장 마감 데이터가 있으면: "정서연 본부장이 브리핑을 가져왔습니다" 메신저 알림 (깜빡임·소리·진동)
      → 누르면 PC 화면의 브리핑(?view=brief)을 전체 화면으로 연다.
    - 18:10 이후, data/pick.json 에 선택이 있으면: 보고한 직원 이름으로 알림 → 누르면 #pick 보고서 화면.
@@ -14,6 +14,11 @@
   const set = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
 
   let PICK = null, DATE = null;
+  /* 본부장 오전·오후 보고 (2026-11-23 사용자: 보고는 앱으로, 본부장 보고로 오전·오후) — data/report/am.json · pm.json */
+  const MEMO = {};
+  ["am", "pm"].forEach(k => fetch(`../data/report/${k}.json`, { cache: "no-cache" }).then(r => (r.ok ? r.json() : null)).then(d => { if (d) { MEMO[k] = d; setTimeout(check, 300); } }).catch(() => {}));
+  const atMin = s0 => { const [h, m] = String(s0 || "0:0").split(":"); return +h * 60 + +m; };
+  const memoDue = () => { const t = kst(); return ["pm", "am"].find(k => MEMO[k] && MEMO[k].date === t.date && t.min >= atMin(MEMO[k].at) && get("rp.memo." + k) !== t.date); };
   fetch("../data/pick.json", { cache: "no-cache" }).then(r => (r.ok ? r.json() : null)).then(d => { PICK = d; check(); }).catch(() => {});
 
   /* 한국 시간 */
@@ -66,7 +71,10 @@
   const who = date => (window.Team ? Team.reporter(date) : (PICK && PICK.reporter && { id: PICK.reporter.img, name: PICK.reporter.name, role: PICK.reporter.role }));
   const call = () => (window.Team ? Team.call() : "");
   function check() {
-    const t = ready(); if (!t || busy()) return;
+    if (busy()) return;
+    const mk = memoDue();
+    if (mk) { const d = D(); toast("memo-" + mk, d.name, "본부장", d.id, `${esc(call())}${call() ? ", " : ""}<b>${mk === "am" ? "오전" : "오후"} 보고</b>를 가져왔습니다 — ${esc((MEMO[mk].title || "").split("·").slice(1).join("·").trim())}`); return; }
+    const t = ready(); if (!t) return;
     if (t.min >= BRIEF_AT && get("rp.brief") !== DATE) {
       const d = D();
       toast("brief", d.name, "본부장", d.id, `${esc(call())}${call() ? ", " : ""}오늘 장 마감 <b>브리핑</b>을 가져왔습니다. 지금 보고드릴까요?`);
@@ -86,12 +94,35 @@
     const tEl = e.target.closest("#rpToast"); if (!tEl) return;
     const kind = tEl.dataset.kind; tEl.remove(); shown = null;
     document.getElementById("rpBell")?.classList.remove("on");
-    if (kind === "brief") { set("rp.brief", DATE); openBriefOverlay(); }
+    if (kind.startsWith("memo-")) { const k = kind.slice(5); set("rp.memo." + k, kst().date); openMemo(k); }
+    else if (kind === "brief") { set("rp.brief", DATE); openBriefOverlay(); }
     else { set("rp.pick", DATE); location.hash = "pick"; }
   });
   // 브리핑을 닫으면 이어서 알파의 선택 보고 알림
   addEventListener("message", e => { if (e.origin === location.origin && (e.data || {}).type === "briefClose") setTimeout(check, 700); });
   setInterval(check, 30000);
+
+  /* ---------- 본부장 오전·오후 보고 화면 ---------- */
+  function openMemo(k) {
+    const m = MEMO[k]; if (!m) return;
+    document.getElementById("rpMemo")?.remove();
+    const d = D(), o = document.createElement("div"); o.id = "rpMemo"; o.className = "rp-memo";
+    const tone = t => /▲|\+\d|✅|상승/.test(t) ? "up" : /▼|-\d|❌|하락/.test(t) ? "down" : "";
+    o.innerHTML = `<div class="rpm-in" role="dialog" aria-label="${esc(m.title)}">
+      <button type="button" class="rpm-x" aria-label="닫기">✕</button>
+      <div class="rp-from"><img src="${img(d.id)}" alt="본부장 사진"><div><b>${esc(d.name)} ${esc(d.role || "본부장")}</b><div class="sub">${esc(m.date)} ${esc(m.at)} · ${esc(m.title)}</div></div></div>
+      ${m.say && m.say.length ? `<section class="rpm-say"><h3>본부장 의견</h3>${m.say.map(x => `<p>${esc(x)}</p>`).join("")}</section>` : ""}
+      ${(m.sections || []).map(sec => `<section class="rpm-sec"><h3>${esc(sec.h)}</h3><ul>${sec.items.map(it => `<li class="${tone(it.t)}">${esc(it.t)}${it.sub && it.sub.length ? `<ul>${it.sub.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}</li>`).join("")}</ul></section>`).join("")}
+      <p class="sub rpm-note">${esc(m.note || "")}</p></div>`;
+    o.addEventListener("click", e => { if (e.target === o || e.target.closest(".rpm-x")) o.remove(); });
+    document.body.appendChild(o);
+  }
+  function memoFromHash() {
+    const h = location.hash.match(/^#memo\/(am|pm)/); if (!h) return;
+    const go = () => { if (MEMO[h[1]]) { set("rp.memo." + h[1], kst().date); openMemo(h[1]); location.hash = "home"; } else setTimeout(go, 400); };
+    go();
+  }
+  addEventListener("hashchange", memoFromHash); memoFromHash();
 
   /* ---------- 홈 카드 ---------- */
   function homeCard(sc) {
@@ -195,6 +226,14 @@
   #rpBell{position:relative;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#fff;border:1px solid var(--line,#eceef6);flex:none}
   #rpBell svg{width:18px;height:18px;stroke:var(--lav-d,#6c5ce7);fill:none;stroke-width:2}
   #rpBell.on::after{content:"";position:absolute;right:5px;top:5px;width:8px;height:8px;border-radius:50%;background:#ff5a78;animation:rpBlink 1s steps(2) infinite}
+  .rp-memo{position:fixed;inset:0;z-index:60;background:rgba(20,18,40,.45);display:flex;align-items:flex-end;justify-content:center}
+  .rpm-in{position:relative;background:#fff;width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:18px 16px 28px}
+  .rpm-x{position:absolute;right:12px;top:12px;width:32px;height:32px;border-radius:50%;border:1px solid var(--line,#eceef6);background:#fff;font-size:15px}
+  .rpm-say{background:var(--lav-s,#efedff);border-radius:14px;padding:10px 14px;margin:12px 0}.rpm-say p{margin:4px 0;line-height:1.55;font-size:14.5px}
+  .rpm-sec{margin:14px 0 0}.rpm-sec h3,.rpm-say h3{font-size:14px;margin:0 0 6px;color:var(--lav-d,#6c5ce7)}
+  .rpm-sec>ul{list-style:none;margin:0;padding:0}.rpm-sec>ul>li{padding:7px 0;border-top:1px solid var(--line,#eceef6);font-size:14px;line-height:1.5}
+  .rpm-sec>ul>li:first-child{border-top:0}.rpm-sec li.up{color:#d6334f}.rpm-sec li.down{color:#2f6fdb}
+  .rpm-sec li ul{margin:4px 0 0;padding-left:16px;color:#666;font-size:12.5px}.rpm-note{margin-top:16px;font-size:12px}
   @media (prefers-reduced-motion:reduce){.rp-toast,.rp-av i,#rpBell.on::after{animation:none}}`;
   document.head.appendChild(css);
 
@@ -206,10 +245,13 @@
     b.innerHTML = '<svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0c0 6 2 7 2 7H4s2-1 2-7"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>';
     b.onclick = () => {
       const t = ready(); shown = null;
+      if (memoDue()) return check();
+      const tk = kst(), last = ["pm", "am"].find(k => MEMO[k] && MEMO[k].date === tk.date && tk.min >= atMin(MEMO[k].at));
+      if (last && !(t && t.min >= BRIEF_AT)) return openMemo(last);
       if (t && t.min >= BRIEF_AT && get("rp.brief") !== DATE) return check();
       if (PICK && PICK.found && t && t.min >= PICK_AT) { location.hash = "pick"; return; }
       if (t && t.min >= BRIEF_AT) { openBriefOverlay(); return; }
-      alert("오늘 알림은 장 마감 뒤 18:00(브리핑)과 18:10(알파의 선택)에 와요.");
+      alert("오늘 알림: 08:00 본부장 오전 보고(미국장·뉴스), 16:50 오후 보고(한국장), 18:00 브리핑, 18:10 알파의 선택.");
     };
     top.insertBefore(b, help);
   });
