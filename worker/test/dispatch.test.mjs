@@ -8,6 +8,8 @@ test("평일: 16:10·16:50 데이터만, 장마감 릴스 없음", () => {
   assert.deepEqual(plan(kst("2026-11-03T16:50:00")), [{ kind: "data" }]);
   assert.deepEqual(plan(kst("2026-11-04T17:30:00")), []);   // 수: 게시 없음
   assert.deepEqual(plan(kst("2026-11-03T19:20:00")), []);
+  assert.deepEqual(plan(kst("2026-11-03T06:40:00")), [{ kind: "data", force: true }]);   // 아침 갱신
+  assert.deepEqual(plan(kst("2026-11-08T06:40:00")), []);                                  // 주말은 없음
 });
 test("화·목 17:30·17:40 홍보+퀴즈 릴스, 토 12:00·12:40 주식 공부 릴스", () => {
   assert.deepEqual(plan(kst("2026-11-03T17:30:00")), [{ kind: "ig", what: "reel" }]);
