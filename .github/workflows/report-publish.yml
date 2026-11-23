@@ -1,0 +1,43 @@
+name: 본부장 보고 앱에 올리기
+
+# 2026-11-23 사용자: "보고는 주식연구소 앱으로 본부장 보고로 오전·오후에".
+# Claude 가 브랜치 reports/app/<날짜>-<am|pm>.json 을 만들어 커밋하고 이 작업을 실행 →
+# 사이트(site 브랜치) data/report/<am|pm>.json 과 data/report/<날짜>-<am|pm>.json 으로 옮김. 앱이 08:00·16:50에 본부장 알림으로 띄움.
+on:
+  workflow_dispatch:
+    inputs:
+      date: { description: "YYYY-MM-DD (비우면 오늘)", default: "" }
+      slot: { description: "am 또는 pm", default: "am" }
+
+permissions:
+  contents: write
+
+concurrency:
+  group: site-write
+  cancel-in-progress: false
+
+env:
+  SRC_BRANCH: ccr-8c1c5ca4-6gk65t
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - name: 사이트에 올리기
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DATE: ${{ inputs.date }}
+          SLOT: ${{ inputs.slot }}
+        run: |
+          DAY="${DATE:-$(TZ=Asia/Seoul date +%F)}"; F="reports/app/$DAY-$SLOT.json"
+          case "$SLOT" in am|pm) ;; *) echo "slot 은 am/pm"; exit 1;; esac
+          git fetch -q --depth 1 origin "$SRC_BRANCH"
+          git show "FETCH_HEAD:$F" > /tmp/r.json || { echo "$F 없음"; exit 1; }
+          python3 -c "import json; j=json.load(open('/tmp/r.json')); assert j['date']=='$DAY' and j['slot']=='$SLOT'"
+          git fetch -q --depth 1 origin site && git worktree add -q /tmp/site FETCH_HEAD
+          mkdir -p /tmp/site/data/report && cp /tmp/r.json "/tmp/site/data/report/$SLOT.json" && cp /tmp/r.json "/tmp/site/data/report/$DAY-$SLOT.json"
+          cd /tmp/site && git config user.name "ai-trading-bot" && git config user.email "ai-trading-bot@users.noreply.github.com"
+          git add data/report && git commit -qm "본부장 보고 $DAY $SLOT" && git push -q "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:site
+          echo "올림: data/report/$SLOT.json"

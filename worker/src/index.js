@@ -77,6 +77,17 @@ async function stats(env, days) {
   return out;
 }
 
+/* ---------- 본부장 오전·오후 보고 알림 (2026-11-23 사용자: 보고는 앱으로, 08:00·16:50) ---------- */
+export async function memoPush(slot, env) {
+  const today = todayKST(), key = `sent:memo:${slot}:${today}`;
+  if (await env.KV.get(key)) return { skip: "이미 보냄" };
+  const m = await fetch(`${SITE}/data/report/${slot}.json?t=${Date.now()}`, { cf: { cacheTtl: 0 } }).then(r => (r.ok ? r.json() : null)).catch(() => null);
+  if (!m || m.date !== today) return { skip: "오늘 보고 아직 없음" };
+  const r = await broadcast(env, { title: `본부장 ${slot === "am" ? "오전" : "오후"} 보고`, body: (m.say && m.say[0]) || m.title, url: `./#memo/${slot}`, tag: `memo-${slot}` });
+  await env.KV.put(key, "1", { expirationTtl: 3 * 86400 });
+  return r;
+}
+
 /* ---------- 정해진 시각 알림 ---------- */
 async function scheduled(cron, env) {
   const today = todayKST(), get = f => fetch(`${SITE}/data/${f}?t=${Date.now()}`, { cf: { cacheTtl: 0 } }).then(r => (r.ok ? r.json() : null)).catch(() => null);
@@ -210,6 +221,9 @@ export default {
     const t = event.scheduledTime || Date.now(), k = new Date(t + 9 * 3600e3), hm = k.getUTCHours() * 60 + k.getUTCMinutes(), wd = k.getUTCDay() >= 1 && k.getUTCDay() <= 5;
     const legacy = wd && hm === 18 * 60 ? "0 9 * * 1-5" : wd && hm === 18 * 60 + 10 ? "10 9 * * 1-5" : wd && hm === 18 * 60 + 40 ? "40 9 * * 1-5" : null;
     if (legacy) ctx.waitUntil(scheduled(legacy, env));
+    // 본부장 보고: 오전 08:00~08:50, 오후 16:50~17:50 사이 10분마다 확인 (보고가 늦게 올라와도 올라오면 바로 알림, 하루 한 번)
+    if (wd && hm >= 8 * 60 && hm <= 8 * 60 + 50) ctx.waitUntil(memoPush("am", env));
+    if (wd && hm >= 16 * 60 + 50 && hm <= 17 * 60 + 50) ctx.waitUntil(memoPush("pm", env));
     ctx.waitUntil(runPlan(t, env));
   },
 };
