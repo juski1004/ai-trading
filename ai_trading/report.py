@@ -146,6 +146,40 @@ def analyze(code: str) -> str:
     return "\n".join(out)
 
 
+_MKT = None
+
+
+def expert(code: str) -> dict | None:
+    """전문가 기법 (앱 expert.js 와 같은 계산): 미너비니 추세 템플릿 n/8, 와인스타인 단계, 6개월 상대강도.
+    2026-11-24 사용자: 전문가 기법 넣어 줘 → 추천 때 하락 4단계 종목은 빼고, 보고에 함께 적음."""
+    global _MKT
+    if _MKT is None:
+        try: _MKT = get(SITE + "market.json")
+        except Exception: _MKT = {}
+    st = next((v for v in (_MKT.get("stocks") or {}).values() if v.get("code") == code), None)
+    if not st or len(st["c"]) < 210: return None
+    c, h, l = st["c"], st["h"], st["l"]; n = len(c); px = c[-1]
+    sma = lambda k, end=n: sum(c[end - k:end]) / k
+    ma50, ma150, ma200, ma200p = sma(50), sma(150), sma(200), sma(200, n - 20)
+    y = min(n, 250); hi, lo = max(h[-y:]), min(l[-y:])
+    idx = (_MKT.get("index") or {}).get("c") or []
+    rs = (c[-1] / c[-127] - 1) * 100 if n > 126 else None
+    k6 = (idx[-1] / idx[-127] - 1) * 100 if len(idx) > 126 else None
+    t = [px > ma150 and px > ma200, ma150 > ma200, ma200 > ma200p, ma50 > ma150 and ma50 > ma200, px > ma50,
+         px >= lo * 1.3, px >= hi * 0.75, rs is not None and k6 is not None and rs > k6]
+    w30p = sma(150, n - 25); slope = (ma150 / w30p - 1) * 100
+    stage = 2 if px > ma150 and slope > 0.5 else 4 if px < ma150 and slope < -0.5 else 3 if px >= ma150 else 1
+    return {"tmpl": sum(t), "stage": stage, "rs": rs, "k6": k6}
+
+
+def expert_txt(code: str) -> str:
+    e = expert(code)
+    if not e: return ""
+    st = {1: "1단계 바닥", 2: "2단계 상승", 3: "3단계 꼭대기", 4: "4단계 하락"}[e["stage"]]
+    rs = "" if e["rs"] is None or e["k6"] is None else f" · 6개월 {e['rs']:+.0f}% (코스피 {e['k6']:+.0f}%)"
+    return f"전문가 점검: 미너비니 추세 {e['tmpl']}/8 · 와인스타인 {st}{rs}"
+
+
 def weights(rows: list[dict]) -> list[int]:
     """비중(%): AI 점수에 비례, 5% 단위, 합 100 (2026-11-23 사용자: 진입가·비율·손절가·익절가)."""
     if not rows: return []
@@ -177,7 +211,8 @@ def load_picks(monday: str) -> list[dict]:
 def picks(monday: str, n: int = 3) -> str:
     """AI 점수 높은 순, 위험 '높음' 제외, 3종목. 진입가 = 지금(월요일 장 전이면 직전 거래일 종가) 가격."""
     sc = scores()["stocks"]
-    cand = [s for s in sorted(sc.values(), key=lambda s: -s["score"]) if s.get("risk", {}).get("level") != "높음" and s["score"] > 0][:n]
+    cand = [s for s in sorted(sc.values(), key=lambda s: -s["score"]) if s.get("risk", {}).get("level") != "높음" and s["score"] > 0
+            and (expert(s["code"]) or {}).get("stage") != 4][:n]   # 와인스타인 4단계(하락 추세)는 빼기
     rows = []
     for s in cand:
         d = naver_stock(s["code"])
@@ -194,6 +229,7 @@ def picks(monday: str, n: int = 3) -> str:
     for r in rows:
         out.append(f"- **{pick_line(r)}** · 예상 {r['expect']} · AI {r['score']:+.2f} · 위험 {r['risk']}")
         out += [f"  - {w}" for w in r["why"]]
+        if expert_txt(r["code"]): out.append(f"  - {expert_txt(r['code'])}")
     if not rows: out.append("- 조건(AI 점수 플러스·위험 높음 아님)에 맞는 종목 없음 → 이번 주는 쉬어 감")
     return "\n".join(out)
 
@@ -222,7 +258,8 @@ def fresh(day: str, slot: str, n: int = 2) -> str:
         used = {r["code"] for r in load_picks(monday)}
         for old in sorted(DAILY.glob("*.json"))[-10:]: used |= {r["code"] for r in json.loads(old.read_text(encoding="utf-8"))["picks"]}
         cand = [x for x in sorted(scores()["stocks"].values(), key=lambda x: -x["score"])
-                if x["code"] not in used and x.get("risk", {}).get("level") != "높음" and x["score"] > 0][:n]
+                if x["code"] not in used and x.get("risk", {}).get("level") != "높음" and x["score"] > 0
+                and (expert(x["code"]) or {}).get("stage") != 4][:n]
         rows = [_row(x) for x in cand]
         for r, w in zip(rows, weights(rows)): r["weight"] = w
         f.write_text(json.dumps({"date": day, "slot": slot, "picks": rows}, ensure_ascii=False, indent=1), encoding="utf-8")
@@ -230,6 +267,7 @@ def fresh(day: str, slot: str, n: int = 2) -> str:
     for r in rows:
         out.append(f"- {pick_line(r)} · AI {r['score']:+.2f} · 위험 {r['risk']}")
         out += [f"  - {w}" for w in r["why"]]
+        if expert_txt(r["code"]): out.append(f"  - {expert_txt(r['code'])}")
     if not rows: out.append("- 조건(AI 점수 플러스·위험 높음 아님·최근 추천과 겹치지 않음)에 맞는 새 종목 없음 → 이번 보고는 쉬어 감")
     return "\n".join(out)
 

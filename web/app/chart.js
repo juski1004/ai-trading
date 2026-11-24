@@ -24,7 +24,7 @@
   const loadOpt = () => { try { return { ov: ["ma"], sub: "macd", ...JSON.parse(localStorage.getItem(KEY) || "{}") }; } catch (e) { return { ov: ["ma"], sub: "macd" }; } };
   const saveOpt = () => { try { localStorage.setItem(KEY, JSON.stringify(OPT)); } catch (e) {} };
   let OPT = loadOpt();
-  let MKT = null; const mkt = () => MKT || (MKT = fetch("../data/market.json", { cache: "force-cache" }).then(r => (r.ok ? r.json() : null)).catch(() => null));
+  let MKT = null; const mkt = () => MKT || (MKT = fetch("../data/market.json", { cache: "no-cache" })  /* 2026-11-24: 항상 최신 (바뀌지 않았으면 서버가 304로 짧게 답함) */.then(r => (r.ok ? r.json() : null)).catch(() => null));
   let cur = null;
 
   /* ---------- 자료 ---------- */
