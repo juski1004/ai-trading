@@ -450,4 +450,5 @@ if __name__ == "__main__":
     print({"us": lambda: us(), "kr": lambda: kr(), "analyze": lambda: analyze(a[1]),
            "picks": lambda: picks(a[1]), "result": lambda: result(a[1]),
            "fresh": lambda: fresh(a[1], a[2]), "track": lambda: fresh_track(a[1], a[2]),
-           "ledger": lambda: ledger_md(ledger()), "app": lambda: app(a[1], a[2], a[3] if len(a) > 3 else None)}[cmd]())
+           "ledger": lambda: ledger_md(ledger()),
+           "trackfile": lambda: (OUTDIR.mkdir(parents=True, exist_ok=True), (OUTDIR / "track.json").write_text(json.dumps(ledger(), ensure_ascii=False), encoding="utf-8"))[1], "app": lambda: app(a[1], a[2], a[3] if len(a) > 3 else None)}[cmd]())

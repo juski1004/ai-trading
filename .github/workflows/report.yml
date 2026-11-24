@@ -6,7 +6,7 @@ name: 본부장 보고 만들기
 on:
   workflow_dispatch:
     inputs:
-      slot: { description: "am(오전) 또는 pm(오후)", default: "am" }
+      slot: { description: "am(오전) · pm(오후) · track(추천 성적만 다시 계산)", default: "am" }
       date: { description: "YYYY-MM-DD (비우면 오늘)", default: "" }
 
 permissions:
@@ -34,13 +34,20 @@ jobs:
           DATE: ${{ inputs.date }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          case "$SLOT" in am|pm) ;; *) echo "slot 은 am/pm"; exit 1;; esac
+          case "$SLOT" in am|pm|track) ;; *) echo "slot 은 am/pm/track"; exit 1;; esac
           DAY="${DATE:-$(TZ=Asia/Seoul date +%F)}"
           git fetch -q --depth 1 origin site && git worktree add -q /tmp/site FETCH_HEAD
           mkdir -p /tmp/site/data/report/picks/daily
           # 처음 한 번: 예전 Claude 브랜치에 있던 추천 기록을 가져옴
           if [ -z "$(ls -A /tmp/site/data/report/picks 2>/dev/null | grep -v daily)" ]; then
             (git fetch -q --depth 1 origin ccr-8c1c5ca4-6gk65t && git archive FETCH_HEAD reports/picks | tar -x -C /tmp && cp -rn /tmp/reports/picks/. /tmp/site/data/report/picks/) || echo "예전 기록 없음"
+          fi
+          if [ "$SLOT" = "track" ]; then   # 추천 성적(모의 성적)만 다시 계산 — 보고는 건드리지 않음
+            REPORT_STATE=/tmp/site/data/report/picks REPORT_OUT=/tmp/out python -m ai_trading.report trackfile
+            cp /tmp/out/track.json /tmp/site/data/report/track.json
+            cd /tmp/site && git config user.name "ai-trading-bot" && git config user.email "ai-trading-bot@users.noreply.github.com"
+            git add data/report && git commit -qm "추천 성적 $DAY" && git push -q "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:site
+            exit 0
           fi
           REPORT_STATE=/tmp/site/data/report/picks REPORT_OUT=/tmp/out python -m ai_trading.report app "$SLOT" auto "$DAY"
           cp "/tmp/out/$DAY-$SLOT.json" "/tmp/site/data/report/$SLOT.json" && cp "/tmp/out/$DAY-$SLOT.json" "/tmp/site/data/report/$DAY-$SLOT.json"
