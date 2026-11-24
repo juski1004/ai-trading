@@ -129,7 +129,7 @@ export default {
       if (req.method === "POST" && p === "/test") { // 구독한 그 기기에만 확인용 알림
         const { endpoint } = await req.json(); const rec = endpoint && (await env.KV.get("sub:" + (await sha(endpoint)), "json"));
         if (!rec) return json(req, { error: "not subscribed" }, 404);
-        const st = await sendPush(rec.sub, { title: "알림이 켜졌어요", body: "평일 18:00 브리핑, 18:10 알파의 선택을 알려 드릴게요.", url: "./#home", tag: "test" }, await vapid(env));
+        const st = await sendPush(rec.sub, { title: "알림이 켜졌어요", body: "평일 08:00 오전 보고, 16:50 오후 보고를 알려 드릴게요.", url: "./#home", tag: "test" }, await vapid(env));
         return json(req, { ok: st < 300, status: st });
       }
       if (p === "/rank" && req.method === "POST") {
@@ -219,8 +219,7 @@ export default {
   // 10분마다(평일 16~19시 KST)·주말 11시대 타이머: ① 18:00·18:10·18:40 알림은 예전 방식 그대로 ② GitHub 작업을 정확한 시각에 시킴(dispatch.js)
   async scheduled(event, env, ctx) {
     const t = event.scheduledTime || Date.now(), k = new Date(t + 9 * 3600e3), hm = k.getUTCHours() * 60 + k.getUTCMinutes(), wd = k.getUTCDay() >= 1 && k.getUTCDay() <= 5;
-    const legacy = wd && hm === 18 * 60 ? "0 9 * * 1-5" : wd && hm === 18 * 60 + 10 ? "10 9 * * 1-5" : wd && hm === 18 * 60 + 40 ? "40 9 * * 1-5" : null;
-    if (legacy) ctx.waitUntil(scheduled(legacy, env));
+    // 2026-11-24: 18:00 브리핑·18:10 알파의 선택(게임) 알림은 끔 — 앱 밖 알림은 본부장 08:00·16:50 보고만
     // 본부장 보고: 오전 08:00~08:50, 오후 16:50~17:50 사이 10분마다 확인 (보고가 늦게 올라와도 올라오면 바로 알림, 하루 한 번)
     if (wd && hm >= 8 * 60 && hm <= 8 * 60 + 50) ctx.waitUntil(memoPush("am", env));
     if (wd && hm >= 16 * 60 + 50 && hm <= 17 * 60 + 50) ctx.waitUntil(memoPush("pm", env));

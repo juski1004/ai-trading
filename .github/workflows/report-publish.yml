@@ -38,6 +38,7 @@ jobs:
           python3 -c "import json; j=json.load(open('/tmp/r.json')); assert j['date']=='$DAY' and j['slot']=='$SLOT'"
           git fetch -q --depth 1 origin site && git worktree add -q /tmp/site FETCH_HEAD
           mkdir -p /tmp/site/data/report && cp /tmp/r.json "/tmp/site/data/report/$SLOT.json" && cp /tmp/r.json "/tmp/site/data/report/$DAY-$SLOT.json"
+          python3 -c "import json,pathlib; d=pathlib.Path('/tmp/site/data/report'); json.dump(sorted((f.name for f in d.glob('20??-??-??-*m.json')), reverse=True), open(d/'index.json','w'))"   # 보고함 목록
           cd /tmp/site && git config user.name "ai-trading-bot" && git config user.email "ai-trading-bot@users.noreply.github.com"
           git add data/report && git commit -qm "본부장 보고 $DAY $SLOT" && git push -q "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:site
           echo "올림: data/report/$SLOT.json"

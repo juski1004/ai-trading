@@ -19,7 +19,7 @@
   function load() {
     if (tried) return; tried = true;
     fetch("../data/report/track.json", { cache: "no-cache" }).then(r => (r.ok ? r.json() : null)).then(d => {
-      T = d || {}; window.dispatchEvent(new HashChangeEvent("hashchange"));
+      T = d || {}; window.__TRACK = T; window.dispatchEvent(new HashChangeEvent("hashchange"));
     }).catch(() => { T = {}; window.dispatchEvent(new HashChangeEvent("hashchange")); });
   }
   document.addEventListener("click", e => {
@@ -157,5 +157,28 @@
     <p class="sub" style="margin:14px 4px 90px">${esc(T.rule || "")} 손절·익절이 같은 날 둘 다 닿으면 손절로 계산.${T.made ? ` · 계산 ${esc(T.made)}` : ""}</p>`;
   }
 
-  window.Track = { view };
+  /* 홈 카드: 이번 주 추천 모의 성적 한 줄 */
+  function homeCard() {
+    load(); if (!T || !(T.weeks || []).length) return "";
+    const w = T.weeks[0], cap = getCap(), P = plan(w.picks, cap), s = T.summary || {};
+    return `<section class="card"><a href="#track" style="color:inherit;text-decoration:none;display:block">
+      <div class="hd"><div><h2>이번 주 추천 따라 하기</h2><p class="sub">${md(w.monday)}(월) 추천 ${w.picks.map(p => esc(p.name)).join("·")} · ${w.done ? "결과 확정" : "진행 중"}</p></div><span class="rp-go" style="white-space:nowrap;align-self:center">보기 ›</span></div>
+      <div style="display:flex;align-items:baseline;gap:10px;margin-top:8px"><b class="${cls(P.pnl)}" style="font-size:22px">${sw(P.pnl)}원</b><span class="${cls(P.ret)}">${pct(P.ret)}</span>
+      ${w.kospi != null ? `<span class="sub">코스피 ${pct(w.kospi)}</span>` : ""}</div>
+      <p class="sub">모의 자금 ${won(cap)}원 기준${s.weeks ? ` · 누적 ${s.weeks}주 성공률 ${s.win_rate}%` : ""}</p></a></section>`;
+  }
+
+  /* 종목 화면: 이 종목을 본부장이 추천한 기록과 결과 */
+  function detail(sym) {
+    load(); if (!T) return "";
+    const code = String(sym).split(".")[0], rows = [];
+    (T.weeks || []).forEach(w => w.picks.forEach(p => { if (p.code === code) rows.push({ when: `${md(w.monday)} 주간 추천`, ...p }); }));
+    (T.fresh || []).forEach(p => { if (p.code === code) rows.push({ when: `${md(p.date)} ${p.slot === "am" ? "오전" : "오후"} 새 추천`, ...p }); });
+    if (!rows.length) return "";
+    return `<section class="card"><h2>본부장 추천 기록</h2><p class="sub">이 종목을 추천했던 때와 모의 결과</p>
+      <table class="tk-t" style="width:100%;border-collapse:collapse;margin-top:8px;font-size:13px"><tbody>${rows.map(r => `<tr><td style="padding:7px 0;border-bottom:1px solid var(--line)"><b>${r.when}</b><div class="sub">진입 ${won(r.entry)} · 손절 ${won(r.stop)} · 익절 ${won(r.target)}</div></td>
+        <td style="text-align:right;border-bottom:1px solid var(--line)"><b class="${cls(r.ret)}">${pct(r.ret)}</b><div class="sub">${esc(r.why)}</div></td></tr>`).join("")}</tbody></table></section>`;
+  }
+
+  window.Track = { view, homeCard, detail };
 })();
