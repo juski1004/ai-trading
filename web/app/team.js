@@ -79,6 +79,8 @@
     } catch (e) {}
   }
   function splash() {
+    // 2026-11-24 사용자: 혼자 쓰는 연구 앱 → 매번 2초 시작 연출·효과음 없이 바로
+    if (true) { onboard(); if (CALL && T) after(); return; }
     const el = document.createElement("div");
     el.className = "tm-splash"; el.setAttribute("aria-hidden", "true");
     el.innerHTML = `<div class="tm-burst"></div><div class="tm-title"><img src="${BASE}app/icon-192.png" alt=""><b>AI 투자연구소</b><small>PREMIUM AI RESEARCH</small></div>`;
@@ -109,8 +111,8 @@
     sheet(`<div class="tm-step">시작하기 전에</div>
       <h2>꼭 알아 두세요</h2>
       <ul class="tm-consent">
-        <li>이 앱은 바쁜 직장인을 위한 <b>종가 스윙 모의투자 게임</b>과 공개 데이터 요약이에요. 가상 돈만 쓰고, 증권 거래를 중개하지 않아요.</li>
-        <li>AI 점수·목표가·'알파의 선택'은 참고 정보이거나 <b>게임 상대의 행동</b>이에요. <b>투자 권유·자문이 아니에요.</b></li>
+        <li>이 앱은 공개 데이터 요약과 <b>추천 종목 모의 성적 기록</b>이에요. 증권 거래를 중개하지 않아요.</li>
+        <li>AI 점수·목표가·본부장 추천은 참고 정보예요. <b>투자 권유·자문이 아니에요.</b></li>
         <li>시세는 15~20분 이상 늦고 하루 한 번 갱신돼요. AI 문장은 틀릴 수 있어요.</li>
         <li>실제 투자 판단과 결과(원금 손실 포함)의 책임은 본인에게 있어요.</li>
       </ul>
@@ -185,7 +187,7 @@
       ["aiLab.game.v1", "aiLab.games.v1", "arenaLive.v1"].forEach(k => { try { localStorage.removeItem(k); } catch (e) {} });
       alert("투자·대결 기록을 지웠어요."); location.reload();
     } else if (a === "resetall") {
-      if (!confirm("호칭·매니저·투자·대결 기록을 모두 지우고 처음 화면부터 다시 시작할까요? 되돌릴 수 없어요.")) return;
+      if (!confirm("호칭·매니저·관심 종목을 모두 지우고 처음 화면부터 다시 시작할까요? 되돌릴 수 없어요.")) return;
       try { localStorage.clear(); } catch (e) {} // 이 사이트에 저장한 것만 지워짐
       location.hash = ""; location.reload();
     }
@@ -207,9 +209,9 @@
   function meView() {
     const d = director(), ms = members();
     return `<section class="card tm-me"><div class="tm-hi"><div><div class="sub">반갑습니다</div><h2>${esc(call())}</h2></div><button class="pclink tm-sm" type="button" data-tm="rename">호칭 바꾸기</button></div></section>
-    <section class="card"><div class="hd"><h2>나의 담당 팀</h2><button class="pclink tm-sm" type="button" data-tm="swap">매니저 교체</button></div>
-      <div class="tm-list tm-mine">${card(d, false, "x")}${ms.map(m => card(m, false, "x")).join("")}</div></section>
-    ${window.Daily && Daily.meCard ? Daily.meCard() : ""}
+    <details class="card tm-fold"><summary><h2>나의 담당 팀 · ${esc(d.name)} 본부장</h2><span>펼치기</span></summary>
+      <div class="hd"><span></span><button class="pclink tm-sm" type="button" data-tm="swap">매니저 교체</button></div>
+      <div class="tm-list tm-mine">${card(d, false, "x")}${ms.map(m => card(m, false, "x")).join("")}</div></details>
 `;
   }
 
@@ -219,7 +221,6 @@
     return `${fold("앱처럼 쓰기", '<p class="sub">아이폰: 공유 → 홈 화면에 추가 · 안드로이드: 메뉴 → 홈 화면에 추가</p>')}
     ${window.Backup ? fold("기록 백업·복구", Backup.card(true)) : ""}
     ${fold("초기화", `<p class="sub">이 기기에 저장된 기록을 지워요. 지운 기록은 되돌릴 수 없어요.</p>
-      <button class="cta sub2" type="button" data-tm="resetrec">투자·AI 대결 기록만 초기화</button>
       <button class="cta sub2" type="button" data-tm="resetall">처음부터 다시 시작 (호칭·매니저 선택부터)</button>`)}`;
   }
 

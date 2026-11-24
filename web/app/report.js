@@ -103,8 +103,8 @@
   setInterval(check, 30000);
 
   /* ---------- 본부장 오전·오후 보고 화면 ---------- */
-  function openMemo(k) {
-    const m = MEMO[k]; if (!m) return;
+  function openMemo(k) { if (MEMO[k]) openReport(MEMO[k]); }
+  function openReport(m) {
     document.getElementById("rpMemo")?.remove();
     const d = D(), o = document.createElement("div"); o.id = "rpMemo"; o.className = "rp-memo";
     const tone = t => /▲|\+\d|✅|상승/.test(t) ? "up" : /▼|-\d|❌|하락/.test(t) ? "down" : "";
@@ -123,6 +123,31 @@
     go();
   }
   addEventListener("hashchange", memoFromHash); memoFromHash();
+
+  /* ---------- 홈: 오늘 본부장 보고 (2026-11-24: 알파의 선택 카드 대신) ---------- */
+  function memoCard() {
+    const t = kst(), ks = ["am", "pm"].filter(k => MEMO[k]);
+    if (!ks.length) return "";
+    const btn = k => { const m = MEMO[k], today = m.date === t.date;
+      return `<button type="button" class="rp-mb" data-memo="${k}"><b>${k === "am" ? "오전" : "오후"} 보고</b><small>${today ? "오늘" : esc(m.date.slice(5).replace("-", "."))} ${esc(m.at)} · ${esc((m.title || "").split("·").slice(1).join("·").trim() || m.title)}</small></button>`; };
+    return `<section class="card rp-home"><div class="rp-hrow"><img src="${img(D().id)}" alt=""><div><h2>${esc(D().name)} 본부장 보고</h2><p class="sub">오전 08:00 미국장·뉴스 · 오후 16:50 한국장 마감 · 추천 종목</p></div></div>
+      <div class="rp-mbs">${ks.map(btn).join("")}</div><a class="pclink" href="#reports" style="margin-top:10px;display:inline-block">지난 보고 모아 보기 ›</a></section>`;
+  }
+  document.addEventListener("click", e => { const b = e.target.closest("[data-memo]"); if (b) { set("rp.memo." + b.dataset.memo, kst().date); openMemo(b.dataset.memo); } });
+
+  /* ---------- 보고함 (#reports): 지난 오전·오후 보고 (data/report/index.json) ---------- */
+  let IDX = null, idxTried = false;
+  function archive() {
+    if (!idxTried) { idxTried = true; fetch("../data/report/index.json", { cache: "no-cache" }).then(r => (r.ok ? r.json() : [])).then(d => { IDX = d || []; dispatchEvent(new HashChangeEvent("hashchange")); }).catch(() => { IDX = []; dispatchEvent(new HashChangeEvent("hashchange")); }); }
+    if (!IDX) return `<div class="card"><div class="skel" style="width:40%"></div><div class="skel"></div></div>`;
+    const by = {}; IDX.forEach(f => { const m = f.match(/^(\d{4}-\d{2}-\d{2})-(am|pm)\.json$/); if (m) (by[m[1]] = by[m[1]] || []).push(m[2]); });
+    const days = Object.keys(by).sort().reverse();
+    const wd = d => "일월화수목금토"[new Date(d + "T00:00:00").getDay()];
+    return `<section class="card"><h2>보고함</h2><p class="sub">${esc(D().name)} 본부장의 지난 오전·오후 보고예요. 눌러서 다시 보세요.</p>
+      ${days.length ? `<ul class="rp-arc">${days.map(d => `<li><span>${esc(d.slice(5).replace("-", "."))} (${wd(d)})</span>${["am", "pm"].filter(k => by[d].includes(k)).map(k => `<button type="button" data-arc="${d}-${k}">${k === "am" ? "오전" : "오후"}</button>`).join("")}</li>`).join("")}</ul>` : `<p class="empty">아직 모인 보고가 없어요.</p>`}</section>`;
+  }
+  document.addEventListener("click", e => { const b = e.target.closest("[data-arc]"); if (!b) return;
+    fetch(`../data/report/${b.dataset.arc}.json`, { cache: "no-cache" }).then(r => (r.ok ? r.json() : null)).then(m => m && openReport(m)).catch(() => {}); });
 
   /* ---------- 홈 카드 ---------- */
   function homeCard(sc) {
@@ -256,5 +281,11 @@
     top.insertBefore(b, help);
   });
 
-  window.Report = { isOpen, view, homeCard, _check: check };
+  const st = document.createElement("style");
+  st.textContent = `.rp-mbs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.rp-mb{border:1px solid var(--line);background:#f8f7ff;border-radius:14px;padding:10px;text-align:left;font:inherit;cursor:pointer}
+  .rp-mb b{display:block;font-size:14.5px}.rp-mb small{display:block;font-size:11.5px;color:var(--muted);margin-top:2px;line-height:1.4}
+  .rp-arc{list-style:none;padding:0;margin:10px 0 0}.rp-arc li{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}.rp-arc li span{flex:1}
+  .rp-arc button{border:1px solid var(--line2);background:#fff;border-radius:12px;padding:6px 14px;font:inherit;font-weight:700;font-size:13px;color:var(--lav-d,#6c5ce7);cursor:pointer}`;
+  document.head.appendChild(st);
+  window.Report = { isOpen, view, homeCard, memoCard, archive, _check: check };
 })();

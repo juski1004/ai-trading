@@ -35,7 +35,7 @@ html{background:var(--bg)}
 body{margin:0;color:var(--fg);font-size:15px;line-height:1.55;letter-spacing:-.15px;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased;min-height:100vh;
   background:radial-gradient(700px 420px at 105% -6%,rgba(185,178,255,.28),transparent 60%),radial-gradient(620px 460px at -15% 22%,rgba(182,216,255,.30),transparent 60%),radial-gradient(560px 520px at 60% 115%,rgba(169,233,207,.22),transparent 60%),var(--bg);background-attachment:fixed}
 .num{font-variant-numeric:tabular-nums}
-.up{color:var(--up)}.down{color:var(--down)}.flat{color:var(--muted)}
+.disc-h{font-size:17px;margin:22px 4px 0}.up{color:var(--up)}.down{color:var(--down)}.flat{color:var(--muted)}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
 a{color:var(--lav-d)}
 .wrap{max-width:560px;margin:0 auto;padding:4px 16px calc(var(--nav-h) + 40px + env(safe-area-inset-bottom))}
@@ -221,7 +221,6 @@ img[src*="img/team/egen."]{object-position:50% 2%!important}img[src*="img/team/j
   <img src="icon-192.png" alt="">
   <h1>AI 투자연구소<small>PREMIUM AI RESEARCH</small></h1><span class="beta">BETA</span>
   <span class="asof" id="asof"></span>
-  <button class="bgmb" id="bgmBtn" type="button" aria-pressed="false" aria-label="배경음악 켜기">🔈</button>
   <button class="helpb" id="helpBtn" type="button" aria-haspopup="dialog">사용법</button>
 </header>
 
@@ -230,34 +229,29 @@ img[src*="img/team/egen."]{object-position:50% 2%!important}img[src*="img/team/j
 <div class="gd" id="guide" role="dialog" aria-modal="true" aria-labelledby="gdTitle" hidden>
  <div class="gdbox">
   <h2 id="gdTitle">AI 투자연구소 사용법</h2>
-  <p class="lead"><b>바쁜 직장인을 위한 종가 스윙 투자 앱</b>이에요. 하루 종일 시세를 붙잡고 있지 않아도 돼요. 퇴근 후 <b>그날 장 마감 종가</b>로 하루 한 번 판단하고, 며칠~몇 주 들고 가는 스윙 매매를 가상 1,000만 원으로 연습해요(포인트를 모으면 5,000만·1억 원으로 시작할 수 있어요). 장중 등락에 흔들리지 않고 원칙대로 사고파는 습관이 생겨요. AI 직원 6명이 코스피·코스닥 대형주 78종목을 매일 분석해 점수를 매겨 줘요. 진짜 돈은 쓰지 않아요.</p>
+  <p class="lead"><b>나만 쓰는 AI 투자 연구 앱</b>이에요. 정서연 본부장이 하루 두 번 보고하고, 매주 월요일 추천 종목을 내요. 그 추천을 그대로 따랐다면 얼마를 벌었는지 모의로 계속 기록해서, 실제로 믿고 투자해도 될지 판단하게 도와요. 진짜 돈은 쓰지 않아요.</p>
   <ol>
-   <li><b>데이터는 실제예요.</b> 시세·지수는 거래소 종가 그대로(네이버 증권과 같은 값)이고, 수급·공시·실적은 공개 자료예요. 평일 장 마감 후 하루 한 번 갱신되고, 모의투자 체결도 그 종가로 해요.</li>
-   <li><b>홈</b>에서 오늘 시장(코스피·코스닥·환율)과 <b>AI 점수 상위 종목</b>, <b>거래량이 몰린 종목</b>을 봐요.</li>
-   <li><b>종목검색</b> 탭에서 종목을 찾아 정보를 봐요. 화면 아래 빨간 <b>사기</b>·파란 <b>팔기</b>로 바로 거래해요. 긍정·중립·부정 버튼으로 걸러 볼 수 있어요.</li>
-   <li>종목 화면에서 <b>AI 종합 점수(100점)</b>, 참고 <b>목표가·손절가</b>, 재무·기술 점수, 리스크, <b>뉴스 AI 요약</b>, AI 분석팀 6명 의견을 확인해요.</li>
-   <li>AI와 수익률 대결은 <b>거래하기</b> 탭에서 실제 날짜·실제 종가로 해요. PC에서도 같은 화면이에요.</li>
-   <li><b>저녁 6시</b>에는 담당 본부장이 오늘 브리핑을, <b>6시 10분</b>에는 AI 상대 팀 '알파'가 오늘 게임 계좌에 담은 종목 1개를 메신저처럼 알려 드려요. (앱을 열어 둔 상태에서 울려요. 위쪽 종 버튼으로 다시 볼 수 있어요.)</li>
-   <li>PER·VIX·CPI 같은 말이 낯설면 홈의 <b>오늘의 용어</b> 카드나 <a href="#learn" onclick="closeG()">주식 용어 사전</a>에서 오늘 실제 숫자와 함께 봐요.</li>
-   <li>데이터는 <b>평일 장 마감 후 하루 한 번</b> 바뀌어요. 휴대폰 크롬 메뉴 → <b>홈 화면에 추가</b>하면 앱처럼 쓸 수 있어요.</li>
+   <li><b>홈</b>: 오늘 본부장 보고(오전 08:00 미국장·뉴스, 오후 16:50 한국장 마감), 이번 주 추천 성적, 알림, 장마감 브리핑을 봐요.</li>
+   <li><b>종목분석</b>: 종목을 찾아 AI 종합 점수, 참고 목표가·손절가, 차트, 재무, 뉴스 AI 요약, 본부장이 추천했던 기록을 봐요. ★로 관심 종목을 담으면 큰 움직임을 알려 드려요.</li>
+   <li><b>추천성적</b>: 월요일 추천대로 몇 주를 사고, 손절·익절 주문을 걸었다면 금요일에 얼마가 됐는지 한 장으로 보여 줘요. 실전 투자 기준 5가지도 여기서 확인해요.</li>
+   <li><b>보고함</b>: 지난 오전·오후 보고를 날짜별로 다시 봐요.</li>
+   <li>데이터는 평일 아침 06:40, 오후 16:10·16:50에 갱신돼요. 휴대폰 크롬 메뉴 → <b>홈 화면에 추가</b>하면 앱처럼 쓸 수 있어요.</li>
   </ol>
   <p class="note">점수와 목표가는 공개된 시세·지표로 계산한 참고 정보이며 투자 권유가 아니에요. 위쪽 <b>사용법</b> 버튼으로 이 안내를 다시 볼 수 있어요. <a href="terms.html">이용약관·개인정보처리방침</a></p>
-  <button class="go" type="button" id="gdTour">▶ 1분 튜토리얼 (화면 보는 법부터 주문까지)</button>
   <button class="go" type="button" id="gdOk" style="margin-top:8px;background:#f1f0fb;color:#6c5ce7">알겠어요</button>
  </div>
 </div>
 <nav aria-label="메뉴"><div class="in">
   <a href="#home" data-tab="home"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>홈·브리핑</a>
-  <a href="#analysis" data-tab="analysis"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/></svg>종목검색</a>
-  <a href="#game" data-tab="game"><svg viewBox="0 0 24 24"><path d="M7 4v16"/><path d="M4 8l3-4 3 4"/><path d="M17 20V4"/><path d="M14 16l3 4 3-4"/></svg>거래하기</a>
+  <a href="#analysis" data-tab="analysis"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/></svg>종목분석</a>
   <a href="#track" data-tab="track"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M7 15l4-4 3 3 5-6"/></svg>추천성적</a>
+  <a href="#reports" data-tab="reports"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>보고함</a>
   <a href="#me" data-tab="me"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>내 정보</a>
 </div></nav>
 
 <script src="metrics.js"></script>
 <script src="backup.js"></script>
 <script src="team.js"></script>
-<script src="game.js"></script>
 <script src="report.js"></script>
 <script src="deck.js"></script>
 <script src="advise.js"></script>
@@ -265,16 +259,11 @@ img[src*="img/team/egen."]{object-position:50% 2%!important}img[src*="img/team/j
 <script src="position.js"></script>
 <script src="trace.js"></script>
 <script src="growth.js"></script>
-<script src="sim.js"></script>
-<script src="vs.js"></script>
 <script src="track.js"></script>
 <script src="push.js"></script>
 <script src="vendor/lightweight-charts.js"></script>
 <script src="chart.js"></script>
-<script src="bgm.js"></script>
-<script src="daily.js"></script>
 <script src="learn.js"></script>
-<script src="tour.js"></script>
 <script>
 (()=>{
 const $=s=>document.querySelector(s);
@@ -304,24 +293,20 @@ async function load(){
 /* 다음 데이터 갱신 시각 (평일 16:07 시작 → 16:30쯤 반영, 예약이 밀리면 16:47에 한 번 더) */
 function nextRefresh(){
   const now=new Date(Date.now()+9*3600e3),d=now.getUTCDay(),h=now.getUTCHours()*60+now.getUTCMinutes();
+  if(d>=1&&d<=5&&h<7*60)return '오늘 07:00';
   if(d>=1&&d<=5&&h<16*60+30)return '오늘 16:30';
-  if(d>=1&&d<=4)return '내일 16:30';
-  return '월요일 16:30';
+  if(d>=1&&d<=4)return '내일 07:00';
+  return '월요일 07:00';
 }
 function home(){
   if(ERR)return `<div class="card"><h2>데이터를 불러오지 못했어요</h2><p class="sub">잠시 뒤 다시 열어 주세요. (${esc(ERR.message)})</p></div>`;
   if(!SC)return `<div class="card"><div class="skel" style="width:40%"></div><div class="skel"></div><div class="skel" style="width:70%"></div></div>`.repeat(2);
   const M=SC.market||{},S=Object.entries(SC.stocks);
   return `<p class="asof-line">${esc(SC.date.slice(5).replace('-','.'))} 장 마감 기준 · 다음 갱신 ${nextRefresh()}</p>
-  ${window.Daily?Daily.homeStrip():''}
-  ${window.Report?Report.homeCard(SC):''}
+  ${window.Report&&Report.memoCard?Report.memoCard():''}
+  ${window.Track?Track.homeCard():''}
   <section class="card bcard"><img src="../img/team/${window.Team?Team.director().id:'theo'}.jpg?v=4" alt="본부장 사진"><div><h2>오늘의 본부장 브리핑</h2><p class="sub">${window.Team?Team.director().name:'정서연'} 본부장이 시장·수급·상승/하락 종목·거래량·펀더멘탈을 8장으로 짚어 드려요.</p><button class="pclink" type="button" id="openBrief">브리핑 보기 ▶</button></div></section>
   ${window.Advise?Advise.homeCard():''}
-  ${window.Rebound?Rebound.homeCard():''}
-  ${window.Position?Position.homeCard():''}
-  ${window.Trace?Trace.homeCard():''}
-  ${window.Growth?Growth.homeCard():''}
-  ${window.Learn?Learn.homeCard():''}
   ${window.Deck?Deck.view(SC):''}
   <a class="pclink arc-link" href="../archive/">📚 지난 장마감 요약 모아 보기</a>
   <p class="note">AI 점수는 공개된 시세와 지표로 계산한 참고 정보이며 투자 권유가 아닙니다. 시세는 15~20분 이상 늦을 수 있고, 투자 판단과 결과의 책임은 본인에게 있습니다.</p>`;
@@ -351,15 +336,16 @@ function analysisList(){
     list=S.filter(([,s])=>s.name.toLowerCase().includes(q)||s.code.startsWith(q)).sort((a,b)=>b[1].score-a[1].score);
     const inU=new Set(S.map(([,s])=>s.code));
     const others=(LIST||[]).filter(([c,n])=>!inU.has(c)&&(n.toLowerCase().includes(q)||c.startsWith(q))).slice(0,8);
-    if(others.length)extra=`<section class="card"><div class="hd"><div><h2>다른 종목</h2><p class="sub">AI 분석은 대형주 ${S.length}종목, 모의투자는 시가총액 상위 ${PX?PX.n:0}종목까지 돼요</p></div></div><ul class="list">${others.map(([c,n,m])=>{const sym=c+(m==='KOSPI'?'.KS':'.KQ'),p=PX&&PX.stocks&&PX.stocks[sym];
-      return p?`<li><button class="row" type="button" data-sym="${esc(sym)}"><span></span><span style="min-width:0"><div class="nm">${esc(n)}</div><div class="meta num">${esc(c)} · <span class="${cls(p.chg)}">${pct(p.chg)}</span></div></span><span class="rt"><div class="px num">${won(p.price)}</div><div class="sc">${p.halt?'거래 정지':'거래 가능 · 분석 없음'}</div></span></button></li>`
+    if(others.length)extra=`<section class="card"><div class="hd"><div><h2>다른 종목</h2><p class="sub">AI 분석은 대형주 ${S.length}종목, 시세는 시가총액 상위 ${PX?PX.n:0}종목까지 돼요</p></div></div><ul class="list">${others.map(([c,n,m])=>{const sym=c+(m==='KOSPI'?'.KS':'.KQ'),p=PX&&PX.stocks&&PX.stocks[sym];
+      return p?`<li><button class="row" type="button" data-sym="${esc(sym)}"><span></span><span style="min-width:0"><div class="nm">${esc(n)}</div><div class="meta num">${esc(c)} · <span class="${cls(p.chg)}">${pct(p.chg)}</span></div></span><span class="rt"><div class="px num">${won(p.price)}</div><div class="sc">${p.halt?'거래 정지':'분석 없음'}</div></span></button></li>`
       :`<li><div class="row off"><span></span><span><div class="nm">${esc(n)}</div><div class="meta">${esc(c)} · ${esc(m)}</div></span><span class="rt sc">시세 없음</span></div></li>`}).join('')}</ul></section>`;
   }
   return `<div class="search" style="margin-top:12px"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16 16l5 5"/></svg>
     <input id="q" type="search" placeholder="종목명 또는 코드 검색" value="${esc(Q)}" autocomplete="off" aria-label="종목 검색"></div>
     ${q?'':`<div class="chips" role="group" aria-label="분류">${['전체','관심','긍정','중립','부정'].map(f=>`<button type="button" data-f="${f}" aria-pressed="${f===FILTER}">${f==='관심'?'★ 관심':f}</button>`).join('')}</div>`}
     <section class="card"><div class="hd"><div><h2>${q?'검색 결과':FILTER==='관심'?'관심 종목':'AI 분석 종목'}</h2><p class="sub">AI 점수 높은 순 · ${list.length}종목</p></div></div>
-    ${list.length?`<ul class="list">${list.slice(0,LIMIT).map(rowHtml).join('')}</ul>${list.length>LIMIT?`<button class="more" type="button" data-more>더 보기 (${list.length-LIMIT}종목)</button>`:''}`:FILTER==='관심'?'<p class="empty">아직 관심 종목이 없어요. 종목 화면의 ★을 눌러 담아 보세요.</p>':'<p class="empty">찾는 종목이 없어요.</p>'}</section>${extra}`;
+    ${list.length?`<ul class="list">${list.slice(0,LIMIT).map(rowHtml).join('')}</ul>${list.length>LIMIT?`<button class="more" type="button" data-more>더 보기 (${list.length-LIMIT}종목)</button>`:''}`:FILTER==='관심'?'<p class="empty">아직 관심 종목이 없어요. 종목 화면의 ★을 눌러 담아 보세요.</p>':'<p class="empty">찾는 종목이 없어요.</p>'}</section>${extra}
+    ${q?'':`<h2 class="disc-h">종목 발굴</h2>${window.Rebound?Rebound.homeCard():''}${window.Position?Position.homeCard():''}${window.Trace?Trace.homeCard():''}${window.Growth?Growth.homeCard():''}`}`;
 }
 function spark(s){
   const c=s.closes;if(!c||c.length<2)return'';
@@ -375,10 +361,10 @@ function analysisDetail(sym){
   if(lite)return `<a class="back" href="#analysis">‹ 목록</a>
   <section class="card"><div class="dhead"><div><div class="dname">${esc(lite.name)} <button class="star" type="button" data-watch="${esc(sym)}" aria-pressed="${WATCH.includes(sym)}" aria-label="관심 종목">${WATCH.includes(sym)?'★':'☆'}</button></div><div class="meta">${esc(lite.code)} · ${esc(lite.market)}</div></div>
       <div><div class="dprice num">${won(lite.price)}</div><div class="meta num ${cls(lite.chg)}" style="text-align:right">${pct(lite.chg)}</div></div></div>
-    <p class="sub" style="margin-top:8px">${esc(PX.date)} 종가 · ${lite.halt?'<b class="down">거래 정지 종목</b>이라 지금은 사고팔 수 없어요.':'모의투자로 사고팔 수 있어요.'}</p></section>
-  <section class="card"><h2>AI 분석은 아직 없어요</h2><p class="sub">AI 분석팀은 대형주 ${Object.keys(SC.stocks).length}종목을 매일 분석해요. 이 종목은 시세만 받아서 모의투자에 쓸 수 있어요.</p></section>
-  ${lite.halt?'':`<div class="tradebar"><a class="cta tb-buy" href="#game/${encodeURIComponent(sym)}" data-side="B">사기</a><a class="tb-sell" href="#game/${encodeURIComponent(sym)}" data-side="S">팔기</a></div>`}`;
-  if(!s)return `<a class="back" href="#analysis">‹ 목록</a><div class="card"><h2>시세가 없는 종목이에요</h2><p class="sub">AI 분석은 대형주 ${Object.keys(SC.stocks).length}종목, 모의투자는 시가총액 상위 ${PX?PX.n:0}종목까지 돼요.</p></div>`;
+    <p class="sub" style="margin-top:8px">${esc(PX.date)} 종가 · ${lite.halt?'<b class="down">거래 정지 종목</b>이에요.':'시세만 있는 종목이에요.'}</p></section>
+  <section class="card"><h2>AI 분석은 아직 없어요</h2><p class="sub">AI 분석팀은 대형주 ${Object.keys(SC.stocks).length}종목을 매일 분석해요. 이 종목은 시세만 받아요.</p></section>
+`;
+  if(!s)return `<a class="back" href="#analysis">‹ 목록</a><div class="card"><h2>시세가 없는 종목이에요</h2><p class="sub">AI 분석은 대형주 ${Object.keys(SC.stocks).length}종목, 시세는 시가총액 상위 ${PX?PX.n:0}종목까지 돼요.</p></div>`;
   const P=pts(s.score),rc=s.label==='긍정'?'var(--pos)':s.label==='부정'?'var(--neg)':'var(--neu)',f=s.fin||{},sm=SUMM&&SUMM[sym];
   const tile=(k,v,h)=>`<div class="tile"><div class="k">${k}</div><div class="v num">${v}</div><div class="h">${h}</div></div>`;
   const fx=(v,u,d=1)=>v==null?'-':v.toFixed(d)+u;
@@ -394,7 +380,7 @@ function analysisDetail(sym){
   ${window.Position?Position.detail(sym):''}
   ${window.Rebound?Rebound.detail(sym):''}
   ${window.Growth?Growth.detail(sym):''}
-  ${window.Sim?Sim.card(sym):''}
+  ${window.Track?Track.detail(sym):''}
   <section class="card">
     <div class="big"><div class="ring" style="--p:${P};--rc:${rc}"><b class="num">${P}<small>점</small></b></div>
       <div><h2>AI 종합 점수 <span class="chip ${s.label}">${s.label}</span></h2><p class="sub">100점 만점, 50점이 중간이에요. 차트·거래량·시장 흐름·진입 자리를 합쳤어요.</p></div></div>
@@ -431,28 +417,26 @@ function analysisDetail(sym){
   <section class="card"><details><summary>기술 지표 ${s.tech.length}개 · 상승 신호 ${nb} · 하락 신호 ${ns}</summary>
     ${s.tech.map(([n,v,g])=>`<div class="sig"><span>${esc(n)}</span><span class="num flat">${typeof v==='number'?v.toLocaleString('ko-KR'):esc(v)}</span><span class="${g}">${g==='B'?'상승':g==='S'?'하락':'중립'}</span></div>`).join('')}
   </details></section>
-  <div class="tradebar"><a class="cta tb-buy" href="#game/${encodeURIComponent(sym)}" data-side="B">사기</a><a class="tb-sell" href="#game/${encodeURIComponent(sym)}" data-side="S">팔기</a></div>
   <p class="note">AI 점수와 참고 목표가·손절가는 공개된 시세·재무·뉴스 제목으로 계산한 참고 정보이며 투자 권유가 아닙니다. 투자 판단과 결과의 책임은 본인에게 있습니다.</p>`;
 }
 function analysis(sym){
   if(ERR||!SC)return home();
   return sym?analysisDetail(sym):analysisList();
 }
-const game=sym=>window.Game&&SC?Game.view(SC,sym&&decodeURIComponent(sym)):soon('🎮','모의투자 게임','가상 1,000만 원으로 AI 투자자 알파와 수익률을 겨루는 게임은 지금 PC 화면에서 할 수 있어요. 휴대폰용은 곧 열려요.<br><a class="pclink" href="../?full=1" target="_blank" rel="noopener">PC 대결 화면 열기 ↗</a>');
 const me=()=>window.Team?Team.meView()+(window.Push?Push.card():'')+(Team.meBottom?Team.meBottom():'')+'<p class="note"><a href="#learn">📘 주식 용어 사전</a> · <a href="terms.html">이용약관 · 개인정보처리방침</a></p>':soon('👤','내 정보','게임 기록과 지난 성적표가 여기에 모여요.<br><br><span class="sub">휴대폰 홈 화면에 추가하면 앱처럼 쓸 수 있어요.<br>아이폰: 공유 → 홈 화면에 추가 · 안드로이드: 메뉴 → 홈 화면에 추가</span>');
 
 /* ---------- 화면 전환 ---------- */
 function route(){
   const [tab,arg]=(location.hash.slice(1)||'home').split('/');
-  const t=['home','analysis','game','me','pick','vs','track','learn'].includes(tab)?(tab==='vs'?'track':tab):'home';
+  const t=['home','analysis','game','me','pick','vs','track','reports','learn'].includes(tab)?((tab==='vs'||tab==='game')?'track':tab):'home';
   document.querySelectorAll('nav a').forEach(a=>a.dataset.tab===(t==='learn'?'home':t)?a.setAttribute('aria-current','page'):a.removeAttribute('aria-current'));
   render();window.scrollTo(0,0);
 }
 function render(){
   const [tab,arg]=(location.hash.slice(1)||'home').split('/');
-  const t=['home','analysis','game','me','pick','vs','track','learn'].includes(tab)?tab:'home';
+  const t=['home','analysis','game','me','pick','vs','track','reports','learn'].includes(tab)?tab:'home';
   const typing=document.activeElement&&document.activeElement.id==='q',pos=typing?document.activeElement.selectionStart:0;
-  $('#view').innerHTML=t==='home'?home():t==='analysis'?analysis(arg&&decodeURIComponent(arg)):t==='game'?game(arg):t==='pick'?(window.Report&&SC?Report.view(SC):home()):t==='vs'||t==='track'?(window.Track?Track.view():home()):t==='learn'?(window.Learn?Learn.view(arg):home()):me();
+  $('#view').innerHTML=t==='home'?home():t==='analysis'?analysis(arg&&decodeURIComponent(arg)):t==='reports'?(window.Report?Report.archive():home()):t==='pick'?(window.Report&&SC?Report.view(SC):home()):t==='vs'||t==='track'||t==='game'?(window.Track?Track.view():home()):t==='learn'?(window.Learn?Learn.view(arg):home()):me();
   if(typing){const q=$('#q');if(q){q.focus();q.setSelectionRange(pos,pos)}}
   if(t==='learn'&&window.Learn)Learn.mount(arg);
   if(t==='analysis'&&arg&&window.AppChart&&document.getElementById('acBox'))AppChart.mount(decodeURIComponent(arg));
@@ -472,7 +456,7 @@ $('#view').addEventListener('input',e=>{if(e.target.id!=='q')return;Q=e.target.v
 const gd=$('#guide');
 const openG=()=>{gd.hidden=false;$('#gdOk').focus()};
 const closeG=()=>{gd.hidden=true;try{localStorage.setItem('appGuideSeen','1')}catch(e){}};
-$('#helpBtn').onclick=openG;$('#gdOk').onclick=closeG;$('#gdTour').onclick=()=>{closeG();window.Tour&&Tour.start()};
+$('#helpBtn').onclick=openG;$('#gdOk').onclick=closeG;
 gd.addEventListener('click',e=>{if(e.target===gd)closeG()});
 addEventListener('keydown',e=>{if(e.key==='Escape'&&!gd.hidden)closeG()});
 try{if(!localStorage.getItem('appGuideSeen')&&localStorage.getItem('aiLab.team.v1'))openG()}catch(e){}

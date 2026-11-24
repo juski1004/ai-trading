@@ -1,5 +1,5 @@
 /* AI 분석팀의 적극적인 알림 (앱).
-   - AI 대결 중이면: 알파 계좌(data/ai.json)가 새로 사고판 내역 + 지금 주식·현금·수익률
+   - 2026-11-24: AI 대결·모의투자 게임을 없애고 → 이번 주 본부장 추천 종목 손절·익절 근접, 관심 종목(★) 판단·큰 움직임 알림으로
    - 화면에 뜨는 알림(토스트)은 홈에서만, 하루 2개까지(손절·목표가·알파의 선택이 우선). 나머지는 홈 'AI 알림' 카드와 종 버튼에만.
    - 내 투자게임 보유 종목: 게임 규칙(목표 +10%·손절 −5%)에 닿으면 알려 주고, AI 판단이 '부정'으로 바뀌면 알려 줌
    - 실적 발표가 다가온 종목(data/earnings.json): 증권사 예상과 일정 안내
@@ -24,58 +24,45 @@
   const SEEN = "aiLab.seen.v1";
   const jo = (w, a, b) => { const c = String(w).charCodeAt(String(w).length - 1) - 0xac00; return w + (c >= 0 && c < 11172 ? (c % 28 ? a : b) : /[0136789lmnr]$/i.test(w) ? a : b); }; // 받침 따라 이/가
 
-  let AI = null, EA = null, PK = null, ITEMS = [], queue = [], ready = false;
-  Promise.all([get("ai.json"), get("earnings.json"), get("pick.json")]).then(([a, e, p]) => { AI = a; EA = e; PK = p; ready = true; build(); });
+  let EA = null, PK = null, ITEMS = [], queue = [], ready = false;
+  Promise.all([get("report/track.json"), get("earnings.json"), get("pick.json")]).then(([a, e, p]) => { window.__TRACK = window.__TRACK || a; EA = e; PK = p; ready = true; build(); });
 
   function build() {
     const SC = window.__SC; if (!ready || !SC) return;
-    const S = SC.stocks, nm = s => (S[s] ? S[s].name : s), G = load("aiLab.game.v1", null), out = [];
+    const S = SC.stocks, out = [];
     const add = (key, who, msg, go) => out.push({ key, who, msg, go });
 
-    // 1) AI 대결: AI 실전 계좌 매매 알림 + 잔고
-    if (false && G && AI && AI.state) {  // 2026-11-24 사용자: AI 대결 없앰 → 알파 팀 알림 끔
-      const st = AI.state;
-      // 내 게임 상대 알파 팀 계좌 (AI 대결 화면과 같은 계좌·같은 수량)
-      const c = window.Game && Game.alphaClone ? Game.alphaClone(st, G, SC.date, Game.nowPx) : null;
-      ((c && c.trades) || []).slice(-2).forEach(t => {
-        const buy = t.side === "BUY";
-        add(`ai:${t.time}:${t.symbol}`, RIV(), `알파 팀이 <b>${esc(nm(t.symbol))}</b> ${won(t.qty)}주를 ${won(t.price)}원에 ${buy ? "매수" : "매도"}했습니다.${t.realized_krw ? ` 실현 손익 ${won(t.realized_krw)}원입니다.` : ""}`, "#vs");
-      });
-      if (c && !G.done) {
-        const stock = Math.max(0, c.eq - c.cash), r = c.ret, n = Object.keys(c.pos || {}).length;
-        add(`aibal:${SC.date}:${G.start}`, RIV(), n
-          ? `내 게임 상대 알파 팀 계좌예요 (${esc(G.start.slice(5).replace("-", "."))} 같은 돈으로 시작). 주식 <b>${won(stock)}원</b>, 현금 <b>${won(c.cash)}원</b>, 수익률 <b class="${r >= 0 ? "up" : "down"}">${pct(r)}</b>.`
-          : `내 게임 상대 알파 팀은 아직 산 종목이 없어요 (${esc(G.start.slice(5).replace("-", "."))} 같은 돈 ${won(c.base)}원으로 시작). 알파가 사면 바로 알려 드려요.`, "#vs");
-      }
-    }
-    // 2) 내 보유 종목: 목표가·손절가·AI 판단
-    if (G && G.pos) Object.entries(G.pos).forEach(([s, p]) => {
-      const x = S[s]; if (!x || !p.avg) return;
-      const r = (x.price / p.avg - 1) * 100, L = P("LLOYD");
-      if (r >= 10) add(`tp:${s}:${SC.date}`, L, `<b>${esc(jo(x.name, "이", "가"))}</b> 게임 목표(+10%)에 닿았어요(${pct(r)}). 일부 정리해 수익을 확정할지, 더 갈지 고르는 순간이에요.`, "#game/" + encodeURIComponent(s));
-      else if (r >= 8) add(`tp8:${s}:${SC.date}`, L, `<b>${esc(jo(x.name, "이", "가"))}</b> 게임 목표(+10%)에 거의 닿았어요(${pct(r)}). 어디서 정리할지 미리 정해 두면 좋아요.`, "#game/" + encodeURIComponent(s));
-      else if (r <= -5) add(`sl:${s}:${SC.date}`, L, `<b>${esc(jo(x.name, "이", "가"))}</b> 게임 손절선(−5%)에 닿았어요(${pct(r)}). 자동 손절을 켜 두었다면 오늘 종가로 정리돼요.`, "#game/" + encodeURIComponent(s));
-      else if (r <= -4) add(`sl4:${s}:${SC.date}`, L, `<b>${esc(jo(x.name, "이", "가"))}</b> 게임 손절선(−5%)에 가까워졌어요(${pct(r)}). 손절 설정이 켜져 있는지 확인해 보세요.`, "#game/" + encodeURIComponent(s));
-      if (x.label === "부정") add(`neg:${s}:${SC.date}`, P("RAY"), `보유 중인 <b>${esc(x.name)}</b>의 AI 판단이 '부정'으로 바뀌었어요. 분석 화면에서 바뀐 이유를 확인해 보세요.`, "#analysis/" + encodeURIComponent(s));
+    // 1) 이번 주 본부장 추천 종목 (2026-11-24 사용자: 추천 따라 하기 모의 성적) — 손절·익절에 가까워지면 알림
+    const TK = window.__TRACK, wk = TK && TK.weeks && TK.weeks[0];
+    if (wk && !wk.done) wk.picks.forEach(p => {
+      const sym = Object.keys(S).find(k => S[k].code === p.code), x = sym && S[sym]; if (!x) return;
+      const r = (x.price / p.entry - 1) * 100, D = DIR(), go = "#track";
+      if (p.target && x.price >= p.target) add(`tp:${p.code}:${SC.date}`, D, `이번 주 추천 <b>${esc(jo(p.name, "이", "가"))}</b> 익절가 ${won(p.target)}원에 닿았어요(${pct(r)}). 모의 주문은 익절로 체결됐어요.`, go);
+      else if (p.stop && x.price <= p.stop) add(`sl:${p.code}:${SC.date}`, D, `이번 주 추천 <b>${esc(jo(p.name, "이", "가"))}</b> 손절가 ${won(p.stop)}원에 닿았어요(${pct(r)}). 모의 주문은 계획대로 손절됐어요.`, go);
+      else if (p.stop && x.price <= p.stop * 1.02) add(`sl2:${p.code}:${SC.date}`, D, `이번 주 추천 <b>${esc(jo(p.name, "이", "가"))}</b> 손절가 ${won(p.stop)}원까지 ${((x.price / p.stop - 1) * 100).toFixed(1)}% 남았어요.`, go);
+    });
+    // 2) 관심 종목(★): AI 판단이 '부정'이면 알림
+    load("aiLab.watch.v1", []).forEach(s => {
+      const x = S[s]; if (!x) return;
+      if (x.label === "부정") add(`neg:${s}:${SC.date}`, P("RAY"), `관심 종목 <b>${esc(x.name)}</b>의 AI 판단이 '부정'이에요. 분석 화면에서 이유를 확인해 보세요.`, "#analysis/" + encodeURIComponent(s));
+      if (Math.abs(x.chg) >= 5) add(`mv:${s}:${SC.date}`, P("OSCAR"), `관심 종목 <b>${esc(x.name)}</b> 오늘 ${pct(x.chg)} 움직였어요.`, "#analysis/" + encodeURIComponent(s));
     });
     // 3) 실적 발표 임박: 미리 판단
     if (EA && EA.items) {
-      const held = new Set(Object.keys((G && G.pos) || {}));
+      const held = new Set(load("aiLab.watch.v1", []));
       const list = [...EA.items].sort((a, b) => (held.has(b.sym) - held.has(a.sym)) || ((b.tone === "호재") - (a.tone === "호재")) || Math.abs(b.growth || 0) - Math.abs(a.growth || 0)).slice(0, 3);
       list.forEach(e => add(`ea:${e.sym}:${e.date}`, P("OSCAR"),
         `<b>${esc(e.name)}</b> ${+e.date.slice(5, 7)}월 ${+e.date.slice(8)}일${e.guess ? "경" : ""} 실적 발표 예정이에요(${e.days}일 뒤). 증권사 예상과 최근 주가 반응은 홈 '실적 발표' 리포트에서 볼 수 있어요.`, "#analysis/" + encodeURIComponent(e.sym)));
     }
-    // 4) 알파의 선택 (게임 상대의 행동 · 데이터 요약)
-    const open = !window.Report || Report.isOpen();
-    if (PK && PK.found && PK.date === SC.date && open) add(`pick:${PK.date}`, P("MILES"), `알파 팀이 오늘 게임 계좌에 <b>${esc(PK.name)}</b>을(를) 담았어요. 알파의 기준: 진입 ${won(PK.plan.entry)}원 · 손절 ${won(PK.plan.stop)}원 · 목표 ${won(PK.plan.target)}원.`, "#pick");
-    else if (!(PK && PK.found && PK.date === SC.date)) Object.entries(S).filter(([, x]) => x.label === "긍정").sort((a, b) => b[1].score - a[1].score).slice(0, 2).forEach(([s, x]) =>
-      add(`buy:${s}:${SC.date}`, P("MILES"), `<b>${esc(x.name)}</b> AI 점수 ${Math.round((x.score + 1) * 50)}점으로 '긍정'이에요. 알파가 눈여겨보는 종목이에요(알파 기준 손절선 ${won(x.stop)}원).`, "#analysis/" + encodeURIComponent(s)));
+    // 4) AI 점수 상위 '긍정' 종목 (데이터 요약)
+    Object.entries(S).filter(([, x]) => x.label === "긍정").sort((a, b) => b[1].score - a[1].score).slice(0, 2).forEach(([s, x]) =>
+      add(`buy:${s}:${SC.date}`, P("MILES"), `<b>${esc(x.name)}</b> AI 점수 ${Math.round((x.score + 1) * 50)}점으로 '긍정'이에요 (참고 손절가 ${won(x.stop)}원).`, "#analysis/" + encodeURIComponent(s)));
 
     const rank = k => (/^(tp|sl|neg)/.test(k) ? 0 : /^ai/.test(k) ? 1 : /^ea/.test(k) ? 2 : 3);
     ITEMS = out.sort((a, b) => rank(a.key) - rank(b.key));
     const seen = load(SEEN, {});
     const left = Math.max(0, MAXQ - quota());
-    queue = out.filter(x => !seen[x.key] && /^(tp|sl|neg|pick)/.test(x.key)).slice(0, left); // 급한 것만, 하루 2개까지
+    queue = out.filter(x => !seen[x.key] && /^(tp|sl|neg)/.test(x.key)).slice(0, left); // 급한 것만, 하루 2개까지
     tick();
     const box = document.getElementById("adv-home"); if (box) box.outerHTML = homeCard();
   }
@@ -104,7 +91,7 @@
   const li = x => `<li><a href="${x.go}"><img src="../img/team/${esc(x.who.id)}.jpg?v=4" alt=""><span><b>${esc(x.who.name)}</b> ${x.msg}</span></a></li>`;
   function homeCard() {
     if (!ITEMS.length) return `<div id="adv-home"></div>`;
-    return `<section class="card adv-home" id="adv-home"><div class="hd"><h2>AI 알림</h2><span class="sub">게임·데이터 안내 · 투자 권유 아님</span></div>
+    return `<section class="card adv-home" id="adv-home"><div class="hd"><h2>AI 알림</h2><span class="sub">데이터 안내 · 투자 권유 아님</span></div>
       <ul class="adv-list">${ITEMS.slice(0, 4).map(li).join("")}</ul>${ITEMS.length > 4 ? `<details class="adv-more"><summary>알림 ${ITEMS.length - 4}개 더 보기</summary><ul class="adv-list">${ITEMS.slice(4, 12).map(li).join("")}</ul></details>` : ""}</section>`;
   }
 

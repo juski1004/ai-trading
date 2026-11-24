@@ -60,13 +60,10 @@
       off: '<button class="cta" type="button" data-push="on">알림 켜기</button>',
       on: '<p class="sub">✅ 켜져 있어요.</p><button class="cta sub2" type="button" data-push="off">알림 끄기</button>',
     }[state];
-    return `<section class="card" id="pushCard"><div class="hd"><h2>앱 밖 알림</h2><span class="sub">평일 18:00 · 18:10</span></div>
-      <p class="sub" style="margin:0 0 10px">앱을 닫아도 본부장 브리핑과 알파의 선택(게임)을 알려 드려요.</p>${body}
+    return `<section class="card" id="pushCard"><div class="hd"><h2>앱 밖 알림</h2><span class="sub">평일 08:00 · 16:50</span></div>
+      <p class="sub" style="margin:0 0 10px">앱을 닫아도 본부장 오전·오후 보고가 오면 알려 드려요.</p>${body}
       ${msg ? `<p class="g-msg" role="status">${esc(msg)}</p>` : ""}
-      <div class="hd" style="margin-top:16px"><h2>랭킹 참여</h2></div>
-      <label class="g-auto"><input type="checkbox" data-rank ${R.on ? "checked" : ""}> 내 호칭과 모의투자 수익률을 월간 시즌 랭킹에 올리기</label>
-      <p class="sub" style="margin:4px 0 0">매달 1일 새 시즌. 지난 시즌 1위 +500P · 3위 안 +300P · 상위 10% +200P · 참여 +50P와 시즌 배지.</p>
-      <p class="sub" style="margin:4px 0 0">이름·연락처는 보내지 않아요. 언제든 끌 수 있어요.</p></section>`;
+    </section>`;
   }
 
   /* ---------- 랭킹 ---------- */
