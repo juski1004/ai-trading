@@ -260,14 +260,14 @@ def result(monday: str) -> str:
     return "\n".join(out)
 
 
-def day_bars(code: str, start: str, end: str) -> list[dict]:
-    """네이버 차트(거래소 정규장) 일봉 [{d,o,h,l,c}] start~end (YYYY-MM-DD)."""
+def day_bars(code: str, start: str, end: str, kind: str = "item") -> list[dict]:
+    """네이버 차트(거래소 정규장) 일봉 [{d,o,h,l,c}] start~end (YYYY-MM-DD). kind='index' 면 code='KOSPI'."""
     q = urllib.parse.urlencode({"startDateTime": start.replace("-", ""), "endDateTime": end.replace("-", "")})
     import time
     r = []
     for k in range(3):  # 가끔 빈 값·오류가 와서 몇 번 다시
         try:
-            r = get(f"https://api.stock.naver.com/chart/domestic/item/{code}/day?{q}")
+            r = get(f"https://api.stock.naver.com/chart/domestic/{kind}/{code}/day?{q}")
             if isinstance(r, list) and r: break
         except Exception:
             pass
@@ -298,6 +298,12 @@ def simulate(r: dict, bars: list[dict], hold: int, end_day: str | None = None) -
     return {"exit": last["c"], "ret": round((last["c"] / e - 1) * 100, 2), "why": "기간 종료" if done else "보유 중", "on": last["d"], "done": done}
 
 
+def _cum(rets: list[float]) -> float:
+    c = 1.0
+    for r in rets: c *= 1 + r / 100
+    return c
+
+
 def ledger() -> dict:
     """'정서연 본부장 추천 따라 하기' 모의 성적 (2026-11-24 사용자: 월요일 추천을 샀을 때 금요일에 수익이 나는지,
     따라 투자했을 때 성공률이 얼마나 되는지). 주간 추천 = 월요일 진입, 금요일 종가까지(손절·익절 먼저 닿으면 그때).
@@ -312,7 +318,11 @@ def ledger() -> dict:
             rows.append({k: r.get(k) for k in ("code", "name", "entry", "weight", "stop", "target")} | sim)
         if not rows: continue
         ret = round(sum(x["ret"] * (x.get("weight") or 0) / 100 for x in rows), 2)
-        weeks.append({"monday": monday, "friday": fri, "picks": rows, "ret": ret, "done": all(x["done"] for x in rows)})
+        # 같은 기간 코스피 (금요일 종가 → 이번 주 마지막 종가): 추천이 그냥 지수를 산 것보다 나았는지
+        kb = day_bars("KOSPI", (dt.date.fromisoformat(monday) - dt.timedelta(days=7)).isoformat(), fri, "index")
+        before = [b for b in kb if b["d"] < monday]; inwk = [b for b in kb if b["d"] >= monday]
+        kospi = round((inwk[-1]["c"] / before[-1]["c"] - 1) * 100, 2) if before and inwk else None
+        weeks.append({"monday": monday, "friday": fri, "picks": rows, "ret": ret, "kospi": kospi, "done": all(x["done"] for x in rows)})
     for f in sorted(DAILY.glob("*.json")) if DAILY.exists() else []:
         j = json.loads(f.read_text(encoding="utf-8")); d0 = dt.date.fromisoformat(j["date"])
         start = (d0 if j["slot"] == "am" else d0 + dt.timedelta(days=1)).isoformat()
@@ -329,7 +339,10 @@ def ledger() -> dict:
             "cum": round((cum - 1) * 100, 2) if wd else None,
             "pick_hit": sum(p["ret"] > 0 for p in picks_done), "pick_n": len(picks_done),
             "fresh_hit": sum(x["ret"] > 0 for x in fd), "fresh_n": len(fd),
-            "fresh_avg": round(sum(x["ret"] for x in fd) / len(fd), 2) if fd else None}
+            "fresh_avg": round(sum(x["ret"] for x in fd) / len(fd), 2) if fd else None,
+            "kospi_cum": round((_cum([w["kospi"] for w in wd if w.get("kospi") is not None]) - 1) * 100, 2) if wd else None,
+            "beat_weeks": sum(1 for w in wd if w.get("kospi") is not None and w["ret"] > w["kospi"]),
+            "worst_week": min((w["ret"] for w in wd), default=None)}
     return {"made": dt.datetime.now(KST).strftime("%Y-%m-%d %H:%M"), "summary": summ,
             "weeks": weeks[::-1], "fresh": fresh_rows[::-1][:40],
             "rule": "추천 진입가에 비중대로 샀다고 가정. 손절가에 닿으면 손절, 익절가에 닿으면 익절, 아니면 주간 추천은 금요일 종가·새 추천은 5거래일째 종가에 매도. 수수료·세금 제외. 참고용 모의 성적."}
@@ -340,7 +353,7 @@ def ledger_md(L: dict) -> str:
     out = ["## 추천 따라 하기 모의 성적 (누적)"]
     if s["weeks"]:
         out.append(f"- 주간 추천 {s['weeks']}주 중 수익 {s['win_weeks']}주 (성공률 {s['win_rate']}%) · 주 평균 {s['avg_week']:+.2f}% · 누적 {s['cum']:+.2f}%")
-        out.append(f"- 종목별 적중 {s['pick_hit']}/{s['pick_n']}")
+        out.append(f"- 종목별 적중 {s['pick_hit']}/{s['pick_n']} · 같은 기간 코스피 누적 {s['kospi_cum']:+.2f}% (코스피보다 나은 주 {s['beat_weeks']}/{s['weeks']})")
     else:
         out.append("- 아직 끝난 주가 없어요 (첫 결과는 금요일 오후 보고)")
     if s["fresh_n"]:
