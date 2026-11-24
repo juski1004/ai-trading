@@ -260,6 +260,7 @@ img[src*="img/team/egen."]{object-position:50% 2%!important}img[src*="img/team/j
 <script src="trace.js"></script>
 <script src="growth.js"></script>
 <script src="track.js"></script>
+<script src="expert.js"></script>
 <script src="push.js"></script>
 <script src="vendor/lightweight-charts.js"></script>
 <script src="chart.js"></script>
@@ -381,6 +382,7 @@ function analysisDetail(sym){
   ${window.Rebound?Rebound.detail(sym):''}
   ${window.Growth?Growth.detail(sym):''}
   ${window.Track?Track.detail(sym):''}
+  ${window.Expert?Expert.card(sym,s):''}
   <section class="card">
     <div class="big"><div class="ring" style="--p:${P};--rc:${rc}"><b class="num">${P}<small>점</small></b></div>
       <div><h2>AI 종합 점수 <span class="chip ${s.label}">${s.label}</span></h2><p class="sub">100점 만점, 50점이 중간이에요. 차트·거래량·시장 흐름·진입 자리를 합쳤어요.</p></div></div>

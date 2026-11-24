@@ -19,7 +19,7 @@ concurrency:
 jobs:
   report:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 50
     env:
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
@@ -36,6 +36,20 @@ jobs:
         run: |
           case "$SLOT" in am|pm|track) ;; *) echo "slot 은 am/pm/track"; exit 1;; esac
           DAY="${DATE:-$(TZ=Asia/Seoul date +%F)}"
+          # 2026-11-24 사용자: "모든 데이터는 항상 보고 때 최신으로" → 그날 데이터 실행(아침 06:40·오후 16:10)이 끝나 사이트에 올라올 때까지 기다림 (최대 30분)
+          if [ "$SLOT" != "track" ]; then
+            for i in $(seq 1 30); do
+              git fetch -q --depth 1 origin site
+              if git show FETCH_HEAD:data/meta.json | SLOT=$SLOT python3 -c "
+          import json,sys,os,datetime as dt
+          u=dt.datetime.fromisoformat(json.load(sys.stdin)['updated']).astimezone(dt.timezone(dt.timedelta(hours=9)))
+          now=dt.datetime.now(dt.timezone(dt.timedelta(hours=9)))
+          need=(6,0) if os.environ['SLOT']=='am' else (15,40)
+          sys.exit(0 if u.date()==now.date() and (u.hour,u.minute)>=need else 1)"; then echo "최신 데이터 확인"; break; fi
+              [ "$i" = 30 ] && echo "::warning::30분 기다려도 오늘 데이터가 안 올라와 있던 데이터로 보고를 만듭니다"
+              sleep 60
+            done
+          fi
           git fetch -q --depth 1 origin site && git worktree add -q /tmp/site FETCH_HEAD
           mkdir -p /tmp/site/data/report/picks/daily
           # 처음 한 번: 예전 Claude 브랜치에 있던 추천 기록을 가져옴
