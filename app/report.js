@@ -1,0 +1,291 @@
+/* 본부장 오전·오후 보고(08:00 미국장·뉴스 / 16:50 한국장, data/report/am·pm.json) + 본부장 브리핑 알림 + 알파의 선택(오늘 알파 팀이 게임 계좌에 담은 종목) 보고 (앱).
+   - 18:00(한국 시간) 이후, 오늘 장 마감 데이터가 있으면: "정서연 본부장이 브리핑을 가져왔습니다" 메신저 알림 (깜빡임·소리·진동)
+     → 누르면 PC 화면의 브리핑(?view=brief)을 전체 화면으로 연다.
+   - 18:10 이후, data/pick.json 에 선택이 있으면: 보고한 직원 이름으로 알림 → 누르면 #pick 보고서 화면.
+   - 이미 본 알림은 날짜별로 이 휴대폰에 기억(localStorage).
+   index.html 은 Report.view(SC)·Report.homeCard(SC) 를 부르고, 나머지는 여기서 처리한다. */
+(() => {
+  const won = n => Math.round(n).toLocaleString("ko-KR");
+  const pct = x => (x > 0 ? "+" : "") + x.toFixed(2) + "%";
+  const cls = x => (x > 0 ? "up" : x < 0 ? "down" : "flat");
+  const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  const img = id => `../img/team/${id}.jpg?v=4`;
+  const get = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  const set = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+
+  let PICK = null, DATE = null;
+  /* 본부장 오전·오후 보고 (2026-11-23 사용자: 보고는 앱으로, 본부장 보고로 오전·오후) — data/report/am.json · pm.json */
+  const MEMO = {};
+  ["am", "pm"].forEach(k => fetch(`../data/report/${k}.json`, { cache: "no-cache" }).then(r => (r.ok ? r.json() : null)).then(d => { if (d) { MEMO[k] = d; setTimeout(check, 300); } }).catch(() => {}));
+  const atMin = s0 => { const [h, m] = String(s0 || "0:0").split(":"); return +h * 60 + +m; };
+  const memoDue = () => { const t = kst(); return ["pm", "am"].find(k => MEMO[k] && MEMO[k].date === t.date && t.min >= atMin(MEMO[k].at) && get("rp.memo." + k) !== t.date); };
+  fetch("../data/pick.json", { cache: "no-cache" }).then(r => (r.ok ? r.json() : null)).then(d => { PICK = d; check(); }).catch(() => {});
+
+  /* 한국 시간 */
+  function kst() {
+    const p = Object.fromEntries(new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false })
+      .formatToParts(new Date()).map(x => [x.type, x.value]));
+    return { date: `${p.year}-${p.month}-${p.day}`, min: (+p.hour % 24) * 60 + +p.minute };
+  }
+  const BRIEF_AT = 18 * 60, PICK_AT = 18 * 60 + 10;
+  const ready = () => { const t = kst(); return DATE && DATE === t.date ? t : null; };  // 오늘 장 마감 데이터가 있을 때만
+  const G = (key, html, tease) => (window.Daily ? Daily.gate(key, html, tease) : html);
+  /* 알파의 선택이 공개됐나: 지난 날짜면 공개, 오늘 것이면 18:10 이후 (포인트로 '미리 보기'를 열면 바로) */
+  function isOpen() {
+    if (!PICK) return false; const t = kst();
+    if (PICK.date !== t.date) return true;
+    return t.min >= PICK_AT || !!(window.Daily && Daily.has("early:" + PICK.date));
+  }
+
+  /* ---------- 알림 (메신저 말풍선) ---------- */
+  let shown = null;
+  function ding() {
+    try {
+      const A = window.AudioContext || window.webkitAudioContext; const ctx = new A();
+      [[880, 0], [1318.5, 0.16]].forEach(([f, t]) => {
+        const o = ctx.createOscillator(), g = ctx.createGain(); o.type = "sine"; o.frequency.value = f;
+        g.gain.setValueAtTime(0.0001, ctx.currentTime + t); g.gain.exponentialRampToValueAtTime(0.25, ctx.currentTime + t + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + t + 0.45);
+        o.connect(g).connect(ctx.destination); o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + 0.5);
+      });
+      if (ctx.state === "suspended") document.addEventListener("pointerdown", () => ctx.resume(), { once: true });
+    } catch (e) {}
+    try { navigator.vibrate && navigator.vibrate([120, 70, 120]); } catch (e) {}
+  }
+  function toast(kind, who, role, photo, msg) {
+    if (shown === kind) return;
+    document.getElementById("rpToast")?.remove();
+    shown = kind;
+    const el = document.createElement("button");
+    el.type = "button"; el.id = "rpToast"; el.className = "rp-toast"; el.dataset.kind = kind;
+    el.setAttribute("aria-live", "assertive");
+    el.innerHTML = `<span class="rp-av"><img src="${img(photo)}" alt=""><i></i></span>
+      <span class="rp-body"><span class="rp-who"><b>${esc(who)}</b> ${esc(role)} <em>방금</em></span><span class="rp-msg">${msg}</span></span>
+      <span class="rp-open">열기</span>`;
+    document.body.appendChild(el);
+    ding();
+    const bell = document.getElementById("rpBell"); if (bell) bell.classList.add("on");
+  }
+  const busy = () => document.querySelector(".tm-splash,#tmSheet,.tour-on,#tourAsk");  // 시작 연출·팀 고르기 중엔 기다림
+  const D = () => (window.Team ? Team.director() : { id: "theo", name: "정서연", role: "본부장" });
+  const who = date => (window.Team ? Team.reporter(date) : (PICK && PICK.reporter && { id: PICK.reporter.img, name: PICK.reporter.name, role: PICK.reporter.role }));
+  const call = () => (window.Team ? Team.call() : "");
+  function check() {
+    if (busy()) return;
+    const mk = memoDue();
+    if (mk) { const d = D(); toast("memo-" + mk, d.name, "본부장", d.id, `${esc(call())}${call() ? ", " : ""}<b>${mk === "am" ? "오전" : "오후"} 보고</b>를 가져왔습니다 — ${esc((MEMO[mk].title || "").split("·").slice(1).join("·").trim())}`); return; }
+    const t = ready(); if (!t) return;
+    if (t.min >= BRIEF_AT && get("rp.brief") !== DATE) {
+      const d = D();
+      toast("brief", d.name, "본부장", d.id, `${esc(call())}${call() ? ", " : ""}오늘 장 마감 <b>브리핑</b>을 가져왔습니다. 지금 보고드릴까요?`);
+      return;
+    }
+    if (PICK && PICK.found && PICK.date === DATE && t.min >= PICK_AT && get("rp.pick") !== DATE) {
+      const r = who(PICK.date);
+      toast("pick", r.name, r.role, r.id, `${esc(call())}${call() ? ", " : ""}${esc(D().name)} 본부장님 확인을 거친 <b>알파의 선택</b> 보고입니다 — 오늘 알파 팀은 <b>${esc(PICK.name)}</b>을(를) 담았어요`);
+    }
+  }
+  function openBriefOverlay() {
+    document.querySelector(".bover")?.remove();
+    const o = document.createElement("div"); o.className = "bover";
+    o.innerHTML = '<iframe src="../?view=brief" title="본부장 브리핑"></iframe>'; document.body.appendChild(o);
+  }
+  document.addEventListener("click", e => {
+    const tEl = e.target.closest("#rpToast"); if (!tEl) return;
+    const kind = tEl.dataset.kind; tEl.remove(); shown = null;
+    document.getElementById("rpBell")?.classList.remove("on");
+    if (kind.startsWith("memo-")) { const k = kind.slice(5); set("rp.memo." + k, kst().date); openMemo(k); }
+    else if (kind === "brief") { set("rp.brief", DATE); openBriefOverlay(); }
+    else { set("rp.pick", DATE); location.hash = "pick"; }
+  });
+  // 브리핑을 닫으면 이어서 알파의 선택 보고 알림
+  addEventListener("message", e => { if (e.origin === location.origin && (e.data || {}).type === "briefClose") setTimeout(check, 700); });
+  setInterval(check, 30000);
+
+  /* ---------- 본부장 오전·오후 보고 화면 ---------- */
+  function openMemo(k) { if (MEMO[k]) openReport(MEMO[k]); }
+  function openReport(m) {
+    document.getElementById("rpMemo")?.remove();
+    const d = D(), o = document.createElement("div"); o.id = "rpMemo"; o.className = "rp-memo";
+    const tone = t => /▲|\+\d|✅|상승/.test(t) ? "up" : /▼|-\d|❌|하락/.test(t) ? "down" : "";
+    o.innerHTML = `<div class="rpm-in" role="dialog" aria-label="${esc(m.title)}">
+      <button type="button" class="rpm-x" aria-label="닫기">✕</button>
+      <div class="rp-from"><img src="${img(d.id)}" alt="본부장 사진"><div><b>${esc(d.name)} ${esc(d.role || "본부장")}</b><div class="sub">${esc(m.date)} ${esc(m.at)} · ${esc(m.title)}</div></div></div>
+      ${m.say && m.say.length ? `<section class="rpm-say"><h3>본부장 의견</h3>${m.say.map(x => `<p>${esc(x)}</p>`).join("")}</section>` : ""}
+      ${(m.sections || []).map(sec => `<section class="rpm-sec"><h3>${esc(sec.h)}</h3><ul>${sec.items.map(it => `<li class="${tone(it.t)}">${esc(it.t)}${it.sub && it.sub.length ? `<ul>${it.sub.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}</li>`).join("")}</ul></section>`).join("")}
+      <p class="sub rpm-note">${esc(m.note || "")}</p></div>`;
+    o.addEventListener("click", e => { if (e.target === o || e.target.closest(".rpm-x")) o.remove(); });
+    document.body.appendChild(o);
+  }
+  function memoFromHash() {
+    const h = location.hash.match(/^#memo\/(am|pm)/); if (!h) return;
+    const go = () => { if (MEMO[h[1]]) { set("rp.memo." + h[1], kst().date); openMemo(h[1]); location.hash = "home"; } else setTimeout(go, 400); };
+    go();
+  }
+  addEventListener("hashchange", memoFromHash); memoFromHash();
+
+  /* ---------- 홈: 오늘 본부장 보고 (2026-11-24: 알파의 선택 카드 대신) ---------- */
+  function memoCard() {
+    const t = kst(), ks = ["am", "pm"].filter(k => MEMO[k]);
+    if (!ks.length) return "";
+    const btn = k => { const m = MEMO[k], today = m.date === t.date;
+      return `<button type="button" class="rp-mb" data-memo="${k}"><b>${k === "am" ? "오전" : "오후"} 보고</b><small>${today ? "오늘" : esc(m.date.slice(5).replace("-", "."))} ${esc(m.at)} · ${esc((m.title || "").split("·").slice(1).join("·").trim() || m.title)}</small></button>`; };
+    return `<section class="card rp-home"><div class="rp-hrow"><img src="${img(D().id)}" alt=""><div><h2>${esc(D().name)} 본부장 보고</h2><p class="sub">오전 08:00 미국장·뉴스 · 오후 16:50 한국장 마감 · 추천 종목</p></div></div>
+      <div class="rp-mbs">${ks.map(btn).join("")}</div><a class="pclink" href="#reports" style="margin-top:10px;display:inline-block">지난 보고 모아 보기 ›</a></section>`;
+  }
+  document.addEventListener("click", e => { const b = e.target.closest("[data-memo]"); if (b) { set("rp.memo." + b.dataset.memo, kst().date); openMemo(b.dataset.memo); } });
+
+  /* ---------- 보고함 (#reports): 지난 오전·오후 보고 (data/report/index.json) ---------- */
+  let IDX = null, idxTried = false;
+  function archive() {
+    if (!idxTried) { idxTried = true; fetch("../data/report/index.json", { cache: "no-cache" }).then(r => (r.ok ? r.json() : [])).then(d => { IDX = d || []; dispatchEvent(new HashChangeEvent("hashchange")); }).catch(() => { IDX = []; dispatchEvent(new HashChangeEvent("hashchange")); }); }
+    if (!IDX) return `<div class="card"><div class="skel" style="width:40%"></div><div class="skel"></div></div>`;
+    const by = {}; IDX.forEach(f => { const m = f.match(/^(\d{4}-\d{2}-\d{2})-(am|pm)\.json$/); if (m) (by[m[1]] = by[m[1]] || []).push(m[2]); });
+    const days = Object.keys(by).sort().reverse();
+    const wd = d => "일월화수목금토"[new Date(d + "T00:00:00").getDay()];
+    return `<section class="card"><h2>보고함</h2><p class="sub">${esc(D().name)} 본부장의 지난 오전·오후 보고예요. 눌러서 다시 보세요.</p>
+      ${days.length ? `<ul class="rp-arc">${days.map(d => `<li><span>${esc(d.slice(5).replace("-", "."))} (${wd(d)})</span>${["am", "pm"].filter(k => by[d].includes(k)).map(k => `<button type="button" data-arc="${d}-${k}">${k === "am" ? "오전" : "오후"}</button>`).join("")}</li>`).join("")}</ul>` : `<p class="empty">아직 모인 보고가 없어요.</p>`}</section>`;
+  }
+  document.addEventListener("click", e => { const b = e.target.closest("[data-arc]"); if (!b) return;
+    fetch(`../data/report/${b.dataset.arc}.json`, { cache: "no-cache" }).then(r => (r.ok ? r.json() : null)).then(m => m && openReport(m)).catch(() => {}); });
+
+  /* ---------- 홈 카드 ---------- */
+  function homeCard(sc) {
+    DATE = sc && sc.date; setTimeout(check, 400);
+    const t = ready();
+    if (!PICK || !t || PICK.date !== DATE) return "";
+    if (!isOpen()) return `<section class="card rp-home"><div class="rp-hrow"><img src="${img(D().id)}" alt=""><div><h2>알파의 선택</h2><p class="sub">18:10에 알파 팀이 오늘 게임 계좌에 담은 종목을 보고해요.</p></div></div>${PICK.found ? G("early:" + PICK.date, "") : ""}</section>`;
+    if (!PICK.found) return `<section class="card rp-home"><div class="rp-hrow"><img src="${img(D().id)}" alt=""><div><h2>오늘 알파는 쉬어 갑니다</h2><p class="sub">${esc(PICK.reason)}</p></div></div></section>`;
+    return `<section class="card rp-home"><a class="rp-hrow" href="#pick"><img src="${img(who(PICK.date).id)}" alt=""><div><h2>알파의 선택 · ${esc(PICK.name)}</h2>
+      <p class="sub">${esc(who(PICK.date).name)} 보고 · ${esc(D().name)} 본부장 최종 의견 포함 · AI 점수 ${PICK.score}점</p></div><span class="rp-go">보기</span></a></section>`;
+  }
+
+  /* ---------- 보고서 화면 ---------- */
+  function spark(p) {
+    const c = p.closes || []; if (c.length < 2) return "";
+    const pl = p.plan, vals = [...c, pl.stop, pl.target], mx = Math.max(...vals), mn = Math.min(...vals), W = 340, H = 130;
+    const X = i => i / (c.length - 1) * W, Y = v => 8 + (mx - v) / (mx - mn || 1) * (H - 16);
+    const path = c.map((v, i) => `${i ? "L" : "M"}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join("");
+    const ln = (v, col, t) => `<line x1="0" x2="${W}" y1="${Y(v)}" y2="${Y(v)}" stroke="${col}" stroke-dasharray="4 4"/><text x="4" y="${Y(v) - 4}" font-size="10" fill="${col}">${t} ${won(v)}</text>`;
+    return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="최근 6개월 주가와 매매 계획">
+      <defs><linearGradient id="rpg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#b9b2ff" stop-opacity=".45"/><stop offset="1" stop-color="#b9b2ff" stop-opacity="0"/></linearGradient></defs>
+      <path d="${path}L${W},${H}L0,${H}Z" fill="url(#rpg)"/>${ln(pl.target, "#ef4565", "목표")}${ln(pl.stop, "#3d7bf2", "손절")}
+      <path d="${path}" fill="none" stroke="#6c5ce7" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>`;
+  }
+  function view(sc) {
+    DATE = sc && sc.date;
+    if (!PICK) return `<div class="card"><div class="skel"></div><div class="skel" style="width:60%"></div></div>`;
+    if (!PICK.found) return `<a class="back" href="#home">‹ 홈</a><section class="card rp-home"><div class="rp-hrow"><img src="${img(D().id)}" alt=""><div><h2>오늘 알파는 쉬어 갑니다</h2><p class="sub">${esc(PICK.reason)}</p></div></div></section>`;
+    if (!isOpen()) return `<a class="back" href="#home">‹ 홈</a><section class="card rp-home"><div class="rp-hrow"><img src="${img(D().id)}" alt=""><div><h2>알파의 선택은 18:10에 공개돼요</h2><p class="sub">알파 팀이 오늘 게임 계좌에 담은 종목을 정리하고 있어요.</p></div></div>${G("early:" + PICK.date, "")}</section>`;
+    const p = PICK, r = who(p.date), d = { ...p.director, ...D() }, pl = p.plan;
+    const sec = (t, body) => `<section class="card"><div class="hd"><h2>${t}</h2></div>${body}</section>`;
+    const ul = a => `<ul class="rp-ul">${a.map(x => `<li>${esc(x)}</li>`).join("")}</ul>`;
+    const news = p.news || {};
+    return `<a class="back" href="#home">‹ 홈</a>
+    <section class="card rp-head">
+      <div class="rp-from"><img src="${img(r.id)}" alt="${esc(r.name)} 사진"><div><b>${esc(r.name)}</b> <span class="sub">${esc(r.role)}</span><div class="sub">${esc(p.date)} 장 마감 · 알파의 선택 보고서 (게임)</div></div><span class="rp-badge">보고</span></div>
+      <div class="dhead" style="margin-top:14px"><div><div class="dname">${esc(p.name)}</div><div class="meta">${esc(p.code)} · ${esc(p.market)}</div></div>
+        <div><div class="dprice num">${won(p.price)}</div><div class="meta num ${cls(p.chg)}" style="text-align:right">${pct(p.chg)}</div></div></div>
+      ${spark(p)}
+      <div class="tiles">
+        <div class="tile"><div class="k">AI 종합 점수</div><div class="v num">${p.score}<small class="sub">점</small></div></div>
+        <div class="tile"><div class="k">리스크</div><div class="v lv-${esc(p.risk)}">${esc(p.risk)}</div></div>
+        <div class="tile"><div class="k">기술 점수</div><div class="v num">${p.tech_score}<small class="sub"> / 5</small></div></div>
+        <div class="tile"><div class="k">재무 점수</div><div class="v num">${p.fin_score ?? "-"}<small class="sub"> / 5</small></div></div>
+      </div>
+    </section>
+    ${G("report:" + p.date, `${sec("알파가 고른 이유", `<ol class="rp-ol">${p.reasons.map(x => `<li>${esc(x)}</li>`).join("")}</ol>`)}
+    ${sec("알파의 매매 기준 (게임 계좌)", `<div class="kv rp-plan">
+        <div><div class="k">1차 진입</div><div class="v num">${won(pl.entry)}</div></div>
+        <div><div class="k">추가 매수 (−3%)</div><div class="v num">${won(pl.add)}</div></div>
+        <div><div class="k">손절 (−5%)</div><div class="v num down">${won(pl.stop)}</div></div>
+        <div><div class="k">1차 목표 (+10%)</div><div class="v num up">${won(pl.target)}</div></div>
+        <div><div class="k">증권사 목표가</div><div class="v num">${pl.target2 ? won(pl.target2) : "-"}</div></div>
+        <div><div class="k">시장 국면</div><div class="v">${esc(p.regime)}</div></div></div>`)}
+    ${sec("현재 기업 상황", ul(p.company))}
+    ${sec("예상 실적 (증권사)", ul(p.estimates))}
+    ${sec("뉴스", (news.summary ? `<ul class="ai-sum">${news.summary.map(x => `<li>${esc(x)}</li>`).join("")}</ul><p class="sub" style="margin:6px 0 8px">AI 요약 · 느낌 ${esc(news.tone || "")}</p>` : "") +
+      ((news.headlines || []).length ? `<ul class="news">${news.headlines.map(n => `<li><a href="${esc(n.link || "#")}" target="_blank" rel="noopener">${esc(n.title)}<small>${esc(n.date)} · ${esc(n.src || "")}</small></a></li>`).join("")}</ul>` : '<p class="empty">최근 소식이 없어요.</p>'))}
+    ${sec("거시경제", p.macro.length ? ul(p.macro) : '<p class="empty">시황 자료가 없어요.</p>')}
+    ${sec("직원 의견", `<ul class="rp-staff">${p.staff.map(s0 => { const m = window.Team ? Team.person(s0.id) : { id: s0.img, name: s0.name, role: s0.role }; const s = { ...s0, img: m.id, name: m.name, role: m.agent && m.role === "본부장 직접 검토" ? "본부장 직접 검토 · " + s0.role : s0.role }; return `<li><img src="${img(s.img)}" alt=""><div><div class="rp-sn"><b>${esc(s.name)}</b> <span class="sub">${esc(s.role)}</span>${s.score != null ? `<span class="num ${s.score > 0 ? "up" : s.score < 0 ? "down" : "flat"}">${s.score > 0 ? "+" : ""}${Math.round(s.score * 50)}</span>` : ""}</div><p>${esc(s.say)}</p></div></li>`; }).join("")}</ul>`)}
+    <section class="card rp-dir">
+      <div class="rp-from"><img src="${img(d.id)}" alt="본부장 사진"><div><b>${esc(d.name)} ${esc(d.role)}</b><div class="sub">최종 의견 ${d.source === "AI" ? "· AI 작성" : ""}</div></div></div>
+      <p class="rp-quote">${esc(d.opinion)}</p>
+    </section>`, sec("알파가 고른 이유", `<ol class="rp-ol">${p.reasons.slice(0, 3).map(x => `<li>${esc(x)}</li>`).join("")}</ol>`))}
+    <a class="cta" href="#game/${encodeURIComponent(p.sym)}" data-side="B">이 종목 사기 · 팔기</a>
+    <a class="cta sub2" href="#analysis/${encodeURIComponent(p.sym)}">종목 분석 자세히 보기</a>
+    <p class="note">알파의 선택은 AI 상대 팀이 모의투자 게임 계좌에서 한 행동과, 공개 시세·재무·뉴스·증권사 전망을 정리한 참고 정보이며 투자 권유가 아닙니다. 매일 장 마감 뒤 조건을 모두 통과한 종목이 있을 때만 1종목을 담습니다. 투자 판단과 결과의 책임은 본인에게 있습니다.</p>`;
+  }
+
+  /* 모양 */
+  const css = document.createElement("style");
+  css.textContent = `
+  .rp-toast{position:fixed;z-index:35;left:50%;transform:translateX(-50%);top:calc(70px + env(safe-area-inset-top));width:calc(100% - 24px);max-width:536px;display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:12px;align-items:center;text-align:left;
+    background:#fff;border:1.5px solid var(--line2,#dcd8ff);border-radius:22px;padding:12px 14px;box-shadow:0 18px 44px rgba(76,64,180,.22);animation:rpIn .45s cubic-bezier(.2,1.4,.4,1) both,rpGlow 1.6s ease-in-out .45s infinite}
+  .rp-av{position:relative;width:48px;height:48px}.rp-av img{width:48px;height:48px;border-radius:50%;object-fit:cover;object-position:50% 15%}
+  .rp-av i{position:absolute;right:-1px;top:-1px;width:13px;height:13px;border-radius:50%;background:#ff5a78;border:2.5px solid #fff;animation:rpBlink 1s steps(2) infinite}
+  .rp-who{display:block;font-size:13px;color:var(--muted,#6b7088)}.rp-who b{color:var(--fg,#1d2033);font-size:14px}.rp-who em{font-style:normal;color:var(--dim,#a0a5b8);font-size:11.5px;margin-left:4px}
+  .rp-msg{display:block;font-size:14.5px;line-height:1.45;margin-top:2px;color:var(--fg,#1d2033)}
+  .rp-open{font-size:12.5px;font-weight:800;color:var(--ink,#2d2a63);background:var(--gold-g,#e9e6ff);border-radius:16px;padding:7px 12px}
+  @keyframes rpIn{from{opacity:0;transform:translate(-50%,-24px) scale(.96)}}
+  @keyframes rpGlow{50%{box-shadow:0 18px 44px rgba(76,64,180,.22),0 0 0 6px rgba(185,178,255,.35)}}
+  @keyframes rpBlink{50%{opacity:.25}}
+  .rp-home .rp-hrow{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:14px;align-items:center;color:inherit;text-decoration:none}
+  .rp-home img{width:52px;height:52px;border-radius:16px;object-fit:cover;object-position:50% 12%}
+  .rp-home{background:linear-gradient(135deg,#f3f1ff,#eaf4ff)!important;border-color:var(--line2,#dcd8ff)!important}
+  .rp-go{font-size:12.5px;font-weight:800;color:var(--ink,#2d2a63);background:#fff;border-radius:16px;padding:7px 12px;box-shadow:0 4px 12px rgba(76,64,180,.12)}
+  .rp-from{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:12px;align-items:center}
+  .rp-from img{width:44px;height:44px;border-radius:50%;object-fit:cover;object-position:50% 15%;box-shadow:0 0 0 3px var(--lav-s,#efedff)}
+  .rp-badge{font-size:11.5px;font-weight:800;color:#c8243f;background:#ffe3e8;border-radius:14px;padding:4px 10px}
+  .rp-ol{margin:0;padding:0;list-style:none;counter-reset:r}.rp-ol li{counter-increment:r;position:relative;padding:9px 0 9px 34px;border-top:1px solid var(--line,#eceef6);font-size:14.5px}
+  .rp-ol li:first-child{border-top:0}.rp-ol li::before{content:counter(r);position:absolute;left:0;top:9px;width:24px;height:24px;border-radius:50%;background:var(--lav-s,#efedff);color:var(--lav-d,#6c5ce7);font-family:var(--f-disp);font-weight:700;font-size:13px;display:grid;place-items:center}
+  .rp-ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px}.rp-ul li{position:relative;padding-left:16px;font-size:14.5px}
+  .rp-ul li::before{content:"";position:absolute;left:2px;top:.6em;width:7px;height:7px;border-radius:50%;background:var(--sky,#b6d8ff)}
+  .rp-plan .v{font-size:15px}
+  .rp-staff{list-style:none;margin:0;padding:0}.rp-staff li{display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px;padding:11px 0;border-top:1px solid var(--line,#eceef6)}
+  .rp-staff li:first-child{border-top:0}.rp-staff img{width:40px;height:40px;border-radius:50%;object-fit:cover;object-position:50% 15%}
+  .rp-sn{display:flex;gap:6px;align-items:baseline}.rp-sn .num{margin-left:auto;font-weight:700}.rp-staff p{margin:2px 0 0;font-size:13.5px;color:var(--muted,#6b7088)}
+  .rp-dir{background:linear-gradient(160deg,#fff7f3,#f3f1ff)!important;border-color:#ffd9cc!important}
+  .rp-quote{margin:14px 0 0;padding:14px 16px;background:#fff;border-radius:18px;font-size:15px;line-height:1.7;position:relative;box-shadow:0 6px 18px rgba(76,64,180,.08)}
+  .rp-quote::before{content:"";position:absolute;left:22px;top:-7px;width:14px;height:14px;background:#fff;transform:rotate(45deg)}
+  #rpBell{position:relative;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#fff;border:1px solid var(--line,#eceef6);flex:none}
+  #rpBell svg{width:18px;height:18px;stroke:var(--lav-d,#6c5ce7);fill:none;stroke-width:2}
+  #rpBell.on::after{content:"";position:absolute;right:5px;top:5px;width:8px;height:8px;border-radius:50%;background:#ff5a78;animation:rpBlink 1s steps(2) infinite}
+  .rp-memo{position:fixed;inset:0;z-index:60;background:rgba(20,18,40,.45);display:flex;align-items:flex-end;justify-content:center}
+  .rpm-in{position:relative;background:#fff;width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:18px 16px 28px}
+  .rpm-x{position:absolute;right:12px;top:12px;width:32px;height:32px;border-radius:50%;border:1px solid var(--line,#eceef6);background:#fff;font-size:15px}
+  .rpm-say{background:var(--lav-s,#efedff);border-radius:14px;padding:10px 14px;margin:12px 0}.rpm-say p{margin:4px 0;line-height:1.55;font-size:14.5px}
+  .rpm-sec{margin:14px 0 0}.rpm-sec h3,.rpm-say h3{font-size:14px;margin:0 0 6px;color:var(--lav-d,#6c5ce7)}
+  .rpm-sec>ul{list-style:none;margin:0;padding:0}.rpm-sec>ul>li{padding:7px 0;border-top:1px solid var(--line,#eceef6);font-size:14px;line-height:1.5}
+  .rpm-sec>ul>li:first-child{border-top:0}.rpm-sec li.up{color:#d6334f}.rpm-sec li.down{color:#2f6fdb}
+  .rpm-sec li ul{margin:4px 0 0;padding-left:16px;color:#666;font-size:12.5px}.rpm-note{margin-top:16px;font-size:12px}
+  @media (prefers-reduced-motion:reduce){.rp-toast,.rp-av i,#rpBell.on::after{animation:none}}`;
+  document.head.appendChild(css);
+
+  // 머리글 종: 누르면 지금 받을 수 있는 보고를 다시 띄움
+  document.addEventListener("DOMContentLoaded", () => {
+    const top = document.querySelector(".top"), help = document.getElementById("helpBtn");
+    if (!top || document.getElementById("rpBell")) return;
+    const b = document.createElement("button"); b.type = "button"; b.id = "rpBell"; b.setAttribute("aria-label", "알림");
+    b.innerHTML = '<svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0c0 6 2 7 2 7H4s2-1 2-7"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>';
+    b.onclick = () => {
+      const t = ready(); shown = null;
+      if (memoDue()) return check();
+      const tk = kst(), last = ["pm", "am"].find(k => MEMO[k] && MEMO[k].date === tk.date && tk.min >= atMin(MEMO[k].at));
+      if (last && !(t && t.min >= BRIEF_AT)) return openMemo(last);
+      if (t && t.min >= BRIEF_AT && get("rp.brief") !== DATE) return check();
+      if (PICK && PICK.found && t && t.min >= PICK_AT) { location.hash = "pick"; return; }
+      if (t && t.min >= BRIEF_AT) { openBriefOverlay(); return; }
+      alert("오늘 알림: 08:00 본부장 오전 보고(미국장·뉴스), 16:50 오후 보고(한국장), 18:00 브리핑, 18:10 알파의 선택.");
+    };
+    top.insertBefore(b, help);
+  });
+
+  const st = document.createElement("style");
+  st.textContent = `.rp-mbs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.rp-mb{border:1px solid var(--line);background:#f8f7ff;border-radius:14px;padding:10px;text-align:left;font:inherit;cursor:pointer}
+  .rp-mb b{display:block;font-size:14.5px}.rp-mb small{display:block;font-size:11.5px;color:var(--muted);margin-top:2px;line-height:1.4}
+  .rp-arc{list-style:none;padding:0;margin:10px 0 0}.rp-arc li{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}.rp-arc li span{flex:1}
+  .rp-arc button{border:1px solid var(--line2);background:#fff;border-radius:12px;padding:6px 14px;font:inherit;font-weight:700;font-size:13px;color:var(--lav-d,#6c5ce7);cursor:pointer}`;
+  document.head.appendChild(st);
+  window.Report = { isOpen, view, homeCard, memoCard, archive, _check: check };
+})();
