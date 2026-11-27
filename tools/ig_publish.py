@@ -149,7 +149,10 @@ COMMENTS = {
 }
 # 2026-11-22: 인스타를 '그날의 기록 | 1분 실화'(유튜브 쇼츠와 같은 영상)로 바꿈
 COMMENTS["history"] = ("📌 매주 월·수·금 저녁 5시 30분, 기록에 남은 실화를 올려요. 팔로우해 두면 놓치지 않아요\n"
+                       "🎬 이번 주 3편을 이어 보는 본편은 토요일 낮 12시, 유튜브 「그날의 기록 | 1분 실화」에서 (프로필 링크)\n"
                        "💬 다음에 듣고 싶은 사건이나 전설을 댓글로 알려 주세요")
+# 2026-11-27 사용자: 쇼츠·릴스 설명·댓글에 본편 시간·채널 안내가 없음 → 이미 올린 릴스에 본편 안내 댓글
+HISTORY_CTA = "🎬 이번 주 실화 3편을 이어 보는 본편은 토요일 낮 12시, 유튜브 「그날의 기록 | 1분 실화」에서 볼 수 있어요 (프로필 링크)"
 WHAT = ""
 
 
@@ -281,7 +284,7 @@ def with_tags(caption: str, tags: str) -> str:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("what", choices=["check", "cards", "cardsreel", "term", "reel", "termreel", "quiz", "study", "stats", "comment", "history"])
+    ap.add_argument("what", choices=["check", "cards", "cardsreel", "term", "reel", "termreel", "quiz", "study", "stats", "comment", "history", "history-cta"])
     ap.add_argument("--tags", default="")
     ap.add_argument("--date", default="")
     ap.add_argument("--force", action="store_true")
@@ -298,6 +301,17 @@ def main() -> None:
             if dt.datetime.strptime(m["timestamp"], "%Y-%m-%dT%H:%M:%S%z") < since: continue
             c = m.get("caption") or ""; kind = "cards" if "장마감" in c.splitlines()[1:2] or "장마감" in c[:120] else "term" if "용어" in c[:80] else "reel"
             print(m.get("permalink"), kind); comment(m["id"], kind, c)
+        return
+
+    if a.what == "history-cta":  # 최근 7일 릴스 중 본편 안내 댓글이 없는 것에 달기
+        since = dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=7)
+        for m in call("GET", f"{uid()}/media", fields="id,caption,timestamp,permalink,media_product_type", limit=12).get("data", []):
+            if dt.datetime.strptime(m["timestamp"], "%Y-%m-%dT%H:%M:%S%z") < since or m.get("media_product_type") != "REELS": continue
+            mine = call("GET", f"{m['id']}/comments", fields="text").get("data", [])
+            if any("본편" in (c.get("text") or "") for c in mine): print(m.get("permalink"), "이미 있음"); continue
+            tg = tags_of(m.get("caption") or ""); text = HISTORY_CTA + (f"\n\n{tg}" if tg else "")
+            try: call("POST", f"{m['id']}/comments", message=text); print(m.get("permalink"), "본편 안내 댓글 달았음")
+            except SystemExit as e: print(m.get("permalink"), f"[댓글 실패] {e}")
         return
 
     if a.what == "history":  # 그날의 기록 쇼츠를 릴스로 (영상은 history-reel.yml 이 사이트 history/<날짜>/ 에 올려 둠)
