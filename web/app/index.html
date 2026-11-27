@@ -88,6 +88,19 @@ a{color:var(--lav-d)}
 @media (max-width:820px){.bover iframe{height:86vh}}/* 브리핑: 화면 전체가 아니라 떠 있는 카드 */
 
 /* 카드 */
+/* 팝업 창 (2026-11-27 사용자: 글이 많아 보기 어려움 → 핵심만 화면에, 자세한 건 눌러서 창으로) */
+.pop{position:fixed;inset:0;z-index:60;background:rgba(29,32,51,.38);display:flex;align-items:flex-end;justify-content:center;animation:popf .18s ease}
+.pop-box{background:var(--bg,#f6f6fb);width:100%;max-width:560px;max-height:88vh;overflow:auto;border-radius:22px 22px 0 0;padding:14px 14px calc(18px + env(safe-area-inset-bottom));animation:popu .22s ease}
+@media(min-width:700px){.pop{align-items:center}.pop-box{border-radius:22px}}
+.pop-hd{position:sticky;top:-14px;z-index:2;display:flex;align-items:center;justify-content:space-between;background:var(--bg,#f6f6fb);margin:-14px -14px 0;padding:14px 16px 8px}
+.pop-hd b{font-size:17px}.pop-x{border:0;background:#e9e8f3;border-radius:50%;width:34px;height:34px;font-size:18px;color:#555;cursor:pointer}
+.pop-box>.card:first-of-type{margin-top:8px}
+@keyframes popf{from{opacity:0}}@keyframes popu{from{transform:translateY(40px)}}
+.tl-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}
+.tl{display:flex;align-items:center;gap:10px;text-align:left;border:1px solid var(--line);background:#fff;border-radius:16px;padding:12px;cursor:pointer;font:inherit;color:inherit;min-height:62px}
+.tl .ic{font-size:22px;flex:none}.tl b{display:block;font-size:14px;letter-spacing:-.3px}.tl small{display:block;font-size:11.5px;color:var(--muted);margin-top:1px;line-height:1.3}
+.tl:active{background:#f3f2fb}
+.infol{border:0;background:none;color:var(--muted);font-size:12px;text-decoration:underline;cursor:pointer;padding:6px 4px}
 .card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-top:14px;box-shadow:0 8px 26px rgba(40,50,90,.06)}
 .card h2{font-size:16.5px;margin:0;font-weight:750;letter-spacing:-.35px}
 .card .sub,.sub{font-size:12.5px;color:var(--muted);margin:3px 0 0}
@@ -252,6 +265,23 @@ img[src*="img/team/egen."]{object-position:50% 2%!important}img[src*="img/team/j
 <script src="metrics.js"></script>
 <script src="backup.js"></script>
 <script src="team.js"></script>
+<script>
+/* 팝업: Pop.btn(아이콘,제목,부제,내용) 는 버튼을 돌려주고, 누르면 내용이 아래에서 올라오는 창으로 열림 */
+window.Pop=(()=>{const R={};let n=0;
+  const esc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+  function open(title,html){close();const o=document.createElement('div');o.className='pop';o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');
+    o.innerHTML=`<div class="pop-box"><div class="pop-hd"><b>${esc(title)}</b><button class="pop-x" type="button" aria-label="닫기">✕</button></div>${html}</div>`;
+    document.body.appendChild(o);document.body.style.overflow='hidden';o.querySelector('.pop-x').focus()}
+  function close(){const o=document.querySelector('.pop');if(o){o.remove();document.body.style.overflow=''}}
+  function reg(title,html){const id='p'+(++n);R[id]={title,html};return id}
+  const btn=(ic,title,sub,html)=>html?`<button class="tl" type="button" data-pop="${reg(title,html)}"><span class="ic">${ic}</span><span><b>${esc(title)}</b>${sub?`<small>${sub}</small>`:''}</span></button>`:'';
+  const link=(label,title,html)=>`<button class="infol" type="button" data-pop="${reg(title,html)}">${esc(label)}</button>`;
+  document.addEventListener('click',e=>{const b=e.target.closest('[data-pop]');if(b&&R[b.dataset.pop]){e.preventDefault();e.stopPropagation();open(R[b.dataset.pop].title,R[b.dataset.pop].html);return}
+    if(e.target.classList&&(e.target.classList.contains('pop')||e.target.classList.contains('pop-x')))close();
+    if(e.target.closest('.pop [data-sym],.pop a[href^="#"]'))setTimeout(close,0)},true);
+  addEventListener('keydown',e=>{if(e.key==='Escape')close()});addEventListener('hashchange',close);
+  return {open,close,btn,link}})();
+</script>
 <script src="report.js"></script>
 <script src="deck.js"></script>
 <script src="advise.js"></script>
@@ -306,11 +336,9 @@ function home(){
   return `<p class="asof-line">${esc(SC.date.slice(5).replace('-','.'))} 장 마감 기준 · 다음 갱신 ${nextRefresh()}</p>
   ${window.Report&&Report.memoCard?Report.memoCard():''}
   ${window.Track?Track.homeCard():''}
-  <section class="card bcard"><img src="../img/team/${window.Team?Team.director().id:'theo'}.jpg?v=4" alt="본부장 사진"><div><h2>오늘의 본부장 브리핑</h2><p class="sub">${window.Team?Team.director().name:'정서연'} 본부장이 시장·수급·상승/하락 종목·거래량·펀더멘탈을 8장으로 짚어 드려요.</p><button class="pclink" type="button" id="openBrief">브리핑 보기 ▶</button></div></section>
   ${window.Advise?Advise.homeCard():''}
   ${window.Deck?Deck.view(SC):''}
-  <a class="pclink arc-link" href="../archive/">📚 지난 장마감 요약 모아 보기</a>
-  <p class="note">AI 점수는 공개된 시세와 지표로 계산한 참고 정보이며 투자 권유가 아닙니다. 시세는 15~20분 이상 늦을 수 있고, 투자 판단과 결과의 책임은 본인에게 있습니다.</p>`;
+  <p class="note" style="text-align:center">참고 정보이며 투자 권유가 아니에요 · ${Pop.link('자세히','안내','<section class="card"><p class="sub" style="font-size:14px;line-height:1.6">AI 점수는 공개된 시세와 지표로 계산한 참고 정보이며 투자 권유가 아닙니다. 시세는 15~20분 이상 늦을 수 있고, 투자 판단과 결과의 책임은 본인에게 있습니다.</p></section>')}</p>`;
 }
 
 /* ---------- 준비 중 탭 ---------- */
@@ -346,7 +374,11 @@ function analysisList(){
     ${q?'':`<div class="chips" role="group" aria-label="분류">${['전체','관심','긍정','중립','부정'].map(f=>`<button type="button" data-f="${f}" aria-pressed="${f===FILTER}">${f==='관심'?'★ 관심':f}</button>`).join('')}</div>`}
     <section class="card"><div class="hd"><div><h2>${q?'검색 결과':FILTER==='관심'?'관심 종목':'AI 분석 종목'}</h2><p class="sub">AI 점수 높은 순 · ${list.length}종목</p></div></div>
     ${list.length?`<ul class="list">${list.slice(0,LIMIT).map(rowHtml).join('')}</ul>${list.length>LIMIT?`<button class="more" type="button" data-more>더 보기 (${list.length-LIMIT}종목)</button>`:''}`:FILTER==='관심'?'<p class="empty">아직 관심 종목이 없어요. 종목 화면의 ★을 눌러 담아 보세요.</p>':'<p class="empty">찾는 종목이 없어요.</p>'}</section>${extra}
-    ${q?'':`<h2 class="disc-h">종목 발굴</h2>${window.Rebound?Rebound.homeCard():''}${window.Position?Position.homeCard():''}${window.Trace?Trace.homeCard():''}${window.Growth?Growth.homeCard():''}`}`;
+    ${q?'':`<section class="card"><h2>종목 발굴</h2><p class="sub">조건으로 걸러 낸 참고 목록 · 눌러서 보기</p><div class="tl-grid">
+      ${window.Rebound?Pop.btn('📈','바닥 반등 신호','크게 빠진 뒤 반등 조짐',Rebound.homeCard()):''}
+      ${window.Position?Pop.btn('🏦','기관 매수','기관이 며칠째 사는 종목',Position.homeCard()):''}
+      ${window.Trace?Pop.btn('🐋','큰손 매수 흔적','평소보다 큰 거래',Trace.homeCard()):''}
+      ${window.Growth?Pop.btn('🌱','고성장 기업','실적이 빠르게 크는 회사',Growth.homeCard()):''}</div></section>`}`;
 }
 function spark(s){
   const c=s.closes;if(!c||c.length<2)return'';
@@ -377,12 +409,6 @@ function analysisDetail(sym){
     <p class="sub" style="margin-top:6px">${esc(SC.date)} 종가 기준</p>
   </section>
   ${window.AppChart?AppChart.html(sym):spark(s)}
-  ${window.Trace?Trace.detail(sym):''}
-  ${window.Position?Position.detail(sym):''}
-  ${window.Rebound?Rebound.detail(sym):''}
-  ${window.Growth?Growth.detail(sym):''}
-  ${window.Track?Track.detail(sym):''}
-  ${window.Expert?Expert.card(sym,s):''}
   <section class="card">
     <div class="big"><div class="ring" style="--p:${P};--rc:${rc}"><b class="num">${P}<small>점</small></b></div>
       <div><h2>AI 종합 점수 <span class="chip ${s.label}">${s.label}</span></h2><p class="sub">100점 만점, 50점이 중간이에요. 차트·거래량·시장 흐름·진입 자리를 합쳤어요.</p></div></div>
@@ -399,14 +425,16 @@ function analysisDetail(sym){
   <section class="card"><details class="judge" data-src="../?view=judge&sym=${encodeURIComponent(sym)}"><summary><div><h2>AI 종합 판단 · 매매 계획</h2><p class="sub">전문가 의견, 유사 차트 확률, 이벤트 전략, 매집 흔적, 분할 매수·매도 계획</p></div></summary></details></section>
   <section class="card"><div class="hd"><h2>최근 소식</h2>${sm?'<span class="chip 중립">AI 요약</span>':''}</div>
     ${sm&&sm.lines?`<ul class="ai-sum">${sm.lines.map((x,i)=>{const n=(sm.links&&sm.links[i])||srcNews(x,s.news);return n&&n.link?`<li><a href="${esc(n.link)}" target="_blank" rel="noopener">${esc(x)}<small>${esc(n.src||'원문')} · ${esc((n.date||'').slice(5))} ↗</small></a></li>`:`<li>${esc(x)}</li>`}).join('')}</ul><p class="sub" style="margin-top:6px">최근 7일 뉴스·공시 ${sm.n}건을 AI가 요약 · 느낌: <b class="${sm.tone==='호재'?'up':sm.tone==='악재'?'down':'flat'}">${esc(sm.tone)}</b></p>`:''}
-    ${s.news.length?`<ul class="news" ${sm?'style="margin-top:8px"':''}>${s.news.map(n=>`<li><a href="${esc(n.link||'#')}" target="_blank" rel="noopener">${esc(n.title)}<small>${esc(n.date)} · ${esc(n.src||'')}</small></a></li>`).join('')}</ul>`:'<p class="empty">최근 소식이 없어요.</p>'}
+    ${s.news.length?(sm&&sm.lines?Pop.link(`기사 ${s.news.length}건 전체 보기`,'최근 기사',`<section class="card"><ul class="news">${s.news.map(n=>`<li><a href="${esc(n.link||'#')}" target="_blank" rel="noopener">${esc(n.title)}<small>${esc(n.date)} · ${esc(n.src||'')}</small></a></li>`).join('')}</ul></section>`)
+      :`<ul class="news">${s.news.slice(0,3).map(n=>`<li><a href="${esc(n.link||'#')}" target="_blank" rel="noopener">${esc(n.title)}<small>${esc(n.date)} · ${esc(n.src||'')}</small></a></li>`).join('')}</ul>`):'<p class="empty">최근 소식이 없어요.</p>'}
   </section>
-  <section class="card"><div class="hd"><h2>AI 분석팀 의견</h2></div>
+  <section class="card"><h2>더 보기</h2><div class="tl-grid">
+    ${Pop.btn('👥','분석팀 의견','4명 의견 + 리스크',`<section class="card"><div class="hd"><h2>AI 분석팀 의견</h2></div>
     <ul class="ops">${s.opinions.map(o=>{const w=Math.abs(o.score)*50,l=o.score>=0?50:50-w;return `<li><img class="face" src="../img/team/${window.Team?Team.photo(o.agent):o.agent.toLowerCase()}.jpg?v=4" alt="" loading="lazy"><div class="who"><span>${(window.Team?Team.name(o.agent):(KN[o.agent]||o.agent))}<small>${ROLE[o.agent]||''}</small></span><span class="num ${o.score>0?'up':o.score<0?'down':'flat'}">${o.score>0?'+':''}${Math.round(o.score*50)}</span></div>
       <div class="meter"><i style="left:${l}%;width:${w}%;background:${o.score>=0?'var(--up)':'var(--down)'}"></i></div><p>${esc(o.summary)}</p></li>`}).join('')}
       <li><img class="face" src="../img/team/${window.Team?Team.photo('LLOYD'):'lloyd'}.jpg?v=4" alt="" loading="lazy"><div class="who"><span>${window.Team?Team.name('LLOYD'):'강도윤'}<small>리스크 점검</small></span><span class="lv-${s.risk.level}">${s.risk.level}</span></div><p>${s.risk.reasons.map(esc).join(' · ')}</p></li></ul>
-  </section>
-  <section class="card"><div class="hd"><h2>재무 지표</h2><span class="sub">최근 4분기</span></div>
+  </section>`)}
+    ${Pop.btn('📊','재무 지표','PER·ROE·부채비율',`<section class="card"><div class="hd"><h2>재무 지표</h2><span class="sub">최근 4분기</span></div>
     <div class="kv">
       <div><div class="k">PER</div><div class="v num">${f.per==null?(f.roe<0?'적자':'-'):f.per.toFixed(1)+'배'}</div></div>
       <div><div class="k">PBR</div><div class="v num">${fx(f.pbr,'배',2)}</div></div>
@@ -415,11 +443,15 @@ function analysisDetail(sym){
       <div><div class="k">영업이익률</div><div class="v num">${fx(f.margin,'%')}</div></div>
       <div><div class="k">배당수익률</div><div class="v num">${fx(f.div_yield,'%',2)}</div></div>
     </div>
-  </section>
-  <section class="card"><details><summary>기술 지표 ${s.tech.length}개 · 상승 신호 ${nb} · 하락 신호 ${ns}</summary>
+  </section>`)}
+    ${Pop.btn('📐','기술 지표',`상승 ${nb} · 하락 ${ns}`,`<section class="card"><p class="sub">상승 신호 ${nb} · 하락 신호 ${ns}</p>
     ${s.tech.map(([n,v,g])=>`<div class="sig"><span>${esc(n)}</span><span class="num flat">${typeof v==='number'?v.toLocaleString('ko-KR'):esc(v)}</span><span class="${g}">${g==='B'?'상승':g==='S'?'하락':'중립'}</span></div>`).join('')}
-  </details></section>
-  <p class="note">AI 점수와 참고 목표가·손절가는 공개된 시세·재무·뉴스 제목으로 계산한 참고 정보이며 투자 권유가 아닙니다. 투자 판단과 결과의 책임은 본인에게 있습니다.</p>`;
+  </section>`)}
+    ${window.Expert?Pop.btn('🎓','전문가 점검','추세·단계·손절 기준',Expert.card(sym,s)):''}
+    ${window.Track?Pop.btn('📝','추천 기록','본부장이 추천했던 때',Track.detail(sym)):''}
+    ${(()=>{const h=(window.Trace?Trace.detail(sym):'')+(window.Position?Position.detail(sym):'')+(window.Rebound?Rebound.detail(sym):'')+(window.Growth?Growth.detail(sym):'');return Pop.btn('🔎','발굴 신호','이 종목이 걸린 조건',h)})()}
+  </div></section>
+  <p class="note" style="text-align:center">참고 정보이며 투자 권유가 아니에요</p>`;
 }
 function analysis(sym){
   if(ERR||!SC)return home();
@@ -465,7 +497,7 @@ try{if(!localStorage.getItem('appGuideSeen')&&localStorage.getItem('aiLab.team.v
 document.addEventListener('toggle',e=>{const d=e.target;if(!d.classList||!d.classList.contains('judge')||!d.open||d.querySelector('iframe'))return;
   const f=document.createElement('iframe');f.className='arena';f.title='AI 종합 판단과 매매 계획';f.src=d.dataset.src;d.appendChild(f)},true);
 function closeBriefOv(){document.querySelector('.bover')?.remove()}
-document.addEventListener('click',e=>{if(e.target.classList&&e.target.classList.contains('bover')){closeBriefOv();return}/* 카드 바깥을 누르면 닫기 */if(e.target.id==='openBrief'){closeBriefOv();const o=document.createElement('div');o.className='bover';o.innerHTML='<iframe src="../?view=brief" title="본부장 브리핑"></iframe>';document.body.appendChild(o)}});
+document.addEventListener('click',e=>{if(e.target.classList&&e.target.classList.contains('bover')){closeBriefOv();return}/* 카드 바깥을 누르면 닫기 */if(e.target.closest&&e.target.closest('#openBrief')){closeBriefOv();const o=document.createElement('div');o.className='bover';o.innerHTML='<iframe src="../?view=brief" title="본부장 브리핑"></iframe>';document.body.appendChild(o)}});
 addEventListener('message',e=>{if(e.origin!==location.origin)return;const d=e.data||{};if(d.type==='briefClose')closeBriefOv();if(d.type==='arenaPick')closeBriefOv();
   if(d.type==='arenaH')document.querySelectorAll('iframe.arena').forEach(f=>{if(f.contentWindow===e.source)f.style.height=(d.h+8)+'px'});
   if(d.type==='arenaPick'&&d.sym)location.hash='analysis/'+encodeURIComponent(d.sym)});

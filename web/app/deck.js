@@ -33,7 +33,7 @@
     const mv = ([sym, s]) => {
       const w = W[sym];
       return `<li><button class="dk-row tall" type="button" data-sym="${esc(sym)}"><span class="nm">${esc(s.name)} <b class="${cls(s.chg)}">${pct(s.chg)}</b></span>
-        <span class="dk-why">${w ? `${tone(w.tone)} ${esc(w.line)}` : '<span class="flat">이유 정리 중</span>'}</span></button></li>`;
+        ${w && !(w.tone !== "호재" && w.tone !== "악재" && /뚜렷한 개별 소식/.test(w.line || "")) ? `<span class="dk-why">${tone(w.tone)} ${esc(w.line)}</span>` : ""}</button></li>`;
     };
     const ix = (k, lab, d) => { const x = M[k]; return x ? `<div class="dk-ix"><span>${lab}</span><b class="num">${x.v.toLocaleString("ko-KR", { minimumFractionDigits: d, maximumFractionDigits: d })}</b><small class="num ${cls(x.chg)}">${pct(x.chg)}</small></div>` : ""; };
     const out = [];
@@ -116,7 +116,22 @@
       <a class="pclink" href="#analysis/${encodeURIComponent(sym)}">자세한 분석 보기 ▶</a></div>`;
   }
 
+  /* 2026-11-27 사용자: 글이 많아 보기 어려움 → 옆으로 넘기는 장 대신, 지수 요약 + 누르면 창으로 열리는 타일 */
+  const ICON = { close: "📉", watch: "⭐", eco: "🌐", news: "📰", disc: "📑", flow: "💸", acc: "🔍", earn: "🗓️" };
+  const TEASE = { close: "오른·내린 종목과 이유", watch: "★ 담은 종목", eco: "환율·유가·금리", news: "오늘 영향 준 기사", disc: "최근 이틀 공시", flow: "외국인·기관·개인", acc: "조용히 거래 몰린 종목", earn: "2주 안 실적 발표" };
   function view(SC) {
+    if (!D) return `<div class="card"><div class="skel" style="width:40%"></div><div class="skel"></div></div>`;
+    const P = pages(SC).filter(p => ICON[p[0]]), S = Object.entries(SC.stocks), M = SC.market || {};
+    const up = S.filter(([, s]) => s.chg > 0).length, dn = S.filter(([, s]) => s.chg < 0).length;
+    const ix = (k, lab, d) => { const x = M[k]; return x ? `<div class="dk-ix"><span>${lab}</span><b class="num">${x.v.toLocaleString("ko-KR", { minimumFractionDigits: d, maximumFractionDigits: d })}</b><small class="num ${cls(x.chg)}">${pct(x.chg)}</small></div>` : ""; };
+    const tiles = P.map(([id, t, html]) => window.Pop ? Pop.btn(ICON[id], t, TEASE[id], `<div class="card">${html.replace(/<section class="dk-page"[^>]*>/, "<div>").replace(/<\/section>$/, "</div>")}</div>`) : "").join("");
+    return `<section class="card"><div class="hd"><div><h2>오늘 시장</h2><p class="sub">${SC.date} 장 마감</p></div></div>
+      <div class="dk-ixs" style="margin-top:10px">${ix("kospi", "코스피", 2)}${ix("kosdaq", "코스닥", 2)}${ix("usdkrw", "원/달러", 1)}</div>
+      <p class="dk-line">분석 종목 ${S.length}개 중 <b class="up">${up}개 상승</b> · <b class="down">${dn}개 하락</b></p>
+      <div class="tl-grid"><button class="tl" type="button" id="openBrief"><span class="ic">🎙️</span><span><b>본부장 브리핑</b><small>8장으로 짚어 드려요</small></span></button>${tiles}
+      <a class="tl" href="../archive/" style="text-decoration:none"><span class="ic">📚</span><span><b>지난 장마감</b><small>날짜별 요약 모음</small></span></a></div></section>`;
+  }
+  function viewOld(SC) {
     if (!D) return `<div class="card"><div class="skel" style="width:40%"></div><div class="skel"></div><div class="skel" style="width:70%"></div></div>`;
     const P = pages(SC);
     // 끝없이 이어지게: [마지막 장 복사본] 1 2 … N [첫 장 복사본]. 복사본에 닿으면 소리 없이 진짜 장으로 옮김
