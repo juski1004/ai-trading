@@ -49,28 +49,38 @@
     : r.why === "기간 종료" ? `금요일 종가 매도 · ${won(r.exit)}원`
     : r.why === "대기" ? "아직 체결 전" : `보유 중 · 지금 ${won(r.exit)}원`;
 
-  function weekCard(w, cap) {
-    const P = plan(w.picks, cap);
-    const orders = P.rows.map(r => `<div class="tk-o">
+  const orderBox = (r, done) => `<div class="tk-o">
         <div class="tk-on"><b>${esc(r.name)}</b><span>비중 ${r.weight || 0}%</span></div>
         <div class="tk-ol buy"><i>매수</i><span>${won(r.entry)}원 × <b>${won(r.qty)}주</b></span><em>${won(r.cost)}원</em></div>
         <div class="tk-ol stop"><i>손절</i><span>${won(r.stop)}원 (${p1((r.stop / r.entry - 1) * 100)}) · ${won(r.qty)}주 전량</span><em class="down">${sw(r.lossAt)}원</em></div>
         <div class="tk-ol take"><i>익절</i><span>${won(r.target)}원 (${p1((r.target / r.entry - 1) * 100)}) · ${won(r.qty)}주 전량</span><em class="up">${sw(r.gainAt)}원</em></div>
-        <div class="tk-ol res"><i>${w.done ? "결과" : "지금"}</i><span>${resultTxt(r)}</span><em class="${cls(r.pnl)}">${sw(r.pnl)}원<br><small>${pct(r.ret)}</small></em></div>
-      </div>`).join("");
-    return `<section class="card">
-      <div class="tk-h"><h2>${md(w.monday)}(월) ~ ${md(w.friday)}(금)</h2><span class="tk-badge ${w.done ? "" : "live"}">${w.done ? "결과 확정" : "진행 중"}</span></div>
-      <p class="sub">모의 자금 ${won(cap)}원으로 월요일에 이렇게 주문했다면</p>
-      <div class="tk-sum">
+        <div class="tk-ol res"><i>${done ? "결과" : "지금"}</i><span>${resultTxt(r)}</span><em class="${cls(r.pnl)}">${sw(r.pnl)}원<br><small>${pct(r.ret)}</small></em></div>
+      </div>`;
+  const P$ = (ic, t, sub, h) => (window.Pop ? Pop.btn(ic, t, sub, h) : h);
+
+  /* 2026-11-27 사용자: 글이 많아 보기 어려움 → 주간 카드는 결과 + 종목별 한 줄, 주문서는 눌러서 창으로 */
+  function weekCard(w, cap) {
+    const P = plan(w.picks, cap);
+    const sumBox = `<div class="tk-sum">
         <div><span>투자</span><b>${won(P.cost)}원</b><small>현금 ${won(P.cash)}원 남김</small></div>
         <div><span>손절 다 맞으면</span><b class="down">${sw(P.worst)}원</b><small>${p1(P.worst / cap * 100)}</small></div>
         <div><span>익절 다 되면</span><b class="up">${sw(P.best)}원</b><small>${p1(P.best / cap * 100)}</small></div>
-      </div>
-      ${orders}
+      </div>`;
+    const rows = P.rows.map(r => {
+      const why = r.why === "손절" ? "손절" : r.why === "익절" ? "익절" : r.why === "기간 종료" ? "금요일 매도" : r.why === "대기" ? "체결 전" : "보유 중";
+      const body = `<div class="card"><p class="sub">모의 자금 ${won(cap)}원으로 월요일에 이렇게 주문했다면</p>${orderBox(r, w.done)}</div>`;
+      const inner = `<span class="tk-rn"><b>${esc(r.name)}</b><small>비중 ${r.weight || 0}% · ${won(r.qty)}주 · ${why}</small></span><span class="tk-rp ${cls(r.pnl)}"><b>${sw(r.pnl)}원</b><small>${pct(r.ret)}</small></span>`;
+      return window.Pop ? Pop.btn("", r.name, "", body).replace(/<button class="tl"([^>]*)>[\s\S]*<\/button>$/, `<button class="tl tk-rowb"$1>${inner}</button>`) : orderBox(r, w.done);
+    }).join("");
+    const all = `<div class="card"><p class="sub">모의 자금 ${won(cap)}원으로 월요일에 이렇게 주문했다면</p>${sumBox}${P.rows.map(r => orderBox(r, w.done)).join("")}</div>`;
+    return `<section class="card">
+      <div class="tk-h"><h2>${md(w.monday)}(월) ~ ${md(w.friday)}(금)</h2><span class="tk-badge ${w.done ? "" : "live"}">${w.done ? "결과 확정" : "진행 중"}</span></div>
       <div class="tk-final ${cls(P.pnl)}">
         <div><span>${w.done ? "금요일 결과" : "지금까지"}</span><b>${sw(P.pnl)}원 (${pct(P.ret)})</b><small>${won(cap)}원 → ${won(P.end)}원</small></div>
         ${w.kospi != null ? `<div class="tk-vs">같은 기간 코스피 <b class="${cls(w.kospi)}">${pct(w.kospi)}</b> · ${P.ret > w.kospi ? "추천이 코스피보다 나음 👍" : "코스피가 추천보다 나음"}</div>` : ""}
       </div>
+      <div class="tk-rows">${rows}</div>
+      <p class="sub" style="margin-top:8px">종목을 누르면 매수·손절·익절 주문서가 열려요 · ${window.Pop ? Pop.link("주문서 전체 보기", `${md(w.monday)} 주문서`, all) : ""}</p>
     </section>`;
   }
 
@@ -83,32 +93,34 @@
       [s.fresh_n >= 10 ? (s.fresh_hit / s.fresh_n) >= 0.55 : null, "보고마다 새 추천도 55% 이상 적중 (10종목 이상)", s.fresh_n ? `지금 ${s.fresh_hit}/${s.fresh_n} · 평균 ${pct(s.fresh_avg)}` : "5거래일 지나면 집계"],
     ];
     const pass = items.filter(x => x[0] === true).length;
-    return `<section class="card"><h2>실전 투자, 언제 해도 될까?</h2>
-      <p class="sub">5개를 모두 통과하기 전엔 실제 돈을 넣지 마세요. 통과해도 처음엔 잃어도 괜찮은 소액부터예요.</p>
-      <div class="tk-bar"><i style="width:${pass * 20}%"></i></div><p class="sub"><b>${pass}/5 통과</b>${pass === 5 ? " · 소액으로 시작해 볼 만해요" : " · 아직 지켜볼 때예요"}</p>
-      <ul class="tk-cks">${items.map(x => chk(...x)).join("")}</ul></section>`;
+    const list = `<div class="card"><p class="sub">5개를 모두 통과하기 전엔 실제 돈을 넣지 마세요. 통과해도 처음엔 잃어도 괜찮은 소액부터예요.</p><ul class="tk-cks">${items.map(x => chk(...x)).join("")}</ul></div>`;
+    return `<section class="card"><div class="tk-h"><h2>실전 투자, 언제 해도 될까?</h2><b>${pass}/5</b></div>
+      <div class="tk-bar"><i style="width:${pass * 20}%"></i></div><p class="sub">${pass === 5 ? "소액으로 시작해 볼 만해요" : "아직 지켜볼 때예요"} · ${window.Pop ? Pop.link("기준 5가지 보기", "실전 투자 기준", list) : ""}</p></section>`;
   }
 
   function freshCard(fresh, cap) {
     if (!fresh.length) return "";
     const per = cap / 2;  // 보고마다 2종목: 한 보고에 자금 절반씩 쓴다고 보고 수량 계산
-    return `<section class="card"><h2>보고마다 새 추천 (5거래일 보유)</h2>
-      <p class="sub">보고 한 번에 ${won(per)}원을 비중대로 샀다고 계산 · 오전 추천은 그날부터, 오후 추천은 다음 날부터</p>
-      <table class="tk-t"><thead><tr><th>추천</th><th>종목·주문</th><th>결과</th><th>손익</th></tr></thead><tbody>
-      ${fresh.map(p => { const q = Math.floor(per * (p.weight || 0) / 100 / p.entry), pnl = q * (p.exit - p.entry);
-        return `<tr><td>${md(p.date)}<br>${p.slot === "am" ? "오전" : "오후"}</td>
+    const tr = p => { const q = Math.floor(per * (p.weight || 0) / 100 / p.entry), pnl = q * (p.exit - p.entry);
+      return `<tr><td>${md(p.date)}<br>${p.slot === "am" ? "오전" : "오후"}</td>
           <td><b>${esc(p.name)}</b><div class="tk-s">${won(p.entry)}원 × ${won(q)}주 · 손절 ${won(p.stop)} · 익절 ${won(p.target)}</div></td>
-          <td class="tk-s">${resultTxt(p)}</td><td class="${cls(pnl)}"><b>${sw(pnl)}</b><div class="tk-s">${pct(p.ret)}</div></td></tr>`; }).join("")}
-      </tbody></table></section>`;
+          <td class="tk-s">${resultTxt(p)}</td><td class="${cls(pnl)}"><b>${sw(pnl)}</b><div class="tk-s">${pct(p.ret)}</div></td></tr>`; };
+    const mini = p => { const q = Math.floor(per * (p.weight || 0) / 100 / p.entry), pnl = q * (p.exit - p.entry);
+      return `<div class="tk-mini"><span><b>${esc(p.name)}</b><small>${md(p.date)} ${p.slot === "am" ? "오전" : "오후"}</small></span><span class="${cls(pnl)}"><b>${sw(pnl)}</b><small>${pct(p.ret)}</small></span></div>`; };
+    const full = `<div class="card"><p class="sub">보고 한 번에 ${won(per)}원을 비중대로 샀다고 계산 · 오전 추천은 그날부터, 오후 추천은 다음 날부터 · 5거래일 보유</p>
+      <table class="tk-t"><thead><tr><th>추천</th><th>종목·주문</th><th>결과</th><th>손익</th></tr></thead><tbody>${fresh.map(tr).join("")}</tbody></table></div>`;
+    return `<section class="card"><h2>보고마다 새 추천</h2><p class="sub">5거래일 보유 · 최근 ${Math.min(4, fresh.length)}건</p>
+      ${fresh.slice(0, 4).map(mini).join("")}
+      <p class="sub" style="margin-top:6px">${window.Pop ? Pop.link(`전체 ${fresh.length}건 주문서 보기`, "보고마다 새 추천", full) : ""}</p></section>`;
   }
 
-  const rulesCard = () => `<section class="card"><h2>잃지 않는 습관</h2><p class="sub">-50%를 되찾으려면 +100%가 필요해요. 그래서 수익보다 큰 손실을 피하는 게 먼저예요.</p>
+  const rulesCard = () => `<div class="card"><p class="sub">-50%를 되찾으려면 +100%가 필요해요. 그래서 수익보다 큰 손실을 피하는 게 먼저예요.</p>
     <ul class="tk-cks">
       ${chk(null, "사기 전에 손절가부터 정하기", "위 주문서처럼 매수와 동시에 손절·익절 주문을 같이 걸어요", "📌")}
       ${chk(null, "한 종목·한 테마에 몰빵하지 않기", "추천도 3종목으로 나누고, 한 종목은 절반을 넘지 않아요", "📌")}
       ${chk(null, "떨어진다고 물타기 하지 않기", "손절가에 닿으면 계획대로 팔아요. 계획 없는 물타기가 손실을 키워요", "📌")}
       ${chk(null, "레버리지·테마 ETF는 오래 들고 있지 않기", "오르내림이 반복되면 지수가 제자리여도 값이 녹아요", "📌")}
-    </ul></section>`;
+    </ul></div>`;
 
   function view() {
     load();
@@ -116,7 +128,7 @@
     const s = T.summary || {}, weeks = T.weeks || [], fresh = T.fresh || [], cap = getCap();
     const capBtns = CAPS.map(([v, l]) => `<button type="button" data-tkcap="${v}" class="${v === cap ? "on" : ""}">${l}</button>`).join("");
     const top = `<section class="card"><h2>본부장 추천 따라 하기 · 모의 성적</h2>
-      <p class="sub">직접 사고팔 필요 없어요. 월요일 추천대로 주문했다고 치고 금요일 결과를 자동으로 계산해요.</p>
+      <p class="sub">월요일 추천대로 샀다면 금요일에 얼마? 자동 계산</p>
       <div class="tk-cap"><span>모의 자금</span>${capBtns}</div>
       <div class="tk-grid">
         ${stat("주간 성공률", s.win_rate == null ? "-" : s.win_rate + "%", s.weeks ? `${s.weeks}주 중 ${s.win_weeks}주 수익` : "첫 결과는 금요일 오후")}
@@ -153,8 +165,13 @@
       .tk-bar{height:10px;border-radius:6px;background:#eeedf7;margin-top:12px;overflow:hidden}.tk-bar i{display:block;height:100%;background:linear-gradient(90deg,#8f7cff,#6c5ce7)}
       .tk-cks{list-style:none;padding:0;margin:10px 0 0}.tk-ck{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px}.tk-ck:last-child{border-bottom:0}
       .tk-ck>span{font-size:16px;line-height:1.2}
-    </style>${top}${weeks.map(w => weekCard(w, cap)).join("")}${trustCard(s)}${freshCard(fresh, cap)}${rulesCard()}${empty}
-    <p class="sub" style="margin:14px 4px 90px">${esc(T.rule || "")} 손절·익절이 같은 날 둘 다 닿으면 손절로 계산.${T.made ? ` · 계산 ${esc(T.made)}` : ""}</p>`;
+      .tk-rows{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+      .tl.tk-rowb{justify-content:space-between;min-height:0;padding:10px 12px}
+      .tk-rn small,.tk-rp small{display:block;font-size:11.5px;color:var(--muted)}.tk-rp{text-align:right}.tk-rp b{font-size:14px}
+      .tk-mini{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:13.5px}.tk-mini:last-of-type{border-bottom:0}
+      .tk-mini small{display:block;font-size:11.5px;color:var(--muted)}.tk-mini span:last-child{text-align:right}
+    </style>${top}${weeks.map(w => weekCard(w, cap)).join("")}${trustCard(s)}${freshCard(fresh, cap)}${empty}
+    <p class="sub" style="margin:14px 4px 90px;text-align:center">${window.Pop ? Pop.link("📌 잃지 않는 습관", "잃지 않는 습관", rulesCard()) + " · " + Pop.link("계산 방법", "계산 방법", `<div class="card"><p class="sub" style="font-size:14px;line-height:1.6">${esc(T.rule || "")} 손절·익절이 같은 날 둘 다 닿으면 손절로 계산.${T.made ? ` · 계산 ${esc(T.made)}` : ""}</p></div>`) : ""}</p>`;
   }
 
   /* 홈 카드: 이번 주 추천 모의 성적 한 줄 */
